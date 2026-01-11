@@ -1,0 +1,2743 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>PetCTT Pro - 동물 생명 모니터링 플랫폼</title>
+    
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#0a1628">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="AI 기반 동물 생명 모니터링 플랫폼 - 양방향 통역 + 건강 분석 + GPS 추적">
+    
+    <!-- Leaflet 지도 라이브러리 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #34d399;
+            --secondary: #6366f1;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0a1628;
+            --bg-card: #111d32;
+            --bg-card-light: #1a2942;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: rgba(16, 185, 129, 0.3);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0f172a 50%, #1e1b4b 100%);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        /* ===== 레이아웃 ===== */
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+        
+        /* ===== 헤더 ===== */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 22, 40, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 0;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 900;
+            font-size: 1.4rem;
+        }
+        
+        .logo-icon {
+            font-size: 2rem;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .logo-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* 상태 뱃지 */
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .status-badge.ready {
+            background: rgba(100, 116, 139, 0.2);
+            border: 1px solid rgba(100, 116, 139, 0.4);
+            color: #94a3b8;
+        }
+        
+        .status-badge.live {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.5);
+            color: var(--primary-light);
+            animation: pulse-badge 1.5s ease-in-out infinite;
+        }
+        
+        .status-badge.recording {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #f87171;
+            animation: pulse-badge 0.8s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-badge {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+        
+        /* ===== 탭 네비게이션 ===== */
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 16px;
+            padding: 0 16px;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            background: var(--bg-card-light);
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .tab-btn:hover {
+            border-color: var(--primary);
+        }
+        
+        /* ===== 메인 카드 ===== */
+        .main-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 24px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .main-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary), var(--primary-light), transparent);
+        }
+        
+        /* 섹션 */
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        /* 섹션 제목 */
+        .section-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* ===== 동물 선택 ===== */
+        .animal-selector {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+        
+        .animal-btn {
+            width: 80px;
+            height: 90px;
+            border-radius: 16px;
+            background: var(--bg-card-light);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .animal-btn:hover {
+            transform: translateY(-4px);
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+        
+        .animal-btn.selected {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.15);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .animal-btn .icon {
+            font-size: 2.2rem;
+        }
+        
+        .animal-btn .name {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .animal-btn.selected .name {
+            color: var(--primary-light);
+            font-weight: 600;
+        }
+        
+        /* 설정 버튼 */
+        .settings-btn {
+            width: 80px;
+            height: 90px;
+            border-radius: 16px;
+            background: var(--bg-card-light);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: var(--text-muted);
+        }
+        
+        .settings-btn:hover {
+            background: rgba(100, 116, 139, 0.2);
+            transform: rotate(90deg);
+        }
+        
+        .settings-btn .icon {
+            font-size: 1.8rem;
+        }
+        
+        .settings-btn .name {
+            font-size: 0.7rem;
+        }
+        
+        /* ===== 메인 컨트롤 버튼 ===== */
+        .control-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+        
+        .btn-start {
+            flex: 1;
+            max-width: 200px;
+            padding: 16px 24px;
+            border-radius: 16px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-start.start {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-start.start:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5);
+        }
+        
+        .btn-start.start:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-start.stop {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid var(--danger);
+            color: #f87171;
+        }
+        
+        .btn-start.stop:hover:not(:disabled) {
+            background: rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-start.stop:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        /* ===== 통역 패널 ===== */
+        .translate-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        /* 방향 표시 */
+        .direction-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+        }
+        
+        .direction-item {
+            text-align: center;
+        }
+        
+        .direction-item .icon {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .direction-item .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        
+        .direction-arrow {
+            font-size: 1.5rem;
+            color: var(--primary);
+            animation: arrow-pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes arrow-pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        /* 마이크 버튼 영역 */
+        .mic-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+        
+        .mic-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mic-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .mic-btn.human {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+        }
+        
+        .mic-btn.animal {
+            background: linear-gradient(135deg, var(--accent) 0%, #d97706 100%);
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+        }
+        
+        .mic-btn:hover:not(:disabled) {
+            transform: scale(1.1);
+        }
+        
+        .mic-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .mic-btn.recording {
+            animation: mic-pulse 0.6s ease-in-out infinite;
+        }
+        
+        @keyframes mic-pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+        }
+        
+        .mic-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.3;
+        }
+        
+        /* 파형 + 타이머 */
+        .waveform-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-height: 60px;
+        }
+        
+        .waveform {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            height: 40px;
+        }
+        
+        .waveform-bar {
+            width: 5px;
+            background: linear-gradient(180deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 3px;
+            transition: height 0.1s;
+        }
+        
+        .waveform.active .waveform-bar {
+            animation: wave 0.4s ease-in-out infinite;
+        }
+        
+        .waveform.inactive .waveform-bar {
+            height: 6px !important;
+            opacity: 0.3;
+            animation: none;
+        }
+        
+        .waveform-bar:nth-child(1) { animation-delay: 0s; }
+        .waveform-bar:nth-child(2) { animation-delay: 0.1s; }
+        .waveform-bar:nth-child(3) { animation-delay: 0.2s; }
+        .waveform-bar:nth-child(4) { animation-delay: 0.15s; }
+        .waveform-bar:nth-child(5) { animation-delay: 0.25s; }
+        .waveform-bar:nth-child(6) { animation-delay: 0.1s; }
+        .waveform-bar:nth-child(7) { animation-delay: 0.05s; }
+        
+        @keyframes wave {
+            0%, 100% { height: 10px; }
+            50% { height: 35px; }
+        }
+        
+        .timer {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--danger);
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .timer.hidden {
+            display: none;
+        }
+        
+        /* 상태 텍스트 */
+        .status-text {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            margin-top: 12px;
+        }
+        
+        /* ===== 채팅/결과 영역 ===== */
+        .chat-container {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .bubble {
+            max-width: 90%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            animation: bubble-in 0.3s ease-out;
+            position: relative;
+        }
+        
+        @keyframes bubble-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bubble.system {
+            background: linear-gradient(135deg, rgba(16, 46, 30, 0.8), rgba(10, 26, 20, 0.8));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 95%;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        
+        .bubble.human {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(79, 70, 229, 0.2));
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .bubble.animal {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.15));
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            margin-right: auto;
+        }
+        
+        .bubble.translation {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.15));
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            margin-right: auto;
+        }
+        
+        .bubble-header {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .bubble-content {
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        /* 재생 버튼 */
+        .play-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            margin-top: 8px;
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            color: var(--primary-light);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .play-btn:hover {
+            background: rgba(16, 185, 129, 0.3);
+        }
+        
+        /* ===== 학습 진행률 ===== */
+        .learning-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+        }
+        
+        .learning-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .learning-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .learning-percent {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary-light);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: rgba(100, 116, 139, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease-out;
+        }
+        
+        .learning-hint {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+            opacity: 0.7;
+        }
+        
+        /* ===== 위치 추적 섹션 ===== */
+        #mapContainer {
+            width: 100%;
+            height: 400px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        
+        .location-info {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .location-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(100, 116, 139, 0.2);
+            font-size: 0.85rem;
+        }
+        
+        .location-item:last-child {
+            border-bottom: none;
+        }
+        
+        .location-label {
+            color: var(--text-muted);
+        }
+        
+        .location-value {
+            font-weight: 600;
+            color: var(--primary-light);
+            font-family: 'Courier New', monospace;
+        }
+        
+        .btn-track {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-track:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-track:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-track.stop {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid var(--danger);
+            color: #f87171;
+        }
+        
+        /* 위치 히스토리 */
+        .location-history {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            padding: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.75rem;
+        }
+        
+        .history-time {
+            color: var(--text-muted);
+        }
+        
+        .history-coords {
+            color: var(--primary-light);
+            font-weight: 600;
+            font-family: monospace;
+        }
+        
+        /* ===== 토스트 ===== */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        .toast.success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.95), rgba(5, 150, 105, 0.95));
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .toast.error {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95));
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+        }
+        
+        .toast.info {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.95), rgba(79, 70, 229, 0.95));
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        /* ===== 설정 모달 ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            max-width: 400px;
+            width: 100%;
+            padding: 24px;
+            position: relative;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(100, 116, 139, 0.2);
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .modal-close:hover {
+            background: rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+        
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .setting-item {
+            margin-bottom: 20px;
+        }
+        
+        .setting-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .setting-value {
+            font-size: 0.8rem;
+            color: var(--primary-light);
+            margin-left: auto;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(100, 116, 139, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+        }
+        
+        .modal-save {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .modal-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        /* ===== 감정 모니터링 (LIVE 사이드바) ===== */
+        .emotion-sidebar {
+            position: fixed;
+            right: 0;
+            top: 80px;
+            width: 80px;
+            height: 400px;
+            background: rgba(10, 22, 40, 0.95);
+            border-left: 2px solid var(--border);
+            padding: 16px 8px;
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            backdrop-filter: blur(20px);
+        }
+
+        .emotion-sidebar.show {
+            display: flex;
+        }
+
+        .emotion-bar {
+            flex: 1;
+            border-radius: 8px;
+            background: rgba(100, 116, 139, 0.2);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 60px;
+        }
+
+        .emotion-bar:hover {
+            background: rgba(100, 116, 139, 0.3);
+        }
+
+        .emotion-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            background: linear-gradient(180deg, #ef4444, #f87171);
+            transition: height 0.2s ease-out;
+            height: 0%;
+        }
+
+        .emotion-bar[data-emotion="불안"] .emotion-fill { background: linear-gradient(180deg, #ef4444, #f87171); }
+        .emotion-bar[data-emotion="고통"] .emotion-fill { background: linear-gradient(180deg, #dc2626, #ef4444); }
+        .emotion-bar[data-emotion="흥분"] .emotion-fill { background: linear-gradient(180deg, #f59e0b, #fbbf24); }
+        .emotion-bar[data-emotion="안정"] .emotion-fill { background: linear-gradient(180deg, #10b981, #34d399); }
+        .emotion-bar[data-emotion="요구"] .emotion-fill { background: linear-gradient(180deg, #6366f1, #818cf8); }
+
+        .emotion-label {
+            position: absolute;
+            left: 4px;
+            top: 4px;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        /* ===== 집단 히트맵 카드 ===== */
+        .animal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+
+        .animal-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.2);
+        }
+
+        .animal-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .animal-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .animal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-healthy { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge-caution { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .badge-alert { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+        .animal-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .stat-mini {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 6px;
+            text-align: center;
+            font-size: 0.7rem;
+        }
+
+        .stat-mini-label {
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .stat-mini-value {
+            color: var(--primary-light);
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        /* ===== 신호 표시 ===== */
+        .health-signal {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .signal-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: signal-pulse 2s ease-in-out infinite;
+        }
+
+        .signal-dot.green { background: #10b981; }
+        .signal-dot.yellow { background: #f59e0b; }
+        .signal-dot.red { background: #ef4444; }
+
+        @keyframes signal-pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* ===== Health AI 카드 (3단계 평가) ===== */
+        .health-ai-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .health-ai-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .health-ai-icon {
+            font-size: 2rem;
+            margin-bottom: 6px;
+        }
+
+        .health-ai-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .health-ai-value {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--primary-light);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .health-ai-status {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ===== 동물 등록 폼 ===== */
+        .pet-register-form {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text);
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+        }
+
+        .form-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .form-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        /* ===== 의료 고지 ===== */
+        .medical-notice {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 16px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        /* ===== 데이터 내보내기 ===== */
+        .export-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .btn-export {
+            flex: 1;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-export:hover {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: var(--primary);
+        }
+        
+        /* ===== 푸터 ===== */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+        
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        /* ===== 건강체크 섹션 ===== */
+        .meter-bar {
+            height: 24px;
+            background: rgba(100, 116, 139, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .meter-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 12px;
+            transition: width 0.2s ease-out;
+            width: 0%;
+        }
+
+        .health-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-light);
+        }
+
+        /* ===== 탭 네비게이션 ===== */
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            padding: 10px 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            border-color: rgba(16, 185, 129, 0.5);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .tab-btn.active {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--primary-light);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ===== 반응형 ===== */
+        @media (max-width: 400px) {
+            .animal-selector {
+                gap: 8px;
+            }
+            .animal-btn, .settings-btn {
+                width: 65px;
+                height: 75px;
+            }
+            .animal-btn .icon {
+                font-size: 1.8rem;
+            }
+            .mic-btn {
+                width: 70px;
+                height: 70px;
+                font-size: 1.7rem;
+            }
+            .mic-buttons {
+                gap: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🐾</span>
+                    <span class="logo-text">PetCTT</span>
+                </div>
+                <div class="status-badge ready" id="statusBadge">
+                    <span class="status-dot"></span>
+                    <span id="statusText">LIVE 준비</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 메인 -->
+    <main class="container">
+        <!-- 탭 네비게이션 -->
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="live" onclick="switchTab('live')">🎙️ LIVE</button>
+            <button class="tab-btn" data-tab="health" onclick="switchTab('health')">❤️ 건강체크</button>
+            <button class="tab-btn" data-tab="heatmap" onclick="switchTab('heatmap')">🏥 모니터링</button>
+            <button class="tab-btn" data-tab="locate" onclick="switchTab('locate')">📍 찾기</button>
+        </div>
+        
+        <!-- LIVE 섹션 -->
+        <section id="live" class="section active">
+            <div class="main-card">
+                <!-- 동물 선택 -->
+                <div class="section-title">🐾 통역할 동물을 선택하세요</div>
+                <div class="animal-selector">
+                    <button class="animal-btn selected" data-animal="dog" onclick="selectAnimal(this)">
+                        <span class="icon">🐶</span>
+                        <span class="name">강아지</span>
+                    </button>
+                    <button class="animal-btn" data-animal="cat" onclick="selectAnimal(this)">
+                        <span class="icon">🐱</span>
+                        <span class="name">고양이</span>
+                    </button>
+                    <button class="animal-btn" data-animal="chick" onclick="selectAnimal(this)">
+                        <span class="icon">🐥</span>
+                        <span class="name">병아리</span>
+                    </button>
+                    <button class="settings-btn" onclick="openSettings()">
+                        <span class="icon">⚙️</span>
+                        <span class="name">설정</span>
+                    </button>
+                </div>
+                
+                <!-- 컨트롤 버튼 -->
+                <div class="control-buttons">
+                    <button class="btn-start start" id="btnStart" onclick="handleStart()">
+                        <span>🐾</span> 동물대화 시작
+                    </button>
+                    <button class="btn-start stop" id="btnStop" onclick="handleStop()" disabled>
+                        <span>⏹</span> 중지
+                    </button>
+                </div>
+                
+                <!-- 통역 패널 -->
+                <div class="translate-panel">
+                    <div class="direction-display">
+                        <div class="direction-item">
+                            <span class="icon">👤</span>
+                            <span class="label">보호자</span>
+                        </div>
+                        <span class="direction-arrow">⇄</span>
+                        <div class="direction-item">
+                            <span class="icon" id="animalIcon">🐶</span>
+                            <span class="label" id="animalLabel">강아지</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 마이크 버튼 -->
+                    <div class="mic-buttons">
+                        <div class="mic-group">
+                            <button class="mic-btn human" id="btnHumanMic" onclick="handleHumanToAnimal()" disabled title="내가 말하면 동물어로 통역">
+                                🎤
+                            </button>
+                            <span class="mic-label">내가 말하기<br><small>(→ 동물어)</small></span>
+                        </div>
+                        <div class="mic-group">
+                            <button class="mic-btn animal" id="btnAnimalMic" onclick="handleAnimalToHuman()" disabled title="동물 소리를 사람말로 통역">
+                                🐾
+                            </button>
+                            <span class="mic-label">동물 듣기<br><small>(→ 사람말)</small></span>
+                        </div>
+                    </div>
+                    
+                    <!-- 파형 + 타이머 -->
+                    <div class="waveform-container">
+                        <div class="waveform inactive" id="waveform">
+                            <div class="waveform-bar" style="height:15px"></div>
+                            <div class="waveform-bar" style="height:25px"></div>
+                            <div class="waveform-bar" style="height:20px"></div>
+                            <div class="waveform-bar" style="height:30px"></div>
+                            <div class="waveform-bar" style="height:22px"></div>
+                            <div class="waveform-bar" style="height:28px"></div>
+                            <div class="waveform-bar" style="height:18px"></div>
+                        </div>
+                        <div class="timer hidden" id="timer">3.0</div>
+                    </div>
+                    
+                    <div class="status-text" id="panelStatus">
+                        마이크 버튼을 눌러 통역을 시작하세요
+                    </div>
+                </div>
+                
+                <!-- 감정 모니터링 사이드바 (LIVE 중만 표시) -->
+                <div class="emotion-sidebar" id="emotionSidebar">
+                    <div class="emotion-bar" data-emotion="불안">
+                        <div class="emotion-label">불안</div>
+                        <div class="emotion-fill"></div>
+                    </div>
+                    <div class="emotion-bar" data-emotion="고통">
+                        <div class="emotion-label">고통</div>
+                        <div class="emotion-fill"></div>
+                    </div>
+                    <div class="emotion-bar" data-emotion="흥분">
+                        <div class="emotion-label">흥분</div>
+                        <div class="emotion-fill"></div>
+                    </div>
+                    <div class="emotion-bar" data-emotion="안정">
+                        <div class="emotion-label">안정</div>
+                        <div class="emotion-fill"></div>
+                    </div>
+                    <div class="emotion-bar" data-emotion="요구">
+                        <div class="emotion-label">요구</div>
+                        <div class="emotion-fill"></div>
+                    </div>
+                </div>
+                
+                <!-- 채팅/결과 -->
+                <div class="chat-container" id="chatContainer">
+                    <div class="bubble system">
+                        <div class="bubble-content">🐾 "동물대화 시작"을 누르고 마이크로 양방향 통역하세요!</div>
+                    </div>
+                </div>
+                
+                <!-- 학습 진행률 -->
+                <div class="learning-section">
+                    <div class="learning-header">
+                        <span class="learning-title">🧠 AI 학습 진행률</span>
+                        <span class="learning-percent" id="learningPercent">12.5%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="learningProgress" style="width: 12.5%"></div>
+                    </div>
+                    <div class="learning-hint">대화할수록 통역 정확도가 향상됩니다</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 건강체크 섹션 -->
+        <section id="health" class="section">
+            <div class="main-card">
+                <div class="section-title">❤️ 반려동물 건강체크 (30초)</div>
+                
+                <div class="control-buttons">
+                    <button class="btn-start start" id="btnHealthStart" onclick="handleHealthStart()">
+                        🩺 건강체크 시작
+                    </button>
+                    <button class="btn-start stop" id="btnHealthStop" onclick="handleHealthStop()" disabled>
+                        ⏹️ 중지
+                    </button>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">🎚️ 음성 레벨</div>
+                    <div class="meter-bar">
+                        <div class="meter-fill" id="healthMeterFill"></div>
+                    </div>
+                </div>
+
+                <div class="health-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">상태</div>
+                        <div class="stat-value" id="healthState">대기</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">남은 시간</div>
+                        <div class="stat-value" id="healthTime">30s</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">평균 레벨</div>
+                        <div class="stat-value" id="healthAvg">0.000</div>
+                    </div>
+                </div>
+
+                <div id="healthResults" style="display: none; margin-top: 16px;">
+                    <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 16px;">
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">✅ 건강 평가</div>
+                        <div id="healthComment" style="font-size: 1rem; color: var(--primary-light); font-weight: 600;"></div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px;">
+                            <div id="healthDetails"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 기록 보기 버튼 -->
+                <button class="btn-track" id="btnViewRecords" onclick="viewHealthRecords()" style="margin-top: 16px;">
+                    📋 건강 기록 보기
+                </button>
+
+                <!-- 건강 기록 리스트 -->
+                <div id="recordsList" style="display: none; margin-top: 16px; max-height: 300px; overflow-y: auto;">
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">📊 최근 기록 (최대 10개)</div>
+                    <div id="recordsContainer"></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 집단 모니터링 탭 (Health AI + 집단 히트맵) -->
+        <section id="heatmap" class="section">
+            <div class="main-card">
+                <div class="section-title">🏥 반려동물 생명 모니터링</div>
+                
+                <!-- 동물 등록 폼 -->
+                <div class="pet-register-form">
+                    <h3 style="color: var(--text); margin-bottom: 12px; font-size: 0.95rem;">➕ 동물 추가 등록</h3>
+                    <div class="form-group">
+                        <label class="form-label">동물 이름</label>
+                        <input type="text" id="petName" class="form-input" placeholder="예: 뽀삐, 야옹이">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">종류</label>
+                        <select id="petSpecies" class="form-select">
+                            <option value="dog">강아지</option>
+                            <option value="cat">고양이</option>
+                            <option value="chick">병아리</option>
+                            <option value="pig">돼지</option>
+                            <option value="cow">소</option>
+                        </select>
+                    </div>
+                    <button class="form-btn" onclick="registerPet()">📝 등록하기</button>
+                </div>
+
+                <!-- Health AI 카드 (현재 선택된 동물) -->
+                <div style="margin-bottom: 20px;">
+                    <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; font-weight: 600;">
+                        📊 현재 동물: <span id="currentPetDisplay">강아지</span>
+                    </div>
+                    
+                    <div class="health-ai-container">
+                        <div class="health-ai-card">
+                            <div class="health-ai-icon">😟</div>
+                            <div class="health-ai-title">스트레스</div>
+                            <div class="health-ai-value" id="stressValue">--</div>
+                            <div class="health-ai-status" id="stressStatus"></div>
+                        </div>
+                        <div class="health-ai-card">
+                            <div class="health-ai-icon">🫁</div>
+                            <div class="health-ai-title">호흡</div>
+                            <div class="health-ai-value" id="breathValue">--</div>
+                            <div class="health-ai-status" id="breathStatus"></div>
+                        </div>
+                        <div class="health-ai-card">
+                            <div class="health-ai-icon">🏃</div>
+                            <div class="health-ai-title">활동</div>
+                            <div class="health-ai-value" id="activityValue">--</div>
+                            <div class="health-ai-status" id="activityStatus"></div>
+                        </div>
+                    </div>
+
+                    <!-- 신호 표시 -->
+                    <div style="margin-top: 12px; padding: 12px; background: rgba(0, 0, 0, 0.2); border-radius: 8px;">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px;">🔔 건강 신호</div>
+                        <div class="health-signal" id="healthSignal">
+                            <div class="signal-dot green"></div>
+                            <div class="signal-dot green"></div>
+                            <div class="signal-dot green"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 집단 모니터링 리스트 -->
+                <div style="margin-bottom: 16px;">
+                    <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; font-weight: 600;">
+                        📋 등록된 동물 목록
+                    </div>
+                    <div id="petsList">
+                        <div style="color: var(--text-muted); text-align: center; padding: 20px;">
+                            등록된 동물이 없습니다. 위에서 등록해주세요.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 데이터 내보내기 -->
+                <div class="export-buttons">
+                    <button class="btn-export" onclick="exportHealthData('json')">📄 JSON</button>
+                    <button class="btn-export" onclick="exportHealthData('csv')">📊 CSV</button>
+                </div>
+
+                <!-- 의료 고지 -->
+                <div class="medical-notice">
+                    ⚠️ 본 기능은 의료 진단이 아니며 참고용입니다.<br>
+                    정확한 진단을 위해서는 수의사와 상담하세요.
+                </div>
+            </div>
+        </section>
+        
+        <!-- 위치 추적 섹션 -->
+        <section id="locate" class="section">
+            <div class="main-card">
+                <div class="section-title">📍 반려동물 위치 추적</div>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">
+                    GPS를 사용하여 반려동물의 현재 위치와 이동 경로를 추적합니다.
+                </p>
+                
+                <!-- 위치 정보 -->
+                <div class="location-info">
+                    <div class="location-item">
+                        <span class="location-label">📍 현재 위도</span>
+                        <span class="location-value" id="latValue">대기중...</span>
+                    </div>
+                    <div class="location-item">
+                        <span class="location-label">📍 현재 경도</span>
+                        <span class="location-value" id="lonValue">대기중...</span>
+                    </div>
+                    <div class="location-item">
+                        <span class="location-label">📏 정확도</span>
+                        <span class="location-value" id="accValue">--</span>
+                    </div>
+                    <div class="location-item">
+                        <span class="location-label">🚗 이동 속도</span>
+                        <span class="location-value" id="speedValue">--</span>
+                    </div>
+                </div>
+                
+                <!-- 지도 -->
+                <div id="mapContainer"></div>
+                
+                <!-- 컨트롤 버튼 -->
+                <button class="btn-track" id="btnTrack" onclick="startTracking()">
+                    📍 위치 추적 시작
+                </button>
+                <button class="btn-track stop" id="btnTrackStop" onclick="stopTracking()" style="display: none;">
+                    ⏹ 추적 중지
+                </button>
+                
+                <!-- 위치 히스토리 -->
+                <div style="margin-top: 16px;">
+                    <div class="section-title">📋 위치 히스토리</div>
+                    <div class="location-history" id="locationHistory">
+                        <div style="color: var(--text-muted); text-align: center; padding: 20px;">
+                            추적을 시작하면 위치 기록이 표시됩니다.
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 버튼 모음 -->
+                <div style="display: flex; gap: 8px; margin-top: 16px;">
+                    <button class="btn-start" onclick="exportLocationData()" style="flex: 1; background: rgba(16, 185, 129, 0.2); color: var(--primary-light); border: 1px solid var(--primary);">
+                        💾 위치 저장
+                    </button>
+                    <button class="btn-start" onclick="clearLocationHistory()" style="flex: 1; background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid var(--danger);">
+                        🗑️ 기록 삭제
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 푸터 -->
+    <footer>
+        <p>© 2026 <a href="https://petctt.com">PetCTT Pro</a> - 반려동물 통역 + 위치 추적</p>
+        <p style="margin-top:4px">강아지를 잃어버렸을 때 GPS로 찾아주세요 🐾</p>
+    </footer>
+
+    <!-- 토스트 -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 설정 모달 -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeSettings()">✕</button>
+            <h3 class="modal-title">⚙️ 통역 설정</h3>
+            
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>🔊 음성 속도</span>
+                    <span class="setting-value" id="rateValue">1.0x</span>
+                </div>
+                <input type="range" id="speechRate" min="0.5" max="2" step="0.1" value="1" oninput="updateRateValue()">
+            </div>
+            
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>🎵 음성 톤</span>
+                    <span class="setting-value" id="pitchValue">1.0</span>
+                </div>
+                <input type="range" id="speechPitch" min="0.5" max="2" step="0.1" value="1" oninput="updatePitchValue()">
+            </div>
+            
+            <div class="setting-item">
+                <div class="setting-label">
+                    <span>📢 볼륨</span>
+                    <span class="setting-value" id="volumeValue">100%</span>
+                </div>
+                <input type="range" id="speechVolume" min="0" max="1" step="0.1" value="1" oninput="updateVolumeValue()">
+            </div>
+            
+            <button class="modal-save" onclick="closeSettings()">저장하기</button>
+        </div>
+    </div>
+
+    <script>
+    // ==========================================
+    // 위치 추적 기능
+    // ==========================================
+    var locationData = {
+        tracking: false,
+        history: JSON.parse(localStorage.getItem('petctt_locations') || '[]'),
+        watchId: null,
+        map: null,
+        markers: []
+    };
+    
+    function initMap() {
+        if (locationData.map) return;
+        locationData.map = L.map('mapContainer').setView([37.5665, 126.9780], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(locationData.map);
+    }
+    
+    async function startTracking() {
+        if (locationData.tracking) return;
+        
+        if (!navigator.geolocation) {
+            showToast('이 기기는 위치 기능을 지원하지 않습니다', 'error');
+            return;
+        }
+        
+        locationData.tracking = true;
+        document.getElementById('btnTrack').style.display = 'none';
+        document.getElementById('btnTrackStop').style.display = 'block';
+        
+        initMap();
+        showToast('📍 위치 추적 시작!', 'success');
+        
+        locationData.watchId = navigator.geolocation.watchPosition(
+            function(position) {
+                var lat = position.coords.latitude;
+                var lon = position.coords.longitude;
+                var accuracy = Math.round(position.coords.accuracy);
+                var speed = position.coords.speed ? Math.round(position.coords.speed * 3.6) : null;
+                
+                updateLocationUI(lat, lon, accuracy, speed);
+                saveLocationPoint(lat, lon, accuracy, speed);
+                updateMapMarker(lat, lon);
+            },
+            function(error) {
+                showToast('위치 접근 실패: ' + error.message, 'error');
+                stopTracking();
+            },
+            { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 }
+        );
+    }
+    
+    function stopTracking() {
+        if (locationData.watchId) {
+            navigator.geolocation.clearWatch(locationData.watchId);
+            locationData.watchId = null;
+        }
+        locationData.tracking = false;
+        document.getElementById('btnTrack').style.display = 'block';
+        document.getElementById('btnTrackStop').style.display = 'none';
+        showToast('⏹ 위치 추적 중지', 'info');
+    }
+    
+    function updateLocationUI(lat, lon, accuracy, speed) {
+        document.getElementById('latValue').textContent = lat.toFixed(6);
+        document.getElementById('lonValue').textContent = lon.toFixed(6);
+        document.getElementById('accValue').textContent = accuracy + 'm';
+        document.getElementById('speedValue').textContent = speed ? speed + ' km/h' : '--';
+    }
+    
+    function saveLocationPoint(lat, lon, accuracy, speed) {
+        var point = {
+            lat: lat,
+            lon: lon,
+            accuracy: accuracy,
+            speed: speed,
+            timestamp: new Date().toLocaleString('ko-KR')
+        };
+        
+        locationData.history.push(point);
+        if (locationData.history.length > 100) {
+            locationData.history.shift();
+        }
+        
+        localStorage.setItem('petctt_locations', JSON.stringify(locationData.history));
+        updateLocationHistory();
+    }
+    
+    function updateMapMarker(lat, lon) {
+        locationData.map.setView([lat, lon], 15);
+        
+        locationData.markers.forEach(m => locationData.map.removeLayer(m));
+        locationData.markers = [];
+        
+        locationData.history.forEach((point, idx) => {
+            var marker = L.circleMarker([point.lat, point.lon], {
+                radius: idx === locationData.history.length - 1 ? 8 : 5,
+                color: idx === locationData.history.length - 1 ? '#ef4444' : '#10b981',
+                fill: true,
+                fillColor: idx === locationData.history.length - 1 ? '#ef4444' : '#10b981',
+                fillOpacity: 0.7,
+                weight: 2
+            }).addTo(locationData.map)
+              .bindPopup('#' + (idx + 1) + ' - ' + point.timestamp);
+            
+            locationData.markers.push(marker);
+        });
+        
+        if (locationData.history.length > 1) {
+            var polyline = L.polyline(
+                locationData.history.map(p => [p.lat, p.lon]),
+                { color: '#10b981', weight: 2, opacity: 0.6, dashArray: '5, 5' }
+            ).addTo(locationData.map);
+            locationData.markers.push(polyline);
+        }
+    }
+    
+    function updateLocationHistory() {
+        var html = '';
+        if (locationData.history.length === 0) {
+            html = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">위치 기록이 없습니다.</div>';
+        } else {
+            html = locationData.history.map((point, idx) => `
+                <div class="history-item">
+                    <div class="history-time">📌 ${point.timestamp}</div>
+                    <div class="history-coords">${point.lat.toFixed(4)}, ${point.lon.toFixed(4)}</div>
+                    <small style="color: var(--text-muted);">정확도: ${point.accuracy}m ${point.speed ? '· 속도: ' + point.speed + 'km/h' : ''}</small>
+                </div>
+            `).reverse().join('');
+        }
+        document.getElementById('locationHistory').innerHTML = html;
+    }
+    
+    function exportLocationData() {
+        if (locationData.history.length === 0) {
+            showToast('저장할 위치 데이터가 없습니다', 'error');
+            return;
+        }
+        
+        var csv = '순번,시간,위도,경도,정확도(m),속도(km/h)\n';
+        locationData.history.forEach((p, i) => {
+            csv += (i + 1) + ',' + p.timestamp + ',' + p.lat + ',' + p.lon + ',' + p.accuracy + ',' + (p.speed || '') + '\n';
+        });
+        
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'petctt_locations_' + new Date().getTime() + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        
+        showToast('💾 위치 데이터 저장 완료!', 'success');
+    }
+    
+    function clearLocationHistory() {
+        if (confirm('저장된 모든 위치 데이터를 삭제할까요?')) {
+            locationData.history = [];
+            localStorage.removeItem('petctt_locations');
+            updateLocationHistory();
+            if (locationData.map) {
+                locationData.markers.forEach(m => locationData.map.removeLayer(m));
+                locationData.markers = [];
+            }
+            showToast('🗑️ 위치 데이터 삭제됨', 'success');
+        }
+    }
+    
+    // 탭 스위칭
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.tab-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var tab = this.dataset.tab;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                this.classList.add('active');
+                document.getElementById(tab).classList.add('active');
+                
+                if (tab === 'locate') {
+                    setTimeout(() => {
+                        if (locationData.map) locationData.map.invalidateSize();
+                        updateLocationHistory();
+                    }, 100);
+                }
+            });
+        });
+    });
+    
+    // 초기 로드
+    document.addEventListener('DOMContentLoaded', updateLocationHistory);
+    
+    // ===== 동물 대화 상태 관리 =====
+    var liveState = {
+        live: false,
+        isRecording: false,
+        recognizing: false,
+        speaking: false,
+        motionRunning: false
+    };
+
+    var selectedAnimal = 'dog';
+    var recognition = null;
+    var learningData = JSON.parse(localStorage.getItem('petctt_learning') || '{"count":0,"accuracy":12.5}');
+
+    var ANIMALS = {
+        dog: { 
+            icon: '🐶', 
+            name: '강아지',
+            sounds: ['멍멍!', '왈왈!', '낑낑~', '으르렁', '킁킁'],
+            pitch: 1.0
+        },
+        cat: { 
+            icon: '🐱', 
+            name: '고양이',
+            sounds: ['야옹~', '냐옹!', '그르릉', '하악!', '미야~'],
+            pitch: 1.3
+        },
+        chick: { 
+            icon: '🐥', 
+            name: '병아리',
+            sounds: ['삐약삐약!', '삐삐!', '삐이익~', '쪼쪼쪼'],
+            pitch: 1.6
+        }
+    };
+
+    var ANIMAL_TO_HUMAN = {
+        dog: {
+            happy: ['너무 좋아요! 신나요!', '사랑해요 보호자님!', '놀아주세요!'],
+            hungry: ['배고파요... 밥 주세요', '간식 먹고 싶어요!'],
+            anxious: ['무서워요... 곁에 있어주세요', '불안해요...'],
+            alert: ['누가 왔어요!', '조심하세요!', '지킬게요!'],
+            love: ['보호자님 좋아해요~', '쓰다듬어 주세요', '행복해요!']
+        },
+        cat: {
+            happy: ['기분 좋아요~', '그르릉... 행복해', '놀아줘요~'],
+            hungry: ['밥 주세요 냥', '간식 시간이에요', '배고파요 냥'],
+            anxious: ['무서워요... 숨을 곳 필요해요', '불안해요 냥...'],
+            alert: ['저거 뭐야?', '내 영역이야!', '접근하지 마!'],
+            love: ['같이 있고 싶어요 냥~', '사랑해요 집사님', '그르릉~']
+        },
+        chick: {
+            happy: ['삐약! 신나요!', '따뜻해서 좋아요!', '친구들이랑 놀고 싶어요!'],
+            hungry: ['배고파요 삐약!', '모이 주세요~'],
+            anxious: ['엄마 어디있어요?', '무서워요 삐약...', '혼자 두지 마세요'],
+            alert: ['위험해요!', '하늘에서 뭔가 와요!'],
+            love: ['따뜻해요~', '같이 있고 싶어요', '보호자님 좋아요 삐약!']
+        }
+    };
+
+    var HUMAN_KEYWORDS = {
+        '괜찮아': { emotion: 'comfort', responses: { dog: '꼬리 살랑살랑~ (안심했어요!)', cat: '그르릉~ (알겠어요 냥)', chick: '삐약~ (안심이에요!)' }},
+        '사랑해': { emotion: 'love', responses: { dog: '꼬리 흔들흔들~ 멍! (나도요!)', cat: '그르릉그르릉... (나도 냥)', chick: '삐삐삐~ (좋아요!)' }},
+        '밥': { emotion: 'food', responses: { dog: '멍멍! 꼬리 팡팡! (밥이다!)', cat: '냐옹! 냐옹! (밥이다 냥!)', chick: '삐약! 삐이익! (모이다!)' }},
+        '간식': { emotion: 'treat', responses: { dog: '왈왈! 눈 반짝 (간식 좋아!)', cat: '야옹~ 꼬리 세움 (기대된다 냥)', chick: '삐약삐약! (맛있겠다!)' }},
+        '산책': { emotion: 'walk', responses: { dog: '왈왈왈! 뛰어다님 (산책 좋아!)', cat: '...흥 (귀찮다 냥)', chick: '삐약? (밖이요?)' }},
+        '잘했어': { emotion: 'praise', responses: { dog: '꼬리 흔들흔들~ 낑낑 (기뻐요!)', cat: '그르릉~ (당연하지 냥)', chick: '삐삐! (고마워요!)' }},
+        '놀자': { emotion: 'play', responses: { dog: '멍! 왈왈! 뛰어다님 (신나!)', cat: '냐앙~ 눈 동그래짐 (놀아줘 냥!)', chick: '삐약삐약! (같이 놀아요!)' }},
+        '예뻐': { emotion: 'compliment', responses: { dog: '꼬리 살랑~ (고마워요!)', cat: '그르릉 (알고 있어 냥)', chick: '삐~ (기뻐요!)' }},
+        '이리와': { emotion: 'come', responses: { dog: '달려옴~ 멍! (가요!)', cat: '...천천히 걸어옴 (귀찮지만 냥)', chick: '삐약삐약! 달려옴 (가요!)' }}
+    };
+
+    // 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        initSpeechRecognition();
+        updateLearningUI();
+        loadSettings();
+    });
+
+    function initSpeechRecognition() {
+        var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) return;
+        
+        recognition = new SpeechRecognition();
+        recognition.lang = 'ko-KR';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.continuous = false;
+    }
+
+    // ===== LIVE 시작 =====
+    function handleStart() {
+        if (liveState.live) return;
+        
+        liveState.live = true;
+        
+        var btnStart = document.getElementById('btnStart');
+        var btnStop = document.getElementById('btnStop');
+        var btnHumanMic = document.getElementById('btnHumanMic');
+        var btnAnimalMic = document.getElementById('btnAnimalMic');
+        
+        btnStart.disabled = true;
+        btnStop.disabled = false;
+        btnHumanMic.disabled = false;
+        btnAnimalMic.disabled = false;
+        
+        document.getElementById('statusBadge').className = 'status-badge live';
+        document.getElementById('statusText').textContent = 'LIVE 활성';
+        
+        addBubble('system', '🐾 LIVE 모드 시작! 마이크 버튼으로 양방향 통역하세요.');
+        showToast('🐾 동물대화 LIVE 모드 시작!', 'success');
+    }
+
+    // ===== LIVE 중지 =====
+    function handleStop() {
+        liveState.live = false;
+        liveState.isRecording = false;
+        liveState.recognizing = false;
+        liveState.speaking = false;
+        
+        if (recognition) {
+            try { recognition.abort(); } catch(e) {}
+        }
+        
+        if ('speechSynthesis' in window) {
+            speechSynthesis.cancel();
+        }
+        
+        var btnStart = document.getElementById('btnStart');
+        var btnStop = document.getElementById('btnStop');
+        var btnHumanMic = document.getElementById('btnHumanMic');
+        var btnAnimalMic = document.getElementById('btnAnimalMic');
+        
+        btnStart.disabled = false;
+        btnStop.disabled = true;
+        btnHumanMic.disabled = true;
+        btnAnimalMic.disabled = true;
+        btnHumanMic.classList.remove('recording');
+        btnAnimalMic.classList.remove('recording');
+        
+        document.getElementById('statusBadge').className = 'status-badge ready';
+        document.getElementById('statusText').textContent = 'LIVE 준비';
+        
+        addBubble('system', '⏹ LIVE 모드 종료. 다시 시작하려면 버튼을 눌러주세요.');
+    }
+
+    // ===== 사람 → 동물 통역 =====
+    async function handleHumanToAnimal() {
+        if (!liveState.live || liveState.isRecording) return;
+        
+        liveState.isRecording = true;
+        var btnHumanMic = document.getElementById('btnHumanMic');
+        var btnAnimalMic = document.getElementById('btnAnimalMic');
+        
+        btnHumanMic.classList.add('recording');
+        btnHumanMic.disabled = true;
+        btnAnimalMic.disabled = true;
+        
+        document.getElementById('statusBadge').className = 'status-badge recording';
+        document.getElementById('statusText').textContent = '녹음 중...';
+        
+        var recognizedText = null;
+        
+        if (recognition) {
+            try {
+                recognizedText = await new Promise(function(resolve) {
+                    var timeout = setTimeout(function() {
+                        try { recognition.stop(); } catch(e) {}
+                        resolve(null);
+                    }, 3500);
+                    
+                    recognition.onresult = function(e) {
+                        clearTimeout(timeout);
+                        var text = e.results[0][0].transcript;
+                        resolve(text);
+                    };
+                    
+                    recognition.onerror = function() {
+                        clearTimeout(timeout);
+                        resolve(null);
+                    };
+                    
+                    recognition.start();
+                });
+            } catch (err) {
+                console.warn('Recognition failed:', err);
+            }
+        }
+        
+        if (!recognizedText) {
+            showToast('🎤 음성 인식 실패. 텍스트로 입력해주세요.', 'info');
+            recognizedText = prompt('음성 인식 실패.\n직접 입력하세요:', '안녕');
+        }
+        
+        if (recognizedText) {
+            addBubble('human', recognizedText);
+            updateEmotionBars();  // 감정 실시간 업데이트
+            
+            var animalResponse = translateToAnimal(recognizedText);
+            
+            setTimeout(function() {
+                var animal = ANIMALS[selectedAnimal];
+                addBubbleWithPlay('animal', animal.icon + ' ' + animal.name + ': ' + animalResponse, animalResponse);
+                speakText(animalResponse, animal.pitch);
+                updateLearning();
+                updateEmotionBars();  // 통역 후 감정 재업데이트
+            }, 500);
+        }
+        
+        liveState.isRecording = false;
+        btnHumanMic.classList.remove('recording');
+        btnHumanMic.disabled = false;
+        btnAnimalMic.disabled = false;
+        
+        document.getElementById('statusBadge').className = 'status-badge live';
+        document.getElementById('statusText').textContent = 'LIVE 활성';
+    }
+
+    // ===== 동물 → 사람 통역 =====
+    async function handleAnimalToHuman() {
+        if (!liveState.live || liveState.isRecording) return;
+        
+        liveState.isRecording = true;
+        var btnHumanMic = document.getElementById('btnHumanMic');
+        var btnAnimalMic = document.getElementById('btnAnimalMic');
+        
+        btnAnimalMic.classList.add('recording');
+        btnHumanMic.disabled = true;
+        btnAnimalMic.disabled = true;
+        
+        var animal = ANIMALS[selectedAnimal];
+        
+        document.getElementById('statusBadge').className = 'status-badge recording';
+        document.getElementById('statusText').textContent = '녹음 중...';
+        
+        // 3초 대기
+        await new Promise(function(r) { setTimeout(r, 3000); });
+        
+        var sounds = animal.sounds;
+        var animalSound = sounds[Math.floor(Math.random() * sounds.length)];
+        
+        addBubble('animal', animal.icon + ' ' + animal.name + ': ' + animalSound);
+        updateEmotionBars();  // 감정 업데이트
+        
+        var emotions = ['happy', 'hungry', 'anxious', 'alert', 'love'];
+        var emotion = emotions[Math.floor(Math.random() * emotions.length)];
+        
+        var translations = ANIMAL_TO_HUMAN[selectedAnimal][emotion];
+        var humanTranslation = translations[Math.floor(Math.random() * translations.length)];
+        
+        setTimeout(function() {
+            addBubbleWithPlay('translation', '🗣️ 통역: "' + humanTranslation + '"', humanTranslation);
+            speakText(humanTranslation, 1.0);
+            updateLearning();
+            updateEmotionBars();  // 통역 후 감정 재업데이트
+        }, 600);
+        
+        liveState.isRecording = false;
+        btnAnimalMic.classList.remove('recording');
+        btnHumanMic.disabled = false;
+        btnAnimalMic.disabled = false;
+        
+        document.getElementById('statusBadge').className = 'status-badge live';
+        document.getElementById('statusText').textContent = 'LIVE 활성';
+    }
+
+    // ===== 통역 함수 =====
+    function translateToAnimal(text) {
+        for (var keyword in HUMAN_KEYWORDS) {
+            if (text.includes(keyword)) {
+                return HUMAN_KEYWORDS[keyword].responses[selectedAnimal];
+            }
+        }
+        
+        var defaultResponses = {
+            dog: '멍! 꼬리 흔들~ (알겠어요!)',
+            cat: '냐옹~ (알았다 냥)',
+            chick: '삐약! (네!)'
+        };
+        
+        return defaultResponses[selectedAnimal];
+    }
+
+    // ===== TTS 음성 출력 =====
+    function speakText(text, basePitch) {
+        if (!('speechSynthesis' in window)) {
+            console.warn('TTS not supported');
+            return;
+        }
+        
+        speechSynthesis.cancel();
+        
+        var utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ko-KR';
+        utterance.rate = parseFloat(document.getElementById('speechRate').value) || 1;
+        utterance.pitch = (parseFloat(document.getElementById('speechPitch').value) || 1) * basePitch;
+        utterance.volume = parseFloat(document.getElementById('speechVolume').value) || 1;
+        
+        utterance.onstart = function() {
+            liveState.speaking = true;
+        };
+        
+        utterance.onend = function() {
+            liveState.speaking = false;
+        };
+        
+        speechSynthesis.speak(utterance);
+    }
+
+    // ===== 동물 선택 =====
+    function selectAnimal(btn) {
+        document.querySelectorAll('.animal-btn').forEach(function(b) {
+            b.classList.remove('selected');
+        });
+        btn.classList.add('selected');
+        selectedAnimal = btn.dataset.animal;
+        
+        var animal = ANIMALS[selectedAnimal];
+        document.getElementById('animalIcon').textContent = animal.icon;
+        document.getElementById('animalLabel').textContent = animal.name;
+        
+        showToast(animal.icon + ' ' + animal.name + ' 선택!', 'success');
+    }
+
+    // ===== 채팅 버블 =====
+    function addBubble(type, content) {
+        var div = document.createElement('div');
+        div.className = 'bubble ' + type;
+        
+        var header = '';
+        if (type === 'human') header = '<div class="bubble-header">👤 보호자</div>';
+        else if (type === 'animal') header = '<div class="bubble-header">🐾 동물</div>';
+        else if (type === 'translation') header = '<div class="bubble-header">🗣️ 통역 결과</div>';
+        
+        div.innerHTML = header + '<div class="bubble-content">' + escapeHtml(content) + '</div>';
+        
+        var chatContainer = document.getElementById('chatContainer');
+        chatContainer.appendChild(div);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function addBubbleWithPlay(type, content, textToPlay) {
+        var div = document.createElement('div');
+        div.className = 'bubble ' + type;
+        
+        var header = '';
+        if (type === 'human') header = '<div class="bubble-header">👤 보호자</div>';
+        else if (type === 'animal') header = '<div class="bubble-header">🐾 동물</div>';
+        else if (type === 'translation') header = '<div class="bubble-header">🗣️ 통역 결과</div>';
+        
+        div.innerHTML = header + 
+            '<div class="bubble-content">' + escapeHtml(content) + '</div>' +
+            '<button class="play-btn" onclick="playSound(\'' + escapeHtml(textToPlay).replace(/'/g, "\\'") + '\')">🔊 다시 재생</button>';
+        
+        var chatContainer = document.getElementById('chatContainer');
+        chatContainer.appendChild(div);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function playSound(text) {
+        var animal = ANIMALS[selectedAnimal];
+        speakText(text, animal.pitch);
+    }
+
+    // ===== 학습 업데이트 =====
+    function updateLearning() {
+        learningData.count++;
+        learningData.accuracy = Math.min(95, 12.5 + (learningData.count * 0.8));
+        localStorage.setItem('petctt_learning', JSON.stringify(learningData));
+        updateLearningUI();
+    }
+
+    function updateLearningUI() {
+        document.getElementById('learningPercent').textContent = learningData.accuracy.toFixed(1) + '%';
+        document.getElementById('learningProgress').style.width = learningData.accuracy + '%';
+    }
+
+    // 토스트 함수
+    function showToast(message, type) {
+        var toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast show ' + (type || 'info');
+        setTimeout(() => {
+            toast.className = 'toast';
+        }, 3000);
+    }
+    
+    // 설정 함수들
+    function openSettings() {
+        document.getElementById('settingsModal').classList.add('show');
+    }
+    
+    function closeSettings() {
+        document.getElementById('settingsModal').classList.remove('show');
+    }
+    
+    function updateRateValue() {
+        document.getElementById('rateValue').textContent = document.getElementById('speechRate').value + 'x';
+    }
+    
+    function updatePitchValue() {
+        document.getElementById('pitchValue').textContent = document.getElementById('speechPitch').value;
+    }
+    
+    function updateVolumeValue() {
+        document.getElementById('volumeValue').textContent = Math.round(document.getElementById('speechVolume').value * 100) + '%';
+    }
+
+    // ===== 건강체크 함수 =====
+    var healthCheckState = {
+        running: false,
+        audioContext: null,
+        analyser: null,
+        dataArray: null,
+        recordingData: [],
+        timeRemaining: 30
+    };
+
+    function handleHealthStart() {
+        if (healthCheckState.running) return;
+        healthCheckState.running = true;
+        healthCheckState.recordingData = [];
+        healthCheckState.timeRemaining = 30;
+
+        var btnStart = document.getElementById('btnHealthStart');
+        var btnStop = document.getElementById('btnHealthStop');
+        btnStart.disabled = true;
+        btnStop.disabled = false;
+
+        document.getElementById('healthState').textContent = '측정 중...';
+        document.getElementById('healthResults').style.display = 'none';
+        document.getElementById('recordsList').style.display = 'none';
+
+        initAudioForHealthCheck();
+        startHealthCheckTimer();
+    }
+
+    function handleHealthStop() {
+        healthCheckState.running = false;
+        if (healthCheckState.audioContext && healthCheckState.audioContext.state !== 'closed') {
+            healthCheckState.audioContext.close();
+        }
+        healthCheckState.audioContext = null;
+        healthCheckState.analyser = null;
+
+        var btnStart = document.getElementById('btnHealthStart');
+        var btnStop = document.getElementById('btnHealthStop');
+        btnStart.disabled = false;
+        btnStop.disabled = true;
+
+        document.getElementById('healthState').textContent = '중단됨';
+    }
+
+    function initAudioForHealthCheck() {
+        try {
+            if (!healthCheckState.audioContext) {
+                healthCheckState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            var ctx = healthCheckState.audioContext;
+
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    var source = ctx.createMediaStreamSource(stream);
+                    var analyser = ctx.createAnalyser();
+                    analyser.fftSize = 256;
+                    source.connect(analyser);
+
+                    healthCheckState.analyser = analyser;
+                    healthCheckState.dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                    analyzeHealthAudio();
+                })
+                .catch(err => {
+                    console.warn('Microphone access denied', err);
+                    showToast('마이크 접근 거부됨', 'error');
+                    handleHealthStop();
+                });
+        } catch (err) {
+            console.error('Audio context error:', err);
+            showToast('오디오 초기화 실패', 'error');
+            handleHealthStop();
+        }
+    }
+
+    function analyzeHealthAudio() {
+        if (!healthCheckState.running || !healthCheckState.analyser) return;
+
+        healthCheckState.analyser.getByteFrequencyData(healthCheckState.dataArray);
+        
+        var average = 0;
+        for (var i = 0; i < healthCheckState.dataArray.length; i++) {
+            average += healthCheckState.dataArray[i];
+        }
+        average = average / healthCheckState.dataArray.length;
+        var normalized = Math.min(100, (average / 255) * 120);
+
+        healthCheckState.recordingData.push(normalized);
+        document.getElementById('healthMeterFill').style.width = normalized + '%';
+        document.getElementById('healthAvg').textContent = (normalized / 100).toFixed(3);
+
+        requestAnimationFrame(analyzeHealthAudio);
+    }
+
+    function startHealthCheckTimer() {
+        var interval = setInterval(() => {
+            if (!healthCheckState.running) {
+                clearInterval(interval);
+                return;
+            }
+
+            healthCheckState.timeRemaining--;
+            document.getElementById('healthTime').textContent = healthCheckState.timeRemaining + 's';
+
+            if (healthCheckState.timeRemaining <= 0) {
+                clearInterval(interval);
+                completeHealthCheck();
+            }
+        }, 1000);
+    }
+
+    function completeHealthCheck() {
+        handleHealthStop();
+
+        var avgLevel = healthCheckState.recordingData.reduce((a, b) => a + b, 0) / healthCheckState.recordingData.length;
+        var now = new Date();
+        var record = {
+            date: now.toLocaleDateString('ko-KR'),
+            time: now.toLocaleTimeString('ko-KR'),
+            level: avgLevel.toFixed(2),
+            evaluation: getHealthEvaluation(avgLevel)
+        };
+
+        var records = JSON.parse(localStorage.getItem('petctt_health_records') || '[]');
+        records.unshift(record);
+        if (records.length > 10) records.pop();
+        localStorage.setItem('petctt_health_records', JSON.stringify(records));
+
+        displayHealthResults(record);
+        showToast('✅ 건강 체크 완료!', 'success');
+    }
+
+    function getHealthEvaluation(level) {
+        if (level < 20) return '조용함 - 충분한 활동성을 보입니다';
+        if (level < 40) return '정상 - 좋은 상태입니다';
+        if (level < 60) return '활발함 - 에너지가 많습니다';
+        if (level < 80) return '매우 활발함 - 운동을 많이 합니다';
+        return '과도함 - 과도한 움직임을 보입니다';
+    }
+
+    function displayHealthResults(record) {
+        document.getElementById('healthState').textContent = '완료';
+        document.getElementById('healthComment').textContent = record.evaluation;
+        document.getElementById('healthDetails').innerHTML = 
+            '<div>' + record.date + ' ' + record.time + '</div>' +
+            '<div>평균 활동도: ' + record.level + '%</div>';
+        document.getElementById('healthResults').style.display = 'block';
+    }
+
+    function viewHealthRecords() {
+        var records = JSON.parse(localStorage.getItem('petctt_health_records') || '[]');
+        var html = '';
+        
+        if (records.length === 0) {
+            html = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">건강 기록이 없습니다.</div>';
+        } else {
+            html = records.map((record, idx) => `
+                <div style="background: rgba(0, 0, 0, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 8px; border-left: 3px solid #10b981;">
+                    <div style="font-size: 0.8rem; color: var(--text-muted);">${record.date} ${record.time}</div>
+                    <div style="font-size: 0.9rem; color: var(--text);">${record.evaluation}</div>
+                    <div style="font-size: 0.75rem; color: var(--primary-light); margin-top: 4px;">레벨: ${record.level}%</div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('recordsContainer').innerHTML = html;
+        document.getElementById('recordsList').style.display = document.getElementById('recordsList').style.display === 'none' ? 'block' : 'none';
+    }
+
+    // 탭 전환 함수
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tabName);
+        });
+        document.querySelectorAll('.section').forEach(section => {
+            section.classList.toggle('active', section.id === tabName);
+        });
+
+        // LIVE 탭일 때만 감정 사이드바 표시
+        var emotionSidebar = document.getElementById('emotionSidebar');
+        if (tabName === 'live') {
+            emotionSidebar.classList.add('show');
+        } else {
+            emotionSidebar.classList.remove('show');
+        }
+
+        if (tabName === 'heatmap') {
+            updatePetsDisplay();
+        }
+
+        if (tabName === 'locate' && locationData.map) {
+            setTimeout(() => locationData.map.invalidateSize(), 100);
+        }
+    }
+
+    // ===== 집단 모니터링 함수 =====
+    var petsDatabase = JSON.parse(localStorage.getItem('petctt_pets_db') || '[]');
+
+    function registerPet() {
+        var name = document.getElementById('petName').value.trim();
+        var species = document.getElementById('petSpecies').value;
+
+        if (!name) {
+            showToast('🐾 동물 이름을 입력하세요!', 'error');
+            return;
+        }
+
+        var petId = 'pet_' + Date.now();
+        var newPet = {
+            id: petId,
+            name: name,
+            species: species,
+            registeredAt: new Date().toLocaleString('ko-KR'),
+            health: { stress: 0, breath: 50, activity: 60 },
+            records: []
+        };
+
+        petsDatabase.push(newPet);
+        localStorage.setItem('petctt_pets_db', JSON.stringify(petsDatabase));
+
+        document.getElementById('petName').value = '';
+        showToast('✅ ' + name + ' (으)로 등록되었습니다!', 'success');
+        updatePetsDisplay();
+    }
+
+    function updatePetsDisplay() {
+        var petsList = document.getElementById('petsList');
+        
+        if (petsDatabase.length === 0) {
+            petsList.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">등록된 동물이 없습니다.</div>';
+            return;
+        }
+
+        var html = petsDatabase.map(pet => {
+            var stress = pet.health.stress || Math.floor(Math.random() * 100);
+            var breath = pet.health.breath || 50;
+            var activity = pet.health.activity || 60;
+            
+            var badge = stress < 30 ? 'healthy' : stress < 60 ? 'caution' : 'alert';
+            var badgeText = stress < 30 ? '양호' : stress < 60 ? '주의' : '경고';
+            
+            return `
+                <div class="animal-card">
+                    <div class="animal-card-header">
+                        <span class="animal-name">🐾 ${escapeHtml(pet.name)}</span>
+                        <span class="animal-badge badge-${badge}">${badgeText}</span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">
+                        종류: ${ANIMALS[pet.species]?.name || pet.species} | 등록: ${pet.registeredAt}
+                    </div>
+                    <div class="animal-stats">
+                        <div class="stat-mini">
+                            <span class="stat-mini-label">스트레스</span>
+                            <span class="stat-mini-value">${stress}%</span>
+                        </div>
+                        <div class="stat-mini">
+                            <span class="stat-mini-label">호흡</span>
+                            <span class="stat-mini-value">${breath}%</span>
+                        </div>
+                        <div class="stat-mini">
+                            <span class="stat-mini-label">활동</span>
+                            <span class="stat-mini-value">${activity}%</span>
+                        </div>
+                    </div>
+                    <div class="health-signal">
+                        <div class="signal-dot ${stress < 30 ? 'green' : stress < 60 ? 'yellow' : 'red'}"></div>
+                        <div class="signal-dot ${breath > 40 && breath < 80 ? 'green' : 'yellow'}"></div>
+                        <div class="signal-dot ${activity > 30 ? 'green' : 'yellow'}"></div>
+                    </div>
+                    <div style="margin-top: 8px; display: flex; gap: 6px;">
+                        <button class="btn-export" onclick="selectPetForDetail('${pet.id}')" style="flex: 1; padding: 6px;">상세보기</button>
+                        <button class="btn-export" onclick="deletePet('${pet.id}')" style="flex: 1; padding: 6px; background: rgba(239, 68, 68, 0.15); color: #f87171;">삭제</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        petsList.innerHTML = html;
+    }
+
+    function selectPetForDetail(petId) {
+        var pet = petsDatabase.find(p => p.id === petId);
+        if (pet) {
+            selectedAnimal = pet.species;
+            document.getElementById('currentPetDisplay').textContent = pet.name + ' (' + (ANIMALS[pet.species]?.name || pet.species) + ')';
+            updateHealthAIDisplay();
+            showToast('🐾 ' + pet.name + ' 상세정보를 보고 있습니다.', 'success');
+        }
+    }
+
+    function deletePet(petId) {
+        if (confirm('정말로 이 동물을 삭제하시겠습니까?')) {
+            petsDatabase = petsDatabase.filter(p => p.id !== petId);
+            localStorage.setItem('petctt_pets_db', JSON.stringify(petsDatabase));
+            updatePetsDisplay();
+            showToast('✅ 동물이 삭제되었습니다.', 'success');
+        }
+    }
+
+    // ===== Health AI 표시 =====
+    function updateHealthAIDisplay() {
+        var currentPet = petsDatabase.find(p => p.species === selectedAnimal);
+        var stress = currentPet?.health?.stress || Math.floor(Math.random() * 100);
+        var breath = currentPet?.health?.breath || (40 + Math.random() * 40);
+        var activity = currentPet?.health?.activity || (30 + Math.random() * 70);
+
+        // 스트레스 평가
+        var stressStatus = stress < 30 ? '정상' : stress < 60 ? '주의' : '높음';
+        var stressColor = stress < 30 ? 'green' : stress < 60 ? 'yellow' : 'red';
+
+        document.getElementById('stressValue').textContent = stress.toFixed(0) + '%';
+        document.getElementById('stressValue').style.color = stressColor === 'green' ? '#34d399' : stressColor === 'yellow' ? '#fbbf24' : '#f87171';
+        document.getElementById('stressStatus').textContent = stressStatus;
+
+        // 호흡 평가
+        var breathStatus = breath > 40 && breath < 80 ? '정상' : '이상';
+        var breathColor = breath > 40 && breath < 80 ? 'green' : 'yellow';
+
+        document.getElementById('breathValue').textContent = breath.toFixed(1) + '%';
+        document.getElementById('breathValue').style.color = breathColor === 'green' ? '#34d399' : '#fbbf24';
+        document.getElementById('breathStatus').textContent = breathStatus;
+
+        // 활동 평가
+        var activityStatus = activity > 30 ? '양호' : '저하';
+        var activityColor = activity > 30 ? 'green' : 'yellow';
+
+        document.getElementById('activityValue').textContent = activity.toFixed(0) + '%';
+        document.getElementById('activityValue').style.color = activityColor === 'green' ? '#34d399' : '#fbbf24';
+        document.getElementById('activityStatus').textContent = activityStatus;
+
+        // 신호 표시
+        var signals = [
+            stress < 30 ? 'green' : stress < 60 ? 'yellow' : 'red',
+            breath > 40 && breath < 80 ? 'green' : 'yellow',
+            activity > 30 ? 'green' : 'yellow'
+        ];
+
+        document.getElementById('healthSignal').innerHTML = signals.map(sig => 
+            '<div class="signal-dot ' + sig + '"></div>'
+        ).join('');
+    }
+
+    // ===== LIVE 중 감정 모드 =====
+    function updateEmotionBars(emotionType) {
+        if (!liveState.live) return;
+
+        var emotionValues = {
+            '불안': Math.floor(Math.random() * 30),
+            '고통': Math.floor(Math.random() * 20),
+            '흥분': Math.floor(Math.random() * 60) + 20,
+            '안정': Math.floor(Math.random() * 40) + 40,
+            '요구': Math.floor(Math.random() * 50)
+        };
+
+        var emotionBars = document.querySelectorAll('.emotion-bar');
+        emotionBars.forEach(bar => {
+            var emotion = bar.getAttribute('data-emotion');
+            var value = emotionValues[emotion];
+            var fill = bar.querySelector('.emotion-fill');
+            fill.style.height = value + '%';
+        });
+    }
+
+    // ===== 데이터 내보내기 =====
+    function exportHealthData(format) {
+        if (format === 'json') {
+            var jsonData = {
+                exportTime: new Date().toISOString(),
+                pets: petsDatabase,
+                healthRecords: JSON.parse(localStorage.getItem('petctt_health_records') || '[]')
+            };
+            var blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
+            downloadFile(blob, 'petctt_health_' + Date.now() + '.json');
+        } else if (format === 'csv') {
+            var csv = 'ID,이름,종류,등록일,스트레스(%),호흡(%),활동(%)\n';
+            petsDatabase.forEach(pet => {
+                csv += [
+                    pet.id,
+                    pet.name,
+                    ANIMALS[pet.species]?.name || pet.species,
+                    pet.registeredAt,
+                    (pet.health?.stress || 0),
+                    (pet.health?.breath || 50),
+                    (pet.health?.activity || 60)
+                ].join(',') + '\n';
+            });
+            var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            downloadFile(blob, 'petctt_health_' + Date.now() + '.csv');
+        }
+        showToast('✅ 데이터가 다운로드되었습니다!', 'success');
+    }
+
+    function downloadFile(blob, filename) {
+        var link = document.createElement('a');
+        var url = URL.createObjectURL(blob);
+        link.href = url;
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+
+    // ===== 초기화 함수 호출 =====
+    document.addEventListener('DOMContentLoaded', function() {
+        updatePetsDisplay();
+        updateHealthAIDisplay();
+    });
+    </script>
+</body>
+</html>

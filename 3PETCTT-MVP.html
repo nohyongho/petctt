@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>PetCTT Pro - 동물 생명 모니터링 플랫폼</title>
+    <title>PetCTT Pro - 반려동물 양방향 통역 + 위치 추적</title>
     
     <!-- PWA -->
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#0a1628">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="description" content="AI 기반 동물 생명 모니터링 플랫폼 - 양방향 통역 + 건강 분석 + GPS 추적">
+    <meta name="description" content="AI 기반 반려동물 양방향 실시간 음성 통역 + GPS 위치 추적 시스템">
     
     <!-- Leaflet 지도 라이브러리 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
@@ -903,294 +903,6 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
         }
-
-        /* ===== 감정 모니터링 (LIVE 사이드바) ===== */
-        .emotion-sidebar {
-            position: fixed;
-            right: 0;
-            top: 80px;
-            width: 80px;
-            height: 400px;
-            background: rgba(10, 22, 40, 0.95);
-            border-left: 2px solid var(--border);
-            padding: 16px 8px;
-            z-index: 50;
-            display: none;
-            flex-direction: column;
-            gap: 8px;
-            backdrop-filter: blur(20px);
-        }
-
-        .emotion-sidebar.show {
-            display: flex;
-        }
-
-        .emotion-bar {
-            flex: 1;
-            border-radius: 8px;
-            background: rgba(100, 116, 139, 0.2);
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-            transition: all 0.3s;
-            min-height: 60px;
-        }
-
-        .emotion-bar:hover {
-            background: rgba(100, 116, 139, 0.3);
-        }
-
-        .emotion-fill {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            width: 100%;
-            background: linear-gradient(180deg, #ef4444, #f87171);
-            transition: height 0.2s ease-out;
-            height: 0%;
-        }
-
-        .emotion-bar[data-emotion="불안"] .emotion-fill { background: linear-gradient(180deg, #ef4444, #f87171); }
-        .emotion-bar[data-emotion="고통"] .emotion-fill { background: linear-gradient(180deg, #dc2626, #ef4444); }
-        .emotion-bar[data-emotion="흥분"] .emotion-fill { background: linear-gradient(180deg, #f59e0b, #fbbf24); }
-        .emotion-bar[data-emotion="안정"] .emotion-fill { background: linear-gradient(180deg, #10b981, #34d399); }
-        .emotion-bar[data-emotion="요구"] .emotion-fill { background: linear-gradient(180deg, #6366f1, #818cf8); }
-
-        .emotion-label {
-            position: absolute;
-            left: 4px;
-            top: 4px;
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            font-weight: 600;
-            z-index: 10;
-        }
-
-        /* ===== 집단 히트맵 카드 ===== */
-        .animal-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 12px;
-            transition: all 0.3s;
-        }
-
-        .animal-card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.2);
-        }
-
-        .animal-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .animal-name {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .animal-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-
-        .badge-healthy { background: rgba(16, 185, 129, 0.2); color: #34d399; }
-        .badge-caution { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
-        .badge-alert { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-
-        .animal-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .stat-mini {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            padding: 6px;
-            text-align: center;
-            font-size: 0.7rem;
-        }
-
-        .stat-mini-label {
-            color: var(--text-muted);
-            display: block;
-            margin-bottom: 2px;
-        }
-
-        .stat-mini-value {
-            color: var(--primary-light);
-            font-weight: 700;
-            font-size: 0.85rem;
-        }
-
-        /* ===== 신호 표시 ===== */
-        .health-signal {
-            display: flex;
-            gap: 4px;
-            margin-top: 8px;
-        }
-
-        .signal-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            animation: signal-pulse 2s ease-in-out infinite;
-        }
-
-        .signal-dot.green { background: #10b981; }
-        .signal-dot.yellow { background: #f59e0b; }
-        .signal-dot.red { background: #ef4444; }
-
-        @keyframes signal-pulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-
-        /* ===== Health AI 카드 (3단계 평가) ===== */
-        .health-ai-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .health-ai-card {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px;
-            text-align: center;
-        }
-
-        .health-ai-icon {
-            font-size: 2rem;
-            margin-bottom: 6px;
-        }
-
-        .health-ai-title {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-
-        .health-ai-value {
-            font-size: 1.3rem;
-            font-weight: 900;
-            color: var(--primary-light);
-            font-variant-numeric: tabular-nums;
-        }
-
-        .health-ai-status {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
-
-        /* ===== 동물 등록 폼 ===== */
-        .pet-register-form {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-
-        .form-group {
-            margin-bottom: 12px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-
-        .form-input, .form-select {
-            width: 100%;
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            background: rgba(0, 0, 0, 0.3);
-            color: var(--text);
-            font-size: 0.9rem;
-            font-family: inherit;
-        }
-
-        .form-input:focus, .form-select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
-        }
-
-        .form-btn {
-            width: 100%;
-            padding: 10px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .form-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-        }
-
-        /* ===== 의료 고지 ===== */
-        .medical-notice {
-            background: rgba(99, 102, 241, 0.1);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 8px;
-            padding: 10px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 16px;
-            text-align: center;
-            line-height: 1.5;
-        }
-
-        /* ===== 데이터 내보내기 ===== */
-        .export-buttons {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .btn-export {
-            flex: 1;
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: rgba(0, 0, 0, 0.2);
-            color: var(--text);
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-export:hover {
-            background: rgba(16, 185, 129, 0.15);
-            border-color: var(--primary);
-        }
         
         /* ===== 푸터 ===== */
         footer {
@@ -1339,7 +1051,6 @@
         <div class="tab-nav">
             <button class="tab-btn active" data-tab="live" onclick="switchTab('live')">🎙️ LIVE</button>
             <button class="tab-btn" data-tab="health" onclick="switchTab('health')">❤️ 건강체크</button>
-            <button class="tab-btn" data-tab="heatmap" onclick="switchTab('heatmap')">🏥 모니터링</button>
             <button class="tab-btn" data-tab="locate" onclick="switchTab('locate')">📍 찾기</button>
         </div>
         
@@ -1426,30 +1137,6 @@
                     </div>
                 </div>
                 
-                <!-- 감정 모니터링 사이드바 (LIVE 중만 표시) -->
-                <div class="emotion-sidebar" id="emotionSidebar">
-                    <div class="emotion-bar" data-emotion="불안">
-                        <div class="emotion-label">불안</div>
-                        <div class="emotion-fill"></div>
-                    </div>
-                    <div class="emotion-bar" data-emotion="고통">
-                        <div class="emotion-label">고통</div>
-                        <div class="emotion-fill"></div>
-                    </div>
-                    <div class="emotion-bar" data-emotion="흥분">
-                        <div class="emotion-label">흥분</div>
-                        <div class="emotion-fill"></div>
-                    </div>
-                    <div class="emotion-bar" data-emotion="안정">
-                        <div class="emotion-label">안정</div>
-                        <div class="emotion-fill"></div>
-                    </div>
-                    <div class="emotion-bar" data-emotion="요구">
-                        <div class="emotion-label">요구</div>
-                        <div class="emotion-fill"></div>
-                    </div>
-                </div>
-                
                 <!-- 채팅/결과 -->
                 <div class="chat-container" id="chatContainer">
                     <div class="bubble system">
@@ -1526,95 +1213,6 @@
                 <div id="recordsList" style="display: none; margin-top: 16px; max-height: 300px; overflow-y: auto;">
                     <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">📊 최근 기록 (최대 10개)</div>
                     <div id="recordsContainer"></div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- 집단 모니터링 탭 (Health AI + 집단 히트맵) -->
-        <section id="heatmap" class="section">
-            <div class="main-card">
-                <div class="section-title">🏥 반려동물 생명 모니터링</div>
-                
-                <!-- 동물 등록 폼 -->
-                <div class="pet-register-form">
-                    <h3 style="color: var(--text); margin-bottom: 12px; font-size: 0.95rem;">➕ 동물 추가 등록</h3>
-                    <div class="form-group">
-                        <label class="form-label">동물 이름</label>
-                        <input type="text" id="petName" class="form-input" placeholder="예: 뽀삐, 야옹이">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">종류</label>
-                        <select id="petSpecies" class="form-select">
-                            <option value="dog">강아지</option>
-                            <option value="cat">고양이</option>
-                            <option value="chick">병아리</option>
-                            <option value="pig">돼지</option>
-                            <option value="cow">소</option>
-                        </select>
-                    </div>
-                    <button class="form-btn" onclick="registerPet()">📝 등록하기</button>
-                </div>
-
-                <!-- Health AI 카드 (현재 선택된 동물) -->
-                <div style="margin-bottom: 20px;">
-                    <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; font-weight: 600;">
-                        📊 현재 동물: <span id="currentPetDisplay">강아지</span>
-                    </div>
-                    
-                    <div class="health-ai-container">
-                        <div class="health-ai-card">
-                            <div class="health-ai-icon">😟</div>
-                            <div class="health-ai-title">스트레스</div>
-                            <div class="health-ai-value" id="stressValue">--</div>
-                            <div class="health-ai-status" id="stressStatus"></div>
-                        </div>
-                        <div class="health-ai-card">
-                            <div class="health-ai-icon">🫁</div>
-                            <div class="health-ai-title">호흡</div>
-                            <div class="health-ai-value" id="breathValue">--</div>
-                            <div class="health-ai-status" id="breathStatus"></div>
-                        </div>
-                        <div class="health-ai-card">
-                            <div class="health-ai-icon">🏃</div>
-                            <div class="health-ai-title">활동</div>
-                            <div class="health-ai-value" id="activityValue">--</div>
-                            <div class="health-ai-status" id="activityStatus"></div>
-                        </div>
-                    </div>
-
-                    <!-- 신호 표시 -->
-                    <div style="margin-top: 12px; padding: 12px; background: rgba(0, 0, 0, 0.2); border-radius: 8px;">
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px;">🔔 건강 신호</div>
-                        <div class="health-signal" id="healthSignal">
-                            <div class="signal-dot green"></div>
-                            <div class="signal-dot green"></div>
-                            <div class="signal-dot green"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 집단 모니터링 리스트 -->
-                <div style="margin-bottom: 16px;">
-                    <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; font-weight: 600;">
-                        📋 등록된 동물 목록
-                    </div>
-                    <div id="petsList">
-                        <div style="color: var(--text-muted); text-align: center; padding: 20px;">
-                            등록된 동물이 없습니다. 위에서 등록해주세요.
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 데이터 내보내기 -->
-                <div class="export-buttons">
-                    <button class="btn-export" onclick="exportHealthData('json')">📄 JSON</button>
-                    <button class="btn-export" onclick="exportHealthData('csv')">📊 CSV</button>
-                </div>
-
-                <!-- 의료 고지 -->
-                <div class="medical-notice">
-                    ⚠️ 본 기능은 의료 진단이 아니며 참고용입니다.<br>
-                    정확한 진단을 위해서는 수의사와 상담하세요.
                 </div>
             </div>
         </section>
@@ -2113,7 +1711,6 @@
         
         if (recognizedText) {
             addBubble('human', recognizedText);
-            updateEmotionBars();  // 감정 실시간 업데이트
             
             var animalResponse = translateToAnimal(recognizedText);
             
@@ -2122,7 +1719,6 @@
                 addBubbleWithPlay('animal', animal.icon + ' ' + animal.name + ': ' + animalResponse, animalResponse);
                 speakText(animalResponse, animal.pitch);
                 updateLearning();
-                updateEmotionBars();  // 통역 후 감정 재업데이트
             }, 500);
         }
         
@@ -2159,7 +1755,6 @@
         var animalSound = sounds[Math.floor(Math.random() * sounds.length)];
         
         addBubble('animal', animal.icon + ' ' + animal.name + ': ' + animalSound);
-        updateEmotionBars();  // 감정 업데이트
         
         var emotions = ['happy', 'hungry', 'anxious', 'alert', 'love'];
         var emotion = emotions[Math.floor(Math.random() * emotions.length)];
@@ -2171,7 +1766,6 @@
             addBubbleWithPlay('translation', '🗣️ 통역: "' + humanTranslation + '"', humanTranslation);
             speakText(humanTranslation, 1.0);
             updateLearning();
-            updateEmotionBars();  // 통역 후 감정 재업데이트
         }, 600);
         
         liveState.isRecording = false;
@@ -2510,234 +2104,10 @@
             section.classList.toggle('active', section.id === tabName);
         });
 
-        // LIVE 탭일 때만 감정 사이드바 표시
-        var emotionSidebar = document.getElementById('emotionSidebar');
-        if (tabName === 'live') {
-            emotionSidebar.classList.add('show');
-        } else {
-            emotionSidebar.classList.remove('show');
-        }
-
-        if (tabName === 'heatmap') {
-            updatePetsDisplay();
-        }
-
         if (tabName === 'locate' && locationData.map) {
             setTimeout(() => locationData.map.invalidateSize(), 100);
         }
     }
-
-    // ===== 집단 모니터링 함수 =====
-    var petsDatabase = JSON.parse(localStorage.getItem('petctt_pets_db') || '[]');
-
-    function registerPet() {
-        var name = document.getElementById('petName').value.trim();
-        var species = document.getElementById('petSpecies').value;
-
-        if (!name) {
-            showToast('🐾 동물 이름을 입력하세요!', 'error');
-            return;
-        }
-
-        var petId = 'pet_' + Date.now();
-        var newPet = {
-            id: petId,
-            name: name,
-            species: species,
-            registeredAt: new Date().toLocaleString('ko-KR'),
-            health: { stress: 0, breath: 50, activity: 60 },
-            records: []
-        };
-
-        petsDatabase.push(newPet);
-        localStorage.setItem('petctt_pets_db', JSON.stringify(petsDatabase));
-
-        document.getElementById('petName').value = '';
-        showToast('✅ ' + name + ' (으)로 등록되었습니다!', 'success');
-        updatePetsDisplay();
-    }
-
-    function updatePetsDisplay() {
-        var petsList = document.getElementById('petsList');
-        
-        if (petsDatabase.length === 0) {
-            petsList.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 20px;">등록된 동물이 없습니다.</div>';
-            return;
-        }
-
-        var html = petsDatabase.map(pet => {
-            var stress = pet.health.stress || Math.floor(Math.random() * 100);
-            var breath = pet.health.breath || 50;
-            var activity = pet.health.activity || 60;
-            
-            var badge = stress < 30 ? 'healthy' : stress < 60 ? 'caution' : 'alert';
-            var badgeText = stress < 30 ? '양호' : stress < 60 ? '주의' : '경고';
-            
-            return `
-                <div class="animal-card">
-                    <div class="animal-card-header">
-                        <span class="animal-name">🐾 ${escapeHtml(pet.name)}</span>
-                        <span class="animal-badge badge-${badge}">${badgeText}</span>
-                    </div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">
-                        종류: ${ANIMALS[pet.species]?.name || pet.species} | 등록: ${pet.registeredAt}
-                    </div>
-                    <div class="animal-stats">
-                        <div class="stat-mini">
-                            <span class="stat-mini-label">스트레스</span>
-                            <span class="stat-mini-value">${stress}%</span>
-                        </div>
-                        <div class="stat-mini">
-                            <span class="stat-mini-label">호흡</span>
-                            <span class="stat-mini-value">${breath}%</span>
-                        </div>
-                        <div class="stat-mini">
-                            <span class="stat-mini-label">활동</span>
-                            <span class="stat-mini-value">${activity}%</span>
-                        </div>
-                    </div>
-                    <div class="health-signal">
-                        <div class="signal-dot ${stress < 30 ? 'green' : stress < 60 ? 'yellow' : 'red'}"></div>
-                        <div class="signal-dot ${breath > 40 && breath < 80 ? 'green' : 'yellow'}"></div>
-                        <div class="signal-dot ${activity > 30 ? 'green' : 'yellow'}"></div>
-                    </div>
-                    <div style="margin-top: 8px; display: flex; gap: 6px;">
-                        <button class="btn-export" onclick="selectPetForDetail('${pet.id}')" style="flex: 1; padding: 6px;">상세보기</button>
-                        <button class="btn-export" onclick="deletePet('${pet.id}')" style="flex: 1; padding: 6px; background: rgba(239, 68, 68, 0.15); color: #f87171;">삭제</button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        petsList.innerHTML = html;
-    }
-
-    function selectPetForDetail(petId) {
-        var pet = petsDatabase.find(p => p.id === petId);
-        if (pet) {
-            selectedAnimal = pet.species;
-            document.getElementById('currentPetDisplay').textContent = pet.name + ' (' + (ANIMALS[pet.species]?.name || pet.species) + ')';
-            updateHealthAIDisplay();
-            showToast('🐾 ' + pet.name + ' 상세정보를 보고 있습니다.', 'success');
-        }
-    }
-
-    function deletePet(petId) {
-        if (confirm('정말로 이 동물을 삭제하시겠습니까?')) {
-            petsDatabase = petsDatabase.filter(p => p.id !== petId);
-            localStorage.setItem('petctt_pets_db', JSON.stringify(petsDatabase));
-            updatePetsDisplay();
-            showToast('✅ 동물이 삭제되었습니다.', 'success');
-        }
-    }
-
-    // ===== Health AI 표시 =====
-    function updateHealthAIDisplay() {
-        var currentPet = petsDatabase.find(p => p.species === selectedAnimal);
-        var stress = currentPet?.health?.stress || Math.floor(Math.random() * 100);
-        var breath = currentPet?.health?.breath || (40 + Math.random() * 40);
-        var activity = currentPet?.health?.activity || (30 + Math.random() * 70);
-
-        // 스트레스 평가
-        var stressStatus = stress < 30 ? '정상' : stress < 60 ? '주의' : '높음';
-        var stressColor = stress < 30 ? 'green' : stress < 60 ? 'yellow' : 'red';
-
-        document.getElementById('stressValue').textContent = stress.toFixed(0) + '%';
-        document.getElementById('stressValue').style.color = stressColor === 'green' ? '#34d399' : stressColor === 'yellow' ? '#fbbf24' : '#f87171';
-        document.getElementById('stressStatus').textContent = stressStatus;
-
-        // 호흡 평가
-        var breathStatus = breath > 40 && breath < 80 ? '정상' : '이상';
-        var breathColor = breath > 40 && breath < 80 ? 'green' : 'yellow';
-
-        document.getElementById('breathValue').textContent = breath.toFixed(1) + '%';
-        document.getElementById('breathValue').style.color = breathColor === 'green' ? '#34d399' : '#fbbf24';
-        document.getElementById('breathStatus').textContent = breathStatus;
-
-        // 활동 평가
-        var activityStatus = activity > 30 ? '양호' : '저하';
-        var activityColor = activity > 30 ? 'green' : 'yellow';
-
-        document.getElementById('activityValue').textContent = activity.toFixed(0) + '%';
-        document.getElementById('activityValue').style.color = activityColor === 'green' ? '#34d399' : '#fbbf24';
-        document.getElementById('activityStatus').textContent = activityStatus;
-
-        // 신호 표시
-        var signals = [
-            stress < 30 ? 'green' : stress < 60 ? 'yellow' : 'red',
-            breath > 40 && breath < 80 ? 'green' : 'yellow',
-            activity > 30 ? 'green' : 'yellow'
-        ];
-
-        document.getElementById('healthSignal').innerHTML = signals.map(sig => 
-            '<div class="signal-dot ' + sig + '"></div>'
-        ).join('');
-    }
-
-    // ===== LIVE 중 감정 모드 =====
-    function updateEmotionBars(emotionType) {
-        if (!liveState.live) return;
-
-        var emotionValues = {
-            '불안': Math.floor(Math.random() * 30),
-            '고통': Math.floor(Math.random() * 20),
-            '흥분': Math.floor(Math.random() * 60) + 20,
-            '안정': Math.floor(Math.random() * 40) + 40,
-            '요구': Math.floor(Math.random() * 50)
-        };
-
-        var emotionBars = document.querySelectorAll('.emotion-bar');
-        emotionBars.forEach(bar => {
-            var emotion = bar.getAttribute('data-emotion');
-            var value = emotionValues[emotion];
-            var fill = bar.querySelector('.emotion-fill');
-            fill.style.height = value + '%';
-        });
-    }
-
-    // ===== 데이터 내보내기 =====
-    function exportHealthData(format) {
-        if (format === 'json') {
-            var jsonData = {
-                exportTime: new Date().toISOString(),
-                pets: petsDatabase,
-                healthRecords: JSON.parse(localStorage.getItem('petctt_health_records') || '[]')
-            };
-            var blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' });
-            downloadFile(blob, 'petctt_health_' + Date.now() + '.json');
-        } else if (format === 'csv') {
-            var csv = 'ID,이름,종류,등록일,스트레스(%),호흡(%),활동(%)\n';
-            petsDatabase.forEach(pet => {
-                csv += [
-                    pet.id,
-                    pet.name,
-                    ANIMALS[pet.species]?.name || pet.species,
-                    pet.registeredAt,
-                    (pet.health?.stress || 0),
-                    (pet.health?.breath || 50),
-                    (pet.health?.activity || 60)
-                ].join(',') + '\n';
-            });
-            var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            downloadFile(blob, 'petctt_health_' + Date.now() + '.csv');
-        }
-        showToast('✅ 데이터가 다운로드되었습니다!', 'success');
-    }
-
-    function downloadFile(blob, filename) {
-        var link = document.createElement('a');
-        var url = URL.createObjectURL(blob);
-        link.href = url;
-        link.download = filename;
-        link.click();
-        URL.revokeObjectURL(url);
-    }
-
-    // ===== 초기화 함수 호출 =====
-    document.addEventListener('DOMContentLoaded', function() {
-        updatePetsDisplay();
-        updateHealthAIDisplay();
-    });
     </script>
 </body>
 </html>

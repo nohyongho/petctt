@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>PetCTT Pro - 반려동물 양방향 통역 + 위치 추적</title>
     
-    <!-- 도메인 통일: petctt.com → www.petctt.com 리다이렉트 -->
+    <!-- 도메인 통일: 모든 도메인 → www.petctt.com 리다이렉트 -->
     <script>
-        if (window.location.hostname === 'petctt.com' && window.location.hostname !== 'www.petctt.com') {
-            window.location.href = 'https://www.petctt.com' + window.location.pathname + window.location.search;
+        if (window.location.hostname !== 'www.petctt.com') {
+            window.location.href = 'https://www.petctt.com' + window.location.pathname + window.location.search + window.location.hash;
         }
     </script>
     

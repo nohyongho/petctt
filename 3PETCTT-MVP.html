@@ -1051,6 +1051,7 @@
         <div class="tab-nav">
             <button class="tab-btn active" data-tab="live" onclick="switchTab('live')">🎙️ LIVE</button>
             <button class="tab-btn" data-tab="health" onclick="switchTab('health')">❤️ 건강체크</button>
+            <button class="tab-btn" data-tab="camera" onclick="switchTab('camera')">👁️ AI눈</button>
             <button class="tab-btn" data-tab="locate" onclick="switchTab('locate')">📍 찾기</button>
         </div>
         
@@ -1213,6 +1214,44 @@
                 <div id="recordsList" style="display: none; margin-top: 16px; max-height: 300px; overflow-y: auto;">
                     <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">📊 최근 기록 (최대 10개)</div>
                     <div id="recordsContainer"></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- AI눈(카메라) 섹션 -->
+        <section id="camera" class="section">
+            <div class="main-card">
+                <div class="section-title">👁️ AI눈 - 폰 카메라 활성화</div>
+                
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <video id="cameraVideo" style="display: none; width: 100%; border-radius: 16px; background: #000; margin-bottom: 12px; max-height: 300px;" autoplay playsinline></video>
+                    <canvas id="cameraCanvas" style="display: none;"></canvas>
+                </div>
+                
+                <div class="control-buttons" style="flex-direction: column; gap: 10px;">
+                    <button id="cameraOpen" class="btn-start start" onclick="openCamera()" style="width: 100%; padding: 14px;">
+                        <span>📹</span> 카메라 켜기
+                    </button>
+                    <button id="cameraCapture" class="btn-start start" onclick="capturePhoto()" disabled style="width: 100%; padding: 14px; opacity: 0.5;">
+                        <span>📸</span> 사진 캡처
+                    </button>
+                    <button id="cameraClose" class="btn-start stop" onclick="closeCamera()" disabled style="width: 100%; padding: 14px; opacity: 0.5;">
+                        <span>❌</span> 카메라 종료
+                    </button>
+                </div>
+                
+                <!-- 캡처 결과 -->
+                <div id="captureResult" style="display: none; margin-top: 20px; text-align: center;">
+                    <div id="captureMsg" style="color: var(--primary-light); font-weight: bold; margin-bottom: 12px; font-size: 0.9rem;">✅ 캡처 완료!</div>
+                    <img id="capturedImage" src="" style="width: 100%; border-radius: 12px; max-height: 300px;">
+                </div>
+                
+                <!-- 카메라 권한 가이드 -->
+                <div style="margin-top: 20px; padding: 12px; background: rgba(100, 116, 139, 0.2); border-radius: 12px; font-size: 0.8rem; color: var(--text-muted);">
+                    <div style="margin-bottom: 8px;">💡 카메라 권한 필요:</div>
+                    <div>1️⃣ 주소창 🔒 아이콘 클릭</div>
+                    <div>2️⃣ "카메라" 권한 확인</div>
+                    <div>3️⃣ "항상 허용" 선택</div>
                 </div>
             </div>
         </section>
@@ -2095,6 +2134,94 @@
         document.getElementById('recordsList').style.display = document.getElementById('recordsList').style.display === 'none' ? 'block' : 'none';
     }
 
+    // 카메라 상태
+    var cameraState = {
+        stream: null,
+        video: null,
+        isActive: false
+    };
+
+    function openCamera() {
+        if (cameraState.isActive) {
+            showToast('⚠️ 카메라가 이미 켜져 있습니다.', 'warning');
+            return;
+        }
+
+        var video = document.getElementById('cameraVideo');
+        
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showToast('❌ 이 브라우저는 카메라 기능을 지원하지 않습니다.', 'error');
+            return;
+        }
+
+        navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' },
+            audio: false
+        }).then(stream => {
+            cameraState.stream = stream;
+            video.srcObject = stream;
+            video.play();
+            cameraState.isActive = true;
+            
+            document.getElementById('cameraVideo').style.display = 'block';
+            document.getElementById('cameraCapture').disabled = false;
+            document.getElementById('cameraClose').disabled = false;
+            document.getElementById('cameraOpen').disabled = true;
+            
+            document.getElementById('cameraCapture').style.opacity = '1';
+            document.getElementById('cameraClose').style.opacity = '1';
+            document.getElementById('cameraOpen').style.opacity = '0.5';
+            
+            showToast('✅ 카메라 켜짐! 터치하여 캡처하세요.', 'success');
+        }).catch(error => {
+            console.error('카메라 접근 오류:', error);
+            var msg = '❌ 카메라 접근을 거부했습니다.\\n';
+            if (error.name === 'NotAllowedError') {
+                msg += '주소창 🔒 아이콘에서 카메라 권한을 허용해주세요.';
+            } else if (error.name === 'NotFoundError') {
+                msg += '연결된 카메라가 없습니다.';
+            }
+            showToast(msg, 'error');
+        });
+    }
+
+    function capturePhoto() {
+        var video = document.getElementById('cameraVideo');
+        var canvas = document.getElementById('cameraCanvas');
+        var ctx = canvas.getContext('2d');
+        
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        ctx.drawImage(video, 0, 0);
+        
+        document.getElementById('capturedImage').src = canvas.toDataURL('image/jpeg');
+        document.getElementById('captureResult').style.display = 'block';
+        document.getElementById('captureMsg').textContent = '✅ 캡처 완료! ' + new Date().toLocaleTimeString('ko-KR');
+        
+        showToast('📸 사진 캡처 완료!', 'success');
+    }
+
+    function closeCamera() {
+        if (cameraState.stream) {
+            cameraState.stream.getTracks().forEach(track => track.stop());
+            cameraState.stream = null;
+        }
+        
+        cameraState.isActive = false;
+        document.getElementById('cameraVideo').style.display = 'none';
+        document.getElementById('captureResult').style.display = 'none';
+        document.getElementById('cameraOpen').disabled = false;
+        document.getElementById('cameraCapture').disabled = true;
+        document.getElementById('cameraClose').disabled = true;
+        
+        document.getElementById('cameraCapture').style.opacity = '0.5';
+        document.getElementById('cameraClose').style.opacity = '0.5';
+        document.getElementById('cameraOpen').style.opacity = '1';
+        
+        showToast('⏹ 카메라 종료', 'info');
+    }
+
     // 탭 전환 함수
     function switchTab(tabName) {
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -2107,7 +2234,11 @@
         if (tabName === 'locate' && locationData.map) {
             setTimeout(() => locationData.map.invalidateSize(), 100);
         }
-    }
+        
+        // 다른 탭으로 이동할 때 카메라 종료
+        if (tabName !== 'camera' && cameraState.isActive) {
+            closeCamera();
+        }
     </script>
 </body>
 </html>

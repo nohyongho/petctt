@@ -5,11 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>PetCTT Pro - 반려동물 양방향 통역 + 위치 추적</title>
     
-    <!-- 도메인 통일: 모든 도메인 → www.petctt.com 리다이렉트 -->
+    <!-- www.petctt.com 강제 리다이렉트 (정석) -->
     <script>
-        if (window.location.hostname !== 'www.petctt.com') {
-            window.location.href = 'https://www.petctt.com' + window.location.pathname + window.location.search + window.location.hash;
-        }
+        (() => {
+          const targetHost = "www.petctt.com";
+          const host = window.location.hostname;
+
+          // 로컬 개발환경은 리다이렉트 금지
+          const isLocal =
+            host === "localhost" ||
+            host === "127.0.0.1" ||
+            host.endsWith(".local");
+
+          if (isLocal) return;
+
+          // http -> https 강제
+          const isHttp = window.location.protocol === "http:";
+
+          // www 강제
+          const needWww = host !== targetHost;
+
+          if (isHttp || needWww) {
+            const newUrl =
+              "https://" + targetHost + window.location.pathname + window.location.search + window.location.hash;
+
+            // 뒤로가기 히스토리 안 쌓이게 replace
+            window.location.replace(newUrl);
+          }
+        })();
     </script>
     
     <!-- PWA -->

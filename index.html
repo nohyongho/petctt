@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>PetCTT Pro - 반려동물 양방향 통역 + 위치 추적</title>
     
+    <!-- 도메인 통일: petctt.com → www.petctt.com 리다이렉트 -->
+    <script>
+        if (window.location.hostname === 'petctt.com' && window.location.hostname !== 'www.petctt.com') {
+            window.location.href = 'https://www.petctt.com' + window.location.pathname + window.location.search;
+        }
+    </script>
+    
     <!-- PWA -->
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#0a1628">
@@ -2023,6 +2030,8 @@
             }
             var ctx = healthCheckState.audioContext;
 
+            showToast('⏳ 마이크 권한을 요청 중입니다...', 'info');
+
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
                     var source = ctx.createMediaStreamSource(stream);
@@ -2032,12 +2041,20 @@
 
                     healthCheckState.analyser = analyser;
                     healthCheckState.dataArray = new Uint8Array(analyser.frequencyBinCount);
+                    healthCheckState.stream = stream;
 
+                    showToast('✅ 마이크 준비 완료!', 'success');
                     analyzeHealthAudio();
                 })
                 .catch(err => {
-                    console.warn('Microphone access denied', err);
-                    showToast('마이크 접근 거부됨', 'error');
+                    console.error('Microphone access error:', err);
+                    var msg = '❌ 마이크 접근 거부됨\\n';
+                    if (err.name === 'NotAllowedError') {
+                        msg += '주소창 🔒 아이콘에서 마이크 권한을 허용해주세요.';
+                    } else if (err.name === 'NotFoundError') {
+                        msg += '연결된 마이크가 없습니다.';
+                    }
+                    showToast(msg, 'error');
                     handleHealthStop();
                 });
         } catch (err) {
@@ -2160,6 +2177,9 @@
             showToast('❌ 이 브라우저는 카메라 기능을 지원하지 않습니다.', 'error');
             return;
         }
+
+        // 모바일 크롬 권한 요청 개선
+        showToast('⏳ 카메라 권한을 요청 중입니다...', 'info');
 
         navigator.mediaDevices.getUserMedia({
             video: { facingMode: 'environment' },

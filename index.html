@@ -52,18 +52,19 @@
     
     <style>
         :root {
-            --primary: #10b981;
-            --primary-dark: #059669;
-            --primary-light: #34d399;
+            --primary: #2dd4bf;
+            --primary-dark: #14b8a6;
+            --primary-light: #5eead4;
             --secondary: #6366f1;
-            --accent: #f59e0b;
+            --accent: #fbbf24;
             --danger: #ef4444;
             --bg-dark: #0a1628;
-            --bg-card: #111d32;
-            --bg-card-light: #1a2942;
+            --bg-card: #0f1f2e;
+            --bg-card-light: #142737;
             --text: #f1f5f9;
             --text-muted: #94a3b8;
-            --border: rgba(16, 185, 129, 0.3);
+            --border: rgba(45, 212, 191, 0.25);
+            --glass-glow: rgba(45, 212, 191, 0.15);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -203,13 +204,15 @@
         
         /* ===== 메인 카드 ===== */
         .main-card {
-            background: var(--bg-card);
+            background: rgba(15, 31, 46, 0.6);
+            backdrop-filter: blur(20px);
             border: 1px solid var(--border);
             border-radius: 24px;
             padding: 24px;
             margin: 20px 0;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 8px 32px rgba(45, 212, 191, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
         
         .main-card::before {
@@ -220,6 +223,18 @@
             right: 0;
             height: 3px;
             background: linear-gradient(90deg, transparent, var(--primary), var(--primary-light), transparent);
+            box-shadow: 0 0 20px var(--primary);
+        }
+        
+        .main-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--glass-glow) 0%, transparent 70%);
+            pointer-events: none;
         }
         
         /* 섹션 */
@@ -346,12 +361,13 @@
         .btn-start.start {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 8px 24px rgba(45, 212, 191, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(94, 234, 212, 0.3);
         }
         
         .btn-start.start:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5);
+            box-shadow: 0 12px 32px rgba(45, 212, 191, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
         
         .btn-start.start:disabled {
@@ -361,13 +377,15 @@
         }
         
         .btn-start.stop {
-            background: rgba(239, 68, 68, 0.2);
-            border: 2px solid var(--danger);
+            background: rgba(239, 68, 68, 0.15);
+            border: 2px solid rgba(239, 68, 68, 0.5);
             color: #f87171;
+            backdrop-filter: blur(10px);
         }
         
         .btn-start.stop:hover:not(:disabled) {
-            background: rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.25);
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
         }
         
         .btn-start.stop:disabled {
@@ -1262,24 +1280,43 @@
                 <!-- 카메라 미리보기 (생체 스캔) -->
                 <div id="scanVideoContainer" style="display: none; margin-bottom: 16px;">
                     <video id="scanVideo" style="width: 100%; border-radius: 12px; background: #000;" autoplay playsinline></video>
+                    <div style="margin-top: 8px; padding: 10px; background: rgba(45, 212, 191, 0.2); border-radius: 8px; text-align: center; font-size: 0.8rem; color: var(--text-muted);">
+                        📷 카메라 기반 추정값 (데모용)
+                    </div>
+                </div>
+
+                <!-- 센서 연동 UI -->
+                <div id="sensorConnection" style="display: none; margin-bottom: 16px; padding: 14px; background: rgba(45, 212, 191, 0.15); border: 1px solid rgba(45, 212, 191, 0.3); border-radius: 12px;">
+                    <div style="font-size: 0.85rem; font-weight: 600; color: var(--primary-light); margin-bottom: 10px;">🔌 하드웨어 센서 연동</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button onclick="connectBLEDevice('ear')" style="padding: 10px; background: rgba(45, 212, 191, 0.2); border: 1px solid rgba(45, 212, 191, 0.4); border-radius: 8px; color: var(--primary-light); font-size: 0.75rem; cursor: pointer;">
+                            👂 귀걸이 센서
+                        </button>
+                        <button onclick="connectBLEDevice('neck')" style="padding: 10px; background: rgba(45, 212, 191, 0.2); border: 1px solid rgba(45, 212, 191, 0.4); border-radius: 8px; color: var(--primary-light); font-size: 0.75rem; cursor: pointer;">
+                            📿 목걸이 센서
+                        </button>
+                    </div>
+                    <div style="margin-top: 8px; font-size: 0.7rem; color: var(--text-muted); text-align: center;">
+                        다음 버전에서 지원 예정
+                    </div>
                 </div>
 
                 <!-- 실시간 생체 지표 -->
                 <div id="bioMetrics" style="display: none; gap: 12px; grid-template-columns: 1fr 1fr; margin-bottom: 16px;">
-                    <div style="background: rgba(255, 107, 107, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">심박수</div>
+                    <div style="background: rgba(255, 107, 107, 0.15); border: 1px solid rgba(255, 107, 107, 0.3); padding: 12px; border-radius: 8px; text-align: center; backdrop-filter: blur(10px);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">심박수 <span style="font-size: 0.65rem; opacity: 0.7;">(추정)</span></div>
                         <div style="font-size: 1.6rem; font-weight: bold; color: #ff6b6b;" id="heartRateValue">-- bpm</div>
                     </div>
-                    <div style="background: rgba(50, 140, 255, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">호흡수</div>
+                    <div style="background: rgba(50, 140, 255, 0.15); border: 1px solid rgba(50, 140, 255, 0.3); padding: 12px; border-radius: 8px; text-align: center; backdrop-filter: blur(10px);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">호흡수 <span style="font-size: 0.65rem; opacity: 0.7;">(추정)</span></div>
                         <div style="font-size: 1.6rem; font-weight: bold; color: #328cff;" id="breathRateValue">-- /min</div>
                     </div>
-                    <div style="background: rgba(255, 215, 0, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">체온</div>
+                    <div style="background: rgba(255, 215, 0, 0.15); border: 1px solid rgba(255, 215, 0, 0.3); padding: 12px; border-radius: 8px; text-align: center; backdrop-filter: blur(10px);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">체온 <span style="font-size: 0.65rem; opacity: 0.7;">(추정)</span></div>
                         <div style="font-size: 1.6rem; font-weight: bold; color: #ffd700;" id="temperatureValue">--°C</div>
                     </div>
-                    <div style="background: rgba(160, 90, 255, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">스트레스</div>
+                    <div style="background: rgba(160, 90, 255, 0.15); border: 1px solid rgba(160, 90, 255, 0.3); padding: 12px; border-radius: 8px; text-align: center; backdrop-filter: blur(10px);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">스트레스 <span style="font-size: 0.65rem; opacity: 0.7;">(추정)</span></div>
                         <div style="font-size: 1.6rem; font-weight: bold; color: #a05aff;" id="stressLevelValue">--%</div>
                     </div>
                 </div>
@@ -2469,6 +2506,7 @@
         const modeSelector = document.getElementById('healthModeSelector');
         const legacyCheck = document.getElementById('legacyHealthCheck');
         const btnScanStop = document.getElementById('btnScanStop');
+        const sensorConnection = document.getElementById('sensorConnection');
         
         if (!scanContainer || !bioMetrics) return;
         
@@ -2477,6 +2515,7 @@
         scanContainer.style.display = 'block';
         bioMetrics.style.display = 'grid';
         if (btnScanStop) btnScanStop.style.display = 'block';
+        if (sensorConnection) sensorConnection.style.display = 'block';
         
         const video = scanContainer.querySelector('video');
         if (!video) return;
@@ -2492,8 +2531,8 @@
             cameraState.stream = stream;
             cameraState.isActive = true;
             
-            addBubble('system', '👁️ 생체 스캔 시작! 강아지에게 휴대폰을 가까이 대세요. 가슴부위 → 복부 → 귀 순서로 스캔합니다.');
-            showToast('👁️ AI눈 생체 스캔 시작!', 'success');
+            addBubble('system', '👁️ 카메라 기반 추정 생체 스캔 중입니다. 더 정확한 측정을 위해 아래의 센서를 연동하세요.');
+            showToast('👁️ AI눈 생체 스캔 시작! (데모 모드)', 'success');
             
             // 생체 지표 실시간 분석
             analyzeBioMetrics();
@@ -2554,9 +2593,11 @@
         const scanContainer = document.getElementById('scanVideoContainer');
         const bioMetrics = document.getElementById('bioMetrics');
         const modeSelector = document.getElementById('healthModeSelector');
+        const sensorConnection = document.getElementById('sensorConnection');
         
         if (scanContainer) scanContainer.style.display = 'none';
         if (bioMetrics) bioMetrics.style.display = 'none';
+        if (sensorConnection) sensorConnection.style.display = 'none';
         if (modeSelector) modeSelector.style.display = 'block';
         
         showToast('⏹ 생체 스캔 종료', 'info');
@@ -2637,6 +2678,18 @@
         }
     }
 
+    // ===== BLE 센서 연결 (UI만 구현, 다음 버전에서 실제 기능 추가) =====
+    function connectBLEDevice(type) {
+        const typeName = type === 'ear' ? '귀걸이 센서' : '목걸이 센서';
+        showToast('🔌 ' + typeName + ' 연결 중... (다음 버전에서 지원됩니다)', 'info');
+        
+        // 다음 버전에서 구현:
+        // - navigator.bluetooth.requestDevice() API 사용
+        // - GATT 프로토콜로 센서 데이터 실시간 수신
+        // - 심박수, 체온, 호흡수 등 하드웨어 값 직접 수집
+        // - 높은 정확도의 생체 지표 표시
+    }
+
     function goCategory(key) {
         showToast('📡 ' + key + ' 채널로 이동 중...', 'info');
     }
@@ -2650,7 +2703,7 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        var colors = ['#FFD700', '#A05AFF', '#00FFB4', '#328CFF'];
+        var colors = ['#FFD700', '#2dd4bf', '#5eead4', '#fbbf24', '#328CFF', '#00FFB4'];
 
         for (let i = 0; i < 26; i++) {
             broadcastParticles.push({

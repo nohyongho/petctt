@@ -2647,20 +2647,6 @@
 
         showToast('💾 분석 결과가 저장되었습니다!', 'success');
     }
-        document.getElementById('pulseResult').textContent = pulse;
-        
-        // 호흡: 28~35 범위
-        const respiration = Math.floor(Math.random() * 8 + 28);
-        document.getElementById('respirationResult').textContent = respiration;
-        
-        // 체온: 37.8~38.2 범위
-        const temperature = (Math.random() * 0.4 + 37.8).toFixed(1);
-        document.getElementById('temperatureResult').textContent = temperature;
-        
-        // 스트레스: 60~80 범위
-        const stress = Math.floor(Math.random() * 20 + 60);
-        document.getElementById('stressResult').textContent = stress;
-    }
 
     // 생체스캔 완료
     function completeBioScan() {

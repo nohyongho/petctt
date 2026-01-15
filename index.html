@@ -1865,29 +1865,42 @@
     var currentCameraMode = 'environment'; // 기본: 후면 카메라
 
     function handleStart() {
-        if (liveState.live) return;
-        
-        liveState.live = true;
-        
-        var btnStart = document.getElementById('btnStart');
-        var btnStop = document.getElementById('btnStop');
-        var btnHumanMic = document.getElementById('btnHumanMic');
-        var btnAnimalMic = document.getElementById('btnAnimalMic');
-        
-        btnStart.disabled = true;
-        btnStop.disabled = false;
-        btnHumanMic.disabled = false;
-        btnAnimalMic.disabled = false;
-        
-        document.getElementById('statusBadge').className = 'status-badge live';
-        document.getElementById('statusText').textContent = 'LIVE 활성';
-        
-        // 카메라 켜기 + 감정분석 시작
-        openLiveCamera();
-        startEmotionAnalysis();
-        
-        addBubble('system', '🐾 LIVE 모드 시작! 카메라로 감정 분석 중. 마이크 버튼으로 양방향 통역하세요.');
-        showToast('👁️ AI눈 활성화 + 감정분석 시작!', 'success');
+        try {
+            if (liveState.live) return;
+            
+            liveState.live = true;
+            
+            var btnStart = document.getElementById('btnStart');
+            var btnStop = document.getElementById('btnStop');
+            var btnHumanMic = document.getElementById('btnHumanMic');
+            var btnAnimalMic = document.getElementById('btnAnimalMic');
+            
+            if (!btnStart || !btnStop || !btnHumanMic || !btnAnimalMic) {
+                console.error('❌ 버튼 요소를 찾을 수 없습니다');
+                showToast('❌ UI 로드 오류. 페이지를 새로고침하세요.', 'error');
+                liveState.live = false;
+                return;
+            }
+            
+            btnStart.disabled = true;
+            btnStop.disabled = false;
+            btnHumanMic.disabled = false;
+            btnAnimalMic.disabled = false;
+            
+            document.getElementById('statusBadge').className = 'status-badge live';
+            document.getElementById('statusText').textContent = 'LIVE 활성';
+            
+            // 카메라 켜기 + 감정분석 시작
+            openLiveCamera();
+            startEmotionAnalysis();
+            
+            addBubble('system', '🐾 LIVE 모드 시작! 카메라로 감정 분석 중. 마이크 버튼으로 양방향 통역하세요.');
+            showToast('👁️ AI눈 활성화 + 감정분석 시작!', 'success');
+        } catch (error) {
+            console.error('❌ handleStart 에러:', error);
+            showToast('❌ 에러 발생: ' + error.message, 'error');
+            liveState.live = false;
+        }
     }
 
     // ===== LIVE 카메라 켜기 =====

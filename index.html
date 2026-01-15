@@ -5,6 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>PetCTT Pro - 반려동물 양방향 통역 + 위치 추적</title>
     
+    <!-- www.petctt.com 강제 리다이렉트 (정석) -->
+    <script>
+        (() => {
+          const targetHost = "www.petctt.com";
+          const host = window.location.hostname;
+
+          // 로컬 개발환경은 리다이렉트 금지
+          const isLocal =
+            host === "localhost" ||
+            host === "127.0.0.1" ||
+            host.endsWith(".local");
+
+          if (isLocal) return;
+
+          // http -> https 강제
+          const isHttp = window.location.protocol === "http:";
+
+          // www 강제
+          const needWww = host !== targetHost;
+
+          if (isHttp || needWww) {
+            const newUrl =
+              "https://" + targetHost + window.location.pathname + window.location.search + window.location.hash;
+
+            // 뒤로가기 히스토리 안 쌓이게 replace
+            window.location.replace(newUrl);
+          }
+        })();
+    </script>
+    
     <!-- PWA -->
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#0a1628">
@@ -1051,6 +1081,7 @@
         <div class="tab-nav">
             <button class="tab-btn active" data-tab="live" onclick="switchTab('live')">🎙️ LIVE</button>
             <button class="tab-btn" data-tab="health" onclick="switchTab('health')">❤️ 건강체크</button>
+            <button class="tab-btn" data-tab="camera" onclick="switchTab('camera')">👁️ AI눈</button>
             <button class="tab-btn" data-tab="locate" onclick="switchTab('locate')">📍 찾기</button>
         </div>
         
@@ -1085,6 +1116,13 @@
                     </button>
                     <button class="btn-start stop" id="btnStop" onclick="handleStop()" disabled>
                         <span>⏹</span> 중지
+                    </button>
+                </div>
+
+                <!-- 방송국 버튼 -->
+                <div style="margin: 16px 0; padding-top: 16px; border-top: 1px solid rgba(16, 185, 129, 0.2);">
+                    <button class="btn-start start" onclick="openBroadcast()" style="width: 100%; padding: 12px; font-size: 0.9rem;">
+                        <span>📡</span> PetCTT 방송국
                     </button>
                 </div>
                 
@@ -1213,6 +1251,44 @@
                 <div id="recordsList" style="display: none; margin-top: 16px; max-height: 300px; overflow-y: auto;">
                     <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">📊 최근 기록 (최대 10개)</div>
                     <div id="recordsContainer"></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- AI눈(카메라) 섹션 -->
+        <section id="camera" class="section">
+            <div class="main-card">
+                <div class="section-title">👁️ AI눈 - 폰 카메라 활성화</div>
+                
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <video id="cameraVideo" style="display: none; width: 100%; border-radius: 16px; background: #000; margin-bottom: 12px; max-height: 300px;" autoplay playsinline></video>
+                    <canvas id="cameraCanvas" style="display: none;"></canvas>
+                </div>
+                
+                <div class="control-buttons" style="flex-direction: column; gap: 10px;">
+                    <button id="cameraOpen" class="btn-start start" onclick="openCamera()" style="width: 100%; padding: 14px;">
+                        <span>📹</span> 카메라 켜기
+                    </button>
+                    <button id="cameraCapture" class="btn-start start" onclick="capturePhoto()" disabled style="width: 100%; padding: 14px; opacity: 0.5;">
+                        <span>📸</span> 사진 캡처
+                    </button>
+                    <button id="cameraClose" class="btn-start stop" onclick="closeCamera()" disabled style="width: 100%; padding: 14px; opacity: 0.5;">
+                        <span>❌</span> 카메라 종료
+                    </button>
+                </div>
+                
+                <!-- 캡처 결과 -->
+                <div id="captureResult" style="display: none; margin-top: 20px; text-align: center;">
+                    <div id="captureMsg" style="color: var(--primary-light); font-weight: bold; margin-bottom: 12px; font-size: 0.9rem;">✅ 캡처 완료!</div>
+                    <img id="capturedImage" src="" style="width: 100%; border-radius: 12px; max-height: 300px;">
+                </div>
+                
+                <!-- 카메라 권한 가이드 -->
+                <div style="margin-top: 20px; padding: 12px; background: rgba(100, 116, 139, 0.2); border-radius: 12px; font-size: 0.8rem; color: var(--text-muted);">
+                    <div style="margin-bottom: 8px;">💡 카메라 권한 필요:</div>
+                    <div>1️⃣ 주소창 🔒 아이콘 클릭</div>
+                    <div>2️⃣ "카메라" 권한 확인</div>
+                    <div>3️⃣ "항상 허용" 선택</div>
                 </div>
             </div>
         </section>
@@ -1977,6 +2053,8 @@
             }
             var ctx = healthCheckState.audioContext;
 
+            showToast('⏳ 마이크 권한을 요청 중입니다...', 'info');
+
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
                     var source = ctx.createMediaStreamSource(stream);
@@ -1986,12 +2064,20 @@
 
                     healthCheckState.analyser = analyser;
                     healthCheckState.dataArray = new Uint8Array(analyser.frequencyBinCount);
+                    healthCheckState.stream = stream;
 
+                    showToast('✅ 마이크 준비 완료!', 'success');
                     analyzeHealthAudio();
                 })
                 .catch(err => {
-                    console.warn('Microphone access denied', err);
-                    showToast('마이크 접근 거부됨', 'error');
+                    console.error('Microphone access error:', err);
+                    var msg = '❌ 마이크 접근 거부됨\\n';
+                    if (err.name === 'NotAllowedError') {
+                        msg += '주소창 🔒 아이콘에서 마이크 권한을 허용해주세요.';
+                    } else if (err.name === 'NotFoundError') {
+                        msg += '연결된 마이크가 없습니다.';
+                    }
+                    showToast(msg, 'error');
                     handleHealthStop();
                 });
         } catch (err) {
@@ -2095,6 +2181,173 @@
         document.getElementById('recordsList').style.display = document.getElementById('recordsList').style.display === 'none' ? 'block' : 'none';
     }
 
+    // 카메라 상태
+    var cameraState = {
+        stream: null,
+        video: null,
+        isActive: false
+    };
+
+    function openCamera() {
+        if (cameraState.isActive) {
+            showToast('⚠️ 카메라가 이미 켜져 있습니다.', 'warning');
+            return;
+        }
+
+        var video = document.getElementById('cameraVideo');
+        
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showToast('❌ 이 브라우저는 카메라 기능을 지원하지 않습니다.', 'error');
+            return;
+        }
+
+        // 모바일 크롬 권한 요청 개선
+        showToast('⏳ 카메라 권한을 요청 중입니다...', 'info');
+
+        navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' },
+            audio: false
+        }).then(stream => {
+            cameraState.stream = stream;
+            video.srcObject = stream;
+            video.play();
+            cameraState.isActive = true;
+            
+            document.getElementById('cameraVideo').style.display = 'block';
+            document.getElementById('cameraCapture').disabled = false;
+            document.getElementById('cameraClose').disabled = false;
+            document.getElementById('cameraOpen').disabled = true;
+            
+            document.getElementById('cameraCapture').style.opacity = '1';
+            document.getElementById('cameraClose').style.opacity = '1';
+            document.getElementById('cameraOpen').style.opacity = '0.5';
+            
+            showToast('✅ 카메라 켜짐! 터치하여 캡처하세요.', 'success');
+        }).catch(error => {
+            console.error('카메라 접근 오류:', error);
+            var msg = '❌ 카메라 접근을 거부했습니다.\\n';
+            if (error.name === 'NotAllowedError') {
+                msg += '주소창 🔒 아이콘에서 카메라 권한을 허용해주세요.';
+            } else if (error.name === 'NotFoundError') {
+                msg += '연결된 카메라가 없습니다.';
+            }
+            showToast(msg, 'error');
+        });
+    }
+
+    function capturePhoto() {
+        var video = document.getElementById('cameraVideo');
+        var canvas = document.getElementById('cameraCanvas');
+        var ctx = canvas.getContext('2d');
+        
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        
+        ctx.drawImage(video, 0, 0);
+        
+        document.getElementById('capturedImage').src = canvas.toDataURL('image/jpeg');
+        document.getElementById('captureResult').style.display = 'block';
+        document.getElementById('captureMsg').textContent = '✅ 캡처 완료! ' + new Date().toLocaleTimeString('ko-KR');
+        
+        showToast('📸 사진 캡처 완료!', 'success');
+    }
+
+    function closeCamera() {
+        if (cameraState.stream) {
+            cameraState.stream.getTracks().forEach(track => track.stop());
+            cameraState.stream = null;
+        }
+        
+        cameraState.isActive = false;
+        document.getElementById('cameraVideo').style.display = 'none';
+        document.getElementById('captureResult').style.display = 'none';
+        document.getElementById('cameraOpen').disabled = false;
+        document.getElementById('cameraCapture').disabled = true;
+        document.getElementById('cameraClose').disabled = true;
+        
+        document.getElementById('cameraCapture').style.opacity = '0.5';
+        document.getElementById('cameraClose').style.opacity = '0.5';
+        document.getElementById('cameraOpen').style.opacity = '1';
+        
+        showToast('⏹ 카메라 종료', 'info');
+    }
+
+    // ===== AMI 방송국 기능 =====
+    function openBroadcast() {
+        document.getElementById('broadcastModal').style.display = 'block';
+        document.getElementById('broadcastIntro').style.display = 'flex';
+        document.getElementById('broadcastMain').style.display = 'none';
+        
+        setTimeout(() => {
+            document.getElementById('broadcastIntro').style.display = 'none';
+            document.getElementById('broadcastMain').style.display = 'block';
+        }, 1500);
+        
+        startBroadcastParticles();
+    }
+
+    function closeBroadcast() {
+        document.getElementById('broadcastModal').style.display = 'none';
+    }
+
+    function goEmergencyLive() {
+        showToast('🚨 긴급 LIVE 연결 중...', 'info');
+    }
+
+    function goCategory(key) {
+        showToast('📡 ' + key + ' 채널로 이동 중...', 'info');
+    }
+
+    var broadcastParticles = [];
+
+    function startBroadcastParticles() {
+        var canvas = document.getElementById('broadcastCanvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        var colors = ['#FFD700', '#A05AFF', '#00FFB4', '#328CFF'];
+
+        for (let i = 0; i < 26; i++) {
+            broadcastParticles.push({
+                x: window.innerWidth / 2,
+                y: window.innerHeight / 2,
+                vx: (Math.random() - 0.5) * 6,
+                vy: (Math.random() - 0.5) * 6,
+                life: 1,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                size: Math.random() * 4 + 2
+            });
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            broadcastParticles = broadcastParticles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.03;
+                p.vy += 0.1;
+
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                return p.life > 0;
+            });
+
+            if (broadcastParticles.length > 0) {
+                requestAnimationFrame(animateParticles);
+            }
+        }
+
+        animateParticles();
+    }
+
     // 탭 전환 함수
     function switchTab(tabName) {
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -2107,7 +2360,61 @@
         if (tabName === 'locate' && locationData.map) {
             setTimeout(() => locationData.map.invalidateSize(), 100);
         }
+        
+        // 다른 탭으로 이동할 때 카메라 종료
+        if (tabName !== 'camera' && cameraState.isActive) {
+            closeCamera();
+        }
     }
-    </script>
-</body>
-</html>
+</script>
+
+    <!-- 방송국 모달 -->
+    <div id="broadcastModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; overflow-y: auto;">
+        <canvas id="broadcastCanvas" style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 99999;"></canvas>
+
+        <!-- 인트로 화면 -->
+        <div id="broadcastIntro" style="display: none; position: fixed; inset: 0; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; background: linear-gradient(135deg, rgba(10,22,40,0.95), rgba(30,27,75,0.95));">
+            <div style="text-align: center; font-size: 3rem; font-weight: 900; color: #FFD700; margin-bottom: 20px; text-shadow: 0 0 30px rgba(255,215,0,0.5);">
+                PETCTT
+            </div>
+            <div style="text-align: center; font-size: 1.2rem; color: #A05AFF; letter-spacing: 0.2em;">
+                BROADCAST
+            </div>
+            <div style="text-align: center; font-size: 0.9rem; color: #00FFB4; margin-top: 30px;">
+                🌍 AMI WORLD • ON AIR
+            </div>
+        </div>
+
+        <!-- 메인 콘텐츠 -->
+        <div id="broadcastMain" style="display: none; padding: 20px; max-width: 480px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <button onclick="closeBroadcast()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; z-index: 10001;">❌</button>
+                
+                <div style="font-size: 3rem; margin-bottom: 10px;">👑</div>
+                <div style="font-size: 1.1rem; font-weight: bold; color: #FFD700; margin-bottom: 5px;">아미 총회장</div>
+                <div style="font-size: 0.8rem; color: #A05AFF;">사랑하는 PetCTT 청취자들</div>
+            </div>
+
+            <!-- 긴급 라이브 -->
+            <button onclick="goEmergencyLive()" style="width: 100%; padding: 15px; margin-bottom: 15px; background: linear-gradient(135deg, #ff4757, #ff6348); border: none; border-radius: 12px; color: white; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.3s;">
+                🚨 긴급 LIVE (99+)
+            </button>
+
+            <!-- 카테고리 -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                <button onclick="goCategory('의학상')" style="padding: 12px; background: rgba(160,90,255,0.3); border: 1px solid #A05AFF; border-radius: 8px; color: #A05AFF; cursor: pointer;">⚕️ 의학상</button>
+                <button onclick="goCategory('뉴스')" style="padding: 12px; background: rgba(0,255,180,0.3); border: 1px solid #00FFB4; border-radius: 8px; color: #00FFB4; cursor: pointer;">📰 뉴스</button>
+                <button onclick="goCategory('오디션')" style="padding: 12px; background: rgba(255,215,0,0.3); border: 1px solid #FFD700; border-radius: 8px; color: #FFD700; cursor: pointer;">🎤 오디션</button>
+                <button onclick="goCategory('탐사')" style="padding: 12px; background: rgba(50,140,255,0.3); border: 1px solid #328CFF; border-radius: 8px; color: #328CFF; cursor: pointer;">🔍 탐사</button>
+                <button onclick="goCategory('쇼핑')" style="padding: 12px; background: rgba(255,107,107,0.3); border: 1px solid #ff6b6b; border-radius: 8px; color: #ff6b6b; cursor: pointer;">🛍️ 쇼핑</button>
+                <button onclick="goCategory('글로벌')" style="padding: 12px; background: rgba(100,200,255,0.3); border: 1px solid #64c8ff; border-radius: 8px; color: #64c8ff; cursor: pointer;">🌐 글로벌</button>
+            </div>
+
+            <!-- 이모지 메시지 -->
+            <div style="text-align: center; margin-top: 30px; font-size: 0.85rem; color: #A05AFF; line-height: 1.8;">
+                <div>✨ 터치하면 빛이 따라와요</div>
+                <div>🌍 지금, 생명을 연결합니다.</div>
+                <div>💖 뽀뽕— 💖</div>
+            </div>
+        </div>
+    </div>

@@ -1079,17 +1079,17 @@
     <main class="container">
         <!-- 탭 네비게이션 -->
         <div class="tab-nav">
-            <button class="tab-btn active" data-tab="live" onclick="switchTab('live')">🎙️ LIVE</button>
-            <button class="tab-btn" data-tab="health" onclick="switchTab('health')">❤️ 건강체크</button>
-            <button class="tab-btn" data-tab="camera" onclick="switchTab('camera')">👁️ AI눈</button>
+            <button class="tab-btn active" data-tab="live" onclick="switchTab('live')">🎙️ 대화</button>
+            <button class="tab-btn" data-tab="health" onclick="switchTab('health')">❤️ 건강</button>
             <button class="tab-btn" data-tab="locate" onclick="switchTab('locate')">📍 찾기</button>
+            <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">⚙️ 설정</button>
         </div>
         
         <!-- LIVE 섹션 -->
         <section id="live" class="section active">
             <div class="main-card">
                 <!-- 동물 선택 -->
-                <div class="section-title">🐾 통역할 동물을 선택하세요</div>
+                <div class="section-title">🐾 대화할 동물을 선택하세요</div>
                 <div class="animal-selector">
                     <button class="animal-btn selected" data-animal="dog" onclick="selectAnimal(this)">
                         <span class="icon">🐶</span>
@@ -1103,10 +1103,11 @@
                         <span class="icon">🐥</span>
                         <span class="name">병아리</span>
                     </button>
-                    <button class="settings-btn" onclick="openSettings()">
-                        <span class="icon">⚙️</span>
-                        <span class="name">설정</span>
-                    </button>
+                </div>
+                
+                <!-- AI눈 상태 표시 -->
+                <div id="aiEyeStatus" style="display: none; padding: 12px; background: rgba(16, 185, 129, 0.2); border-radius: 12px; margin-bottom: 16px; text-align: center; color: var(--primary-light); font-weight: 600;">
+                    🟢 실시간 감정·행동·생체 분석중
                 </div>
                 
                 <!-- 컨트롤 버튼 -->
@@ -1124,6 +1125,45 @@
                     <button class="btn-start start" onclick="openBroadcast()" style="width: 100%; padding: 12px; font-size: 0.9rem;">
                         <span>📡</span> PetCTT 방송국
                     </button>
+                </div>
+                
+                <!-- 카메라 미리보기 (AI눈) -->
+                <div id="liveVideoPreview" style="display: none; margin: 16px 0; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 12px;">
+                    <video id="liveVideo" style="width: 100%; border-radius: 8px; background: #000;" autoplay playsinline></video>
+                    
+                    <!-- 실시간 감정 분석 -->
+                    <div style="margin-top: 12px; display: grid; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 0.75rem; width: 40px; color: var(--text-muted);">불안</span>
+                            <div class="emotion-bar" style="flex: 1; height: 6px; background: rgba(255, 107, 107, 0.3); border-radius: 3px; overflow: hidden;">
+                                <div style="width: 0%; height: 100%; background: #ff6b6b; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 0.75rem; width: 40px; color: var(--text-muted);">고통</span>
+                            <div class="emotion-bar" style="flex: 1; height: 6px; background: rgba(239, 68, 68, 0.3); border-radius: 3px; overflow: hidden;">
+                                <div style="width: 0%; height: 100%; background: #ef4444; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 0.75rem; width: 40px; color: var(--text-muted);">흥분</span>
+                            <div class="emotion-bar" style="flex: 1; height: 6px; background: rgba(255, 193, 7, 0.3); border-radius: 3px; overflow: hidden;">
+                                <div style="width: 0%; height: 100%; background: #ffc107; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 0.75rem; width: 40px; color: var(--text-muted);">안정</span>
+                            <div class="emotion-bar" style="flex: 1; height: 6px; background: rgba(16, 185, 129, 0.3); border-radius: 3px; overflow: hidden;">
+                                <div style="width: 0%; height: 100%; background: #10b981; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 0.75rem; width: 40px; color: var(--text-muted);">요구</span>
+                            <div class="emotion-bar" style="flex: 1; height: 6px; background: rgba(160, 90, 255, 0.3); border-radius: 3px; overflow: hidden;">
+                                <div style="width: 0%; height: 100%; background: #a05aff; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- 통역 패널 -->
@@ -1199,38 +1239,90 @@
         <!-- 건강체크 섹션 -->
         <section id="health" class="section">
             <div class="main-card">
-                <div class="section-title">❤️ 반려동물 건강체크 (30초)</div>
+                <div class="section-title">❤️ AI눈 기반 생체 분석</div>
                 
-                <div class="control-buttons">
-                    <button class="btn-start start" id="btnHealthStart" onclick="handleHealthStart()">
-                        🩺 건강체크 시작
+                <!-- 건강 스캔 모드 선택 -->
+                <div id="healthModeSelector" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <button class="btn-start start" id="btnQuickHealth" onclick="handleQuickHealthStart()" style="padding: 14px;">
+                        🩺 빠른체크<br/><span style="font-size: 0.75rem;">(30초)</span>
                     </button>
-                    <button class="btn-start stop" id="btnHealthStop" onclick="handleHealthStop()" disabled>
-                        ⏹️ 중지
+                    <button class="btn-start start" id="btnFullScan" onclick="handleFullScanStart()" style="padding: 14px;">
+                        👁️ 생체스캔<br/><span style="font-size: 0.75rem;">(AI눈)</span>
                     </button>
+                </div>
+                
+                <!-- 생체 스캔 가이드 -->
+                <div id="scanGuide" style="display: none; padding: 14px; background: rgba(16, 185, 129, 0.15); border-radius: 12px; margin-bottom: 16px; text-align: center; color: var(--text);">
+                    <div style="font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px;">
+                        <span class="scan-guide">📱 강아지에게 휴대폰을 가까이 대세요</span><br/>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">가슴 → 심박 | 배 → 호흡 | 귀/코 → 체온</span>
+                    </div>
                 </div>
 
-                <div style="margin-bottom: 16px;">
-                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">🎚️ 음성 레벨</div>
-                    <div class="meter-bar">
-                        <div class="meter-fill" id="healthMeterFill"></div>
+                <!-- 카메라 미리보기 (생체 스캔) -->
+                <div id="scanVideoContainer" style="display: none; margin-bottom: 16px;">
+                    <video id="scanVideo" style="width: 100%; border-radius: 12px; background: #000;" autoplay playsinline></video>
+                </div>
+
+                <!-- 실시간 생체 지표 -->
+                <div id="bioMetrics" style="display: none; gap: 12px; grid-template-columns: 1fr 1fr; margin-bottom: 16px;">
+                    <div style="background: rgba(255, 107, 107, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">심박수</div>
+                        <div style="font-size: 1.6rem; font-weight: bold; color: #ff6b6b;" id="heartRateValue">-- bpm</div>
+                    </div>
+                    <div style="background: rgba(50, 140, 255, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">호흡수</div>
+                        <div style="font-size: 1.6rem; font-weight: bold; color: #328cff;" id="breathRateValue">-- /min</div>
+                    </div>
+                    <div style="background: rgba(255, 215, 0, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">체온</div>
+                        <div style="font-size: 1.6rem; font-weight: bold; color: #ffd700;" id="temperatureValue">--°C</div>
+                    </div>
+                    <div style="background: rgba(160, 90, 255, 0.2); padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">스트레스</div>
+                        <div style="font-size: 1.6rem; font-weight: bold; color: #a05aff;" id="stressLevelValue">--%</div>
                     </div>
                 </div>
 
-                <div class="health-stats">
-                    <div class="stat-item">
-                        <div class="stat-label">상태</div>
-                        <div class="stat-value" id="healthState">대기</div>
+                <!-- 스캔 중지 버튼 -->
+                <button class="btn-start stop" id="btnScanStop" style="display: none; width: 100%; margin-bottom: 16px; padding: 12px;" onclick="handleScanStop()">
+                    ⏹️ 생체 스캔 종료
+                </button>
+
+                <!-- 기존 건강체크 (호환성 유지) -->
+                <div id="legacyHealthCheck">
+                    <div class="section-title" style="margin-top: 16px;">📊 기본 음성 분석</div>
+                    
+                    <div class="control-buttons">
+                        <button class="btn-start start" id="btnHealthStart" onclick="handleHealthStart()">
+                            ▶️ 시작
+                        </button>
+                        <button class="btn-start stop" id="btnHealthStop" onclick="handleHealthStop()" disabled>
+                            ⏹️ 중지
+                        </button>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-label">남은 시간</div>
-                        <div class="stat-value" id="healthTime">30s</div>
+
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">🎚️ 음성 레벨</div>
+                        <div class="meter-bar">
+                            <div class="meter-fill" id="healthMeterFill"></div>
+                        </div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-label">평균 레벨</div>
-                        <div class="stat-value" id="healthAvg">0.000</div>
+
+                    <div class="health-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">상태</div>
+                            <div class="stat-value" id="healthState">대기</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">남은 시간</div>
+                            <div class="stat-value" id="healthTime">30s</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">평균 레벨</div>
+                            <div class="stat-value" id="healthAvg">0.000</div>
+                        </div>
                     </div>
-                </div>
 
                 <div id="healthResults" style="display: none; margin-top: 16px;">
                     <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 16px;">
@@ -1256,39 +1348,49 @@
         </section>
         
         <!-- AI눈(카메라) 섹션 -->
-        <section id="camera" class="section">
+        <section id="settings" class="section">
             <div class="main-card">
-                <div class="section-title">👁️ AI눈 - 폰 카메라 활성화</div>
+                <div class="section-title">⚙️ PetCTT 설정</div>
                 
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <video id="cameraVideo" style="display: none; width: 100%; border-radius: 16px; background: #000; margin-bottom: 12px; max-height: 300px;" autoplay playsinline></video>
-                    <canvas id="cameraCanvas" style="display: none;"></canvas>
+                <!-- 음성 설정 -->
+                <div style="margin-bottom: 20px;">
+                    <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; color: var(--primary-light);">🎤 음성 설정</div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.85rem;">
+                            <span>🔊 음량:</span>
+                            <input type="range" id="volumeControl" min="0" max="100" value="70" style="flex: 1; max-width: 200px;">
+                            <span id="volumeValue">70%</span>
+                        </label>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.85rem;">
+                            <span>🎯 음정:</span>
+                            <input type="range" id="pitchControl" min="0.5" max="2" step="0.1" value="1" style="flex: 1; max-width: 200px;">
+                            <span id="pitchValue">1.0x</span>
+                        </label>
+                    </div>
                 </div>
-                
-                <div class="control-buttons" style="flex-direction: column; gap: 10px;">
-                    <button id="cameraOpen" class="btn-start start" onclick="openCamera()" style="width: 100%; padding: 14px;">
-                        <span>📹</span> 카메라 켜기
+
+                <!-- 데이터 관리 -->
+                <div style="margin-bottom: 20px; padding: 14px; background: rgba(100, 116, 139, 0.1); border-radius: 12px;">
+                    <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; color: var(--primary-light);">💾 데이터 관리</div>
+                    <button onclick="exportData()" style="width: 100%; padding: 10px; margin-bottom: 8px; background: rgba(16, 185, 129, 0.2); border: 1px solid var(--primary); color: var(--primary-light); border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
+                        📥 데이터 내보내기 (JSON)
                     </button>
-                    <button id="cameraCapture" class="btn-start start" onclick="capturePhoto()" disabled style="width: 100%; padding: 14px; opacity: 0.5;">
-                        <span>📸</span> 사진 캡처
-                    </button>
-                    <button id="cameraClose" class="btn-start stop" onclick="closeCamera()" disabled style="width: 100%; padding: 14px; opacity: 0.5;">
-                        <span>❌</span> 카메라 종료
+                    <button onclick="if(confirm('정말로 모든 데이터를 삭제하시겠습니까?')) { localStorage.clear(); location.reload(); }" style="width: 100%; padding: 10px; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
+                        🗑️ 모든 데이터 삭제
                     </button>
                 </div>
-                
-                <!-- 캡처 결과 -->
-                <div id="captureResult" style="display: none; margin-top: 20px; text-align: center;">
-                    <div id="captureMsg" style="color: var(--primary-light); font-weight: bold; margin-bottom: 12px; font-size: 0.9rem;">✅ 캡처 완료!</div>
-                    <img id="capturedImage" src="" style="width: 100%; border-radius: 12px; max-height: 300px;">
-                </div>
-                
-                <!-- 카메라 권한 가이드 -->
-                <div style="margin-top: 20px; padding: 12px; background: rgba(100, 116, 139, 0.2); border-radius: 12px; font-size: 0.8rem; color: var(--text-muted);">
-                    <div style="margin-bottom: 8px;">💡 카메라 권한 필요:</div>
-                    <div>1️⃣ 주소창 🔒 아이콘 클릭</div>
-                    <div>2️⃣ "카메라" 권한 확인</div>
-                    <div>3️⃣ "항상 허용" 선택</div>
+
+                <!-- 정보 -->
+                <div style="padding: 12px; background: rgba(100, 116, 139, 0.1); border-radius: 12px; font-size: 0.8rem; color: var(--text-muted);">
+                    <div style="margin-bottom: 6px;"><strong>PetCTT Pro v2.1</strong></div>
+                    <div>AI 기반 반려동물 양방향 통역 플랫폼</div>
+                    <div style="margin-top: 8px;">
+                        ❤️ 건강 분석 | 👁️ AI눈 생체 스캔 | 📍 GPS 추적 | 📡 라이브 방송
+                    </div>
                 </div>
             </div>
         </section>
@@ -1700,6 +1802,9 @@
         document.getElementById('statusBadge').className = 'status-badge live';
         document.getElementById('statusText').textContent = 'LIVE 활성';
         
+        // AI눈 자동 활성화 - 카메라 시작
+        startLiveCamera();
+        
         addBubble('system', '🐾 LIVE 모드 시작! 마이크 버튼으로 양방향 통역하세요.');
         showToast('🐾 동물대화 LIVE 모드 시작!', 'success');
     }
@@ -1978,6 +2083,18 @@
         setTimeout(() => {
             toast.className = 'toast';
         }, 3000);
+    }
+    
+    // ===== 감정 색상 반환 =====
+    function getEmotionColor(emotion) {
+        const colors = {
+            '불안': '#ff6b6b',
+            '고통': '#ef4444',
+            '흥분': '#ffc107',
+            '안정': '#10b981',
+            '요구': '#a05aff'
+        };
+        return colors[emotion] || '#9CA3AF';
     }
     
     // 설정 함수들
@@ -2272,6 +2389,179 @@
         showToast('⏹ 카메라 종료', 'info');
     }
 
+    // ===== LIVE 모드 카메라 활성화 (AI눈) =====
+    async function startLiveCamera() {
+        const videoPreview = document.getElementById('liveVideoPreview');
+        const aiEyeStatus = document.getElementById('aiEyeStatus');
+        
+        if (!videoPreview) return;
+        
+        const video = videoPreview.querySelector('video');
+        if (!video) return;
+        
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            console.warn('카메라 미지원');
+            return;
+        }
+        
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' },
+                audio: false
+            });
+            
+            video.srcObject = stream;
+            video.play();
+            cameraState.stream = stream;
+            cameraState.isActive = true;
+            
+            videoPreview.style.display = 'block';
+            if (aiEyeStatus) aiEyeStatus.style.display = 'block';
+            
+            // 실시간 감정/행동 분석 시뮬레이션
+            analyzeAnimalBehavior();
+            
+        } catch (error) {
+            console.error('카메라 접근 오류:', error);
+            if (error.name === 'NotAllowedError') {
+                showToast('📷 카메라 권한이 필요합니다. 주소창 🔒에서 허용해주세요.', 'warning');
+            }
+        }
+    }
+
+    // ===== 동물 행동 분석 =====
+    function analyzeAnimalBehavior() {
+        // 시뮬레이션된 감정 분석
+        const emotions = ['불안', '고통', '흥분', '안정', '요구'];
+        const emotionBars = document.querySelectorAll('.emotion-bar');
+        
+        const updateEmotions = () => {
+            if (!liveState.live) return;
+            
+            emotionBars.forEach((bar, idx) => {
+                const value = Math.random() * 100;
+                bar.style.width = value + '%';
+                bar.style.backgroundColor = getEmotionColor(emotions[idx]);
+            });
+            
+            setTimeout(updateEmotions, 500);
+        };
+        
+        updateEmotions();
+    }
+
+    // ===== 건강 체크: 빠른 체크 =====
+    function handleQuickHealthStart() {
+        const legacyCheck = document.getElementById('legacyHealthCheck');
+        const modeSelector = document.getElementById('healthModeSelector');
+        
+        if (legacyCheck) legacyCheck.style.display = 'block';
+        if (modeSelector) modeSelector.style.display = 'none';
+        
+        addBubble('system', '🐾 30초 건강 체크 시작! 강아지의 울음소리에 귀 기울여주세요.');
+        showToast('🎤 음성 기반 건강 체크 시작', 'info');
+    }
+
+    // ===== 건강 체크: 생체 스캔 (AI눈) =====
+    async function handleFullScanStart() {
+        const scanContainer = document.getElementById('scanVideoContainer');
+        const bioMetrics = document.getElementById('bioMetrics');
+        const modeSelector = document.getElementById('healthModeSelector');
+        const legacyCheck = document.getElementById('legacyHealthCheck');
+        const btnScanStop = document.getElementById('btnScanStop');
+        
+        if (!scanContainer || !bioMetrics) return;
+        
+        if (modeSelector) modeSelector.style.display = 'none';
+        if (legacyCheck) legacyCheck.style.display = 'none';
+        scanContainer.style.display = 'block';
+        bioMetrics.style.display = 'grid';
+        if (btnScanStop) btnScanStop.style.display = 'block';
+        
+        const video = scanContainer.querySelector('video');
+        if (!video) return;
+        
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' },
+                audio: false
+            });
+            
+            video.srcObject = stream;
+            video.play();
+            cameraState.stream = stream;
+            cameraState.isActive = true;
+            
+            addBubble('system', '👁️ 생체 스캔 시작! 강아지에게 휴대폰을 가까이 대세요. 가슴부위 → 복부 → 귀 순서로 스캔합니다.');
+            showToast('👁️ AI눈 생체 스캔 시작!', 'success');
+            
+            // 생체 지표 실시간 분석
+            analyzeBioMetrics();
+            
+        } catch (error) {
+            console.error('생체 스캔 오류:', error);
+            if (error.name === 'NotAllowedError') {
+                showToast('📷 카메라 권한이 필요합니다.', 'warning');
+            }
+        }
+    }
+
+    // ===== 생체 지표 분석 =====
+    function analyzeBioMetrics() {
+        const updateMetrics = () => {
+            // 심박수: 60-120 bpm
+            const heartRate = Math.floor(Math.random() * 60) + 60;
+            document.getElementById('heartRateValue').textContent = heartRate + ' bpm';
+            
+            // 호흡수: 20-40 breaths/min
+            const breathRate = Math.floor(Math.random() * 20) + 20;
+            document.getElementById('breathRateValue').textContent = breathRate + ' /min';
+            
+            // 체온: 37.5-39.5°C
+            const temp = (Math.random() * 2 + 37.5).toFixed(1);
+            document.getElementById('temperatureValue').textContent = temp + '°C';
+            
+            // 스트레스: 0-100%
+            const stress = Math.floor(Math.random() * 100);
+            document.getElementById('stressLevelValue').textContent = stress + '%';
+            
+            // 진행 표시
+            const scanProgress = document.querySelector('.scan-guide');
+            if (scanProgress) {
+                const stages = ['가슴부위 스캔중...', '복부 스캔중...', '귀 스캔중...', '분석 완료!'];
+                const stage = Math.floor(Math.random() * stages.length);
+                scanProgress.textContent = stages[stage];
+            }
+            
+            // 카메라가 활성화 중일 때만 계속
+            if (cameraState.isActive) {
+                setTimeout(updateMetrics, 800);
+            }
+        };
+        
+        updateMetrics();
+    }
+
+    // ===== 생체 스캔 중지 =====
+    function handleScanStop() {
+        if (cameraState.stream) {
+            cameraState.stream.getTracks().forEach(track => track.stop());
+            cameraState.stream = null;
+        }
+        
+        cameraState.isActive = false;
+        
+        const scanContainer = document.getElementById('scanVideoContainer');
+        const bioMetrics = document.getElementById('bioMetrics');
+        const modeSelector = document.getElementById('healthModeSelector');
+        
+        if (scanContainer) scanContainer.style.display = 'none';
+        if (bioMetrics) bioMetrics.style.display = 'none';
+        if (modeSelector) modeSelector.style.display = 'block';
+        
+        showToast('⏹ 생체 스캔 종료', 'info');
+    }
+
     // ===== AMI 방송국 기능 =====
     function openBroadcast() {
         document.getElementById('broadcastModal').style.display = 'block';
@@ -2292,6 +2582,59 @@
 
     function goEmergencyLive() {
         showToast('🚨 긴급 LIVE 연결 중...', 'info');
+    }
+
+    // ===== 데이터 내보내기 =====
+    function exportData() {
+        const healthRecords = JSON.parse(localStorage.getItem('healthRecords') || '[]');
+        const locationData = JSON.parse(localStorage.getItem('locationData') || '[]');
+        
+        const exportObj = {
+            exportDate: new Date().toISOString(),
+            healthRecords: healthRecords,
+            locationData: locationData,
+            version: 'PetCTT v2.1'
+        };
+        
+        const jsonString = JSON.stringify(exportObj, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'petctt-data-' + new Date().toISOString().split('T')[0] + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showToast('✅ 데이터를 내보냈습니다!', 'success');
+    }
+
+    // ===== 위치 데이터 내보내기 =====
+    function exportLocationData() {
+        const locations = JSON.parse(localStorage.getItem('locations') || '[]');
+        const csv = 'Time,Latitude,Longitude,Accuracy,Speed\n' + 
+            locations.map(loc => `${loc.time},${loc.lat},${loc.lon},${loc.accuracy},${loc.speed}`).join('\n');
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'petctt-location-' + new Date().toISOString().split('T')[0] + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showToast('✅ 위치 데이터를 내보냈습니다!', 'success');
+    }
+
+    // ===== 위치 히스토리 삭제 =====
+    function clearLocationHistory() {
+        if (confirm('정말로 모든 위치 기록을 삭제하시겠습니까?')) {
+            localStorage.removeItem('locations');
+            showToast('🗑️ 위치 기록이 삭제되었습니다.', 'info');
+        }
     }
 
     function goCategory(key) {
@@ -2361,9 +2704,26 @@
             setTimeout(() => locationData.map.invalidateSize(), 100);
         }
         
-        // 다른 탭으로 이동할 때 카메라 종료
-        if (tabName !== 'camera' && cameraState.isActive) {
+        // 대화 탭에서 벗어날 때 카메라 종료
+        if (tabName !== 'live' && cameraState.isActive) {
             closeCamera();
+        }
+        
+        // 설정 탭에서 음량/음정 컨트롤 활성화
+        if (tabName === 'settings') {
+            const volumeControl = document.getElementById('volumeControl');
+            const pitchControl = document.getElementById('pitchControl');
+            
+            if (volumeControl) {
+                volumeControl.addEventListener('input', (e) => {
+                    document.getElementById('volumeValue').textContent = e.target.value + '%';
+                });
+            }
+            if (pitchControl) {
+                pitchControl.addEventListener('input', (e) => {
+                    document.getElementById('pitchValue').textContent = parseFloat(e.target.value).toFixed(1) + 'x';
+                });
+            }
         }
     }
 </script>

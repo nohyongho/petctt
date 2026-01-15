@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>PetCTT Pro - 반려동물 양방향 통역 + 위치 추적</title>
     
-    <!-- www.petctt.com 강제 리다이렉트 (정석) -->
+    <!-- www.petctt.com 강제 리다이렉트 + 캐시무효화 -->
     <script>
         (() => {
           const targetHost = "www.petctt.com";
@@ -32,8 +32,25 @@
             // 뒤로가기 히스토리 안 쌓이게 replace
             window.location.replace(newUrl);
           }
+          
+          // 구형 캐시 무효화: 서비스워커 재등록
+          if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then(regs => {
+                  regs.forEach(reg => {
+                      // 기존 SW 언로드
+                      if (reg.active) {
+                          reg.unregister().catch(err => console.log('SW unregister error:', err));
+                      }
+                  });
+              });
+          }
         })();
     </script>
+    
+    <!-- 캐시 무효화 버전 타임스탐프 (매일 업데이트) -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     
     <!-- PWA -->
     <link rel="manifest" href="manifest.webmanifest">
@@ -1146,8 +1163,18 @@
                 </div>
                 
                 <!-- 카메라 미리보기 (AI눈) -->
-                <div id="liveVideoPreview" style="display: none; margin: 16px 0; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 12px;">
-                    <video id="liveVideo" style="width: 100%; border-radius: 8px; background: #000;" autoplay playsinline></video>
+                <div id="liveVideoPreview" style="display: none; margin: 16px 0; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 12px; position: relative;">
+                    <!-- 카메라 전환 버튼 -->
+                    <div style="position: absolute; top: 16px; right: 16px; display: flex; gap: 8px; z-index: 10;">
+                        <button onclick="switchCamera('user')" id="btnCameraFront" class="camera-mode-btn active" style="padding: 8px 12px; background: rgba(45, 212, 191, 0.8); border: 1px solid rgba(45, 212, 191, 0.6); border-radius: 8px; color: white; font-size: 0.75rem; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                            🤳 전면
+                        </button>
+                        <button onclick="switchCamera('environment')" id="btnCameraBack" class="camera-mode-btn" style="padding: 8px 12px; background: rgba(45, 212, 191, 0.3); border: 1px solid rgba(45, 212, 191, 0.4); border-radius: 8px; color: var(--primary-light); font-size: 0.75rem; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                            📷 후면
+                        </button>
+                    </div>
+                    
+                    <video id="liveVideo" style="width: 100%; border-radius: 8px; background: #000; display: block;" autoplay playsinline muted></video>
                     
                     <!-- 실시간 감정 분석 -->
                     <div style="margin-top: 12px; display: grid; gap: 8px;">
@@ -2427,14 +2454,28 @@
     }
 
     // ===== LIVE 모드 카메라 활성화 (AI눈) =====
+    // ===== LIVE 모드 카메라 활성화 (AI눈) =====
+    var currentCameraMode = 'environment'; // 기본값: 후면
+    
     async function startLiveCamera() {
+        await switchCamera('environment');
+    }
+    
+    // ===== 카메라 전면/후면 전환 =====
+    async function switchCamera(mode) {
         const videoPreview = document.getElementById('liveVideoPreview');
         const aiEyeStatus = document.getElementById('aiEyeStatus');
+        const video = document.getElementById('liveVideo');
+        const btnCameraFront = document.getElementById('btnCameraFront');
+        const btnCameraBack = document.getElementById('btnCameraBack');
         
-        if (!videoPreview) return;
+        if (!videoPreview || !video || !liveState.live) return;
         
-        const video = videoPreview.querySelector('video');
-        if (!video) return;
+        // 기존 스트림 종료
+        if (cameraState.stream) {
+            cameraState.stream.getTracks().forEach(track => track.stop());
+            cameraState.stream = null;
+        }
         
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             console.warn('카메라 미지원');
@@ -2442,8 +2483,11 @@
         }
         
         try {
+            currentCameraMode = mode;
+            showToast('📷 카메라 전환 중...', 'info');
+            
             const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' },
+                video: { facingMode: mode },
                 audio: false
             });
             
@@ -2455,14 +2499,32 @@
             videoPreview.style.display = 'block';
             if (aiEyeStatus) aiEyeStatus.style.display = 'block';
             
-            // 실시간 감정/행동 분석 시뮬레이션
+            // 버튼 상태 업데이트
+            if (mode === 'user') {
+                if (btnCameraFront) btnCameraFront.style.background = 'rgba(45, 212, 191, 0.8)';
+                if (btnCameraFront) btnCameraFront.style.color = 'white';
+                if (btnCameraBack) btnCameraBack.style.background = 'rgba(45, 212, 191, 0.3)';
+                if (btnCameraBack) btnCameraBack.style.color = 'var(--primary-light)';
+                
+                // 전면 카메라: 미러 효과 (선택사항)
+                video.style.transform = 'scaleX(-1)';
+            } else {
+                if (btnCameraFront) btnCameraFront.style.background = 'rgba(45, 212, 191, 0.3)';
+                if (btnCameraFront) btnCameraFront.style.color = 'var(--primary-light)';
+                if (btnCameraBack) btnCameraBack.style.background = 'rgba(45, 212, 191, 0.8)';
+                if (btnCameraBack) btnCameraBack.style.color = 'white';
+                
+                // 후면 카메라: 미러 제거
+                video.style.transform = 'scaleX(1)';
+            }
+            
+            // 실시간 감정/행동 분석 계속
             analyzeAnimalBehavior();
+            showToast('✅ 카메라 전환 완료!', 'success');
             
         } catch (error) {
-            console.error('카메라 접근 오류:', error);
-            if (error.name === 'NotAllowedError') {
-                showToast('📷 카메라 권한이 필요합니다. 주소창 🔒에서 허용해주세요.', 'warning');
-            }
+            console.error('카메라 전환 오류:', error);
+            showToast('❌ 카메라 전환 실패. 권한/기기를 확인해주세요.', 'error');
         }
     }
 

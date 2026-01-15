@@ -5,53 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>PetCTT Pro - 반려동물 양방향 통역 + 위치 추적</title>
     
-    <!-- www.petctt.com 강제 리다이렉트 + 캐시무효화 -->
-    <script>
-        (() => {
-          const targetHost = "www.petctt.com";
-          const host = window.location.hostname;
-
-          // 로컬 개발환경은 리다이렉트 금지
-          const isLocal =
-            host === "localhost" ||
-            host === "127.0.0.1" ||
-            host.endsWith(".local");
-
-          if (isLocal) return;
-
-          // http -> https 강제
-          const isHttp = window.location.protocol === "http:";
-
-          // www 강제
-          const needWww = host !== targetHost;
-
-          if (isHttp || needWww) {
-            const newUrl =
-              "https://" + targetHost + window.location.pathname + window.location.search + window.location.hash;
-
-            // 뒤로가기 히스토리 안 쌓이게 replace
-            window.location.replace(newUrl);
-          }
-          
-          // 구형 캐시 무효화: 서비스워커 재등록
-          if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.getRegistrations().then(regs => {
-                  regs.forEach(reg => {
-                      // 기존 SW 언로드
-                      if (reg.active) {
-                          reg.unregister().catch(err => console.log('SW unregister error:', err));
-                      }
-                  });
-              });
-          }
-        })();
-    </script>
-    
-    <!-- 캐시 무효화 버전 타임스탐프 (매일 업데이트) -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    
     <!-- PWA -->
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#0a1628">
@@ -69,19 +22,18 @@
     
     <style>
         :root {
-            --primary: #2dd4bf;
-            --primary-dark: #14b8a6;
-            --primary-light: #5eead4;
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #34d399;
             --secondary: #6366f1;
-            --accent: #fbbf24;
+            --accent: #f59e0b;
             --danger: #ef4444;
             --bg-dark: #0a1628;
-            --bg-card: #0f1f2e;
-            --bg-card-light: #142737;
+            --bg-card: #111d32;
+            --bg-card-light: #1a2942;
             --text: #f1f5f9;
             --text-muted: #94a3b8;
-            --border: rgba(45, 212, 191, 0.25);
-            --glass-glow: rgba(45, 212, 191, 0.15);
+            --border: rgba(16, 185, 129, 0.3);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -221,15 +173,13 @@
         
         /* ===== 메인 카드 ===== */
         .main-card {
-            background: rgba(15, 31, 46, 0.6);
-            backdrop-filter: blur(20px);
+            background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 24px;
             padding: 24px;
             margin: 20px 0;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 8px 32px rgba(45, 212, 191, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
         
         .main-card::before {
@@ -240,18 +190,6 @@
             right: 0;
             height: 3px;
             background: linear-gradient(90deg, transparent, var(--primary), var(--primary-light), transparent);
-            box-shadow: 0 0 20px var(--primary);
-        }
-        
-        .main-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, var(--glass-glow) 0%, transparent 70%);
-            pointer-events: none;
         }
         
         /* 섹션 */
@@ -378,13 +316,12 @@
         .btn-start.start {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            box-shadow: 0 8px 24px rgba(45, 212, 191, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(94, 234, 212, 0.3);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
         }
         
         .btn-start.start:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(45, 212, 191, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.5);
         }
         
         .btn-start.start:disabled {
@@ -394,15 +331,13 @@
         }
         
         .btn-start.stop {
-            background: rgba(239, 68, 68, 0.15);
-            border: 2px solid rgba(239, 68, 68, 0.5);
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid var(--danger);
             color: #f87171;
-            backdrop-filter: blur(10px);
         }
         
         .btn-start.stop:hover:not(:disabled) {
-            background: rgba(239, 68, 68, 0.25);
-            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
+            background: rgba(239, 68, 68, 0.3);
         }
         
         .btn-start.stop:disabled {
@@ -1114,17 +1049,16 @@
     <main class="container">
         <!-- 탭 네비게이션 -->
         <div class="tab-nav">
-            <button class="tab-btn active" data-tab="live" onclick="switchTab('live')">🎙️ 대화</button>
-            <button class="tab-btn" data-tab="health" onclick="switchTab('health')">❤️ 건강</button>
+            <button class="tab-btn active" data-tab="live" onclick="switchTab('live')">🎙️ LIVE</button>
+            <button class="tab-btn" data-tab="health" onclick="switchTab('health')">❤️ 건강체크</button>
             <button class="tab-btn" data-tab="locate" onclick="switchTab('locate')">📍 찾기</button>
-            <button class="tab-btn" data-tab="settings" onclick="switchTab('settings')">⚙️ 설정</button>
         </div>
         
         <!-- LIVE 섹션 -->
         <section id="live" class="section active">
             <div class="main-card">
                 <!-- 동물 선택 -->
-                <div class="section-title">🐾 대화할 동물을 선택하세요</div>
+                <div class="section-title">🐾 통역할 동물을 선택하세요</div>
                 <div class="animal-selector">
                     <button class="animal-btn selected" data-animal="dog" onclick="selectAnimal(this)">
                         <span class="icon">🐶</span>
@@ -1138,11 +1072,10 @@
                         <span class="icon">🐥</span>
                         <span class="name">병아리</span>
                     </button>
-                </div>
-                
-                <!-- AI눈 상태 표시 -->
-                <div id="aiEyeStatus" style="display: none; padding: 12px; background: rgba(16, 185, 129, 0.2); border-radius: 12px; margin-bottom: 16px; text-align: center; color: var(--primary-light); font-weight: 600;">
-                    🟢 실시간 감정·행동·생체 분석중
+                    <button class="settings-btn" onclick="openSettings()">
+                        <span class="icon">⚙️</span>
+                        <span class="name">설정</span>
+                    </button>
                 </div>
                 
                 <!-- 컨트롤 버튼 -->
@@ -1153,62 +1086,6 @@
                     <button class="btn-start stop" id="btnStop" onclick="handleStop()" disabled>
                         <span>⏹</span> 중지
                     </button>
-                </div>
-
-                <!-- 방송국 버튼 -->
-                <div style="margin: 16px 0; padding-top: 16px; border-top: 1px solid rgba(16, 185, 129, 0.2);">
-                    <button class="btn-start start" onclick="openBroadcast()" style="width: 100%; padding: 12px; font-size: 0.9rem;">
-                        <span>📡</span> PetCTT 방송국
-                    </button>
-                </div>
-                
-                <!-- 카메라 미리보기 (AI눈) -->
-                <div id="liveVideoPreview" style="display: none; margin: 16px 0; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 12px; position: relative;">
-                    <!-- 카메라 전환 버튼 -->
-                    <div style="position: absolute; top: 16px; right: 16px; display: flex; gap: 8px; z-index: 10;">
-                        <button onclick="switchCamera('user')" id="btnCameraFront" class="camera-mode-btn active" style="padding: 8px 12px; background: rgba(45, 212, 191, 0.8); border: 1px solid rgba(45, 212, 191, 0.6); border-radius: 8px; color: white; font-size: 0.75rem; cursor: pointer; font-weight: 600; transition: all 0.3s;">
-                            🤳 전면
-                        </button>
-                        <button onclick="switchCamera('environment')" id="btnCameraBack" class="camera-mode-btn" style="padding: 8px 12px; background: rgba(45, 212, 191, 0.3); border: 1px solid rgba(45, 212, 191, 0.4); border-radius: 8px; color: var(--primary-light); font-size: 0.75rem; cursor: pointer; font-weight: 600; transition: all 0.3s;">
-                            📷 후면
-                        </button>
-                    </div>
-                    
-                    <video id="liveVideo" style="width: 100%; border-radius: 8px; background: #000; display: block;" autoplay playsinline muted></video>
-                    
-                    <!-- 실시간 감정 분석 -->
-                    <div style="margin-top: 12px; display: grid; gap: 8px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 0.75rem; width: 40px; color: var(--text-muted);">불안</span>
-                            <div class="emotion-bar" style="flex: 1; height: 6px; background: rgba(255, 107, 107, 0.3); border-radius: 3px; overflow: hidden;">
-                                <div style="width: 0%; height: 100%; background: #ff6b6b; transition: width 0.3s;"></div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 0.75rem; width: 40px; color: var(--text-muted);">고통</span>
-                            <div class="emotion-bar" style="flex: 1; height: 6px; background: rgba(239, 68, 68, 0.3); border-radius: 3px; overflow: hidden;">
-                                <div style="width: 0%; height: 100%; background: #ef4444; transition: width 0.3s;"></div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 0.75rem; width: 40px; color: var(--text-muted);">흥분</span>
-                            <div class="emotion-bar" style="flex: 1; height: 6px; background: rgba(255, 193, 7, 0.3); border-radius: 3px; overflow: hidden;">
-                                <div style="width: 0%; height: 100%; background: #ffc107; transition: width 0.3s;"></div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 0.75rem; width: 40px; color: var(--text-muted);">안정</span>
-                            <div class="emotion-bar" style="flex: 1; height: 6px; background: rgba(16, 185, 129, 0.3); border-radius: 3px; overflow: hidden;">
-                                <div style="width: 0%; height: 100%; background: #10b981; transition: width 0.3s;"></div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span style="font-size: 0.75rem; width: 40px; color: var(--text-muted);">요구</span>
-                            <div class="emotion-bar" style="flex: 1; height: 6px; background: rgba(160, 90, 255, 0.3); border-radius: 3px; overflow: hidden;">
-                                <div style="width: 0%; height: 100%; background: #a05aff; transition: width 0.3s;"></div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 
                 <!-- 통역 패널 -->
@@ -1284,118 +1161,38 @@
         <!-- 건강체크 섹션 -->
         <section id="health" class="section">
             <div class="main-card">
-                <div class="section-title">❤️ AI눈 기반 생체 분석</div>
+                <div class="section-title">❤️ 반려동물 건강체크 (30초)</div>
                 
-                <!-- 건강 스캔 모드 선택 -->
-                <div id="healthModeSelector" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
-                    <button class="btn-start start" id="btnQuickHealth" onclick="handleQuickHealthStart()" style="padding: 14px;">
-                        🩺 빠른체크<br/><span style="font-size: 0.75rem;">(30초)</span>
+                <div class="control-buttons">
+                    <button class="btn-start start" id="btnHealthStart" onclick="handleHealthStart()">
+                        🩺 건강체크 시작
                     </button>
-                    <button class="btn-start start" id="btnFullScan" onclick="handleFullScanStart()" style="padding: 14px;">
-                        👁️ 생체스캔<br/><span style="font-size: 0.75rem;">(AI눈)</span>
+                    <button class="btn-start stop" id="btnHealthStop" onclick="handleHealthStop()" disabled>
+                        ⏹️ 중지
                     </button>
                 </div>
-                
-                <!-- 생체 스캔 가이드 -->
-                <div id="scanGuide" style="display: none; padding: 14px; background: rgba(16, 185, 129, 0.15); border-radius: 12px; margin-bottom: 16px; text-align: center; color: var(--text);">
-                    <div style="font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px;">
-                        <span class="scan-guide">📱 강아지에게 휴대폰을 가까이 대세요</span><br/>
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">가슴 → 심박 | 배 → 호흡 | 귀/코 → 체온</span>
+
+                <div style="margin-bottom: 16px;">
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">🎚️ 음성 레벨</div>
+                    <div class="meter-bar">
+                        <div class="meter-fill" id="healthMeterFill"></div>
                     </div>
                 </div>
 
-                <!-- 카메라 미리보기 (생체 스캔) -->
-                <div id="scanVideoContainer" style="display: none; margin-bottom: 16px; position: relative;">
-                    <!-- 카메라 전환 버튼 -->
-                    <div style="position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 10;">
-                        <button onclick="switchHealthCamera('user')" id="btnHealthCameraFront" style="padding: 8px 12px; background: rgba(45, 212, 191, 0.8); border: 1px solid rgba(45, 212, 191, 0.6); border-radius: 8px; color: white; font-size: 0.75rem; cursor: pointer; font-weight: 600; transition: all 0.3s;">
-                            🤳 전면
-                        </button>
-                        <button onclick="switchHealthCamera('environment')" id="btnHealthCameraBack" style="padding: 8px 12px; background: rgba(45, 212, 191, 0.3); border: 1px solid rgba(45, 212, 191, 0.4); border-radius: 8px; color: var(--primary-light); font-size: 0.75rem; cursor: pointer; font-weight: 600; transition: all 0.3s;">
-                            📷 후면
-                        </button>
+                <div class="health-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">상태</div>
+                        <div class="stat-value" id="healthState">대기</div>
                     </div>
-                    <video id="scanVideo" style="width: 100%; border-radius: 12px; background: #000;" autoplay playsinline muted></video>
-                    <div style="margin-top: 8px; padding: 10px; background: rgba(45, 212, 191, 0.2); border-radius: 8px; text-align: center; font-size: 0.8rem; color: var(--text-muted);">
-                        📷 카메라 기반 추정값 (데모용)
+                    <div class="stat-item">
+                        <div class="stat-label">남은 시간</div>
+                        <div class="stat-value" id="healthTime">30s</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">평균 레벨</div>
+                        <div class="stat-value" id="healthAvg">0.000</div>
                     </div>
                 </div>
-
-                <!-- 센서 연동 UI -->
-                <div id="sensorConnection" style="display: none; margin-bottom: 16px; padding: 14px; background: rgba(45, 212, 191, 0.15); border: 1px solid rgba(45, 212, 191, 0.3); border-radius: 12px;">
-                    <div style="font-size: 0.85rem; font-weight: 600; color: var(--primary-light); margin-bottom: 10px;">🔌 하드웨어 센서 연동</div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                        <button onclick="connectBLEDevice('ear')" style="padding: 10px; background: rgba(45, 212, 191, 0.2); border: 1px solid rgba(45, 212, 191, 0.4); border-radius: 8px; color: var(--primary-light); font-size: 0.75rem; cursor: pointer;">
-                            👂 귀걸이 센서
-                        </button>
-                        <button onclick="connectBLEDevice('neck')" style="padding: 10px; background: rgba(45, 212, 191, 0.2); border: 1px solid rgba(45, 212, 191, 0.4); border-radius: 8px; color: var(--primary-light); font-size: 0.75rem; cursor: pointer;">
-                            📿 목걸이 센서
-                        </button>
-                    </div>
-                    <div style="margin-top: 8px; font-size: 0.7rem; color: var(--text-muted); text-align: center;">
-                        다음 버전에서 지원 예정
-                    </div>
-                </div>
-
-                <!-- 실시간 생체 지표 -->
-                <div id="bioMetrics" style="display: none; gap: 12px; grid-template-columns: 1fr 1fr; margin-bottom: 16px;">
-                    <div style="background: rgba(255, 107, 107, 0.15); border: 1px solid rgba(255, 107, 107, 0.3); padding: 12px; border-radius: 8px; text-align: center; backdrop-filter: blur(10px);">
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">심박수 <span style="font-size: 0.65rem; opacity: 0.7;">(추정)</span></div>
-                        <div style="font-size: 1.6rem; font-weight: bold; color: #ff6b6b;" id="heartRateValue">-- bpm</div>
-                    </div>
-                    <div style="background: rgba(50, 140, 255, 0.15); border: 1px solid rgba(50, 140, 255, 0.3); padding: 12px; border-radius: 8px; text-align: center; backdrop-filter: blur(10px);">
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">호흡수 <span style="font-size: 0.65rem; opacity: 0.7;">(추정)</span></div>
-                        <div style="font-size: 1.6rem; font-weight: bold; color: #328cff;" id="breathRateValue">-- /min</div>
-                    </div>
-                    <div style="background: rgba(255, 215, 0, 0.15); border: 1px solid rgba(255, 215, 0, 0.3); padding: 12px; border-radius: 8px; text-align: center; backdrop-filter: blur(10px);">
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">체온 <span style="font-size: 0.65rem; opacity: 0.7;">(추정)</span></div>
-                        <div style="font-size: 1.6rem; font-weight: bold; color: #ffd700;" id="temperatureValue">--°C</div>
-                    </div>
-                    <div style="background: rgba(160, 90, 255, 0.15); border: 1px solid rgba(160, 90, 255, 0.3); padding: 12px; border-radius: 8px; text-align: center; backdrop-filter: blur(10px);">
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px;">스트레스 <span style="font-size: 0.65rem; opacity: 0.7;">(추정)</span></div>
-                        <div style="font-size: 1.6rem; font-weight: bold; color: #a05aff;" id="stressLevelValue">--%</div>
-                    </div>
-                </div>
-
-                <!-- 스캔 중지 버튼 -->
-                <button class="btn-start stop" id="btnScanStop" style="display: none; width: 100%; margin-bottom: 16px; padding: 12px;" onclick="handleScanStop()">
-                    ⏹️ 생체 스캔 종료
-                </button>
-
-                <!-- 기존 건강체크 (호환성 유지) -->
-                <div id="legacyHealthCheck">
-                    <div class="section-title" style="margin-top: 16px;">📊 기본 음성 분석</div>
-                    
-                    <div class="control-buttons">
-                        <button class="btn-start start" id="btnHealthStart" onclick="handleHealthStart()">
-                            ▶️ 시작
-                        </button>
-                        <button class="btn-start stop" id="btnHealthStop" onclick="handleHealthStop()" disabled>
-                            ⏹️ 중지
-                        </button>
-                    </div>
-
-                    <div style="margin-bottom: 16px;">
-                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">🎚️ 음성 레벨</div>
-                        <div class="meter-bar">
-                            <div class="meter-fill" id="healthMeterFill"></div>
-                        </div>
-                    </div>
-
-                    <div class="health-stats">
-                        <div class="stat-item">
-                            <div class="stat-label">상태</div>
-                            <div class="stat-value" id="healthState">대기</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">남은 시간</div>
-                            <div class="stat-value" id="healthTime">30s</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">평균 레벨</div>
-                            <div class="stat-value" id="healthAvg">0.000</div>
-                        </div>
-                    </div>
 
                 <div id="healthResults" style="display: none; margin-top: 16px;">
                     <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 12px; padding: 16px;">
@@ -1416,54 +1213,6 @@
                 <div id="recordsList" style="display: none; margin-top: 16px; max-height: 300px; overflow-y: auto;">
                     <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">📊 최근 기록 (최대 10개)</div>
                     <div id="recordsContainer"></div>
-                </div>
-            </div>
-        </section>
-        
-        <!-- AI눈(카메라) 섹션 -->
-        <section id="settings" class="section">
-            <div class="main-card">
-                <div class="section-title">⚙️ PetCTT 설정</div>
-                
-                <!-- 음성 설정 -->
-                <div style="margin-bottom: 20px;">
-                    <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; color: var(--primary-light);">🎤 음성 설정</div>
-                    
-                    <div style="margin-bottom: 12px;">
-                        <label style="display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.85rem;">
-                            <span>🔊 음량:</span>
-                            <input type="range" id="volumeControl" min="0" max="100" value="70" style="flex: 1; max-width: 200px;">
-                            <span id="volumeValue">70%</span>
-                        </label>
-                    </div>
-                    
-                    <div style="margin-bottom: 12px;">
-                        <label style="display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.85rem;">
-                            <span>🎯 음정:</span>
-                            <input type="range" id="pitchControl" min="0.5" max="2" step="0.1" value="1" style="flex: 1; max-width: 200px;">
-                            <span id="pitchValue">1.0x</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- 데이터 관리 -->
-                <div style="margin-bottom: 20px; padding: 14px; background: rgba(100, 116, 139, 0.1); border-radius: 12px;">
-                    <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 10px; color: var(--primary-light);">💾 데이터 관리</div>
-                    <button onclick="exportData()" style="width: 100%; padding: 10px; margin-bottom: 8px; background: rgba(16, 185, 129, 0.2); border: 1px solid var(--primary); color: var(--primary-light); border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
-                        📥 데이터 내보내기 (JSON)
-                    </button>
-                    <button onclick="if(confirm('정말로 모든 데이터를 삭제하시겠습니까?')) { localStorage.clear(); location.reload(); }" style="width: 100%; padding: 10px; background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
-                        🗑️ 모든 데이터 삭제
-                    </button>
-                </div>
-
-                <!-- 정보 -->
-                <div style="padding: 12px; background: rgba(100, 116, 139, 0.1); border-radius: 12px; font-size: 0.8rem; color: var(--text-muted);">
-                    <div style="margin-bottom: 6px;"><strong>PetCTT Pro v2.1</strong></div>
-                    <div>AI 기반 반려동물 양방향 통역 플랫폼</div>
-                    <div style="margin-top: 8px;">
-                        ❤️ 건강 분석 | 👁️ AI눈 생체 스캔 | 📍 GPS 추적 | 📡 라이브 방송
-                    </div>
                 </div>
             </div>
         </section>
@@ -1875,9 +1624,6 @@
         document.getElementById('statusBadge').className = 'status-badge live';
         document.getElementById('statusText').textContent = 'LIVE 활성';
         
-        // AI눈 자동 활성화 - 카메라 시작
-        startLiveCamera();
-        
         addBubble('system', '🐾 LIVE 모드 시작! 마이크 버튼으로 양방향 통역하세요.');
         showToast('🐾 동물대화 LIVE 모드 시작!', 'success');
     }
@@ -2158,18 +1904,6 @@
         }, 3000);
     }
     
-    // ===== 감정 색상 반환 =====
-    function getEmotionColor(emotion) {
-        const colors = {
-            '불안': '#ff6b6b',
-            '고통': '#ef4444',
-            '흥분': '#ffc107',
-            '안정': '#10b981',
-            '요구': '#a05aff'
-        };
-        return colors[emotion] || '#9CA3AF';
-    }
-    
     // 설정 함수들
     function openSettings() {
         document.getElementById('settingsModal').classList.add('show');
@@ -2243,8 +1977,6 @@
             }
             var ctx = healthCheckState.audioContext;
 
-            showToast('⏳ 마이크 권한을 요청 중입니다...', 'info');
-
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
                     var source = ctx.createMediaStreamSource(stream);
@@ -2254,20 +1986,12 @@
 
                     healthCheckState.analyser = analyser;
                     healthCheckState.dataArray = new Uint8Array(analyser.frequencyBinCount);
-                    healthCheckState.stream = stream;
 
-                    showToast('✅ 마이크 준비 완료!', 'success');
                     analyzeHealthAudio();
                 })
                 .catch(err => {
-                    console.error('Microphone access error:', err);
-                    var msg = '❌ 마이크 접근 거부됨\\n';
-                    if (err.name === 'NotAllowedError') {
-                        msg += '주소창 🔒 아이콘에서 마이크 권한을 허용해주세요.';
-                    } else if (err.name === 'NotFoundError') {
-                        msg += '연결된 마이크가 없습니다.';
-                    }
-                    showToast(msg, 'error');
+                    console.warn('Microphone access denied', err);
+                    showToast('마이크 접근 거부됨', 'error');
                     handleHealthStop();
                 });
         } catch (err) {
@@ -2371,524 +2095,6 @@
         document.getElementById('recordsList').style.display = document.getElementById('recordsList').style.display === 'none' ? 'block' : 'none';
     }
 
-    // 카메라 상태
-    var cameraState = {
-        stream: null,
-        healthStream: null,
-        video: null,
-        isActive: false
-    };
-
-    function openCamera() {
-        if (cameraState.isActive) {
-            showToast('⚠️ 카메라가 이미 켜져 있습니다.', 'warning');
-            return;
-        }
-
-        var video = document.getElementById('cameraVideo');
-        
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            showToast('❌ 이 브라우저는 카메라 기능을 지원하지 않습니다.', 'error');
-            return;
-        }
-
-        // 모바일 크롬 권한 요청 개선
-        showToast('⏳ 카메라 권한을 요청 중입니다...', 'info');
-
-        navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment' },
-            audio: false
-        }).then(stream => {
-            cameraState.stream = stream;
-            video.srcObject = stream;
-            video.play();
-            cameraState.isActive = true;
-            
-            document.getElementById('cameraVideo').style.display = 'block';
-            document.getElementById('cameraCapture').disabled = false;
-            document.getElementById('cameraClose').disabled = false;
-            document.getElementById('cameraOpen').disabled = true;
-            
-            document.getElementById('cameraCapture').style.opacity = '1';
-            document.getElementById('cameraClose').style.opacity = '1';
-            document.getElementById('cameraOpen').style.opacity = '0.5';
-            
-            showToast('✅ 카메라 켜짐! 터치하여 캡처하세요.', 'success');
-        }).catch(error => {
-            console.error('카메라 접근 오류:', error);
-            var msg = '❌ 카메라 접근을 거부했습니다.\\n';
-            if (error.name === 'NotAllowedError') {
-                msg += '주소창 🔒 아이콘에서 카메라 권한을 허용해주세요.';
-            } else if (error.name === 'NotFoundError') {
-                msg += '연결된 카메라가 없습니다.';
-            }
-            showToast(msg, 'error');
-        });
-    }
-
-    function capturePhoto() {
-        var video = document.getElementById('cameraVideo');
-        var canvas = document.getElementById('cameraCanvas');
-        var ctx = canvas.getContext('2d');
-        
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        
-        ctx.drawImage(video, 0, 0);
-        
-        document.getElementById('capturedImage').src = canvas.toDataURL('image/jpeg');
-        document.getElementById('captureResult').style.display = 'block';
-        document.getElementById('captureMsg').textContent = '✅ 캡처 완료! ' + new Date().toLocaleTimeString('ko-KR');
-        
-        showToast('📸 사진 캡처 완료!', 'success');
-    }
-
-    function closeCamera() {
-        if (cameraState.stream) {
-            cameraState.stream.getTracks().forEach(track => track.stop());
-            cameraState.stream = null;
-        }
-        
-        cameraState.isActive = false;
-        document.getElementById('cameraVideo').style.display = 'none';
-        document.getElementById('captureResult').style.display = 'none';
-        document.getElementById('cameraOpen').disabled = false;
-        document.getElementById('cameraCapture').disabled = true;
-        document.getElementById('cameraClose').disabled = true;
-        
-        document.getElementById('cameraCapture').style.opacity = '0.5';
-        document.getElementById('cameraClose').style.opacity = '0.5';
-        document.getElementById('cameraOpen').style.opacity = '1';
-        
-        showToast('⏹ 카메라 종료', 'info');
-    }
-
-    // ===== LIVE 모드 카메라 활성화 (AI눈) =====
-    // ===== LIVE 모드 카메라 활성화 (AI눈) =====
-    var currentCameraMode = 'environment'; // 기본값: 후면
-    
-    async function startLiveCamera() {
-        await switchCamera('environment');
-    }
-    
-    // ===== 카메라 전면/후면 전환 =====
-    async function switchCamera(mode) {
-        const videoPreview = document.getElementById('liveVideoPreview');
-        const aiEyeStatus = document.getElementById('aiEyeStatus');
-        const video = document.getElementById('liveVideo');
-        const btnCameraFront = document.getElementById('btnCameraFront');
-        const btnCameraBack = document.getElementById('btnCameraBack');
-        
-        if (!videoPreview || !video || !liveState.live) return;
-        
-        // 기존 스트림 종료
-        if (cameraState.stream) {
-            cameraState.stream.getTracks().forEach(track => track.stop());
-            cameraState.stream = null;
-        }
-        
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            console.warn('카메라 미지원');
-            return;
-        }
-        
-        try {
-            currentCameraMode = mode;
-            showToast('📷 카메라 전환 중...', 'info');
-            
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: mode },
-                audio: false
-            });
-            
-            video.srcObject = stream;
-            video.play();
-            cameraState.stream = stream;
-            cameraState.isActive = true;
-            
-            videoPreview.style.display = 'block';
-            if (aiEyeStatus) aiEyeStatus.style.display = 'block';
-            
-            // 버튼 상태 업데이트
-            if (mode === 'user') {
-                if (btnCameraFront) btnCameraFront.style.background = 'rgba(45, 212, 191, 0.8)';
-                if (btnCameraFront) btnCameraFront.style.color = 'white';
-                if (btnCameraBack) btnCameraBack.style.background = 'rgba(45, 212, 191, 0.3)';
-                if (btnCameraBack) btnCameraBack.style.color = 'var(--primary-light)';
-                
-                // 전면 카메라: 미러 효과 (선택사항)
-                video.style.transform = 'scaleX(-1)';
-            } else {
-                if (btnCameraFront) btnCameraFront.style.background = 'rgba(45, 212, 191, 0.3)';
-                if (btnCameraFront) btnCameraFront.style.color = 'var(--primary-light)';
-                if (btnCameraBack) btnCameraBack.style.background = 'rgba(45, 212, 191, 0.8)';
-                if (btnCameraBack) btnCameraBack.style.color = 'white';
-                
-                // 후면 카메라: 미러 제거
-                video.style.transform = 'scaleX(1)';
-            }
-            
-            // 실시간 감정/행동 분석 계속
-            analyzeAnimalBehavior();
-            showToast('✅ 카메라 전환 완료!', 'success');
-            
-        } catch (error) {
-            console.error('카메라 전환 오류:', error);
-            showToast('❌ 카메라 전환 실패. 권한/기기를 확인해주세요.', 'error');
-        }
-    }
-
-    // ===== 건강 스캔 카메라 전환 =====
-    var healthCameraMode = 'environment';
-
-    async function switchHealthCamera(mode) {
-        const scanVideo = document.getElementById('scanVideo');
-        const btnHealthCameraFront = document.getElementById('btnHealthCameraFront');
-        const btnHealthCameraBack = document.getElementById('btnHealthCameraBack');
-        
-        if (!scanVideo) return;
-        
-        // 기존 스트림 종료
-        if (cameraState.healthStream) {
-            cameraState.healthStream.getTracks().forEach(track => track.stop());
-            cameraState.healthStream = null;
-        }
-        
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            showToast('❌ 카메라 미지원', 'error');
-            return;
-        }
-        
-        try {
-            healthCameraMode = mode;
-            showToast('📷 카메라 전환 중...', 'info');
-            
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: mode },
-                audio: false
-            });
-            
-            scanVideo.srcObject = stream;
-            scanVideo.play();
-            cameraState.healthStream = stream;
-            
-            // 버튼 상태 업데이트
-            if (mode === 'user') {
-                if (btnHealthCameraFront) btnHealthCameraFront.style.background = 'rgba(45, 212, 191, 0.8)';
-                if (btnHealthCameraFront) btnHealthCameraFront.style.color = 'white';
-                if (btnHealthCameraBack) btnHealthCameraBack.style.background = 'rgba(45, 212, 191, 0.3)';
-                if (btnHealthCameraBack) btnHealthCameraBack.style.color = 'var(--primary-light)';
-                scanVideo.style.transform = 'scaleX(-1)'; // 전면 미러
-            } else {
-                if (btnHealthCameraFront) btnHealthCameraFront.style.background = 'rgba(45, 212, 191, 0.3)';
-                if (btnHealthCameraFront) btnHealthCameraFront.style.color = 'var(--primary-light)';
-                if (btnHealthCameraBack) btnHealthCameraBack.style.background = 'rgba(45, 212, 191, 0.8)';
-                if (btnHealthCameraBack) btnHealthCameraBack.style.color = 'white';
-                scanVideo.style.transform = 'scaleX(1)'; // 후면 원본
-            }
-            
-            showToast('✅ 카메라 전환 완료!', 'success');
-            
-        } catch (error) {
-            console.error('건강 스캔 카메라 전환 오류:', error);
-            showToast('❌ 카메라 전환 실패', 'error');
-        }
-    }
-    function analyzeAnimalBehavior() {
-        // 시뮬레이션된 감정 분석
-        const emotions = ['불안', '고통', '흥분', '안정', '요구'];
-        const emotionBars = document.querySelectorAll('.emotion-bar');
-        
-        const updateEmotions = () => {
-            if (!liveState.live) return;
-            
-            emotionBars.forEach((bar, idx) => {
-                const value = Math.random() * 100;
-                bar.style.width = value + '%';
-                bar.style.backgroundColor = getEmotionColor(emotions[idx]);
-            });
-            
-            setTimeout(updateEmotions, 500);
-        };
-        
-        updateEmotions();
-    }
-
-    // ===== 건강 체크: 빠른 체크 =====
-    function handleQuickHealthStart() {
-        const legacyCheck = document.getElementById('legacyHealthCheck');
-        const modeSelector = document.getElementById('healthModeSelector');
-        
-        if (legacyCheck) legacyCheck.style.display = 'block';
-        if (modeSelector) modeSelector.style.display = 'none';
-        
-        addBubble('system', '🐾 30초 건강 체크 시작! 강아지의 울음소리에 귀 기울여주세요.');
-        showToast('🎤 음성 기반 건강 체크 시작', 'info');
-    }
-
-    // ===== 건강 체크: 생체 스캔 (AI눈) =====
-    async function handleFullScanStart() {
-        const scanContainer = document.getElementById('scanVideoContainer');
-        const bioMetrics = document.getElementById('bioMetrics');
-        const modeSelector = document.getElementById('healthModeSelector');
-        const legacyCheck = document.getElementById('legacyHealthCheck');
-        const btnScanStop = document.getElementById('btnScanStop');
-        const sensorConnection = document.getElementById('sensorConnection');
-        
-        if (!scanContainer || !bioMetrics) return;
-        
-        if (modeSelector) modeSelector.style.display = 'none';
-        if (legacyCheck) legacyCheck.style.display = 'none';
-        scanContainer.style.display = 'block';
-        bioMetrics.style.display = 'grid';
-        if (btnScanStop) btnScanStop.style.display = 'block';
-        if (sensorConnection) sensorConnection.style.display = 'block';
-        
-        const video = scanContainer.querySelector('video');
-        if (!video) return;
-        
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' },
-                audio: false
-            });
-            
-            video.srcObject = stream;
-            video.play();
-            cameraState.healthStream = stream;
-            cameraState.isActive = true;
-            
-            // 버튼 초기 상태 설정
-            const btnHealthCameraFront = document.getElementById('btnHealthCameraFront');
-            const btnHealthCameraBack = document.getElementById('btnHealthCameraBack');
-            if (btnHealthCameraFront) {
-                btnHealthCameraFront.style.background = 'rgba(45, 212, 191, 0.3)';
-                btnHealthCameraFront.style.color = 'var(--primary-light)';
-            }
-            if (btnHealthCameraBack) {
-                btnHealthCameraBack.style.background = 'rgba(45, 212, 191, 0.8)';
-                btnHealthCameraBack.style.color = 'white';
-            }
-            
-            addBubble('system', '👁️ 카메라 기반 추정 생체 스캔 중입니다. 더 정확한 측정을 위해 아래의 센서를 연동하세요.');
-            showToast('👁️ AI눈 생체 스캔 시작! (데모 모드)', 'success');
-            
-            // 생체 지표 실시간 분석
-            analyzeBioMetrics();
-            
-        } catch (error) {
-            console.error('생체 스캔 오류:', error);
-            if (error.name === 'NotAllowedError') {
-                showToast('📷 카메라 권한이 필요합니다.', 'warning');
-            }
-        }
-    }
-
-    // ===== 생체 지표 분석 =====
-    function analyzeBioMetrics() {
-        const updateMetrics = () => {
-            // 심박수: 60-120 bpm
-            const heartRate = Math.floor(Math.random() * 60) + 60;
-            document.getElementById('heartRateValue').textContent = heartRate + ' bpm';
-            
-            // 호흡수: 20-40 breaths/min
-            const breathRate = Math.floor(Math.random() * 20) + 20;
-            document.getElementById('breathRateValue').textContent = breathRate + ' /min';
-            
-            // 체온: 37.5-39.5°C
-            const temp = (Math.random() * 2 + 37.5).toFixed(1);
-            document.getElementById('temperatureValue').textContent = temp + '°C';
-            
-            // 스트레스: 0-100%
-            const stress = Math.floor(Math.random() * 100);
-            document.getElementById('stressLevelValue').textContent = stress + '%';
-            
-            // 진행 표시
-            const scanProgress = document.querySelector('.scan-guide');
-            if (scanProgress) {
-                const stages = ['가슴부위 스캔중...', '복부 스캔중...', '귀 스캔중...', '분석 완료!'];
-                const stage = Math.floor(Math.random() * stages.length);
-                scanProgress.textContent = stages[stage];
-            }
-            
-            // 카메라가 활성화 중일 때만 계속
-            if (cameraState.isActive) {
-                setTimeout(updateMetrics, 800);
-            }
-        };
-        
-        updateMetrics();
-    }
-
-    // ===== 생체 스캔 중지 =====
-    function handleScanStop() {
-        if (cameraState.stream) {
-            cameraState.stream.getTracks().forEach(track => track.stop());
-            cameraState.stream = null;
-        }
-        
-        // 건강 스캔 카메라 정리
-        if (cameraState.healthStream) {
-            cameraState.healthStream.getTracks().forEach(track => track.stop());
-            cameraState.healthStream = null;
-        }
-        
-        cameraState.isActive = false;
-        
-        const scanContainer = document.getElementById('scanVideoContainer');
-        const bioMetrics = document.getElementById('bioMetrics');
-        const modeSelector = document.getElementById('healthModeSelector');
-        const sensorConnection = document.getElementById('sensorConnection');
-        
-        if (scanContainer) scanContainer.style.display = 'none';
-        if (bioMetrics) bioMetrics.style.display = 'none';
-        if (sensorConnection) sensorConnection.style.display = 'none';
-        if (modeSelector) modeSelector.style.display = 'block';
-        
-        showToast('⏹ 생체 스캔 종료', 'info');
-    }
-
-    // ===== AMI 방송국 기능 =====
-    function openBroadcast() {
-        document.getElementById('broadcastModal').style.display = 'block';
-        document.getElementById('broadcastIntro').style.display = 'flex';
-        document.getElementById('broadcastMain').style.display = 'none';
-        
-        setTimeout(() => {
-            document.getElementById('broadcastIntro').style.display = 'none';
-            document.getElementById('broadcastMain').style.display = 'block';
-        }, 1500);
-        
-        startBroadcastParticles();
-    }
-
-    function closeBroadcast() {
-        document.getElementById('broadcastModal').style.display = 'none';
-    }
-
-    function goEmergencyLive() {
-        showToast('🚨 긴급 LIVE 연결 중...', 'info');
-    }
-
-    // ===== 데이터 내보내기 =====
-    function exportData() {
-        const healthRecords = JSON.parse(localStorage.getItem('healthRecords') || '[]');
-        const locationData = JSON.parse(localStorage.getItem('locationData') || '[]');
-        
-        const exportObj = {
-            exportDate: new Date().toISOString(),
-            healthRecords: healthRecords,
-            locationData: locationData,
-            version: 'PetCTT v2.1'
-        };
-        
-        const jsonString = JSON.stringify(exportObj, null, 2);
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'petctt-data-' + new Date().toISOString().split('T')[0] + '.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        showToast('✅ 데이터를 내보냈습니다!', 'success');
-    }
-
-    // ===== 위치 데이터 내보내기 =====
-    function exportLocationData() {
-        const locations = JSON.parse(localStorage.getItem('locations') || '[]');
-        const csv = 'Time,Latitude,Longitude,Accuracy,Speed\n' + 
-            locations.map(loc => `${loc.time},${loc.lat},${loc.lon},${loc.accuracy},${loc.speed}`).join('\n');
-        
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'petctt-location-' + new Date().toISOString().split('T')[0] + '.csv';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        showToast('✅ 위치 데이터를 내보냈습니다!', 'success');
-    }
-
-    // ===== 위치 히스토리 삭제 =====
-    function clearLocationHistory() {
-        if (confirm('정말로 모든 위치 기록을 삭제하시겠습니까?')) {
-            localStorage.removeItem('locations');
-            showToast('🗑️ 위치 기록이 삭제되었습니다.', 'info');
-        }
-    }
-
-    // ===== BLE 센서 연결 (UI만 구현, 다음 버전에서 실제 기능 추가) =====
-    function connectBLEDevice(type) {
-        const typeName = type === 'ear' ? '귀걸이 센서' : '목걸이 센서';
-        showToast('🔌 ' + typeName + ' 연결 중... (다음 버전에서 지원됩니다)', 'info');
-        
-        // 다음 버전에서 구현:
-        // - navigator.bluetooth.requestDevice() API 사용
-        // - GATT 프로토콜로 센서 데이터 실시간 수신
-        // - 심박수, 체온, 호흡수 등 하드웨어 값 직접 수집
-        // - 높은 정확도의 생체 지표 표시
-    }
-
-    function goCategory(key) {
-        showToast('📡 ' + key + ' 채널로 이동 중...', 'info');
-    }
-
-    var broadcastParticles = [];
-
-    function startBroadcastParticles() {
-        var canvas = document.getElementById('broadcastCanvas');
-        if (!canvas) return;
-        var ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        var colors = ['#FFD700', '#2dd4bf', '#5eead4', '#fbbf24', '#328CFF', '#00FFB4'];
-
-        for (let i = 0; i < 26; i++) {
-            broadcastParticles.push({
-                x: window.innerWidth / 2,
-                y: window.innerHeight / 2,
-                vx: (Math.random() - 0.5) * 6,
-                vy: (Math.random() - 0.5) * 6,
-                life: 1,
-                color: colors[Math.floor(Math.random() * colors.length)],
-                size: Math.random() * 4 + 2
-            });
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            broadcastParticles = broadcastParticles.filter(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life -= 0.03;
-                p.vy += 0.1;
-
-                ctx.globalAlpha = p.life;
-                ctx.fillStyle = p.color;
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fill();
-
-                return p.life > 0;
-            });
-
-            if (broadcastParticles.length > 0) {
-                requestAnimationFrame(animateParticles);
-            }
-        }
-
-        animateParticles();
-    }
-
     // 탭 전환 함수
     function switchTab(tabName) {
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -2901,78 +2107,7 @@
         if (tabName === 'locate' && locationData.map) {
             setTimeout(() => locationData.map.invalidateSize(), 100);
         }
-        
-        // 대화 탭에서 벗어날 때 카메라 종료
-        if (tabName !== 'live' && cameraState.isActive) {
-            closeCamera();
-        }
-        
-        // 설정 탭에서 음량/음정 컨트롤 활성화
-        if (tabName === 'settings') {
-            const volumeControl = document.getElementById('volumeControl');
-            const pitchControl = document.getElementById('pitchControl');
-            
-            if (volumeControl) {
-                volumeControl.addEventListener('input', (e) => {
-                    document.getElementById('volumeValue').textContent = e.target.value + '%';
-                });
-            }
-            if (pitchControl) {
-                pitchControl.addEventListener('input', (e) => {
-                    document.getElementById('pitchValue').textContent = parseFloat(e.target.value).toFixed(1) + 'x';
-                });
-            }
-        }
     }
-</script>
-
-    <!-- 방송국 모달 -->
-    <div id="broadcastModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; overflow-y: auto;">
-        <canvas id="broadcastCanvas" style="position: fixed; top: 0; left: 0; pointer-events: none; z-index: 99999;"></canvas>
-
-        <!-- 인트로 화면 -->
-        <div id="broadcastIntro" style="display: none; position: fixed; inset: 0; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; background: linear-gradient(135deg, rgba(10,22,40,0.95), rgba(30,27,75,0.95));">
-            <div style="text-align: center; font-size: 3rem; font-weight: 900; color: #FFD700; margin-bottom: 20px; text-shadow: 0 0 30px rgba(255,215,0,0.5);">
-                PETCTT
-            </div>
-            <div style="text-align: center; font-size: 1.2rem; color: #A05AFF; letter-spacing: 0.2em;">
-                BROADCAST
-            </div>
-            <div style="text-align: center; font-size: 0.9rem; color: #00FFB4; margin-top: 30px;">
-                🌍 AMI WORLD • ON AIR
-            </div>
-        </div>
-
-        <!-- 메인 콘텐츠 -->
-        <div id="broadcastMain" style="display: none; padding: 20px; max-width: 480px; margin: 0 auto;">
-            <div style="text-align: center; margin-bottom: 30px;">
-                <button onclick="closeBroadcast()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; z-index: 10001;">❌</button>
-                
-                <div style="font-size: 3rem; margin-bottom: 10px;">👑</div>
-                <div style="font-size: 1.1rem; font-weight: bold; color: #FFD700; margin-bottom: 5px;">아미 총회장</div>
-                <div style="font-size: 0.8rem; color: #A05AFF;">사랑하는 PetCTT 청취자들</div>
-            </div>
-
-            <!-- 긴급 라이브 -->
-            <button onclick="goEmergencyLive()" style="width: 100%; padding: 15px; margin-bottom: 15px; background: linear-gradient(135deg, #ff4757, #ff6348); border: none; border-radius: 12px; color: white; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: 0.3s;">
-                🚨 긴급 LIVE (99+)
-            </button>
-
-            <!-- 카테고리 -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
-                <button onclick="goCategory('의학상')" style="padding: 12px; background: rgba(160,90,255,0.3); border: 1px solid #A05AFF; border-radius: 8px; color: #A05AFF; cursor: pointer;">⚕️ 의학상</button>
-                <button onclick="goCategory('뉴스')" style="padding: 12px; background: rgba(0,255,180,0.3); border: 1px solid #00FFB4; border-radius: 8px; color: #00FFB4; cursor: pointer;">📰 뉴스</button>
-                <button onclick="goCategory('오디션')" style="padding: 12px; background: rgba(255,215,0,0.3); border: 1px solid #FFD700; border-radius: 8px; color: #FFD700; cursor: pointer;">🎤 오디션</button>
-                <button onclick="goCategory('탐사')" style="padding: 12px; background: rgba(50,140,255,0.3); border: 1px solid #328CFF; border-radius: 8px; color: #328CFF; cursor: pointer;">🔍 탐사</button>
-                <button onclick="goCategory('쇼핑')" style="padding: 12px; background: rgba(255,107,107,0.3); border: 1px solid #ff6b6b; border-radius: 8px; color: #ff6b6b; cursor: pointer;">🛍️ 쇼핑</button>
-                <button onclick="goCategory('글로벌')" style="padding: 12px; background: rgba(100,200,255,0.3); border: 1px solid #64c8ff; border-radius: 8px; color: #64c8ff; cursor: pointer;">🌐 글로벌</button>
-            </div>
-
-            <!-- 이모지 메시지 -->
-            <div style="text-align: center; margin-top: 30px; font-size: 0.85rem; color: #A05AFF; line-height: 1.8;">
-                <div>✨ 터치하면 빛이 따라와요</div>
-                <div>🌍 지금, 생명을 연결합니다.</div>
-                <div>💖 뽀뽕— 💖</div>
-            </div>
-        </div>
-    </div>
+    </script>
+</body>
+</html>

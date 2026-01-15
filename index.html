@@ -2453,7 +2453,7 @@
         document.getElementById('aiAnalysisResult').style.display = 'none';
         document.getElementById('googleSearchResult').style.display = 'none';
         
-        const video = document.getElementById('bioCamera');
+        const video = document.getElementById('bioVideo');
         healthCheckState.bioCurrentCamera = 'environment';
         
         try {
@@ -2596,7 +2596,7 @@
             healthCheckState.bioCurrentCamera = mode;
             healthCheckState.bioStream = stream;
             
-            const video = document.getElementById('bioCamera');
+            const video = document.getElementById('bioVideo');
             video.srcObject = stream;
             video.play();
 
@@ -2678,7 +2678,7 @@
             healthCheckState.bioMetricsInterval = null;
         }
 
-        const video = document.getElementById('bioCamera');
+        const video = document.getElementById('bioVideo');
         video.style.display = 'none';
         video.srcObject = null;
 

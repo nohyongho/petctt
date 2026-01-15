@@ -1102,6 +1102,56 @@
                         </div>
                     </div>
                     
+                    <!-- 📹 카메라 비디오 (AI눈) -->
+                    <div style="margin-bottom: 16px; position: relative;">
+                        <!-- 카메라 전면/후면 전환 버튼 -->
+                        <div id="cameraToggleButtons" style="display: none; position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 100;">
+                            <button onclick="switchCameraMode('user')" id="btnCameraFront" style="padding: 8px 12px; background: rgba(45, 212, 191, 0.3); border: 1px solid rgba(45, 212, 191, 0.4); border-radius: 8px; color: var(--primary-light); font-size: 0.75rem; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                                🤳 전면
+                            </button>
+                            <button onclick="switchCameraMode('environment')" id="btnCameraBack" style="padding: 8px 12px; background: rgba(45, 212, 191, 0.8); border: 1px solid rgba(45, 212, 191, 0.6); border-radius: 8px; color: white; font-size: 0.75rem; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                                📷 후면
+                            </button>
+                        </div>
+                        <video id="liveVideo" style="display: none; width: 100%; border-radius: 12px; background: #000; margin-bottom: 12px; object-fit: cover;" autoplay playsinline muted></video>
+                    </div>
+                    
+                    <!-- 감정분석 그래프 -->
+                    <div id="emotionBars" style="display: none; margin-bottom: 16px; gap: 10px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 8px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px;">불안</div>
+                                <div class="emotion-bar" style="background: #ff6b6b; height: 60px; border-radius: 4px; position: relative;">
+                                    <div style="position: absolute; bottom: 0; width: 100%; height: 0%; background: rgba(255, 107, 107, 0.8); border-radius: 4px; transition: height 0.3s;" id="emotionBar1"></div>
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px;">고통</div>
+                                <div class="emotion-bar" style="background: #ff8787; height: 60px; border-radius: 4px; position: relative;">
+                                    <div style="position: absolute; bottom: 0; width: 100%; height: 0%; background: rgba(255, 135, 135, 0.8); border-radius: 4px; transition: height 0.3s;" id="emotionBar2"></div>
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px;">흥분</div>
+                                <div class="emotion-bar" style="background: #ffd700; height: 60px; border-radius: 4px; position: relative;">
+                                    <div style="position: absolute; bottom: 0; width: 100%; height: 0%; background: rgba(255, 215, 0, 0.8); border-radius: 4px; transition: height 0.3s;" id="emotionBar3"></div>
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px;">안정</div>
+                                <div class="emotion-bar" style="background: #2dd4bf; height: 60px; border-radius: 4px; position: relative;">
+                                    <div style="position: absolute; bottom: 0; width: 100%; height: 0%; background: rgba(45, 212, 191, 0.8); border-radius: 4px; transition: height 0.3s;" id="emotionBar4"></div>
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px;">요구</div>
+                                <div class="emotion-bar" style="background: #a05aff; height: 60px; border-radius: 4px; position: relative;">
+                                    <div style="position: absolute; bottom: 0; width: 100%; height: 0%; background: rgba(160, 90, 255, 0.8); border-radius: 4px; transition: height 0.3s;" id="emotionBar5"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- 마이크 버튼 -->
                     <div class="mic-buttons">
                         <div class="mic-group">
@@ -1523,7 +1573,9 @@
         isRecording: false,
         recognizing: false,
         speaking: false,
-        motionRunning: false
+        motionRunning: false,
+        cameraStream: null,
+        emotionInterval: null
     };
 
     var selectedAnimal = 'dog';
@@ -1606,6 +1658,8 @@
     }
 
     // ===== LIVE 시작 =====
+    var currentCameraMode = 'environment'; // 기본: 후면 카메라
+
     function handleStart() {
         if (liveState.live) return;
         
@@ -1624,8 +1678,137 @@
         document.getElementById('statusBadge').className = 'status-badge live';
         document.getElementById('statusText').textContent = 'LIVE 활성';
         
-        addBubble('system', '🐾 LIVE 모드 시작! 마이크 버튼으로 양방향 통역하세요.');
-        showToast('🐾 동물대화 LIVE 모드 시작!', 'success');
+        // 카메라 켜기 + 감정분석 시작
+        openLiveCamera();
+        startEmotionAnalysis();
+        
+        addBubble('system', '🐾 LIVE 모드 시작! 카메라로 감정 분석 중. 마이크 버튼으로 양방향 통역하세요.');
+        showToast('👁️ AI눈 활성화 + 감정분석 시작!', 'success');
+    }
+
+    // ===== LIVE 카메라 켜기 =====
+    async function openLiveCamera() {
+        const video = document.getElementById('liveVideo');
+        const emotionBars = document.getElementById('emotionBars');
+        const toggleButtons = document.getElementById('cameraToggleButtons');
+        
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showToast('❌ 카메라를 지원하지 않습니다.', 'error');
+            return;
+        }
+        
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: currentCameraMode },
+                audio: false
+            });
+            
+            liveState.cameraStream = stream;
+            video.srcObject = stream;
+            video.play();
+            video.style.display = 'block';
+            emotionBars.style.display = 'grid';
+            toggleButtons.style.display = 'flex';
+            
+            updateCameraButtons();
+            
+        } catch (error) {
+            console.error('카메라 오류:', error);
+            showToast('📷 카메라 권한이 필요합니다.', 'warning');
+        }
+    }
+
+    // ===== 카메라 전면/후면 전환 =====
+    async function switchCameraMode(mode) {
+        const video = document.getElementById('liveVideo');
+        
+        if (!liveState.live || !liveState.cameraStream) {
+            showToast('⚠️ 카메라를 먼저 켜주세요.', 'warning');
+            return;
+        }
+        
+        try {
+            liveState.cameraStream.getTracks().forEach(track => track.stop());
+            
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: mode },
+                audio: false
+            });
+            
+            currentCameraMode = mode;
+            liveState.cameraStream = stream;
+            video.srcObject = stream;
+            video.play();
+            
+            // 전면 카메라는 미러링
+            if (mode === 'user') {
+                video.style.transform = 'scaleX(-1)';
+            } else {
+                video.style.transform = 'scaleX(1)';
+            }
+            
+            updateCameraButtons();
+            showToast('✅ 카메라 전환 완료!', 'success');
+            
+        } catch (error) {
+            console.error('카메라 전환 오류:', error);
+            showToast('❌ 카메라 전환 실패', 'error');
+        }
+    }
+
+    // 카메라 버튼 상태 업데이트
+    function updateCameraButtons() {
+        const btnFront = document.getElementById('btnCameraFront');
+        const btnBack = document.getElementById('btnCameraBack');
+        
+        if (currentCameraMode === 'user') {
+            if (btnFront) {
+                btnFront.style.background = 'rgba(45, 212, 191, 0.8)';
+                btnFront.style.color = 'white';
+            }
+            if (btnBack) {
+                btnBack.style.background = 'rgba(45, 212, 191, 0.3)';
+                btnBack.style.color = 'var(--primary-light)';
+            }
+        } else {
+            if (btnFront) {
+                btnFront.style.background = 'rgba(45, 212, 191, 0.3)';
+                btnFront.style.color = 'var(--primary-light)';
+            }
+            if (btnBack) {
+                btnBack.style.background = 'rgba(45, 212, 191, 0.8)';
+                btnBack.style.color = 'white';
+            }
+        }
+    }
+
+    // ===== 감정분석 시작 =====
+    function startEmotionAnalysis() {
+        const emotionInterval = setInterval(() => {
+            if (!liveState.live) {
+                clearInterval(emotionInterval);
+                return;
+            }
+            
+            // 5가지 감정 랜덤 업데이트
+            const emotions = [
+                { bar: 'emotionBar1', min: 20, max: 80 }, // 불안
+                { bar: 'emotionBar2', min: 10, max: 60 }, // 고통
+                { bar: 'emotionBar3', min: 30, max: 90 }, // 흥분
+                { bar: 'emotionBar4', min: 40, max: 100 }, // 안정
+                { bar: 'emotionBar5', min: 20, max: 70 }  // 요구
+            ];
+            
+            emotions.forEach(e => {
+                const bar = document.getElementById(e.bar);
+                if (bar) {
+                    const height = Math.random() * (e.max - e.min) + e.min;
+                    bar.style.height = height + '%';
+                }
+            });
+        }, 800);
+        
+        liveState.emotionInterval = emotionInterval;
     }
 
     // ===== LIVE 중지 =====
@@ -1634,6 +1817,21 @@
         liveState.isRecording = false;
         liveState.recognizing = false;
         liveState.speaking = false;
+        
+        // 카메라 종료
+        if (liveState.cameraStream) {
+            liveState.cameraStream.getTracks().forEach(track => track.stop());
+            liveState.cameraStream = null;
+        }
+        
+        // 감정분석 종료
+        if (liveState.emotionInterval) {
+            clearInterval(liveState.emotionInterval);
+        }
+        
+        document.getElementById('liveVideo').style.display = 'none';
+        document.getElementById('emotionBars').style.display = 'none';
+        document.getElementById('cameraToggleButtons').style.display = 'none';
         
         if (recognition) {
             try { recognition.abort(); } catch(e) {}

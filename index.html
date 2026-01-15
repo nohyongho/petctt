@@ -1305,8 +1305,17 @@
                 </div>
 
                 <!-- 카메라 미리보기 (생체 스캔) -->
-                <div id="scanVideoContainer" style="display: none; margin-bottom: 16px;">
-                    <video id="scanVideo" style="width: 100%; border-radius: 12px; background: #000;" autoplay playsinline></video>
+                <div id="scanVideoContainer" style="display: none; margin-bottom: 16px; position: relative;">
+                    <!-- 카메라 전환 버튼 -->
+                    <div style="position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 10;">
+                        <button onclick="switchHealthCamera('user')" id="btnHealthCameraFront" style="padding: 8px 12px; background: rgba(45, 212, 191, 0.8); border: 1px solid rgba(45, 212, 191, 0.6); border-radius: 8px; color: white; font-size: 0.75rem; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                            🤳 전면
+                        </button>
+                        <button onclick="switchHealthCamera('environment')" id="btnHealthCameraBack" style="padding: 8px 12px; background: rgba(45, 212, 191, 0.3); border: 1px solid rgba(45, 212, 191, 0.4); border-radius: 8px; color: var(--primary-light); font-size: 0.75rem; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                            📷 후면
+                        </button>
+                    </div>
+                    <video id="scanVideo" style="width: 100%; border-radius: 12px; background: #000;" autoplay playsinline muted></video>
                     <div style="margin-top: 8px; padding: 10px; background: rgba(45, 212, 191, 0.2); border-radius: 8px; text-align: center; font-size: 0.8rem; color: var(--text-muted);">
                         📷 카메라 기반 추정값 (데모용)
                     </div>
@@ -2365,6 +2374,7 @@
     // 카메라 상태
     var cameraState = {
         stream: null,
+        healthStream: null,
         video: null,
         isActive: false
     };
@@ -2528,7 +2538,62 @@
         }
     }
 
-    // ===== 동물 행동 분석 =====
+    // ===== 건강 스캔 카메라 전환 =====
+    var healthCameraMode = 'environment';
+
+    async function switchHealthCamera(mode) {
+        const scanVideo = document.getElementById('scanVideo');
+        const btnHealthCameraFront = document.getElementById('btnHealthCameraFront');
+        const btnHealthCameraBack = document.getElementById('btnHealthCameraBack');
+        
+        if (!scanVideo) return;
+        
+        // 기존 스트림 종료
+        if (cameraState.healthStream) {
+            cameraState.healthStream.getTracks().forEach(track => track.stop());
+            cameraState.healthStream = null;
+        }
+        
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showToast('❌ 카메라 미지원', 'error');
+            return;
+        }
+        
+        try {
+            healthCameraMode = mode;
+            showToast('📷 카메라 전환 중...', 'info');
+            
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: mode },
+                audio: false
+            });
+            
+            scanVideo.srcObject = stream;
+            scanVideo.play();
+            cameraState.healthStream = stream;
+            
+            // 버튼 상태 업데이트
+            if (mode === 'user') {
+                if (btnHealthCameraFront) btnHealthCameraFront.style.background = 'rgba(45, 212, 191, 0.8)';
+                if (btnHealthCameraFront) btnHealthCameraFront.style.color = 'white';
+                if (btnHealthCameraBack) btnHealthCameraBack.style.background = 'rgba(45, 212, 191, 0.3)';
+                if (btnHealthCameraBack) btnHealthCameraBack.style.color = 'var(--primary-light)';
+                scanVideo.style.transform = 'scaleX(-1)'; // 전면 미러
+            } else {
+                if (btnHealthCameraFront) btnHealthCameraFront.style.background = 'rgba(45, 212, 191, 0.3)';
+                if (btnHealthCameraFront) btnHealthCameraFront.style.color = 'var(--primary-light)';
+                if (btnHealthCameraBack) btnHealthCameraBack.style.background = 'rgba(45, 212, 191, 0.8)';
+                if (btnHealthCameraBack) btnHealthCameraBack.style.color = 'white';
+                scanVideo.style.transform = 'scaleX(1)'; // 후면 원본
+            }
+            
+            showToast('✅ 카메라 전환 완료!', 'success');
+            
+        } catch (error) {
+            console.error('건강 스캔 카메라 전환 오류:', error);
+            showToast('❌ 카메라 전환 실패', 'error');
+        }
+    }
     function analyzeAnimalBehavior() {
         // 시뮬레이션된 감정 분석
         const emotions = ['불안', '고통', '흥분', '안정', '요구'];
@@ -2590,8 +2655,20 @@
             
             video.srcObject = stream;
             video.play();
-            cameraState.stream = stream;
+            cameraState.healthStream = stream;
             cameraState.isActive = true;
+            
+            // 버튼 초기 상태 설정
+            const btnHealthCameraFront = document.getElementById('btnHealthCameraFront');
+            const btnHealthCameraBack = document.getElementById('btnHealthCameraBack');
+            if (btnHealthCameraFront) {
+                btnHealthCameraFront.style.background = 'rgba(45, 212, 191, 0.3)';
+                btnHealthCameraFront.style.color = 'var(--primary-light)';
+            }
+            if (btnHealthCameraBack) {
+                btnHealthCameraBack.style.background = 'rgba(45, 212, 191, 0.8)';
+                btnHealthCameraBack.style.color = 'white';
+            }
             
             addBubble('system', '👁️ 카메라 기반 추정 생체 스캔 중입니다. 더 정확한 측정을 위해 아래의 센서를 연동하세요.');
             showToast('👁️ AI눈 생체 스캔 시작! (데모 모드)', 'success');
@@ -2648,6 +2725,12 @@
         if (cameraState.stream) {
             cameraState.stream.getTracks().forEach(track => track.stop());
             cameraState.stream = null;
+        }
+        
+        // 건강 스캔 카메라 정리
+        if (cameraState.healthStream) {
+            cameraState.healthStream.getTracks().forEach(track => track.stop());
+            cameraState.healthStream = null;
         }
         
         cameraState.isActive = false;

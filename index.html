@@ -5,35 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>PetCTT Pro - 반려동물 양방향 통역 + 위치 추적</title>
     
-    <!-- www.petctt.com 강제 리다이렉트 (정석) -->
+    <!-- petctt.com 도메인 통일 + HTTP→HTTPS 강제 -->
     <script>
         (() => {
-          const targetHost = "www.petctt.com";
+          const CANON_HOST = "petctt.com"; // 최종 정규 도메인
           const host = window.location.hostname;
+          const path = window.location.pathname + window.location.search + window.location.hash;
 
-          // 로컬 개발환경은 리다이렉트 금지
-          const isLocal =
-            host === "localhost" ||
-            host === "127.0.0.1" ||
-            host.endsWith(".local");
-
+          // 로컬 개발환경 제외
+          const isLocal = host === "localhost" || host === "127.0.0.1" || host.endsWith(".local");
           if (isLocal) return;
 
-          // http -> https 강제
+          // 1. HTTP → HTTPS 강제
           const isHttp = window.location.protocol === "http:";
+          
+          // 2. 도메인 통일: www.petctt.com / petctt.com 모두 → petctt.com
+          const needDomainFix = host !== CANON_HOST && host !== "www." + CANON_HOST;
 
-          // www 강제
-          const needWww = host !== targetHost;
-
-          if (isHttp || needWww) {
-            const newUrl =
-              "https://" + targetHost + window.location.pathname + window.location.search + window.location.hash;
-
-            // 뒤로가기 히스토리 안 쌓이게 replace
+          if (isHttp || needDomainFix) {
+            const newUrl = "https://" + CANON_HOST + path;
             window.location.replace(newUrl);
           }
         })();
     </script>
+    
+    <!-- 정규 URL 지정 (SEO + 캐시 통일) -->
+    <link rel="canonical" href="https://petctt.com/">
     
     <!-- PWA -->
     <link rel="manifest" href="manifest.webmanifest">
@@ -41,6 +38,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="AI 기반 반려동물 양방향 실시간 음성 통역 + GPS 위치 추적 시스템">
+    
+    <!-- 캐시 제어 (최신 버전 강제) -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     
     <!-- Leaflet 지도 라이브러리 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
@@ -1260,8 +1262,18 @@
             <div class="main-card">
                 <div class="section-title">👁️ AI눈 - 폰 카메라 활성화</div>
                 
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <video id="cameraVideo" style="display: none; width: 100%; border-radius: 16px; background: #000; margin-bottom: 12px; max-height: 300px;" autoplay playsinline></video>
+                <div style="text-align: center; margin-bottom: 20px; position: relative;">
+                    <!-- 카메라 전면/후면 전환 버튼 -->
+                    <div id="cameraToggleButtons" style="display: none; position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 100;">
+                        <button onclick="switchCameraMode('user')" id="btnCameraFront" style="padding: 8px 12px; background: rgba(45, 212, 191, 0.3); border: 1px solid rgba(45, 212, 191, 0.4); border-radius: 8px; color: var(--primary-light); font-size: 0.75rem; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                            🤳 전면
+                        </button>
+                        <button onclick="switchCameraMode('environment')" id="btnCameraBack" style="padding: 8px 12px; background: rgba(45, 212, 191, 0.8); border: 1px solid rgba(45, 212, 191, 0.6); border-radius: 8px; color: white; font-size: 0.75rem; cursor: pointer; font-weight: 600; transition: all 0.3s;">
+                            📷 후면
+                        </button>
+                    </div>
+                    
+                    <video id="cameraVideo" style="display: none; width: 100%; border-radius: 16px; background: #000; margin-bottom: 12px; max-height: 300px; object-fit: cover;" autoplay playsinline muted></video>
                     <canvas id="cameraCanvas" style="display: none;"></canvas>
                 </div>
                 
@@ -2188,6 +2200,8 @@
         isActive: false
     };
 
+    var currentCameraMode = 'environment'; // 기본: 후면
+
     function openCamera() {
         if (cameraState.isActive) {
             showToast('⚠️ 카메라가 이미 켜져 있습니다.', 'warning');
@@ -2205,7 +2219,7 @@
         showToast('⏳ 카메라 권한을 요청 중입니다...', 'info');
 
         navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment' },
+            video: { facingMode: currentCameraMode },
             audio: false
         }).then(stream => {
             cameraState.stream = stream;
@@ -2214,6 +2228,7 @@
             cameraState.isActive = true;
             
             document.getElementById('cameraVideo').style.display = 'block';
+            document.getElementById('cameraToggleButtons').style.display = 'flex';
             document.getElementById('cameraCapture').disabled = false;
             document.getElementById('cameraClose').disabled = false;
             document.getElementById('cameraOpen').disabled = true;
@@ -2222,7 +2237,10 @@
             document.getElementById('cameraClose').style.opacity = '1';
             document.getElementById('cameraOpen').style.opacity = '0.5';
             
-            showToast('✅ 카메라 켜짐! 터치하여 캡처하세요.', 'success');
+            // 카메라 버튼 초기 상태 설정
+            updateCameraButtons();
+            
+            showToast('✅ 카메라 켜짐! 🤳/📷로 전환하고 위치를 맞춰주세요.', 'success');
         }).catch(error => {
             console.error('카메라 접근 오류:', error);
             var msg = '❌ 카메라 접근을 거부했습니다.\\n';
@@ -2260,6 +2278,7 @@
         
         cameraState.isActive = false;
         document.getElementById('cameraVideo').style.display = 'none';
+        document.getElementById('cameraToggleButtons').style.display = 'none';
         document.getElementById('captureResult').style.display = 'none';
         document.getElementById('cameraOpen').disabled = false;
         document.getElementById('cameraCapture').disabled = true;
@@ -2270,6 +2289,74 @@
         document.getElementById('cameraOpen').style.opacity = '1';
         
         showToast('⏹ 카메라 종료', 'info');
+    }
+
+    // ===== 카메라 전면/후면 전환 =====
+    async function switchCameraMode(mode) {
+        const video = document.getElementById('cameraVideo');
+        
+        if (!cameraState.isActive || !cameraState.stream) {
+            showToast('⚠️ 카메라를 먼저 켜주세요.', 'warning');
+            return;
+        }
+
+        try {
+            // 기존 스트림 종료
+            cameraState.stream.getTracks().forEach(track => track.stop());
+            
+            showToast('📷 카메라 전환 중...', 'info');
+            
+            // 새로운 모드로 스트림 요청
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: mode },
+                audio: false
+            });
+            
+            currentCameraMode = mode;
+            cameraState.stream = stream;
+            video.srcObject = stream;
+            video.play();
+            
+            // 전면 카메라는 미러링
+            if (mode === 'user') {
+                video.style.transform = 'scaleX(-1)';
+            } else {
+                video.style.transform = 'scaleX(1)';
+            }
+            
+            updateCameraButtons();
+            showToast('✅ 카메라 전환 완료!', 'success');
+            
+        } catch (error) {
+            console.error('카메라 전환 오류:', error);
+            showToast('❌ 카메라 전환 실패. 권한을 확인해주세요.', 'error');
+        }
+    }
+
+    // 카메라 버튼 상태 업데이트
+    function updateCameraButtons() {
+        const btnFront = document.getElementById('btnCameraFront');
+        const btnBack = document.getElementById('btnCameraBack');
+        
+        if (currentCameraMode === 'user') {
+            if (btnFront) {
+                btnFront.style.background = 'rgba(45, 212, 191, 0.8)';
+                btnFront.style.color = 'white';
+            }
+            if (btnBack) {
+                btnBack.style.background = 'rgba(45, 212, 191, 0.3)';
+                btnBack.style.color = 'var(--primary-light)';
+            }
+        } else {
+            if (btnFront) {
+                btnFront.style.background = 'rgba(45, 212, 191, 0.3)';
+                btnFront.style.color = 'var(--primary-light)';
+            }
+            if (btnBack) {
+                btnBack.style.background = 'rgba(45, 212, 191, 0.8)';
+                btnBack.style.color = 'white';
+            }
+        }
     }
 
     // ===== AMI 방송국 기능 =====

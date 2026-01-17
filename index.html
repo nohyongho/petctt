@@ -2110,7 +2110,7 @@
         // ===== LIVE 시작 =====
         var currentCameraMode = 'environment'; // 기본: 후면 카메라
 
-        function handleStart() {
+        async function handleStart() {
             try {
                 if (liveState.live) return;
 
@@ -2137,11 +2137,28 @@
                 document.getElementById('statusText').textContent = 'LIVE 활성';
 
                 // 카메라 켜기 + 감정분석 시작
-                openLiveCamera();
-                startEmotionAnalysis();
+                const video = document.getElementById('liveVideo');
+                try {
+                    const stream = await openLiveCamera(video, currentCameraMode);
+                    liveState.cameraStream = stream;
 
-                addBubble('system', '🐾 LIVE 모드 시작! 카메라로 감정 분석 중. 마이크 버튼으로 양방향 통역하세요.');
-                showToast('👁️ AI눈 활성화 + 감정분석 시작!', 'success');
+                    video.style.display = 'block';
+                    document.getElementById('emotionBars').style.display = 'grid';
+                    document.getElementById('cameraToggleButtons').style.display = 'flex';
+                    updateCameraButtons();
+
+                    startEmotionAnalysis();
+
+                    addBubble('system', '🐾 LIVE 모드 시작! 카메라로 감정 분석 중. 마이크 버튼으로 양방향 통역하세요.');
+                    showToast('👁️ AI눈 활성화 + 감정분석 시작!', 'success');
+                } catch (err) {
+                    if (err.message === "NEED_USER_GESTURE") {
+                        showToast('⚠️ 화면을 터치하여 카메라를 시작해주세요.', 'warning');
+                        video.onclick = () => { video.play(); video.onclick = null; };
+                    } else {
+                        throw err;
+                    }
+                }
             } catch (error) {
                 console.error('❌ handleStart 에러:', error);
                 showToast('❌ 에러 발생: ' + error.message, 'error');
@@ -2149,36 +2166,50 @@
             }
         }
 
-        // ===== LIVE 카메라 켜기 =====
-        async function openLiveCamera() {
-            const video = document.getElementById('liveVideo');
-            const emotionBars = document.getElementById('emotionBars');
-            const toggleButtons = document.getElementById('cameraToggleButtons');
-
+        // ===== LIVE 카메라 켜기 (Mobile Optimized) =====
+        async function openLiveCamera(videoEl, prefer = "environment") {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showToast('❌ 카메라를 지원하지 않습니다.', 'error');
-                return;
+                throw new Error("getUserMedia not supported");
             }
+
+            // 1) mobile-friendly constraints (ideal + fallback)
+            const tryConstraints = [
+                { video: { facingMode: { ideal: prefer }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+                { video: { facingMode: { ideal: "user" }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+                { video: true, audio: false },
+            ];
+
+            let stream = null;
+            let lastErr = null;
+
+            for (const c of tryConstraints) {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia(c);
+                    break;
+                } catch (e) {
+                    lastErr = e;
+                }
+            }
+            if (!stream) throw lastErr || new Error("camera failed");
+
+            // 2) assign stream
+            videoEl.srcObject = stream;
+
+            // 3) mobile autoplay policy 대응
+            videoEl.setAttribute("playsinline", "");
+            videoEl.muted = true;
+            videoEl.autoplay = true;
 
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: currentCameraMode },
-                    audio: false
-                });
-
-                liveState.cameraStream = stream;
-                video.srcObject = stream;
-                video.play();
-                video.style.display = 'block';
-                emotionBars.style.display = 'grid';
-                toggleButtons.style.display = 'flex';
-
-                updateCameraButtons();
-
-            } catch (error) {
-                console.error('카메라 오류:', error);
-                showToast('📷 카메라 권한이 필요합니다.', 'warning');
+                await videoEl.play();
+            } catch (e) {
+                // 모바일에서 막히면: "시작" 버튼을 눌러 다시 play 시키게 해야 함
+                console.warn("video.play blocked:", e);
+                // 여기서 UI로 '카메라 시작' 버튼 보여주고, 버튼 클릭 시 videoEl.play() 호출
+                throw new Error("NEED_USER_GESTURE");
             }
+
+            return stream;
         }
 
         // ===== 카메라 전면/후면 전환 =====
@@ -2191,17 +2222,15 @@
             }
 
             try {
-                liveState.cameraStream.getTracks().forEach(track => track.stop());
+                if (liveState.cameraStream) {
+                    liveState.cameraStream.getTracks().forEach(track => track.stop());
+                }
 
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: mode },
-                    audio: false
-                });
+                const video = document.getElementById('liveVideo');
+                const stream = await openLiveCamera(video, mode);
+                liveState.cameraStream = stream;
 
                 currentCameraMode = mode;
-                liveState.cameraStream = stream;
-                video.srcObject = stream;
-                video.play();
 
                 // 전면 카메라는 미러링
                 if (mode === 'user') {
@@ -2703,14 +2732,9 @@
             healthCheckState.bioCurrentCamera = 'environment';
 
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment' },
-                    audio: false
-                });
+                const stream = await openLiveCamera(video, 'environment');
 
                 healthCheckState.bioStream = stream;
-                video.srcObject = stream;
-                video.play();
                 video.style.display = 'block';
 
                 // 버튼 상태 업데이트
@@ -2834,17 +2858,11 @@
                     healthCheckState.bioStream.getTracks().forEach(track => track.stop());
                 }
 
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: mode },
-                    audio: false
-                });
+                const video = document.getElementById('bioVideo');
+                const stream = await openLiveCamera(video, mode);
 
                 healthCheckState.bioCurrentCamera = mode;
                 healthCheckState.bioStream = stream;
-
-                const video = document.getElementById('bioVideo');
-                video.srcObject = stream;
-                video.play();
 
                 // 전면 카메라는 미러링
                 if (mode === 'user') {

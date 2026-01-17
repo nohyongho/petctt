@@ -1272,7 +1272,7 @@
                     <div style="margin-bottom: 16px; position: relative;">
                         <!-- 카메라 전면/후면 전환 버튼 -->
                         <div id="cameraToggleButtons"
-                            style="display: none; position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 100;">
+                            style="display: none; position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 10000;">
                             <button onclick="switchCameraMode('user')" id="btnCameraFront"
                                 style="padding: 8px 12px; background: rgba(45, 212, 191, 0.3); border: 1px solid rgba(45, 212, 191, 0.4); border-radius: 8px; color: var(--primary-light); font-size: 0.75rem; cursor: pointer; font-weight: 600; transition: all 0.3s;">
                                 🤳 전면
@@ -2199,6 +2199,10 @@
             videoEl.setAttribute("playsinline", "");
             videoEl.muted = true;
             videoEl.autoplay = true;
+
+            videoEl.onloadedmetadata = () => {
+                videoEl.play().catch(e => console.warn("metadata play blocked", e));
+            };
 
             try {
                 await videoEl.play();

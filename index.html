@@ -373,6 +373,28 @@
             text-shadow: 0 0 10px var(--primary);
         }
 
+        /* 동물선택 모달 아이템 */
+        .animal-select-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 12px 8px;
+            background: var(--bg-card-light);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .animal-select-item:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            background: rgba(34, 211, 238, 0.15);
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
+        }
+
         /* 설정 버튼 */
         .settings-btn {
             width: 80px;
@@ -1258,23 +1280,22 @@
             <div class="main-card">
                 <!-- 동물 선택 -->
                 <div class="section-title">🐾 통역할 동물을 선택하세요</div>
-                <div class="animal-selector">
-                    <button class="animal-btn selected" data-animal="dog" onclick="selectAnimal(this)">
-                        <span class="icon">🐶</span>
-                        <span class="name">강아지</span>
-                    </button>
-                    <button class="animal-btn" data-animal="cat" onclick="selectAnimal(this)">
-                        <span class="icon">🐱</span>
-                        <span class="name">고양이</span>
-                    </button>
-                    <button class="animal-btn" data-animal="chick" onclick="selectAnimal(this)">
-                        <span class="icon">🐥</span>
-                        <span class="name">병아리</span>
-                    </button>
-                    <button class="settings-btn" onclick="openSettings()">
-                        <span class="icon">⚙️</span>
-                        <span class="name">설정</span>
-                    </button>
+                <div class="animal-selector" style="flex-direction: column; align-items: center; gap: 16px;">
+                    <!-- 선택된 동물 큰 얼굴 -->
+                    <div id="selectedAnimalFace" style="font-size: 5rem; animation: bounce 2s ease-in-out infinite;">🐶</div>
+                    <div id="selectedAnimalName" style="font-size: 1.2rem; font-weight: 700; color: var(--primary-light);">강아지</div>
+                    
+                    <!-- 버튼들 -->
+                    <div style="display: flex; gap: 12px; justify-content: center;">
+                        <button class="animal-btn" onclick="openAnimalSelectModal()" style="width: 100px;">
+                            <span class="icon">🐾</span>
+                            <span class="name">동물선택</span>
+                        </button>
+                        <button class="settings-btn" onclick="openSettings()">
+                            <span class="icon">⚙️</span>
+                            <span class="name">설정</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- 컨트롤 버튼 -->
@@ -1456,7 +1477,7 @@
                             </button>
                             <button onclick="switchBioCamera('environment')" id="bioCameraBack"
                                 style="flex: 1; padding: 8px; background: rgba(45, 212, 191, 0.3); border: 1px solid rgba(45, 212, 191, 0.4); border-radius: 8px; color: var(--primary-light); cursor: pointer; font-weight: 600; font-size: 0.8rem;">
-                                🐶 강아지
+                                <span id="bioAnimalIcon">🐶</span> <span id="bioAnimalName">강아지</span>
                             </button>
                         </div>
 
@@ -1826,6 +1847,52 @@
     <!-- 토스트 -->
     <div class="toast" id="toast"></div>
 
+    <!-- 동물선택 모달 -->
+    <div class="modal-overlay" id="animalSelectModal" onclick="closeAnimalSelectModal(event)">
+        <div class="modal" style="max-width: 360px;" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeAnimalSelectModal()">✕</button>
+            <h3 class="modal-title">🐾 동물 선택</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px; text-align: center;">
+                통역할 동물을 선택하세요
+            </p>
+            
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">
+                <button class="animal-select-item" onclick="selectAnimalFromModal('dog', '🐶', '강아지')">
+                    <span style="font-size: 2.2rem;">🐶</span>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">강아지</span>
+                </button>
+                <button class="animal-select-item" onclick="selectAnimalFromModal('cat', '🐱', '고양이')">
+                    <span style="font-size: 2.2rem;">🐱</span>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">고양이</span>
+                </button>
+                <button class="animal-select-item" onclick="selectAnimalFromModal('cow', '🐮', '소')">
+                    <span style="font-size: 2.2rem;">🐮</span>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">소</span>
+                </button>
+                <button class="animal-select-item" onclick="selectAnimalFromModal('pig', '🐷', '돼지')">
+                    <span style="font-size: 2.2rem;">🐷</span>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">돼지</span>
+                </button>
+                <button class="animal-select-item" onclick="selectAnimalFromModal('duck', '🦆', '오리')">
+                    <span style="font-size: 2.2rem;">🦆</span>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">오리</span>
+                </button>
+                <button class="animal-select-item" onclick="selectAnimalFromModal('chick', '🐥', '병아리')">
+                    <span style="font-size: 2.2rem;">🐥</span>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">병아리</span>
+                </button>
+                <button class="animal-select-item" onclick="selectAnimalFromModal('monkey', '🐵', '원숭이')">
+                    <span style="font-size: 2.2rem;">🐵</span>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">원숭이</span>
+                </button>
+                <button class="animal-select-item" onclick="selectAnimalFromModal('goat', '🐐', '염소')">
+                    <span style="font-size: 2.2rem;">🐐</span>
+                    <span style="font-size: 0.7rem; color: var(--text-muted);">염소</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- 설정 모달 -->
     <!-- 방송국 모달 -->
     <div class="modal-overlay" id="broadcastModal">
@@ -2153,6 +2220,36 @@
                 name: '병아리',
                 sounds: ['삐약삐약!', '삐삐!', '삐이익~', '쪼쪼쪼'],
                 pitch: 1.6
+            },
+            cow: {
+                icon: '🐮',
+                name: '소',
+                sounds: ['음매~', '음메에~', '므으~', '음머어~'],
+                pitch: 0.6
+            },
+            pig: {
+                icon: '🐷',
+                name: '돼지',
+                sounds: ['꿀꿀!', '꾸울~', '끼이익~', '꿀꿀꿀'],
+                pitch: 0.8
+            },
+            duck: {
+                icon: '🦆',
+                name: '오리',
+                sounds: ['꽥꽥!', '꽤액~', '꽉꽉꽉', '꾸왁~'],
+                pitch: 1.1
+            },
+            monkey: {
+                icon: '🐵',
+                name: '원숭이',
+                sounds: ['끼끼!', '우끼끼~', '키키킥', '우우우~'],
+                pitch: 1.4
+            },
+            goat: {
+                icon: '🐐',
+                name: '염소',
+                sounds: ['음메에~', '메에에~', '매애~', '메~'],
+                pitch: 0.9
             }
         };
 
@@ -2177,20 +2274,89 @@
                 anxious: ['엄마 어디있어요?', '무서워요 삐약...', '혼자 두지 마세요'],
                 alert: ['위험해요!', '하늘에서 뭔가 와요!'],
                 love: ['따뜻해요~', '같이 있고 싶어요', '보호자님 좋아요 삐약!']
+            },
+            cow: {
+                happy: ['음매~ 기분 좋아요', '풀이 맛있어요!', '햇살이 좋아요~'],
+                hungry: ['배고파요 음매~', '풀 주세요~', '먹이 시간이에요!'],
+                anxious: ['무서워요 음매...', '뭔가 이상해요', '불안해요...'],
+                alert: ['저기 뭐가 있어요!', '주의하세요!', '위험해요 음매!'],
+                love: ['좋아요 음매~', '쓰다듬어 주세요', '행복해요~']
+            },
+            pig: {
+                happy: ['꿀꿀! 행복해요!', '맛있어요 꿀꿀~', '놀고 싶어요!'],
+                hungry: ['배고파요 꿀꿀!', '밥 주세요~', '먹을 거 없어요?'],
+                anxious: ['무서워요 꿀꿀...', '불안해요~', '숨고 싶어요'],
+                alert: ['뭐야 저거!', '조심해요!', '위험해 꿀꿀!'],
+                love: ['좋아해요 꿀꿀~', '같이 있고 싶어요', '행복해요~']
+            },
+            duck: {
+                happy: ['꽥꽥! 신나요!', '물이 좋아요~', '놀자 꽥꽥!'],
+                hungry: ['배고파요 꽥꽥!', '먹이 주세요~', '간식 시간!'],
+                anxious: ['무서워요 꽥...', '불안해요~', '숨을래요'],
+                alert: ['저기 봐요!', '위험해요 꽥!', '조심하세요!'],
+                love: ['좋아요 꽥꽥~', '따라갈게요!', '같이 수영해요~']
+            },
+            monkey: {
+                happy: ['끼끼! 신나!', '놀자 우끼끼!', '재밌어요!'],
+                hungry: ['배고파 끼끼!', '바나나 주세요!', '먹을 거 줘요~'],
+                anxious: ['무서워 끼...', '불안해요~', '안아주세요'],
+                alert: ['저기 봐!', '위험해 끼끼!', '조심해!'],
+                love: ['좋아해 끼끼~', '같이 놀자!', '안아줘요~']
+            },
+            goat: {
+                happy: ['메에~ 좋아요!', '풀이 맛있어요!', '신나요 메에~'],
+                hungry: ['배고파요 메에~', '풀 주세요!', '먹이 시간이에요'],
+                anxious: ['무서워요 메에...', '불안해요~', '숨고 싶어요'],
+                alert: ['저기 뭐야!', '위험해요 메에!', '조심하세요!'],
+                love: ['좋아해요 메에~', '같이 있고 싶어요', '쓰다듬어 주세요~']
             }
         };
 
         var HUMAN_KEYWORDS = {
-            '괜찮아': { emotion: 'comfort', responses: { dog: '꼬리 살랑살랑~ (안심했어요!)', cat: '그르릉~ (알겠어요 냥)', chick: '삐약~ (안심이에요!)' } },
-            '사랑해': { emotion: 'love', responses: { dog: '꼬리 흔들흔들~ 멍! (나도요!)', cat: '그르릉그르릉... (나도 냥)', chick: '삐삐삐~ (좋아요!)' } },
-            '밥': { emotion: 'food', responses: { dog: '멍멍! 꼬리 팡팡! (밥이다!)', cat: '냐옹! 냐옹! (밥이다 냥!)', chick: '삐약! 삐이익! (모이다!)' } },
-            '간식': { emotion: 'treat', responses: { dog: '왈왈! 눈 반짝 (간식 좋아!)', cat: '야옹~ 꼬리 세움 (기대된다 냥)', chick: '삐약삐약! (맛있겠다!)' } },
-            '산책': { emotion: 'walk', responses: { dog: '왈왈왈! 뛰어다님 (산책 좋아!)', cat: '...흥 (귀찮다 냥)', chick: '삐약? (밖이요?)' } },
-            '잘했어': { emotion: 'praise', responses: { dog: '꼬리 흔들흔들~ 낑낑 (기뻐요!)', cat: '그르릉~ (당연하지 냥)', chick: '삐삐! (고마워요!)' } },
-            '놀자': { emotion: 'play', responses: { dog: '멍! 왈왈! 뛰어다님 (신나!)', cat: '냐앙~ 눈 동그래짐 (놀아줘 냥!)', chick: '삐약삐약! (같이 놀아요!)' } },
-            '예뻐': { emotion: 'compliment', responses: { dog: '꼬리 살랑~ (고마워요!)', cat: '그르릉 (알고 있어 냥)', chick: '삐~ (기뻐요!)' } },
-            '이리와': { emotion: 'come', responses: { dog: '달려옴~ 멍! (가요!)', cat: '...천천히 걸어옴 (귀찮지만 냥)', chick: '삐약삐약! 달려옴 (가요!)' } }
+            '괜찮아': { emotion: 'comfort', responses: { dog: '꼬리 살랑살랑~ (안심했어요!)', cat: '그르릉~ (알겠어요 냥)', chick: '삐약~ (안심이에요!)', cow: '음매~ (안심이에요)', pig: '꿀꿀~ (괜찮아요)', duck: '꽥~ (알겠어요)', monkey: '끼끼~ (좋아요)', goat: '메에~ (안심이에요)' } },
+            '사랑해': { emotion: 'love', responses: { dog: '꼬리 흔들흔들~ 멍! (나도요!)', cat: '그르릉그르릉... (나도 냥)', chick: '삐삐삐~ (좋아요!)', cow: '음매~ (나도요!)', pig: '꿀꿀~ (나도!)', duck: '꽥꽥~ (좋아요!)', monkey: '끼끼끼! (나도!)', goat: '메에~ (나도요!)' } },
+            '밥': { emotion: 'food', responses: { dog: '멍멍! 꼬리 팡팡! (밥이다!)', cat: '냐옹! 냐옹! (밥이다 냥!)', chick: '삐약! 삐이익! (모이다!)', cow: '음매! (풀이다!)', pig: '꿀꿀꿀! (밥이다!)', duck: '꽥꽥! (먹이다!)', monkey: '끼끼! (바나나!)', goat: '메에! (풀이다!)' } },
+            '간식': { emotion: 'treat', responses: { dog: '왈왈! 눈 반짝 (간식 좋아!)', cat: '야옹~ 꼬리 세움 (기대된다 냥)', chick: '삐약삐약! (맛있겠다!)', cow: '음매~ (맛있겠다!)', pig: '꿀꿀! (좋아!)', duck: '꽥! (맛있겠다!)', monkey: '우끼끼! (신난다!)', goat: '메에! (좋아!)' } },
+            '산책': { emotion: 'walk', responses: { dog: '왈왈왈! 뛰어다님 (산책 좋아!)', cat: '...흥 (귀찮다 냥)', chick: '삐약? (밖이요?)', cow: '음매~ (나가요?)', pig: '꿀꿀~ (밖이요?)', duck: '꽥꽥! (물가 가요?)', monkey: '끼끼! (신난다!)', goat: '메에! (풀밭 가요?)' } },
+            '잘했어': { emotion: 'praise', responses: { dog: '꼬리 흔들흔들~ 낑낑 (기뻐요!)', cat: '그르릉~ (당연하지 냥)', chick: '삐삐! (고마워요!)', cow: '음매~ (기뻐요!)', pig: '꿀꿀~ (고마워요!)', duck: '꽥~ (기뻐요!)', monkey: '끼끼! (신나!)', goat: '메에~ (고마워요!)' } },
+            '놀자': { emotion: 'play', responses: { dog: '멍! 왈왈! 뛰어다님 (신나!)', cat: '냐앙~ 눈 동그래짐 (놀아줘 냥!)', chick: '삐약삐약! (같이 놀아요!)', cow: '음매~ (좋아요!)', pig: '꿀꿀! (신나!)', duck: '꽥꽥! (같이 놀아요!)', monkey: '우끼끼! (신나!)', goat: '메에! (놀아요!)' } },
+            '예뻐': { emotion: 'compliment', responses: { dog: '꼬리 살랑~ (고마워요!)', cat: '그르릉 (알고 있어 냥)', chick: '삐~ (기뻐요!)', cow: '음매~ (고마워요)', pig: '꿀꿀~ (기뻐요)', duck: '꽥~ (고마워요)', monkey: '끼끼~ (알아요!)', goat: '메에~ (기뻐요)' } },
+            '이리와': { emotion: 'come', responses: { dog: '달려옴~ 멍! (가요!)', cat: '...천천히 걸어옴 (귀찮지만 냥)', chick: '삐약삐약! 달려옴 (가요!)', cow: '음매~ 천천히 옴 (가요~)', pig: '꿀꿀! 뚜벅뚜벅 (가요!)', duck: '꽥꽥! 뒤뚱뒤뚱 (가요!)', monkey: '끼끼! 달려옴 (가요!)', goat: '메에! 달려옴 (가요!)' } }
         };
+
+        // ===== 동물선택 모달 =====
+        function openAnimalSelectModal() {
+            document.getElementById('animalSelectModal').style.display = 'flex';
+        }
+
+        function closeAnimalSelectModal(event) {
+            if (!event || event.target === document.getElementById('animalSelectModal')) {
+                document.getElementById('animalSelectModal').style.display = 'none';
+            }
+        }
+
+        function selectAnimalFromModal(animalKey, icon, name) {
+            selectedAnimal = animalKey;
+            
+            // 큰 얼굴 업데이트
+            document.getElementById('selectedAnimalFace').textContent = icon;
+            document.getElementById('selectedAnimalName').textContent = name;
+            
+            // 통역 패널 아이콘/라벨 업데이트
+            document.getElementById('animalIcon').textContent = icon;
+            document.getElementById('animalLabel').textContent = name;
+            
+            // 건강 탭 생체스캔 동물 연동
+            var bioAnimalIcon = document.getElementById('bioAnimalIcon');
+            var bioAnimalName = document.getElementById('bioAnimalName');
+            if (bioAnimalIcon) bioAnimalIcon.textContent = icon;
+            if (bioAnimalName) bioAnimalName.textContent = name;
+            
+            // 모달 닫기
+            closeAnimalSelectModal();
+            
+            showToast(icon + ' ' + name + ' 선택!', 'success');
+        }
 
         // 초기화
         document.addEventListener('DOMContentLoaded', function () {

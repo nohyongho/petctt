@@ -1236,10 +1236,172 @@
                 gap: 30px;
             }
         }
+
+        /* ===== 아미 AR 오버레이 시스템 ===== */
+        #ami-ar-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 99999;
+            overflow: hidden;
+            display: none;
+        }
+
+        #ami-ar-layer.active {
+            display: block;
+        }
+
+        /* 아미 LED 버튼 */
+        #ami-led-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a855f7 0%, #6366f1 50%, #ec4899 100%);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            z-index: 100000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 
+                0 0 20px rgba(168, 85, 247, 0.6),
+                0 0 40px rgba(168, 85, 247, 0.4),
+                0 0 60px rgba(168, 85, 247, 0.2),
+                inset 0 0 20px rgba(255, 255, 255, 0.1);
+            animation: ami-btn-pulse 2s ease-in-out infinite, ami-btn-float 3s ease-in-out infinite;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+        }
+
+        #ami-led-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 
+                0 0 30px rgba(168, 85, 247, 0.8),
+                0 0 60px rgba(168, 85, 247, 0.6),
+                0 0 90px rgba(168, 85, 247, 0.4);
+        }
+
+        #ami-led-btn:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes ami-btn-pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.6), 0 0 40px rgba(168, 85, 247, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(236, 72, 153, 0.8), 0 0 60px rgba(236, 72, 153, 0.5); }
+        }
+
+        @keyframes ami-btn-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* 아미 캐릭터 */
+        #ami-character {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 8rem;
+            filter: drop-shadow(0 0 30px rgba(168, 85, 247, 0.8));
+            transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 100001;
+        }
+
+        #ami-character.show {
+            animation: ami-spin-appear 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        @keyframes ami-spin-appear {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) scale(1.2) rotate(360deg); }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(720deg); }
+        }
+
+        /* 환영 텍스트 */
+        #ami-welcome-text {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            font-weight: 900;
+            text-align: center;
+            white-space: nowrap;
+            z-index: 100001;
+        }
+
+        .ami-char {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(20px);
+            background: linear-gradient(135deg, #a855f7, #ec4899, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.5));
+        }
+
+        .ami-char.show {
+            animation: ami-char-appear 0.4s ease-out forwards;
+        }
+
+        .ami-char.sparkle {
+            animation: ami-char-appear 0.4s ease-out forwards, ami-sparkle 0.5s ease-in-out 0.4s;
+        }
+
+        @keyframes ami-char-appear {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes ami-sparkle {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.5)); }
+            50% { filter: drop-shadow(0 0 30px rgba(255, 215, 0, 1)) drop-shadow(0 0 50px rgba(255, 215, 0, 0.8)); }
+        }
+
+        /* 파티클 */
+        .ami-particle {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            animation: ami-particle-fly 2s ease-out forwards;
+        }
+
+        @keyframes ami-particle-fly {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+        }
+
+        /* 스파클 별 */
+        .ami-sparkle-star {
+            position: absolute;
+            font-size: 1.5rem;
+            animation: ami-star-twinkle 1s ease-out forwards;
+        }
+
+        @keyframes ami-star-twinkle {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
+            100% { transform: scale(0) rotate(360deg); opacity: 0; }
+        }
     </style>
 </head>
 
 <body>
+    <!-- ===== 아미 AR 오버레이 시스템 ===== -->
+    <div id="ami-ar-layer">
+        <div id="ami-character">🐰</div>
+        <div id="ami-welcome-text"></div>
+        <div id="ami-particles"></div>
+    </div>
+    <button id="ami-led-btn" onclick="activateAmi()" title="아미 호출">🐰</button>
+
     <!-- 헤더 -->
     <header>
         <div class="container">
@@ -3490,6 +3652,200 @@
 
         // Initialize after a slight delay to ensure DOM is ready
         window.addEventListener('load', initThree);
+    </script>
+
+    <!-- ===== 아미 AR 오버레이 JavaScript ===== -->
+    <script>
+        // 아미 시스템 상태
+        let amiActive = false;
+        const AMI_WELCOME_MSG = "펫CTT에 오신걸 환영합니다";
+        const AMI_TTS_MSG = "펫CTT에 오신걸 환영합니다! 저는 아미랍니다! 곧 오픈할거예요! 언제나 불러주세요! I LOVE YOU!";
+
+        // 아미 활성화
+        function activateAmi() {
+            if (amiActive) return;
+            amiActive = true;
+
+            const layer = document.getElementById('ami-ar-layer');
+            const character = document.getElementById('ami-character');
+            const welcomeText = document.getElementById('ami-welcome-text');
+            const btn = document.getElementById('ami-led-btn');
+
+            // 버튼 숨기기
+            btn.style.opacity = '0';
+            btn.style.pointerEvents = 'none';
+
+            // 레이어 활성화
+            layer.classList.add('active');
+
+            // 파티클 생성
+            createAmiParticles();
+
+            // 캐릭터 등장 (0.3초 후)
+            setTimeout(() => {
+                character.classList.add('show');
+            }, 300);
+
+            // 환영 텍스트 타이핑 (1초 후)
+            setTimeout(() => {
+                typeWelcomeText(welcomeText, AMI_WELCOME_MSG);
+            }, 1000);
+
+            // TTS 재생 (2.5초 후)
+            setTimeout(() => {
+                speakAmi(AMI_TTS_MSG);
+            }, 2500);
+
+            // 마지막 글자 스파클 + 별 효과 (3초 후)
+            setTimeout(() => {
+                addFinalSparkle();
+            }, 3000);
+
+            // 자동 종료 (7초 후)
+            setTimeout(() => {
+                deactivateAmi();
+            }, 7000);
+        }
+
+        // 아미 비활성화
+        function deactivateAmi() {
+            const layer = document.getElementById('ami-ar-layer');
+            const character = document.getElementById('ami-character');
+            const welcomeText = document.getElementById('ami-welcome-text');
+            const btn = document.getElementById('ami-led-btn');
+
+            // 페이드 아웃
+            layer.style.opacity = '0';
+            layer.style.transition = 'opacity 0.5s ease';
+
+            setTimeout(() => {
+                layer.classList.remove('active');
+                layer.style.opacity = '';
+                layer.style.transition = '';
+                character.classList.remove('show');
+                welcomeText.innerHTML = '';
+                document.getElementById('ami-particles').innerHTML = '';
+
+                // 버튼 다시 보이기
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+                amiActive = false;
+            }, 500);
+        }
+
+        // 파티클 생성
+        function createAmiParticles() {
+            const container = document.getElementById('ami-particles');
+            const colors = ['#a855f7', '#ec4899', '#6366f1', '#fbbf24', '#34d399'];
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'ami-particle';
+
+                    const size = Math.random() * 15 + 5;
+                    const startX = Math.random() * window.innerWidth;
+                    const startY = Math.random() * window.innerHeight;
+                    const tx = (Math.random() - 0.5) * 300;
+                    const ty = (Math.random() - 0.5) * 300;
+
+                    particle.style.cssText = `
+                        left: ${startX}px;
+                        top: ${startY}px;
+                        width: ${size}px;
+                        height: ${size}px;
+                        background: ${colors[Math.floor(Math.random() * colors.length)]};
+                        --tx: ${tx}px;
+                        --ty: ${ty}px;
+                    `;
+
+                    container.appendChild(particle);
+
+                    setTimeout(() => particle.remove(), 2000);
+                }, i * 30);
+            }
+        }
+
+        // 환영 텍스트 타이핑
+        function typeWelcomeText(element, text) {
+            element.innerHTML = '';
+            const chars = text.split('');
+
+            chars.forEach((char, i) => {
+                const span = document.createElement('span');
+                span.className = 'ami-char';
+                span.textContent = char === ' ' ? '\u00A0' : char;
+
+                setTimeout(() => {
+                    span.classList.add('show');
+                }, i * 80);
+
+                element.appendChild(span);
+            });
+        }
+
+        // 마지막 글자 스파클 효과
+        function addFinalSparkle() {
+            const welcomeText = document.getElementById('ami-welcome-text');
+            const chars = welcomeText.querySelectorAll('.ami-char');
+            const lastThree = Array.from(chars).slice(-3);
+
+            lastThree.forEach((char, i) => {
+                setTimeout(() => {
+                    char.classList.add('sparkle');
+
+                    // 별 이펙트 추가
+                    for (let j = 0; j < 3; j++) {
+                        const star = document.createElement('span');
+                        star.className = 'ami-sparkle-star';
+                        star.textContent = '✨';
+
+                        const rect = char.getBoundingClientRect();
+                        star.style.left = `${rect.left + (Math.random() - 0.5) * 40}px`;
+                        star.style.top = `${rect.top + (Math.random() - 0.5) * 40}px`;
+
+                        document.getElementById('ami-ar-layer').appendChild(star);
+
+                        setTimeout(() => star.remove(), 1000);
+                    }
+                }, i * 200);
+            });
+        }
+
+        // TTS 음성 출력 (Edge TTS로 생성한 자연스러운 음성)
+        function speakAmi(text) {
+            // 🎀 미리 생성된 고품질 MP3 파일 재생
+            const audio = new Audio('/ami-welcome.mp3');
+            audio.volume = 1.0;
+            audio.play().catch(err => {
+                console.log('Audio play failed, using fallback TTS:', err);
+                // 폴백: 브라우저 TTS 사용
+                if ('speechSynthesis' in window) {
+                    speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'ko-KR';
+                    utterance.rate = 1.1;
+                    utterance.pitch = 1.8;
+                    utterance.volume = 1.0;
+                    
+                    const voices = speechSynthesis.getVoices();
+                    let selectedVoice = voices.find(v => v.lang.includes('ko'));
+                    if (selectedVoice) utterance.voice = selectedVoice;
+                    
+                    speechSynthesis.speak(utterance);
+                }
+            });
+            console.log('🎀 아미 음성 재생: ami-welcome.mp3');
+        }
+
+        // 음성 목록 로드 (일부 브라우저에서 필요)
+        if ('speechSynthesis' in window) {
+            speechSynthesis.getVoices();
+            speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+        }
+
+        console.log('🐰 아미 AR 시스템 로드 완료!');
     </script>
 </body>
 

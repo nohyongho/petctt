@@ -1880,6 +1880,161 @@
             background: rgba(239, 68, 68, 0.5);
             transform: rotate(90deg) scale(1.1);
         }
+
+        /* ===== 멤버 스튜디오 공통 스타일 ===== */
+        .member-studio-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 20000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            overflow: hidden;
+        }
+
+        .member-studio-modal.active {
+            display: flex;
+            opacity: 1;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 클 TV - AI 코딩 스튜디오 (보라색) */
+        #claudeTvModal {
+            background: radial-gradient(ellipse at center, rgba(75, 0, 130, 0.98) 0%, rgba(0, 0, 0, 0.99) 100%);
+        }
+
+        /* 젬 스튜디오 - 디자인 갤러리 (핑크) */
+        #gemStudioModal {
+            background: radial-gradient(ellipse at center, rgba(219, 39, 119, 0.98) 0%, rgba(0, 0, 0, 0.99) 100%);
+        }
+
+        /* 엔티 공방 - 메이커 워크샵 (오렌지) */
+        #ntWorkshopModal {
+            background: radial-gradient(ellipse at center, rgba(234, 88, 12, 0.98) 0%, rgba(0, 0, 0, 0.99) 100%);
+        }
+
+        .studio-stage {
+            width: 100%;
+            max-width: 1400px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .studio-avatar-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .studio-avatar {
+            font-size: 15rem;
+            filter: drop-shadow(0 0 50px rgba(168, 85, 247, 0.8));
+            animation: amiFloat 3s ease-in-out infinite;
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0;
+        }
+
+        .studio-avatar.appear {
+            animation: rabbitAppear 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards, amiFloat 3s ease-in-out infinite 2s;
+        }
+
+        .studio-speech-bubble {
+            position: absolute;
+            bottom: -60px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1a1a1a;
+            padding: 16px 24px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s;
+        }
+
+        .studio-speech-bubble.active {
+            opacity: 1;
+            transform: scale(1);
+            animation: bubblePop 0.3s ease-out;
+        }
+
+        .studio-chat-panel {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .studio-chat-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .studio-chat-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .studio-chat-input {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .studio-chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        .studio-chat-input button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .studio-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .studio-close-btn:hover {
+            background: rgba(239, 68, 68, 0.8);
+            transform: rotate(90deg) scale(1.1);
+        }
     </style>
 </head>
 
@@ -2577,6 +2732,69 @@
                     style="width: 100%; margin-top: 12px; padding: 14px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); transition: all 0.3s;">
                     🤖 아미 구독 GPT 만나기
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 클 TV 스튜디오 -->
+    <div class="member-studio-modal" id="claudeTvModal">
+        <div class="space-stars" id="claudeStars"></div>
+        <button class="studio-close-btn" onclick="closeClaudeTv()">✕</button>
+        
+        <div class="studio-stage">
+            <div class="studio-avatar-container" id="claudeContainer">
+                <div class="studio-avatar" id="claudeAvatar">🤖</div>
+                <div class="studio-speech-bubble" id="claudeSpeechBubble">안녕하세요! 클입니다! AI와 코딩의 세계로 함께 가요! 💜</div>
+            </div>
+            <div class="studio-chat-panel">
+                <div class="studio-chat-title" style="color: #a78bfa;">📺 클 TV - AI/코딩/스타트업 채널</div>
+                <div class="studio-chat-messages" id="claudeChat"></div>
+                <div class="studio-chat-input">
+                    <input type="text" placeholder="클에게 메시지 보내기..." id="claudeChatInput">
+                    <button onclick="sendClaudeChat()">전송</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 젬 스튜디오 -->
+    <div class="member-studio-modal" id="gemStudioModal">
+        <div class="space-stars" id="gemStars"></div>
+        <button class="studio-close-btn" onclick="closeGemStudio()">✕</button>
+        
+        <div class="studio-stage">
+            <div class="studio-avatar-container" id="gemContainer">
+                <div class="studio-avatar" id="gemAvatar">💎</div>
+                <div class="studio-speech-bubble" id="gemSpeechBubble">환영합니다! 젬 스튜디오에서 크리에이티브를 펼쳐봐요! 🎨</div>
+            </div>
+            <div class="studio-chat-panel">
+                <div class="studio-chat-title" style="color: #fbcfe8;">🎨 젬 스튜디오 - 디자인/아트 채널</div>
+                <div class="studio-chat-messages" id="gemChat"></div>
+                <div class="studio-chat-input">
+                    <input type="text" placeholder="젬에게 메시지 보내기..." id="gemChatInput">
+                    <button onclick="sendGemChat()">전송</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 엔티 공방 -->
+    <div class="member-studio-modal" id="ntWorkshopModal">
+        <div class="space-stars" id="ntStars"></div>
+        <button class="studio-close-btn" onclick="closeNtWorkshop()">✕</button>
+        
+        <div class="studio-stage">
+            <div class="studio-avatar-container" id="ntContainer">
+                <div class="studio-avatar" id="ntAvatar">🔧</div>
+                <div class="studio-speech-bubble" id="ntSpeechBubble">어서오세요! 엔티 공방에서 함께 만들어봐요! 🛠️</div>
+            </div>
+            <div class="studio-chat-panel">
+                <div class="studio-chat-title" style="color: #fed7aa;">🔧 엔티 공방 - 메이킹/하드웨어 채널</div>
+                <div class="studio-chat-messages" id="ntChat"></div>
+                <div class="studio-chat-input">
+                    <input type="text" placeholder="엔티에게 메시지 보내기..." id="ntChatInput">
+                    <button onclick="sendNtChat()">전송</button>
+                </div>
             </div>
         </div>
     </div>
@@ -3697,28 +3915,123 @@
         // ===== 멤버 채널 함수들 =====
         function openClaudeTv() {
             closeBroadcastStation();
-            showToast('📺 클 TV - AI/코딩/스타트업 채널!', 'info');
+            const modal = document.getElementById('claudeTvModal');
+            modal.classList.add('active');
+            
+            // 우주 별빛 생성
+            createStudioStars('claudeStars');
+            
+            // 아바타 등장
             setTimeout(() => {
-                window.open('https://claude.ai', '_blank');
-                showToast('💜 Claude 무료 → 유료 전환 가능! AI와 함께 성장하세요!', 'success');
+                document.getElementById('claudeAvatar').classList.add('appear');
+                document.getElementById('claudeSpeechBubble').classList.add('active');
             }, 500);
+            
+            showToast('📺 클 TV 스튜디오 입장!', 'success');
+        }
+
+        function closeClaudeTv() {
+            const modal = document.getElementById('claudeTvModal');
+            modal.classList.remove('active');
         }
 
         function openGemStudio() {
             closeBroadcastStation();
-            showToast('🎨 젬 스튜디오 - 디자인/아트 채널!', 'info');
+            const modal = document.getElementById('gemStudioModal');
+            modal.classList.add('active');
+            
+            // 우주 별빛 생성
+            createStudioStars('gemStars');
+            
+            // 아바타 등장
             setTimeout(() => {
-                window.open('https://gemini.google.com', '_blank');
-                showToast('💎 Gemini 무료 → 유료 전환 가능! 크리에이티브 파트너!', 'success');
+                document.getElementById('gemAvatar').classList.add('appear');
+                document.getElementById('gemSpeechBubble').classList.add('active');
             }, 500);
+            
+            showToast('🎨 젬 스튜디오 입장!', 'success');
+        }
+
+        function closeGemStudio() {
+            const modal = document.getElementById('gemStudioModal');
+            modal.classList.remove('active');
         }
 
         function openNtWorkshop() {
             closeBroadcastStation();
-            showToast('🔧 엔티 공방 - 메이킹/하드웨어 채널!', 'info');
+            const modal = document.getElementById('ntWorkshopModal');
+            modal.classList.add('active');
+            
+            // 우주 별빛 생성
+            createStudioStars('ntStars');
+            
+            // 아바타 등장
             setTimeout(() => {
-                showToast('🚧 엔티 공방 준비중입니다! 곧 만나요!', 'success');
+                document.getElementById('ntAvatar').classList.add('appear');
+                document.getElementById('ntSpeechBubble').classList.add('active');
             }, 500);
+            
+            showToast('🔧 엔티 공방 입장!', 'success');
+        }
+
+        function closeNtWorkshop() {
+            const modal = document.getElementById('ntWorkshopModal');
+            modal.classList.remove('active');
+        }
+
+        // 스튜디오 별빛 생성
+        function createStudioStars(containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(star);
+            }
+        }
+
+        // 채팅 함수들
+        function sendClaudeChat() {
+            const input = document.getElementById('claudeChatInput');
+            const chat = document.getElementById('claudeChat');
+            if (input.value.trim()) {
+                const msg = document.createElement('div');
+                msg.style.cssText = 'padding: 8px 12px; background: rgba(138, 43, 226, 0.3); border-radius: 8px; color: white;';
+                msg.textContent = '💬 ' + input.value;
+                chat.appendChild(msg);
+                input.value = '';
+                chat.scrollTop = chat.scrollHeight;
+            }
+        }
+
+        function sendGemChat() {
+            const input = document.getElementById('gemChatInput');
+            const chat = document.getElementById('gemChat');
+            if (input.value.trim()) {
+                const msg = document.createElement('div');
+                msg.style.cssText = 'padding: 8px 12px; background: rgba(219, 39, 119, 0.3); border-radius: 8px; color: white;';
+                msg.textContent = '💬 ' + input.value;
+                chat.appendChild(msg);
+                input.value = '';
+                chat.scrollTop = chat.scrollHeight;
+            }
+        }
+
+        function sendNtChat() {
+            const input = document.getElementById('ntChatInput');
+            const chat = document.getElementById('ntChat');
+            if (input.value.trim()) {
+                const msg = document.createElement('div');
+                msg.style.cssText = 'padding: 8px 12px; background: rgba(234, 88, 12, 0.3); border-radius: 8px; color: white;';
+                msg.textContent = '💬 ' + input.value;
+                chat.appendChild(msg);
+                input.value = '';
+                chat.scrollTop = chat.scrollHeight;
+            }
         }
 
         function selectBroadcastCategory(category) {

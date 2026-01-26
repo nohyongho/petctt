@@ -4502,11 +4502,11 @@
             rabbit.classList.add('talking');
             amiTalking = true;
             
-            // TTS 음성 생성
+            // TTS 음성 생성 (아미 호출 버튼과 동일한 톤)
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'ko-KR';
-            utterance.rate = 1.1;      // 빠르기
-            utterance.pitch = 1.8;     // 높은 음 (어린 목소리)
+            utterance.rate = 1.1;      // 아미 호출 버튼과 동일
+            utterance.pitch = 1.8;     // 아미 호출 버튼과 동일 (귀여운 목소리)
             utterance.volume = 1.0;
             
             if (amiVoice) {

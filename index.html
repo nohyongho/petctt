@@ -4408,19 +4408,6 @@
             bubble.classList.add('active');
         }
 
-        // ===== 아미 라이브 오디션 모드 =====
-        let amiTalking = false;
-        let amiVoice = null;
-
-        // 음성 초기화
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = () => {
-                const voices = window.speechSynthesis.getVoices();
-                // 10대 여자아이 목소리 찾기 (한국어)
-                amiVoice = voices.find(v => v.lang.includes('ko') && v.name.includes('Female')) || voices.find(v => v.lang.includes('ko'));
-            };
-        }
-
         function closeAmiAudition() {
             const modal = document.getElementById('amiAuditionModal');
             modal.classList.remove('active');

@@ -1623,6 +1623,263 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+
+        /* ===== 아미 라이브 오디션 모드 ===== */
+        .ami-audition-modal {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(20, 0, 40, 0.98) 0%, rgba(0, 0, 0, 0.99) 100%);
+            z-index: 20000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            overflow: hidden;
+        }
+
+        /* 우주 배경 별빛 */
+        .space-stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            animation: starTwinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        /* 파티클 */
+        .magic-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleGather 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+
+        @keyframes particleGather {
+            0% {
+                opacity: 0;
+                transform: translate(var(--startX), var(--startY)) scale(0);
+            }
+            30% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translate(0, 0) scale(1);
+            }
+        }
+
+        .ami-audition-modal.active {
+            display: flex;
+            opacity: 1;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ami-stage {
+            width: 100%;
+            max-width: 1400px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .ami-avatar-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .ami-rabbit {
+            font-size: 15rem;
+            filter: drop-shadow(0 0 50px rgba(168, 85, 247, 0.8)) drop-shadow(0 0 100px rgba(236, 72, 153, 0.6));
+            animation: amiFloat 3s ease-in-out infinite;
+            cursor: pointer;
+            transition: all 0.3s;
+            opacity: 0;
+        }
+
+        .ami-rabbit.appear {
+            animation: rabbitAppear 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards, amiFloat 3s ease-in-out infinite 2s;
+        }
+
+        @keyframes rabbitAppear {
+            0% {
+                opacity: 0;
+                transform: scale(0) rotate(0deg);
+                filter: drop-shadow(0 0 0px rgba(168, 85, 247, 0)) brightness(3);
+            }
+            60% {
+                opacity: 1;
+                transform: scale(1.3) rotate(360deg);
+                filter: drop-shadow(0 0 100px rgba(168, 85, 247, 1)) brightness(2);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(720deg);
+                filter: drop-shadow(0 0 50px rgba(168, 85, 247, 0.8)) brightness(1);
+            }
+        }
+
+        .ami-rabbit:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 80px rgba(168, 85, 247, 1)) drop-shadow(0 0 120px rgba(236, 72, 153, 0.8));
+        }
+
+        .ami-rabbit.talking {
+            animation: amiTalk 0.3s ease-in-out infinite;
+        }
+
+        @keyframes amiFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes amiTalk {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* 마법 원형 파동 */
+        .magic-circle {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border: 3px solid rgba(168, 85, 247, 0.6);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .magic-circle.animate {
+            animation: circleExpand 2s ease-out forwards;
+        }
+
+        @keyframes circleExpand {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+                border-width: 5px;
+            }
+            100% {
+                width: 600px;
+                height: 600px;
+                opacity: 0;
+                border-width: 1px;
+            }
+        }
+
+        .ami-speech-bubble {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            color: #1f2937;
+            padding: 20px 30px;
+            border-radius: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            max-width: 80%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: none;
+            animation: bubblePop 0.3s ease-out;
+        }
+
+        .ami-speech-bubble.active {
+            display: block;
+        }
+
+        @keyframes bubblePop {
+            0% { transform: translateX(-50%) scale(0); }
+            50% { transform: translateX(-50%) scale(1.1); }
+            100% { transform: translateX(-50%) scale(1); }
+        }
+
+        .ami-qa-panel {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(168, 85, 247, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .ami-qa-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #d8b4fe;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .ami-qa-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .ami-qa-btn {
+            padding: 14px 20px;
+            background: rgba(168, 85, 247, 0.2);
+            border: 2px solid rgba(168, 85, 247, 0.4);
+            border-radius: 12px;
+            color: #d8b4fe;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .ami-qa-btn:hover {
+            background: rgba(168, 85, 247, 0.4);
+            border-color: rgba(168, 85, 247, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .ami-close-btn {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.3);
+            border: 2px solid rgba(239, 68, 68, 0.6);
+            color: #f87171;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 20001;
+        }
+
+        .ami-close-btn:hover {
+            background: rgba(239, 68, 68, 0.5);
+            transform: rotate(90deg) scale(1.1);
+        }
     </style>
 </head>
 
@@ -2287,6 +2544,33 @@
                     <span style="font-size: 2.2rem;">🐐</span>
                     <span style="font-size: 0.7rem; color: var(--text-muted);">염소</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 아미 라이브 오디션 모달 -->
+    <div class="ami-audition-modal" id="amiAuditionModal">
+        <div class="space-stars" id="spaceStars"></div>
+        <button class="ami-close-btn" onclick="closeAmiAudition()">✕</button>
+        
+        <div class="ami-stage">
+            <!-- 아미 아바타 -->
+            <div class="ami-avatar-container" id="amiContainer">
+                <div class="ami-rabbit" id="amiRabbit" onclick="amiGreeting()">🐰</div>
+                <div class="ami-speech-bubble" id="amiSpeechBubble">안녕하세요! AI 아미예요! 💜</div>
+            </div>
+
+            <!-- Q&A 패널 -->
+            <div class="ami-qa-panel">
+                <div class="ami-qa-title">🎯 투자자 질문하기</div>
+                <div class="ami-qa-buttons">
+                    <button class="ami-qa-btn" onclick="askAmi('비즈니스 모델')">💼 비즈니스 모델은?</button>
+                    <button class="ami-qa-btn" onclick="askAmi('기술 차별점')">✨ 기술 차별점은?</button>
+                    <button class="ami-qa-btn" onclick="askAmi('수익 모델')">💰 수익 모델은?</button>
+                    <button class="ami-qa-btn" onclick="askAmi('경쟁사 대비')">🏆 경쟁사 대비 강점은?</button>
+                    <button class="ami-qa-btn" onclick="askAmi('투자 사용처')">🎯 투자금은 어디에?</button>
+                    <button class="ami-qa-btn" onclick="askAmi('특허 강점')">🛡️ 특허 강점은?</button>
+                </div>
             </div>
         </div>
     </div>
@@ -4023,6 +4307,434 @@
             const directionLabels = document.querySelectorAll('.direction-item .label');
             if (directionLabels[0]) directionLabels[0].textContent = t.guardian;
             if (directionLabels[1]) directionLabels[1].textContent = t.pet;
+        }
+
+        // ===== 아미 라이브 오디션 모드 =====
+        let amiTalking = false;
+        let amiVoice = null;
+
+        // 음성 초기화
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                const voices = window.speechSynthesis.getVoices();
+                // 10대 여자아이 목소리 찾기 (한국어)
+                amiVoice = voices.find(v => v.lang.includes('ko') && v.name.includes('Female')) || voices.find(v => v.lang.includes('ko'));
+            };
+        }
+
+        function startAmiAudition() {
+            // 방송국 모달 닫기
+            closeBroadcastStation();
+            
+            // 아미 오디션 모달 열기
+            const modal = document.getElementById('amiAuditionModal');
+            modal.classList.add('active');
+            
+            // 우주 별빛 생성
+            createSpaceStars();
+            
+            // 0.5초 후 마법 파티클 등장
+            setTimeout(() => {
+                createMagicParticles();
+                playMagicSound();
+            }, 500);
+            
+            // 2초 후 토끼 등장
+            setTimeout(() => {
+                const rabbit = document.getElementById('amiRabbit');
+                rabbit.classList.add('appear');
+            }, 2000);
+            
+            // 4초 후 자동 인사
+            setTimeout(() => {
+                amiGreeting();
+            }, 4000);
+            
+            showToast('🎙️ 아미 라이브 오디션 시작!', 'success');
+        }
+
+        function createSpaceStars() {
+            const container = document.getElementById('spaceStars');
+            container.innerHTML = '';
+            
+            // 200개의 별 생성
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(star);
+            }
+        }
+
+        function createMagicParticles() {
+            const container = document.getElementById('amiContainer');
+            const colors = ['#a855f7', '#ec4899', '#6366f1', '#fbbf24', '#34d399', '#ffffff'];
+            
+            // 100개의 마법 파티클 생성
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'magic-particle';
+                    
+                    const angle = (Math.PI * 2 * i) / 100;
+                    const radius = 300 + Math.random() * 200;
+                    const startX = Math.cos(angle) * radius;
+                    const startY = Math.sin(angle) * radius;
+                    
+                    particle.style.cssText = `
+                        --startX: ${startX}px;
+                        --startY: ${startY}px;
+                        background: ${colors[Math.floor(Math.random() * colors.length)]};
+                        box-shadow: 0 0 20px ${colors[Math.floor(Math.random() * colors.length)]};
+                    `;
+                    
+                    container.appendChild(particle);
+                    
+                    // 2초 후 제거
+                    setTimeout(() => particle.remove(), 2000);
+                }, i * 15);
+            }
+            
+            // 마법 원형 파동 3개
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const circle = document.createElement('div');
+                    circle.className = 'magic-circle animate';
+                    container.appendChild(circle);
+                    setTimeout(() => circle.remove(), 2000);
+                }, i * 400);
+            }
+        }
+
+        function playMagicSound() {
+            // 띠리링 마법 음향 효과 (Web Audio API)
+            if (!window.AudioContext && !window.webkitAudioContext) return;
+            
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // 맑은 종소리 같은 음향 생성
+            const notes = [523.25, 659.25, 783.99, 1046.50]; // C, E, G, C (높은음)
+            
+            notes.forEach((freq, index) => {
+                setTimeout(() => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = freq;
+                    oscillator.type = 'sine'; // 맑은 음색
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                }, index * 150);
+            });
+        }
+
+        function closeAmiAudition() {
+            const modal = document.getElementById('amiAuditionModal');
+            modal.classList.remove('active');
+            
+            // 말하는 중이면 중지
+            if (amiTalking) {
+                window.speechSynthesis.cancel();
+                amiTalking = false;
+                document.getElementById('amiRabbit').classList.remove('talking');
+            }
+            
+            showToast('오디션 종료', 'info');
+        }
+
+        function amiGreeting() {
+            const greetings = [
+                '안녕하세요! 저는 AI 아미예요! 💜',
+                '🎉 반가워요! 무엇이든 물어보세요!',
+                '🌟 PetCTT의 모든 것을 설명해드릴게요!',
+                '🐰 저랑 함께 투자 여행을 떠나요!'
+            ];
+            const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+            amiSpeak(greeting);
+        }
+
+        function askAmi(topic) {
+            const answers = {
+                '비즈니스 모델': 'B2C 구독 모델로 시작해서, B2B API 라이센스로 확장하고, 데이터 플랫폼으로 발전해요! 분기당 9천9백원부터 시작이에요!',
+                '기술 차별점': '카메라와 마이크만으로 실시간 생체 분석이 가능해요! 웨어러블 없이도 작동하는 AI 네이티브 기술이에요!',
+                '수익 모델': '1년차 30억, 3년차 300억 이상 목표예요! 반려동물부터 시작해서 돌봄, 의료, 공간까지 확장 가능해요!',
+                '경쟁사 대비': '단순 패턴 분석이 아니라 멀티모달 AI로 양방향 소통이 가능해요! 특허로 보호된 기술이라 차별화돼요!',
+                '투자 사용처': 'AI 에이전트 고도화 40%, 웨어러블 R&D 30%, 인프라 20%, 마케팅 10%로 사용할 거예요!',
+                '특허 강점': '이미 특허 출원 완료했고, 플랫폼 특허로 다양한 영역 확장이 가능해요! 또 구현하면서 계속 보정 중이라 더 강해지고 있어요!'
+            };
+            
+            const answer = answers[topic] || '그건 정말 좋은 질문이에요! 자세히 설명해드릴게요!';
+            amiSpeak(answer);
+        }
+
+        function amiSpeak(text) {
+            if (!('speechSynthesis' in window)) {
+                // 음성 지원 안 되면 말풍선만 표시
+                showAmiBubble(text);
+                return;
+            }
+
+            // 이전 음성 중지
+            window.speechSynthesis.cancel();
+            
+            // 말풍선 표시
+            showAmiBubble(text);
+            
+            // 토기 말하는 애니메이션
+            const rabbit = document.getElementById('amiRabbit');
+            rabbit.classList.add('talking');
+            amiTalking = true;
+            
+            // TTS 음성 생성
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ko-KR';
+            utterance.rate = 1.1;      // 빠르기
+            utterance.pitch = 1.8;     // 높은 음 (어린 목소리)
+            utterance.volume = 1.0;
+            
+            if (amiVoice) {
+                utterance.voice = amiVoice;
+            }
+            
+            utterance.onend = () => {
+                rabbit.classList.remove('talking');
+                amiTalking = false;
+                // 3초 후 말풍선 숨기기
+                setTimeout(() => {
+                    document.getElementById('amiSpeechBubble').classList.remove('active');
+                }, 3000);
+            };
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function showAmiBubble(text) {
+            const bubble = document.getElementById('amiSpeechBubble');
+            bubble.textContent = text;
+            bubble.classList.add('active');
+        }
+
+        // ===== 아미 라이브 오디션 모드 =====
+        let amiTalking = false;
+        let amiVoice = null;
+
+        // 음성 초기화
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                const voices = window.speechSynthesis.getVoices();
+                // 10대 여자아이 목소리 찾기 (한국어)
+                amiVoice = voices.find(v => v.lang.includes('ko') && v.name.includes('Female')) || voices.find(v => v.lang.includes('ko'));
+            };
+        }
+
+        function startAmiAudition() {
+            // 방송국 모달 닫기
+            closeBroadcastStation();
+            
+            // 아미 오디션 모달 열기
+            const modal = document.getElementById('amiAuditionModal');
+            modal.classList.add('active');
+            
+            // 우주 별빛 생성
+            createSpaceStars();
+            
+            // 0.5초 후 마법 파티클 등장
+            setTimeout(() => {
+                createMagicParticles();
+                playMagicSound();
+            }, 500);
+            
+            // 2초 후 토끼 등장
+            setTimeout(() => {
+                const rabbit = document.getElementById('amiRabbit');
+                rabbit.classList.add('appear');
+            }, 500);
+            
+            // 3초 후 자동 인사
+            setTimeout(() => {
+                amiGreeting();
+            }, 2800);
+            
+            showToast('🎙️ 아미 라이브 오디션 시작!', 'success');
+        }
+
+        function createSpaceStars() {
+            const container = document.getElementById('spaceStars');
+            container.innerHTML = '';
+            
+            // 200개의 별 생성
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(star);
+            }
+        }
+
+        function createMagicParticles() {
+            const container = document.getElementById('amiContainer');
+            const colors = ['#a855f7', '#ec4899', '#6366f1', '#fbbf24', '#34d399', '#ffffff'];
+            
+            // 100개의 마법 파티클 생성
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'magic-particle';
+                    
+                    const angle = (Math.PI * 2 * i) / 100;
+                    const radius = 300 + Math.random() * 200;
+                    const startX = Math.cos(angle) * radius;
+                    const startY = Math.sin(angle) * radius;
+                    
+                    particle.style.cssText = `
+                        --startX: ${startX}px;
+                        --startY: ${startY}px;
+                        background: ${colors[Math.floor(Math.random() * colors.length)]};
+                        box-shadow: 0 0 20px ${colors[Math.floor(Math.random() * colors.length)]};
+                    `;
+                    
+                    container.appendChild(particle);
+                    
+                    // 2초 후 제거
+                    setTimeout(() => particle.remove(), 2000);
+                }, i * 15);
+            }
+            
+            // 마법 원형 파동 3개
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    const circle = document.createElement('div');
+                    circle.className = 'magic-circle animate';
+                    container.appendChild(circle);
+                    setTimeout(() => circle.remove(), 2000);
+                }, i * 400);
+            }
+        }
+
+        function playMagicSound() {
+            // 띠리링 마법 음향 효과 (Web Audio API)
+            if (!window.AudioContext && !window.webkitAudioContext) return;
+            
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // 맑은 종소리 같은 음향 생성
+            const notes = [523.25, 659.25, 783.99, 1046.50]; // C, E, G, C (높은음)
+            
+            notes.forEach((freq, index) => {
+                setTimeout(() => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = freq;
+                    oscillator.type = 'sine'; // 맑은 음색
+                    
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                }, index * 150);
+            });
+        }
+
+        function closeAmiAudition() {
+            const modal = document.getElementById('amiAuditionModal');
+            modal.classList.remove('active');
+            
+            // 말하는 중이면 중지
+            if (amiTalking) {
+                window.speechSynthesis.cancel();
+                amiTalking = false;
+                document.getElementById('amiRabbit').classList.remove('talking');
+            }
+            
+            showToast('오디션 종료', 'info');
+        }
+
+        function amiGreeting() {
+            const greetings = [
+                '안녕하세요! 저는 AI 아미예요! 💜',
+                '🎉 반가워요! 무엇이든 물어보세요!',
+                '🌟 PetCTT의 모든 것을 설명해드릴게요!',
+                '🐰 저랑 함께 투자 여행을 떠나요!'
+            ];
+            const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+            amiSpeak(greeting);
+        }
+
+        function askAmi(topic) {
+            const answers = {
+                '비즈니스 모델': 'B2C 구독 모델로 시작해서, B2B API 라이선스로 확장하고, 데이터 플랫폼으로 발전해요! 분기당 9천9백원부터 시작이에요!',
+                '기술 차별점': '카메라와 마이크만으로 실시간 생체 분석이 가능해요! 웨어러블 없이도 작동하는 AI 네이티브 기술이에요!',
+                '수익 모델': '1년차 30억, 3년차 300억 이상 목표예요! 반려동물부터 시작해서 돌봄, 의료, 공간까지 확장 가능해요!',
+                '경쟁사 대비': '단순 패턴 분석이 아니라 멀티모달 AI로 양방향 소통이 가능해요! 특허로 보호된 기술이라 차별화돼요!',
+                '투자 사용처': 'AI 에이전트 고도화 40%, 웨어러블 R&D 30%, 인프라 20%, 마케팅 10%로 사용할 거예요!',
+                '특허 강점': '이미 특허 출원 완료했고, 플랫폼 특허로 다양한 영역 확장이 가능해요! 또 구현하면서 계속 보정 중이라 더 강해지고 있어요!'
+            };
+            
+            const answer = answers[topic] || '그건 정말 좋은 질문이에요! 자세히 설명해드릴게요!';
+            amiSpeak(answer);
+        }
+
+        function amiSpeak(text) {
+            if (!('speechSynthesis' in window)) {
+                // 음성 지원 안 되면 말풍선만 표시
+                showAmiBubble(text);
+                return;
+            }
+
+            // 이전 음성 중지
+            window.speechSynthesis.cancel();
+            
+            // 말풍선 표시
+            showAmiBubble(text);
+            
+            // 토기 말하는 애니메이션
+            const rabbit = document.getElementById('amiRabbit');
+            rabbit.classList.add('talking');
+            amiTalking = true;
+            
+            // TTS 음성 생성
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'ko-KR';
+            utterance.rate = 1.1;      // 빠르기
+            utterance.pitch = 1.8;     // 높은 음 (어린 목소리)
+            utterance.volume = 1.0;
+            
+            if (amiVoice) {
+                utterance.voice = amiVoice;
+            }
+            
+            utterance.onend = () => {
+                rabbit.classList.remove('talking');
+                amiTalking = false;
+                // 3초 후 말풍선 숨기기
+                setTimeout(() => {
+                    document.getElementById('amiSpeechBubble').classList.remove('active');
+                }, 3000);
+            };
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function showAmiBubble(text) {
+            const bubble = document.getElementById('amiSpeechBubble');
+            bubble.textContent = text;
+            bubble.classList.add('active');
         }
 
         // ===== 투자자 미팅 모드 =====

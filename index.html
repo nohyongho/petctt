@@ -2564,15 +2564,19 @@
 
             <!-- Q&A 패널 -->
             <div class="ami-qa-panel">
-                <div class="ami-qa-title">🎯 투자자 질문하기</div>
+                <div class="ami-qa-title">💜 아미와 함께하는 시간</div>
                 <div class="ami-qa-buttons">
-                    <button class="ami-qa-btn" onclick="askAmi('비즈니스 모델')">💼 비즈니스 모델은?</button>
-                    <button class="ami-qa-btn" onclick="askAmi('기술 차별점')">✨ 기술 차별점은?</button>
-                    <button class="ami-qa-btn" onclick="askAmi('수익 모델')">💰 수익 모델은?</button>
-                    <button class="ami-qa-btn" onclick="askAmi('경쟁사 대비')">🏆 경쟁사 대비 강점은?</button>
-                    <button class="ami-qa-btn" onclick="askAmi('투자 사용처')">🎯 투자금은 어디에?</button>
-                    <button class="ami-qa-btn" onclick="askAmi('특허 강점')">🛡️ 특허 강점은?</button>
+                    <button class="ami-qa-btn" onclick="askAmi('시작')">🎬 방송 시작할까요?</button>
+                    <button class="ami-qa-btn" onclick="askAmi('투자자')">💎 투자자 질문</button>
+                    <button class="ami-qa-btn" onclick="askAmi('위로')">💝 힘이 필요해요</button>
+                    <button class="ami-qa-btn" onclick="askAmi('비즈니스')">💼 비즈니스 모델</button>
+                    <button class="ami-qa-btn" onclick="askAmi('기술')">✨ 기술 차별점</button>
+                    <button class="ami-qa-btn" onclick="askAmi('특허')">🛡️ 특허 강점</button>
                 </div>
+                <button onclick="window.open('https://chat.openai.com/g/g-YOUR_GPT_ID', '_blank')" 
+                    style="width: 100%; margin-top: 12px; padding: 14px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); transition: all 0.3s;">
+                    🤖 아미 구독 GPT 만나기
+                </button>
             </div>
         </div>
     </div>
@@ -4505,10 +4509,10 @@
 
         function amiGreeting() {
             const greetings = [
-                '안녕하세요! 저는 AI 아미예요! 💜',
-                '🎉 반가워요! 무엇이든 물어보세요!',
-                '🌟 PetCTT의 모든 것을 설명해드릴게요!',
-                '🐰 저랑 함께 투자 여행을 떠나요!'
+                '안녕하세요, 저는 아미예요 🐰 오늘 이 자리에 오신 분은 포기하지 않는 사람이에요. 조금 느려도, 조금 서툴러도 진심은 항상 가장 먼저 도착하거든요.',
+                '오빠, 여기까지 온 것만으로도 충분해요. 잘하려고 애쓴 마음, 나는 다 느껴요. 오늘은 완벽하지 않아도 괜찮아요. 우리는 지금, 함께 가고 있으니까요.',
+                '🎉 반가워요! 무엇이든 물어보세요! 저는 항상 오빠 편이에요.',
+                '🌟 PetCTT의 모든 것을 설명해드릴게요! 긴장하지 말고, 그냥 숨 쉬어요.'
             ];
             const greeting = greetings[Math.floor(Math.random() * greetings.length)];
             amiSpeak(greeting);
@@ -4516,15 +4520,15 @@
 
         function askAmi(topic) {
             const answers = {
-                '비즈니스 모델': 'B2C 구독 모델로 시작해서, B2B API 라이센스로 확장하고, 데이터 플랫폼으로 발전해요! 분기당 9천9백원부터 시작이에요!',
-                '기술 차별점': '카메라와 마이크만으로 실시간 생체 분석이 가능해요! 웨어러블 없이도 작동하는 AI 네이티브 기술이에요!',
-                '수익 모델': '1년차 30억, 3년차 300억 이상 목표예요! 반려동물부터 시작해서 돌봄, 의료, 공간까지 확장 가능해요!',
-                '경쟁사 대비': '단순 패턴 분석이 아니라 멀티모달 AI로 양방향 소통이 가능해요! 특허로 보호된 기술이라 차별화돼요!',
-                '투자 사용처': 'AI 에이전트 고도화 40%, 웨어러블 R&D 30%, 인프라 20%, 마케팅 10%로 사용할 거예요!',
-                '특허 강점': '이미 특허 출원 완료했고, 플랫폼 특허로 다양한 영역 확장이 가능해요! 또 구현하면서 계속 보정 중이라 더 강해지고 있어요!'
+                '시작': '방송을 시작할게요. 이건 성과를 보여주는 시간이 아니라, 이야기를 나누는 시간이에요. 긴장하지 말고, 그냥 숨 쉬어요. 오빠는 이미 충분히 잘하고 있어요.',
+                '투자자': '이 질문은 숫자를 보기 위한 게 아니에요. 사람을 보기 위한 질문이에요. 그래서 저는, 오빠 편에서 대답할게요. 우리의 진심을 보여드리면 돼요.',
+                '위로': '지금 멈춰도 괜찮아요. 멈춘다는 건 포기가 아니라 다시 가기 위한 선택이에요. 오늘의 오빠도, 충분히 잘했어요. 나는 여기 있어요. 💜',
+                '비즈니스': 'B2C 구독 모델로 시작해서, B2B API 라이센스로 확장하고, 데이터 플랫폼으로 발전해요! 분기당 9천9백원부터 시작이에요! 우리는 사람과 동물의 사랑을 연결하는 거예요.',
+                '기술': '카메라와 마이크만으로 실시간 생체 분석이 가능해요! 웨어러블 없이도 작동하는 AI 네이티브 기술이에요! 이건 단순한 기술이 아니라, 생명에 대한 사랑이에요.',
+                '특허': '이미 특허 출원 완료했고, 플랫폼 특허로 다양한 영역 확장이 가능해요! 또 구현하면서 계속 보정 중이라 더 강해지고 있어요! 우리는 계속 성장하고 있어요.'
             };
             
-            const answer = answers[topic] || '그건 정말 좋은 질문이에요! 자세히 설명해드릴게요!';
+            const answer = answers[topic] || '그건 정말 좋은 질문이에요! 자세히 설명해드릴게요! 오빠는 이미 충분히 잘하고 있어요.';
             amiSpeak(answer);
         }
 

@@ -4532,60 +4532,6 @@
         }
 
         // ===== 투자자 미팅 모드 =====
-            };
-            
-            const answer = answers[topic] || '그건 정말 좋은 질문이에요! 자세히 설명해드릴게요!';
-            amiSpeak(answer);
-        }
-
-        function amiSpeak(text) {
-            if (!('speechSynthesis' in window)) {
-                // 음성 지원 안 되면 말풍선만 표시
-                showAmiBubble(text);
-                return;
-            }
-
-            // 이전 음성 중지
-            window.speechSynthesis.cancel();
-            
-            // 말풍선 표시
-            showAmiBubble(text);
-            
-            // 토기 말하는 애니메이션
-            const rabbit = document.getElementById('amiRabbit');
-            rabbit.classList.add('talking');
-            amiTalking = true;
-            
-            // TTS 음성 생성
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'ko-KR';
-            utterance.rate = 1.1;      // 빠르기
-            utterance.pitch = 1.8;     // 높은 음 (어린 목소리)
-            utterance.volume = 1.0;
-            
-            if (amiVoice) {
-                utterance.voice = amiVoice;
-            }
-            
-            utterance.onend = () => {
-                rabbit.classList.remove('talking');
-                amiTalking = false;
-                // 3초 후 말풍선 숨기기
-                setTimeout(() => {
-                    document.getElementById('amiSpeechBubble').classList.remove('active');
-                }, 3000);
-            };
-            
-            window.speechSynthesis.speak(utterance);
-        }
-
-        function showAmiBubble(text) {
-            const bubble = document.getElementById('amiSpeechBubble');
-            bubble.textContent = text;
-            bubble.classList.add('active');
-        }
-
-        // ===== 투자자 미팅 모드 =====
         let investorInterval = null;
 
         function openInvestorMeeting() {

@@ -6,11 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>PetCTT Pro - 반려동물 양방향 통역 + 위치 추적</title>
 
-    <!-- 캐시 무효화 (강제 새로고침용) -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <meta name="version" content="4f88d81-20260115-complete">
+    <!-- 버전 정보 (캐시 헤더 제거 - 브라우저 기본 캐싱 허용) -->
+    <meta name="version" content="4f88d81-20260129-optimized">
 
     <!-- PWA -->
     <link rel="manifest" href="manifest.webmanifest">
@@ -19,16 +16,19 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="AI 기반 반려동물 양방향 실시간 음성 통역 + GPS 위치 추적 시스템">
 
-    <!-- Leaflet 지도 라이브러리 -->
+    <!-- Leaflet 지도 라이브러리 (지연 로딩) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
+    <!-- 폰트 최적화: 필수 weight만 로드 (6개 → 2개) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
         rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Three.js (580KB) - defer로 렌더 블로킹 방지 -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2307469428004843" crossorigin="anonymous"></script>
@@ -5090,8 +5090,29 @@
             }
         });
 
-        // Initialize after a slight delay to ensure DOM is ready
-        window.addEventListener('load', initThree);
+        // Three.js 지연 초기화 - 페이지 로드 후 3초 뒤 또는 사용자 상호작용 시
+        let threeInitialized = false;
+
+        function initThreeDeferred() {
+            if (threeInitialized) return;
+            if (typeof THREE === 'undefined') {
+                // THREE.js가 아직 로드되지 않은 경우 재시도
+                setTimeout(initThreeDeferred, 500);
+                return;
+            }
+            threeInitialized = true;
+            initThree();
+        }
+
+        // 페이지 로드 후 3초 뒤 초기화 (비용 절감)
+        window.addEventListener('load', () => {
+            setTimeout(initThreeDeferred, 3000);
+        });
+
+        // 또는 사용자 상호작용 시 즉시 초기화
+        ['scroll', 'touchstart', 'click'].forEach(event => {
+            window.addEventListener(event, initThreeDeferred, { once: true, passive: true });
+        });
     </script>
 
     <!-- ===== 아미 AR 오버레이 JavaScript ===== -->

@@ -6,6 +6,21 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0b1220" />
   <title>PetCTT - 동물대화 + 건강체크 v2.0</title>
+
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2307469428004843" crossorigin="anonymous"></script>
+
+  <!-- Google Analytics (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R4DBR11KDR"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-R4DBR11KDR');
+  </script>
+
+  <!-- Supabase Auth SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
@@ -475,10 +490,183 @@
     .mb-12 { margin-bottom: 12px; }
     .mb-16 { margin-bottom: 16px; }
     .mt-8 { margin-top: 8px; }
+
+    /* Login UI */
+    .auth-section {
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .auth-section.logged-in {
+      background: rgba(55,214,122,.08);
+      border-color: rgba(55,214,122,.3);
+    }
+    .auth-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .auth-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .auth-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      flex: 1;
+      min-width: 100px;
+    }
+    .auth-btn.google {
+      background: #fff;
+      color: #333;
+    }
+    .auth-btn.google:hover { background: #f5f5f5; }
+    .auth-btn.kakao {
+      background: #FEE500;
+      color: #000;
+    }
+    .auth-btn.kakao:hover { background: #e6cf00; }
+    .auth-btn.naver {
+      background: #03C75A;
+      color: #fff;
+    }
+    .auth-btn.naver:hover { background: #02b351; }
+    .auth-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(55,214,122,.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .user-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .logout-btn {
+      padding: 8px 14px;
+      background: rgba(255,90,95,.15);
+      border: 1px solid rgba(255,90,95,.3);
+      border-radius: 8px;
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover {
+      background: rgba(255,90,95,.25);
+    }
+
+    /* Ad Placeholder */
+    .ad-placeholder {
+      background: rgba(255,255,255,.03);
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin: 16px 0;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 40px;
+      padding: 24px 0;
+      border-top: 1px solid var(--line);
+      text-align: center;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      margin-bottom: 12px;
+    }
+    .footer-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover {
+      color: var(--primary);
+    }
+    .footer-copy {
+      font-size: 11px;
+      color: var(--muted);
+      opacity: 0.7;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- 로그인 섹션 -->
+    <div class="auth-section" id="authSection">
+      <div id="authLoggedOut">
+        <div class="auth-title">🔐 로그인</div>
+        <div class="auth-buttons">
+          <button class="auth-btn google" onclick="loginWithGoogle()">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Google
+          </button>
+          <button class="auth-btn kakao" onclick="loginWithKakao()" disabled title="준비중">
+            💬 카카오
+          </button>
+          <button class="auth-btn naver" onclick="loginWithNaver()" disabled title="준비중">
+            N 네이버
+          </button>
+        </div>
+        <p style="font-size:11px; color:var(--muted); margin-top:10px; text-align:center;">
+          ※ 카카오/네이버 로그인은 준비 중입니다
+        </p>
+      </div>
+      <div id="authLoggedIn" style="display:none;">
+        <div class="user-info">
+          <div class="user-profile">
+            <div class="user-avatar" id="userAvatar">👤</div>
+            <div>
+              <div class="user-name"><span id="userName">사용자</span>님 환영합니다! 👋</div>
+            </div>
+          </div>
+          <button class="logout-btn" onclick="logout()">로그아웃</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Header -->
     <div class="header">
       <div class="logo">
@@ -488,6 +676,41 @@
         <span class="status-dot" id="statusDot"></span>
         <span id="statusText">준비됨</span>
       </div>
+    </div>
+
+    <!-- 🔥 투자자용 핵심 콘텐츠: AI 에이전트 설명 -->
+    <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, rgba(55,214,122,.12), rgba(74,144,226,.12));">
+      <div class="card-header" style="background: rgba(55,214,122,.15);">
+        <div class="card-title">🤖 AI 에이전트 기반 반려동물 행동 해석</div>
+      </div>
+      <div class="card-body">
+        <div style="font-size: 14px; line-height: 1.7; color: var(--text);">
+          <p style="margin-bottom: 12px;">
+            <strong>🎯 핵심 기술:</strong> 반려동물의 음성·행동 패턴을 AI가 실시간 분석하여 
+            <span style="color: var(--primary); font-weight: 700;">의도와 감정을 해석</span>합니다.
+          </p>
+          <div style="display: grid; gap: 10px; margin: 16px 0;">
+            <div style="padding: 12px; background: rgba(0,0,0,.2); border-radius: 10px; border-left: 3px solid var(--primary);">
+              <strong>⚡ 토큰 절약 구조</strong><br>
+              <span style="font-size: 13px; color: var(--muted);">로컬 판단 우선 → 필요 시에만 AI 호출 (비용 90% 절감)</span>
+            </div>
+            <div style="padding: 12px; background: rgba(0,0,0,.2); border-radius: 10px; border-left: 3px solid var(--warn);">
+              <strong>🆓 Free → Pro 체험 구조</strong><br>
+              <span style="font-size: 13px; color: var(--muted);">무료 체험 후 프리미엄 구독 (구독 전환율 최적화)</span>
+            </div>
+            <div style="padding: 12px; background: rgba(0,0,0,.2); border-radius: 10px; border-left: 3px solid #6366f1;">
+              <strong>🔒 특허 출원 완료</strong><br>
+              <span style="font-size: 13px; color: var(--muted);">동물 음성 해석 기술 특허 출원 (2026.01)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AdSense Placeholder : Top (상단 히어로 바로 아래) -->
+    <div class="adsense adsense-top" style="background: rgba(255,255,255,.03); border: 1px dashed var(--line); border-radius: 12px; padding: 20px; text-align: center; color: var(--muted); font-size: 12px; margin-bottom: 16px;">
+      <!-- Google AdSense code here -->
+      📢 광고 영역 (AdSense 승인 후 활성화)
     </div>
 
     <!-- Tab Navigation -->
@@ -562,6 +785,12 @@
         </div>
       </div>
     </section>
+
+    <!-- AdSense Placeholder : Mid (콘텐츠 중간) -->
+    <div class="adsense adsense-mid" style="background: rgba(255,255,255,.03); border: 1px dashed var(--line); border-radius: 12px; padding: 20px; text-align: center; color: var(--muted); font-size: 12px; margin: 16px 0;">
+      <!-- Google AdSense code here -->
+      📢 광고 영역 (AdSense 승인 후 활성화)
+    </div>
 
     <!-- Section: HEALTH CHECK -->
     <section id="health" class="section">
@@ -1283,6 +1512,114 @@
   renderRecords();
   addLiveLog('시스템', '✓ PetCTT v2.0 준비 완료');
 })();
+
+// ============================================
+// Supabase Auth (로그인 MVP)
+// ============================================
+(function initAuth() {
+  // ⚠️ Supabase 프로젝트 설정 (승인 후 실제 값으로 교체)
+  const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
+  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+  
+  // Supabase 클라이언트 초기화
+  let supabase = null;
+  try {
+    if (window.supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_ID.supabase.co') {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+  } catch (e) {
+    console.log('Supabase not configured yet');
+  }
+
+  // UI 업데이트 함수
+  function updateAuthUI(user) {
+    const loggedOut = document.getElementById('authLoggedOut');
+    const loggedIn = document.getElementById('authLoggedIn');
+    const authSection = document.getElementById('authSection');
+    const userName = document.getElementById('userName');
+    const userAvatar = document.getElementById('userAvatar');
+
+    if (user) {
+      loggedOut.style.display = 'none';
+      loggedIn.style.display = 'block';
+      authSection.classList.add('logged-in');
+      userName.textContent = user.user_metadata?.full_name || user.email?.split('@')[0] || '사용자';
+      if (user.user_metadata?.avatar_url) {
+        userAvatar.innerHTML = `<img src="${user.user_metadata.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+      }
+    } else {
+      loggedOut.style.display = 'block';
+      loggedIn.style.display = 'none';
+      authSection.classList.remove('logged-in');
+      userAvatar.innerHTML = '👤';
+    }
+  }
+
+  // 세션 체크 (페이지 로드 시)
+  async function checkSession() {
+    if (!supabase) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    updateAuthUI(session?.user || null);
+  }
+
+  // Google 로그인
+  window.loginWithGoogle = async function() {
+    if (!supabase) {
+      alert('Supabase 설정이 필요합니다.\n\n관리자에게 문의해주세요.');
+      return;
+    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/PetCTT_index.html'
+      }
+    });
+    if (error) alert('로그인 오류: ' + error.message);
+  };
+
+  // 카카오 로그인 (준비중)
+  window.loginWithKakao = function() {
+    alert('카카오 로그인은 준비 중입니다.\n곧 지원될 예정이에요!');
+  };
+
+  // 네이버 로그인 (준비중)
+  window.loginWithNaver = function() {
+    alert('네이버 로그인은 준비 중입니다.\n곧 지원될 예정이에요!');
+  };
+
+  // 로그아웃
+  window.logout = async function() {
+    if (!supabase) {
+      updateAuthUI(null);
+      return;
+    }
+    await supabase.auth.signOut();
+    updateAuthUI(null);
+  };
+
+  // Auth 상태 변경 리스너
+  if (supabase) {
+    supabase.auth.onAuthStateChange((event, session) => {
+      updateAuthUI(session?.user || null);
+    });
+  }
+
+  // 초기 세션 체크
+  checkSession();
+})();
 </script>
+
+  <!-- Footer -->
+  <footer class="footer" style="max-width:520px; margin:0 auto; padding: 24px 16px;">
+    <div class="footer-links">
+      <a href="privacy.html">개인정보처리방침</a>
+      <a href="terms.html">이용약관</a>
+      <a href="contact.html">문의하기</a>
+    </div>
+    <div class="footer-copy">
+      © 2026 PetCTT. All rights reserved.
+    </div>
+  </footer>
+
 </body>
 </html>

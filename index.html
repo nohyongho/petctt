@@ -30,6 +30,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2307469428004843" crossorigin="anonymous"></script>
+
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R4DBR11KDR"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-R4DBR11KDR');
+    </script>
+
     <style>
         :root {
             /* PetCTT Original Palette (Restored) */
@@ -2073,6 +2085,12 @@
 
     <!-- 메인 -->
     <main class="container">
+        <!-- AdSense Placeholder: 상단 -->
+        <div class="adsense-placeholder" style="background: rgba(255,255,255,.03); border: 1px dashed rgba(255,255,255,.15); border-radius: 12px; padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px; margin-bottom: 16px;">
+            <!-- Google AdSense code here -->
+            📢 광고 영역 (AdSense 승인 후 활성화)
+        </div>
+
         <!-- 탭 네비게이션 -->
         <div class="tab-nav">
             <button class="tab-btn active" data-tab="live" onclick="switchTab('live')">🎙️ LIVE</button>
@@ -2080,6 +2098,8 @@
             <button class="tab-btn" data-tab="locate" onclick="switchTab('locate')">🗺️ 찾기</button>
             <button class="tab-btn" data-tab="shop" onclick="switchTab('shop')"
                 style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24;">🛒 쇼핑</button>
+            <a href="http://localhost:3000" target="_blank" class="tab-btn"
+                style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3)); border: 1px solid rgba(168, 85, 247, 0.5); color: #e879f9; text-decoration: none;">🎨 젬 스튜디오</a>
             <button class="tab-btn"
                 style="background: rgba(45, 212, 191, 0.2); border: 1px solid rgba(45, 212, 191, 0.4); color: var(--primary-light);"
                 onclick="openBroadcastStation()">📡 설정</button>
@@ -2254,6 +2274,12 @@
                 </div>
             </div>
         </section>
+
+        <!-- AdSense Placeholder: 중간 -->
+        <div class="adsense-placeholder" style="background: rgba(255,255,255,.03); border: 1px dashed rgba(255,255,255,.15); border-radius: 12px; padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px; margin: 16px 0;">
+            <!-- Google AdSense code here -->
+            📢 광고 영역 (AdSense 승인 후 활성화)
+        </div>
 
         <!-- 건강체크 섹션 -->
         <section id="health" class="section">
@@ -2652,6 +2678,11 @@
 
     <!-- 푸터 -->
     <footer>
+        <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 12px;">
+            <a href="privacy.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">개인정보처리방침</a>
+            <a href="terms.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">이용약관</a>
+            <a href="contact.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">문의하기</a>
+        </div>
         <p>© 2026 <a href="https://petctt.com">PetCTT Pro</a> - 반려동물 통역 + 위치 추적</p>
         <p style="margin-top:4px">강아지를 잃어버렸을 때 GPS로 찾아주세요 🐾</p>
     </footer>

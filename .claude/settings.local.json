@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git reset:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nPetCTT 로딩 최적화 - 스크립트 defer + 캐시 + 폰트 + Three.js 지연 초기화\n\n- 캐시 무효화 헤더 제거 → 브라우저 기본 캐싱 허용\n- Three.js/Leaflet: defer 추가로 렌더 블로킹 방지\n- 폰트 weight 최적화: 6개 → 2개 \\(400, 700\\)\n- Three.js 파티클: 3초 지연 초기화 또는 사용자 상호작용 시\n\n예상 효과: 초기 로딩 시간 66% 개선\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nPetCTT API 비용 최적화 - 요청 큐 + VAD + 비디오 쓰로틀링 + 자동 연결 해제\n\n- request-queue.ts: 요청 배칭/중복제거/우선순위/재시도/오프라인 큐잉\n- audio-recorder.ts: VAD\\(음성 활동 감지\\) 추가 - 침묵 시 전송 중단\n- ControlTray.tsx: 비디오 프레임 500ms → 2000ms \\(75% 비용 절감\\)\n- use-live-api.ts: 5분 idle timeout 자동 연결 해제\n\n예상 효과: API 비용 75% 절감 \\(비디오\\) + 50-70% 절감 \\(오디오\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push)"
+    ]
+  }
+}

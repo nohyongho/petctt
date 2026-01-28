@@ -2098,8 +2098,8 @@
             <button class="tab-btn" data-tab="locate" onclick="switchTab('locate')">🗺️ 찾기</button>
             <button class="tab-btn" data-tab="shop" onclick="switchTab('shop')"
                 style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24;">🛒 쇼핑</button>
-            <a href="http://localhost:3000" target="_blank" class="tab-btn"
-                style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3)); border: 1px solid rgba(168, 85, 247, 0.5); color: #e879f9; text-decoration: none;">🎨 젬 스튜디오</a>
+            <button class="tab-btn"
+                style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3)); border: 1px solid rgba(168, 85, 247, 0.5); color: #e879f9; text-decoration: none; font-weight:700;" onclick="openBroadcastStation()">📡 방송</button>
             <button class="tab-btn"
                 style="background: rgba(45, 212, 191, 0.2); border: 1px solid rgba(45, 212, 191, 0.4); color: var(--primary-light);"
                 onclick="openBroadcastStation()">📡 설정</button>
@@ -2678,13 +2678,22 @@
 
     <!-- 푸터 -->
     <footer>
-        <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 12px;">
-            <a href="privacy.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">개인정보처리방침</a>
-            <a href="terms.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">이용약관</a>
-            <a href="contact.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">문의하기</a>
+        <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 10px;">
+            <a href="terms.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight:600; transition: color 0.2s;">이용약관</a>
+            <a href="privacy.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight:600; transition: color 0.2s;">개인정보처리방침</a>
+            <a href="contact.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight:600; transition: color 0.2s;">연락처</a>
         </div>
-        <p>© 2026 <a href="https://petctt.com">PetCTT Pro</a> - 반려동물 통역 + 위치 추적</p>
-        <p style="margin-top:4px">강아지를 잃어버렸을 때 GPS로 찾아주세요 🐾</p>
+        <p style="font-size:13px; color:var(--text-muted);margin-bottom:2px;">본 사이트는 Google AdSense 광고, Google Analytics, 개인정보처리방침, 이용약관, 연락처 등 모든 정책을 준수합니다.</p>
+        <p style="font-size:13px; color:var(--text-muted);margin-bottom:2px;">광고 영역: 아래 광고는 AdSense 승인 후 자동 노출됩니다.</p>
+        <div style="display:flex;justify-content:center;margin:8px 0;">
+            <ins class="adsbygoogle"
+                style="display:block;min-width:320px;min-height:50px;width:100%;max-width:728px;background:#18181b22;border-radius:8px;"
+                data-ad-client="ca-pub-2307469428004843"
+                data-ad-slot="1234567890"
+                data-ad-format="auto"></ins>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted);">© 2026 <a href="https://petctt.com" style="color:var(--primary);font-weight:700;">PetCTT Pro</a> - 반려동물 통역 + 위치 추적</p>
+        <p style="margin-top:2px;font-size:12px;color:var(--text-muted);">강아지를 잃어버렸을 때 GPS로 찾아주세요 🐾</p>
     </footer>
 
     <!-- 토스트 -->
@@ -2771,19 +2780,26 @@
     <div class="member-studio-modal" id="claudeTvModal">
         <div class="space-stars" id="claudeStars"></div>
         <button class="studio-close-btn" onclick="closeClaudeTv()">✕</button>
-        
-        <div class="studio-stage">
-            <div class="studio-avatar-container" id="claudeContainer">
-                <div class="studio-avatar" id="claudeAvatar">🤖</div>
-                <div class="studio-speech-bubble" id="claudeSpeechBubble">안녕하세요! 클입니다! AI와 코딩의 세계로 함께 가요! 💜</div>
+        <div class="studio-stage" style="background: linear-gradient(135deg, #312e81 60%, #a78bfa 100%); border-radius: 24px; box-shadow: 0 8px 32px #0008; padding: 24px 0 32px 0; position:relative;">
+            <div style="position:absolute;top:24px;right:24px;z-index:2;">
+                <button onclick="loginWithGoogle()" style="background:#fff;color:#4285F4;font-weight:700;border:none;border-radius:6px;padding:8px 16px;margin-right:8px;box-shadow:0 2px 8px #0002;cursor:pointer;">구글 로그인</button>
+                <button onclick="loginWithKakao()" style="background:#fee500;color:#3c1e1e;font-weight:700;border:none;border-radius:6px;padding:8px 16px;box-shadow:0 2px 8px #0002;cursor:pointer;">카카오 로그인</button>
             </div>
-            <div class="studio-chat-panel">
-                <div class="studio-chat-title" style="color: #a78bfa;">📺 클 TV - AI/코딩/스타트업 채널</div>
-                <div class="studio-chat-messages" id="claudeChat"></div>
-                <div class="studio-chat-input">
-                    <input type="text" placeholder="클에게 메시지 보내기..." id="claudeChatInput">
-                    <button onclick="sendClaudeChat()">전송</button>
+            <div class="studio-avatar-container" id="claudeContainer">
+                <div class="studio-avatar" id="claudeAvatar" style="font-size:4.5rem;box-shadow:0 0 32px #a78bfa99,0 0 8px #fff;">🤖</div>
+                <div class="studio-speech-bubble" id="claudeSpeechBubble" style="font-size:1.2rem;background:rgba(168,139,250,0.15);color:#fff;border:1.5px solid #a78bfa;box-shadow:0 2px 12px #a78bfa33;">클 TV는 곧 오픈 예정입니다!<br><span style='font-size:1.1em;color:#fbbf24;'>AI/코딩/스타트업 방송, 로그인 후 다양한 기능이 제공될 예정이에요!</span></div>
+            </div>
+            <div class="studio-chat-panel" style="backdrop-filter:blur(2px);background:rgba(49,46,129,0.15);border-radius:16px;box-shadow:0 2px 12px #a78bfa22;">
+                <div class="studio-chat-title" style="color: #a78bfa;font-size:1.15rem;font-weight:700;letter-spacing:0.5px;">📺 클 TV - AI/코딩/스타트업 채널</div>
+                <div class="studio-chat-messages" id="claudeChat" style="min-height:120px;max-height:180px;overflow-y:auto;background:rgba(49,46,129,0.08);border-radius:8px;padding:8px 10px 6px 10px;margin-bottom:8px;"></div>
+                <div class="studio-chat-input" style="display:flex;gap:6px;align-items:center;">
+                    <input type="text" placeholder="시청자 댓글을 입력하세요 (로그인 필요)" id="claudeChatInput" style="flex:1;" disabled>
+                    <button onclick="sendClaudeChat()" disabled style="background:#a78bfa;color:#fff;font-weight:700;border:none;border-radius:6px;padding:7px 16px;">댓글</button>
                 </div>
+                <div style="font-size:12px;color:#a78bfa;margin-top:2px;text-align:right;">실시간 시청자 채팅/댓글 (곧 오픈)</div>
+            </div>
+            <div style="position:absolute;bottom:16px;left:0;width:100%;text-align:center;">
+                <span style="display:inline-block;background:#a78bfa;color:#fff;padding:6px 18px;border-radius:12px;font-weight:700;box-shadow:0 2px 8px #a78bfa55;letter-spacing:0.5px;">🚀 GRAND OPEN SOON!</span>
             </div>
         </div>
     </div>

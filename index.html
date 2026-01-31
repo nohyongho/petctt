@@ -6,28 +6,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>PetCTT Pro - 반려동물 양방향 통역 + 위치 추적</title>
 
+    <!-- 버전 정보 (캐시 헤더 제거 - 브라우저 기본 캐싱 허용) -->
     <meta name="version" content="4f88d81-20260129-optimized">
 
+    <!-- PWA -->
     <link rel="manifest" href="manifest.webmanifest">
     <meta name="theme-color" content="#0a1628">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="AI 기반 반려동물 양방향 실시간 음성 통역 + GPS 위치 추적 시스템">
 
+    <!-- Leaflet 지도 라이브러리 (지연 로딩) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
+    <!-- 폰트 최적화: 필수 weight만 로드 (6개 → 2개) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
         rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
+    <!-- Three.js (580KB) - defer로 렌더 블로킹 방지 -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
+    <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7895014528836146"
         crossorigin="anonymous"></script>
 
+    <!-- Google Analytics (GA4) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-R4DBR11KDR"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -1913,7 +1920,6 @@
         /* 젬 스튜디오 - 디자인 갤러리 (핑크) */
         #gemStudioModal {
             background: radial-gradient(ellipse at center, rgba(219, 39, 119, 0.98) 0%, rgba(0, 0, 0, 0.99) 100%);
-            display: none; /* Added to hide modal initially */
         }
 
         /* 엔티 공방 - 메이커 워크샵 (오렌지) */
@@ -2056,75 +2062,61 @@
 
     <!-- 헤더 -->
     <header>
-        <nav class="navbar">
-            <div class="navbar-left">
-                <a href="#" class="navbar-logo" style="display:flex;align-items:center;gap:8px;text-decoration:none;">
-                    <span class="logo-icon" style="font-size:2rem;">🐾</span>
-                    <span class="logo-text" style="font-size:1.5rem;font-family:'Orbitron',sans-serif;font-weight:900;background:linear-gradient(135deg,#6366f1 0%,#10b981 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">PetCTT</span>
-                </a>
-            </div>
-            <div class="navbar-right">
-                <div class="login-dropdown">
-                    <button class="login-btn" onclick="toggleLoginDropdown()">로그인 ▾</button>
-                    <div class="login-dropdown-content" id="loginDropdownContent">
-                        <button onclick="loginWith('google')">구글로 로그인</button>
-                        <button onclick="loginWith('kakao')">카카오로 로그인</button>
-                        <button onclick="loginWith('signup')">회원가입</button>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">🐾</span>
+                    <span class="logo-text">PetCTT</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button class="lang-btn" id="langBtn" onclick="toggleLanguage()" title="언어 전환">
+                        🌐 KO
+                    </button>
+                    <button class="shop-btn" onclick="switchTab('shop')">
+                        🛒 쇼핑
+                    </button>
+                    <div class="status-badge ready" id="statusBadge">
+                        <span class="status-dot"></span>
+                        <span id="statusText">LIVE 준비</span>
                     </div>
                 </div>
             </div>
-        </nav>
-        <style>
-        .navbar {display:flex;justify-content:space-between;align-items:center;padding:0 24px;height:64px;background:rgba(0,0,0,0.7);border-bottom:1.5px solid #222;position:sticky;top:0;z-index:100;}
-        .navbar-logo {font-weight:900;font-size:1.5rem;color:#fff;}
-        .navbar-right {display:flex;align-items:center;gap:16px;}
-        .login-btn {background:linear-gradient(135deg,#10b981 0%,#6366f1 100%);color:#fff;border:none;border-radius:20px;padding:10px 22px;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 2px 8px #10b98133;transition:background 0.2s;}
-        .login-btn:hover {background:linear-gradient(135deg,#059669 0%,#6366f1 100%);}
-        .login-dropdown {position:relative;}
-        .login-dropdown-content {display:none;position:absolute;right:0;top:110%;background:#18181b;border-radius:12px;box-shadow:0 4px 24px #0008;padding:8px 0;min-width:180px;z-index:1000;}
-        .login-dropdown-content button {width:100%;background:none;border:none;color:#fff;padding:12px 20px;text-align:left;font-size:1rem;cursor:pointer;transition:background 0.15s;}
-        .login-dropdown-content button:hover {background:rgba(16,185,129,0.08);color:#10b981;}
-        .login-dropdown.open .login-dropdown-content {display:block;}
-        @media (max-width:600px) {.navbar{padding:0 8px;height:54px;}.logo-text{font-size:1.1rem;}}
-        </style>
-        <script>
-        function toggleLoginDropdown() {
-          const dropdown = document.querySelector('.login-dropdown');
-          dropdown.classList.toggle('open');
-        }
-        function loginWith(type) {
-          alert(type==='google'?'구글 로그인 준비중':type==='kakao'?'카카오 로그인 준비중':'회원가입 준비중');
-        }
-        document.addEventListener('click', function(e) {
-          const dropdown = document.querySelector('.login-dropdown');
-          if (!dropdown.contains(e.target)) dropdown.classList.remove('open');
-        });
-        </script>
+        </div>
     </header>
 
     <!-- 메인 -->
     <main class="container">
+        <!-- AdSense Placeholder: 상단 -->
         <div class="adsense-placeholder" style="background: rgba(255,255,255,.03); border: 1px dashed rgba(255,255,255,.15); border-radius: 12px; padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px; margin-bottom: 16px;">
+            <!-- Google AdSense code here -->
             📢 광고 영역 (AdSense 승인 후 활성화)
         </div>
 
+        <!-- 탭 네비게이션 -->
         <div class="tab-nav">
             <button class="tab-btn active" data-tab="live" onclick="switchTab('live')">🎙️ LIVE</button>
             <button class="tab-btn" data-tab="health" onclick="switchTab('health')">❤️ 건강</button>
             <button class="tab-btn" data-tab="locate" onclick="switchTab('locate')">🗺️ 찾기</button>
             <button class="tab-btn" data-tab="shop" onclick="switchTab('shop')"
                 style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24;">🛒 쇼핑</button>
+            <a href="http://localhost:3000" target="_blank" class="tab-btn"
+                style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3)); border: 1px solid rgba(168, 85, 247, 0.5); color: #e879f9; text-decoration: none;">🎨 젬 스튜디오</a>
             <button class="tab-btn"
-                style="background: linear-gradient(135deg, #6366f1 0%, #10b981 100%); border: 1px solid #6366f1; color: #fff; font-weight:700;" onclick="openBroadcastStation()">📡 방송국</button>
+                style="background: rgba(45, 212, 191, 0.2); border: 1px solid rgba(45, 212, 191, 0.4); color: var(--primary-light);"
+                onclick="openBroadcastStation()">📡 설정</button>
         </div>
 
+        <!-- LIVE 섹션 -->
         <section id="live" class="section active">
             <div class="main-card">
+                <!-- 동물 선택 -->
                 <div class="section-title">🐾 통역할 동물을 선택하세요</div>
                 <div class="animal-selector" style="flex-direction: column; align-items: center; gap: 16px;">
+                    <!-- 선택된 동물 큰 얼굴 -->
                     <div id="selectedAnimalFace" style="font-size: 5rem; animation: bounce 2s ease-in-out infinite;">🐶</div>
                     <div id="selectedAnimalName" style="font-size: 1.2rem; font-weight: 700; color: var(--primary-light);">강아지</div>
                     
+                    <!-- 버튼들 -->
                     <div style="display: flex; gap: 12px; justify-content: center;">
                         <button class="animal-btn" onclick="openAnimalSelectModal()" style="width: 100px;">
                             <span class="icon">🐾</span>
@@ -2137,6 +2129,7 @@
                     </div>
                 </div>
 
+                <!-- 컨트롤 버튼 -->
                 <div class="control-buttons">
                     <button class="btn-start start" id="btnStart" onclick="handleStart()">
                         <span>🐾</span> 동물대화 시작
@@ -2146,6 +2139,7 @@
                     </button>
                 </div>
 
+                <!-- 통역 패널 -->
                 <div class="translate-panel">
                     <div class="direction-display">
                         <div class="direction-item">
@@ -2159,7 +2153,9 @@
                         </div>
                     </div>
 
+                    <!-- 📹 카메라 비디오 (AI눈) -->
                     <div style="margin-bottom: 16px; position: relative;">
+                        <!-- 카메라 전면/후면 전환 버튼 -->
                         <div id="cameraToggleButtons"
                             style="display: none; position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 10000;">
                             <button onclick="switchCameraMode('user')" id="btnCameraFront"
@@ -2176,6 +2172,7 @@
                             autoplay playsinline webkit-playsinline muted></video>
                     </div>
 
+                    <!-- 감정분석 그래프 -->
                     <div id="emotionBars" style="display: none; margin-bottom: 16px; gap: 10px;">
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 8px;">
                             <div style="text-align: center;">
@@ -2221,6 +2218,7 @@
                         </div>
                     </div>
 
+                    <!-- 마이크 버튼 -->
                     <div class="mic-buttons">
                         <div class="mic-group">
                             <button class="mic-btn human" id="btnHumanMic" onclick="handleHumanToAnimal()" disabled
@@ -2238,6 +2236,7 @@
                         </div>
                     </div>
 
+                    <!-- 파형 + 타이머 -->
                     <div class="waveform-container">
                         <div class="waveform inactive" id="waveform">
                             <div class="waveform-bar" style="height:15px"></div>
@@ -2256,12 +2255,14 @@
                     </div>
                 </div>
 
+                <!-- 채팅/결과 -->
                 <div class="chat-container" id="chatContainer">
                     <div class="bubble system">
                         <div class="bubble-content">🐾 "동물대화 시작"을 누르고 마이크로 양방향 통역하세요!</div>
                     </div>
                 </div>
 
+                <!-- 학습 진행률 -->
                 <div class="learning-section">
                     <div class="learning-header">
                         <span class="learning-title">🧠 AI 학습 진행률</span>
@@ -2275,14 +2276,18 @@
             </div>
         </section>
 
+        <!-- AdSense Placeholder: 중간 -->
         <div class="adsense-placeholder" style="background: rgba(255,255,255,.03); border: 1px dashed rgba(255,255,255,.15); border-radius: 12px; padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px; margin: 16px 0;">
+            <!-- Google AdSense code here -->
             📢 광고 영역 (AdSense 승인 후 활성화)
         </div>
 
+        <!-- 건강체크 섹션 -->
         <section id="health" class="section">
             <div class="main-card">
                 <div class="section-title">❤️ AI는 기반 생체 분석</div>
 
+                <!-- 건강체크 모드 선택 -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
                     <button class="btn-start start" id="btnPulseMode" onclick="startPulseCheck()"
                         style="padding: 14px; background: rgba(45, 212, 191, 0.2); border: 2px solid rgba(45, 212, 191, 0.4); color: var(--primary-light); border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.85rem;">
@@ -2294,12 +2299,14 @@
                     </button>
                 </div>
 
+                <!-- AI 기반 생체분석 모드 -->
                 <div id="bioScanMode" style="display: none;">
                     <div
                         style="background: rgba(45, 212, 191, 0.15); border: 1px solid rgba(45, 212, 191, 0.4); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
                         <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">📸 카메라를 통한 실시간
                             생체분석</div>
 
+                        <!-- 카메라 전/후 전환 버튼 -->
                         <div style="display: flex; gap: 8px; margin-bottom: 12px;">
                             <button onclick="switchBioCamera('user')" id="bioCameraFront"
                                 style="flex: 1; padding: 8px; background: rgba(45, 212, 191, 0.8); border: 1px solid rgba(45, 212, 191, 0.6); border-radius: 8px; color: white; cursor: pointer; font-weight: 600; font-size: 0.8rem;">
@@ -2311,10 +2318,12 @@
                             </button>
                         </div>
 
+                        <!-- 실시간 카메라 스트림 -->
                         <video id="bioVideo"
                             style="width: 100%; height: 240px; background: #000; border-radius: 8px; margin-bottom: 12px; object-fit: cover; display: block; position: relative; z-index: 9999;"
                             autoplay playsinline webkit-playsinline muted></video>
 
+                        <!-- 생체스캔 결과 -->
                         <div id="bioResults" style="display: none;">
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
                                 <div
@@ -2351,6 +2360,7 @@
                                 </div>
                             </div>
 
+                            <!-- AI 검진 분석 결과 -->
                             <div style="background: rgba(59, 130, 246, 0.2); border-left: 3px solid #3b82f6; border-radius: 8px; padding: 12px; margin-bottom: 12px; display: none;"
                                 id="aiAnalysisResult">
                                 <div
@@ -2360,6 +2370,7 @@
                                     style="font-size: 0.8rem; color: var(--text); line-height: 1.6;"></div>
                             </div>
 
+                            <!-- 구글 검색 결과 -->
                             <div style="background: rgba(16, 185, 129, 0.15); border-left: 3px solid #10b981; border-radius: 8px; padding: 12px; margin-bottom: 12px; display: none;"
                                 id="googleSearchResult">
                                 <div
@@ -2668,91 +2679,14 @@
 
     <!-- 푸터 -->
     <footer>
-                <div class="footer-main">
-                    <div class="footer-links">
-                        <a href="#" onclick="openModal('terms')">이용약관</a>
-                        <span class="divider">|</span>
-                        <a href="#" onclick="openModal('privacy')">개인정보처리방침</a>
-                        <span class="divider">|</span>
-                        <a href="#" onclick="openModal('contact')">문의하기</a>
-                    </div>
-                    <div class="footer-company">
-                        <b>(주)발로레</b> | 대표자: 이정훈 | 사업자등록번호: 277-87-01333
-                    </div>
-                    <div class="footer-address">
-                        주소: 서울특별시 서초구 반포대로14길 71, 716호
-                    </div>
-                    <div class="footer-copyright">
-                        © 2026 <b>PetCTT Pro</b>. All rights reserved.
-                    </div>
-                </div>
-                <style>
-                    .footer-main {max-width:700px;margin:0 auto;padding:32px 0 12px 0;display:flex;flex-direction:column;align-items:center;gap:10px;}
-                    .footer-links {display:flex;gap:18px;font-size:15px;font-weight:600;justify-content:center;align-items:center;}
-                    .footer-links a {color:#9fb3d9;text-decoration:none;transition:color 0.2s;}
-                    .footer-links a:hover {color:#10b981;}
-                    .divider {color:#3b4252;font-size:15px;}
-                    .footer-company, .footer-address {font-size:13px;color:#b6c2d9;}
-                    .footer-company b {color:#10b981;}
-                    .footer-copyright {font-size:13px;color:#7b879a;margin-top:4px;}
-                    @media (max-width:600px) {.footer-main{padding:24px 0 8px 0;}.footer-links{font-size:13px;gap:10px;}.footer-company,.footer-address,.footer-copyright{font-size:12px;}}
-                </style>
-    </footer>
-
-        <!-- 정책/문의 모달 -->
-        <div id="modal-overlay-policy" class="modal-overlay">
-            <div class="modal" id="modal-terms" style="display:none;">
-                <button class="modal-close" onclick="closeModal()">✕</button>
-                <div class="modal-title">이용약관</div>
-                <div style="max-height:50vh;overflow-y:auto;font-size:0.95rem;line-height:1.7;">
-                    <!-- 약관 내용 샘플 -->
-                    <b>제1조(목적)</b><br>이 약관은 (주)발로레(이하 '회사')가 제공하는 PetCTT 서비스의 이용조건 및 절차, 권리·의무 등에 관한 사항을 규정함을 목적으로 합니다.<br><br>
-                    <b>제2조(정의)</b><br>...<br><br>
-                    <b>제3조(서비스의 제공 및 변경)</b><br>...
-                </div>
-            </div>
-            <div class="modal" id="modal-privacy" style="display:none;">
-                <button class="modal-close" onclick="closeModal()">✕</button>
-                <div class="modal-title">개인정보처리방침</div>
-                <div style="max-height:50vh;overflow-y:auto;font-size:0.95rem;line-height:1.7;">
-                    <!-- 개인정보처리방침 샘플 -->
-                    <b>1. 수집하는 개인정보 항목</b><br>...<br><br>
-                    <b>2. 개인정보의 수집 및 이용목적</b><br>...<br><br>
-                    <b>3. 개인정보의 보유 및 이용기간</b><br>...
-                </div>
-            </div>
-            <div class="modal" id="modal-contact" style="display:none;">
-                <button class="modal-close" onclick="closeModal()">✕</button>
-                <div class="modal-title">문의하기</div>
-                <div style="max-height:50vh;overflow-y:auto;font-size:0.95rem;line-height:1.7;">
-                    <b>고객센터</b><br>
-                    이메일: <a href="mailto:zeus1404@gmail.com">zeus1404@gmail.com</a><br>
-                    연락처: <a href="tel:01021878890">010-2187-8890</a><br>
-                    <br>
-                    <b>문의 내용</b><br>
-                    <textarea style="width:100%;min-height:80px;border-radius:8px;padding:8px;margin-top:8px;"></textarea>
-                    <button style="margin-top:12px;width:100%;padding:10px 0;background:linear-gradient(135deg,#10b981,#6366f1);color:#fff;border:none;border-radius:8px;font-weight:700;">문의 보내기</button>
-                </div>
-            </div>
+        <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 12px;">
+            <a href="privacy.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">개인정보처리방침</a>
+            <a href="terms.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">이용약관</a>
+            <a href="contact.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">문의하기</a>
         </div>
-        <style>
-            .modal-overlay {position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:30000;display:none;align-items:center;justify-content:center;}
-            .modal {background:#18181b;border-radius:18px;max-width:420px;width:90vw;padding:32px 24px 24px 24px;box-shadow:0 8px 40px #000a;position:relative;}
-            .modal-title {font-size:1.3rem;font-weight:700;margin-bottom:18px;color:#10b981;display:flex;align-items:center;gap:8px;}
-            .modal-close {position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(100,116,139,0.2);border:none;color:#fff;font-size:1.2rem;cursor:pointer;transition:all 0.3s;}
-            .modal-close:hover {background:rgba(239,68,68,0.3);color:#f87171;}
-        </style>
-        <script>
-            function openModal(type) {
-                document.getElementById('modal-overlay-policy').style.display = 'flex';
-                document.getElementById('modal-terms').style.display = (type==='terms')?'block':'none';
-                document.getElementById('modal-privacy').style.display = (type==='privacy')?'block':'none';
-                document.getElementById('modal-contact').style.display = (type==='contact')?'block':'none';
-            }
-            function closeModal() {
-                document.getElementById('modal-overlay-policy').style.display = 'none';
-            }
-        </script>
+        <p>© 2026 <a href="https://petctt.com">PetCTT Pro</a> - 반려동물 통역 + 위치 추적</p>
+        <p style="margin-top:4px">강아지를 잃어버렸을 때 GPS로 찾아주세요 🐾</p>
+    </footer>
 
     <!-- 토스트 -->
     <div class="toast" id="toast"></div>
@@ -2838,26 +2772,19 @@
     <div class="member-studio-modal" id="claudeTvModal">
         <div class="space-stars" id="claudeStars"></div>
         <button class="studio-close-btn" onclick="closeClaudeTv()">✕</button>
-        <div class="studio-stage" style="background: linear-gradient(135deg, #312e81 60%, #a78bfa 100%); border-radius: 24px; box-shadow: 0 8px 32px #0008; padding: 24px 0 32px 0; position:relative;">
-            <div style="position:absolute;top:24px;right:24px;z-index:2;">
-                <button onclick="loginWithGoogle()" style="background:#fff;color:#4285F4;font-weight:700;border:none;border-radius:6px;padding:8px 16px;margin-right:8px;box-shadow:0 2px 8px #0002;cursor:pointer;">구글 로그인</button>
-                <button onclick="loginWithKakao()" style="background:#fee500;color:#3c1e1e;font-weight:700;border:none;border-radius:6px;padding:8px 16px;box-shadow:0 2px 8px #0002;cursor:pointer;">카카오 로그인</button>
-            </div>
+        
+        <div class="studio-stage">
             <div class="studio-avatar-container" id="claudeContainer">
-                <div class="studio-avatar" id="claudeAvatar" style="font-size:4.5rem;box-shadow:0 0 32px #a78bfa99,0 0 8px #fff;">🤖</div>
-                <div class="studio-speech-bubble" id="claudeSpeechBubble" style="font-size:1.2rem;background:rgba(168,139,250,0.15);color:#fff;border:1.5px solid #a78bfa;box-shadow:0 2px 12px #a78bfa33;">클 TV는 곧 오픈 예정입니다!<br><span style='font-size:1.1em;color:#fbbf24;'>AI/코딩/스타트업 방송, 로그인 후 다양한 기능이 제공될 예정이에요!</span></div>
+                <div class="studio-avatar" id="claudeAvatar">🤖</div>
+                <div class="studio-speech-bubble" id="claudeSpeechBubble">안녕하세요! 클입니다! AI와 코딩의 세계로 함께 가요! 💜</div>
             </div>
-            <div class="studio-chat-panel" style="backdrop-filter:blur(2px);background:rgba(49,46,129,0.15);border-radius:16px;box-shadow:0 2px 12px #a78bfa22;">
-                <div class="studio-chat-title" style="color: #a78bfa;font-size:1.15rem;font-weight:700;letter-spacing:0.5px;">📺 클 TV - AI/코딩/스타트업 채널</div>
-                <div class="studio-chat-messages" id="claudeChat" style="min-height:120px;max-height:180px;overflow-y:auto;background:rgba(49,46,129,0.08);border-radius:8px;padding:8px 10px 6px 10px;margin-bottom:8px;"></div>
-                <div class="studio-chat-input" style="display:flex;gap:6px;align-items:center;">
-                    <input type="text" placeholder="시청자 댓글을 입력하세요 (로그인 필요)" id="claudeChatInput" style="flex:1;" disabled>
-                    <button onclick="sendClaudeChat()" disabled style="background:#a78bfa;color:#fff;font-weight:700;border:none;border-radius:6px;padding:7px 16px;">댓글</button>
+            <div class="studio-chat-panel">
+                <div class="studio-chat-title" style="color: #a78bfa;">📺 클 TV - AI/코딩/스타트업 채널</div>
+                <div class="studio-chat-messages" id="claudeChat"></div>
+                <div class="studio-chat-input">
+                    <input type="text" placeholder="클에게 메시지 보내기..." id="claudeChatInput">
+                    <button onclick="sendClaudeChat()">전송</button>
                 </div>
-                <div style="font-size:12px;color:#a78bfa;margin-top:2px;text-align:right;">실시간 시청자 채팅/댓글 (곧 오픈)</div>
-            </div>
-            <div style="position:absolute;bottom:16px;left:0;width:100%;text-align:center;">
-                <span style="display:inline-block;background:#a78bfa;color:#fff;padding:6px 18px;border-radius:12px;font-weight:700;box-shadow:0 2px 8px #a78bfa55;letter-spacing:0.5px;">🚀 GRAND OPEN SOON!</span>
             </div>
         </div>
     </div>
@@ -3003,8 +2930,7 @@
                         📺 클 TV
                     </button>
                     <button onclick="openGemStudio()" class="broadcast-category-btn"
-                        style="padding: 12px; background: rgba(219, 39, 119, 0.2); border: 1px solid rgba(219, 39, 119, 0.4); border-radius: 8px; color: #fbcfe8; cursor: pointer; font-weight: 600; font-size: 0.85rem;"
-                        onclick="openGemStudio()">
+                        style="padding: 12px; background: rgba(219, 39, 119, 0.2); border: 1px solid rgba(219, 39, 119, 0.4); border-radius: 8px; color: #fbcfe8; cursor: pointer; font-weight: 600; font-size: 0.85rem;">
                         🎨 젬 스튜디오
                     </button>
                     <button onclick="openNtWorkshop()" class="broadcast-category-btn"
@@ -4008,7 +3934,6 @@
         function openBroadcastStation() {
             document.getElementById('broadcastModal').classList.add('show');
         }
-        window.openBroadcastStation = openBroadcastStation;
 
         function closeBroadcastStation() {
             document.getElementById('broadcastModal').classList.remove('show');
@@ -4058,7 +3983,7 @@
             
             showToast('🎨 젬 스튜디오 입장!', 'success');
         }
-        
+
         function closeGemStudio() {
             const modal = document.getElementById('gemStudioModal');
             modal.classList.remove('active');
@@ -4068,16 +3993,16 @@
             closeBroadcastStation();
             const modal = document.getElementById('ntWorkshopModal');
             modal.classList.add('active');
-
+            
             // 우주 별빛 생성
             createStudioStars('ntStars');
-
+            
             // 아바타 등장
             setTimeout(() => {
                 document.getElementById('ntAvatar').classList.add('appear');
                 document.getElementById('ntSpeechBubble').classList.add('active');
             }, 500);
-
+            
             showToast('🔧 엔티 공방 입장!', 'success');
         }
 
@@ -4102,12 +4027,12 @@
         }
 
         // 채팅 함수들
-        function sendGemChat() {
-            const input = document.getElementById('gemChatInput');
-            const chat = document.getElementById('gemChat');
+        function sendClaudeChat() {
+            const input = document.getElementById('claudeChatInput');
+            const chat = document.getElementById('claudeChat');
             if (input.value.trim()) {
                 const msg = document.createElement('div');
-                msg.style.cssText = 'padding: 8px 12px; background: rgba(219, 39, 119, 0.3); border-radius: 8px; color: white;';
+                msg.style.cssText = 'padding: 8px 12px; background: rgba(138, 43, 226, 0.3); border-radius: 8px; color: white;';
                 msg.textContent = '💬 ' + input.value;
                 chat.appendChild(msg);
                 input.value = '';
@@ -4115,12 +4040,12 @@
             }
         }
 
-        function sendClaudeChat() {
-            const input = document.getElementById('claudeChatInput');
-            const chat = document.getElementById('claudeChat');
+        function sendGemChat() {
+            const input = document.getElementById('gemChatInput');
+            const chat = document.getElementById('gemChat');
             if (input.value.trim()) {
                 const msg = document.createElement('div');
-                msg.style.cssText = 'padding: 8px 12px; background: rgba(138, 43, 226, 0.3); border-radius: 8px; color: white;';
+                msg.style.cssText = 'padding: 8px 12px; background: rgba(219, 39, 119, 0.3); border-radius: 8px; color: white;';
                 msg.textContent = '💬 ' + input.value;
                 chat.appendChild(msg);
                 input.value = '';
@@ -4624,7 +4549,6 @@
                 setTimeout(() => locationData.map.invalidateSize(), 100);
             }
         }
-        window.switchTab = switchTab;
 
         // ===== 언어 전환 기능 =====
         let currentLanguage = 'ko'; // 기본 언어: 한국어

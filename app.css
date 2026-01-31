@@ -1,0 +1,16 @@
+/* ===== 젬 스튜디오 요소 숨김 ===== */
+
+/* 탭 네비게이션의 젬 스튜디오 버튼 */
+.tab-nav a.tab-btn[href="http://localhost:3000"] {
+    display: none !important;
+}
+
+/* 젬 스튜디오 모달 */
+#gemStudioModal {
+    display: none !important;
+}
+
+/* 방송국 모달 내 젬 스튜디오 버튼 */
+button[onclick="openGemStudio()"] {
+    display: none !important;
+}

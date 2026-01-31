@@ -25,7 +25,8 @@
 
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2307469428004843" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7895014528836146"
+        crossorigin="anonymous"></script>
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-R4DBR11KDR"></script>
     <script>
@@ -4007,6 +4008,7 @@
         function openBroadcastStation() {
             document.getElementById('broadcastModal').classList.add('show');
         }
+        window.openBroadcastStation = openBroadcastStation;
 
         function closeBroadcastStation() {
             document.getElementById('broadcastModal').classList.remove('show');
@@ -4061,21 +4063,21 @@
             const modal = document.getElementById('gemStudioModal');
             modal.classList.remove('active');
         }
-        
-        function sendGemChat() {
-            const input = document.getElementById('gemChatInput');
-            const chat = document.getElementById('gemChat');
-            if (input.value.trim()) {
-                const msg = document.createElement('div');
-                msg.style.cssText = 'padding: 8px 12px; background: rgba(219, 39, 119, 0.3); border-radius: 8px; color: white;';
-                msg.textContent = '💬 ' + input.value;
-                chat.appendChild(msg);
-                input.value = '';
-                chat.scrollTop = chat.scrollHeight;
-            }
-        }
+
+        function openNtWorkshop() {
+            closeBroadcastStation();
+            const modal = document.getElementById('ntWorkshopModal');
+            modal.classList.add('active');
+
+            // 우주 별빛 생성
+            createStudioStars('ntStars');
+
+            // 아바타 등장
+            setTimeout(() => {
+                document.getElementById('ntAvatar').classList.add('appear');
+                document.getElementById('ntSpeechBubble').classList.add('active');
             }, 500);
-            
+
             showToast('🔧 엔티 공방 입장!', 'success');
         }
 
@@ -4100,12 +4102,12 @@
         }
 
         // 채팅 함수들
-        function sendClaudeChat() {
-            const input = document.getElementById('claudeChatInput');
-            const chat = document.getElementById('claudeChat');
+        function sendGemChat() {
+            const input = document.getElementById('gemChatInput');
+            const chat = document.getElementById('gemChat');
             if (input.value.trim()) {
                 const msg = document.createElement('div');
-                msg.style.cssText = 'padding: 8px 12px; background: rgba(138, 43, 226, 0.3); border-radius: 8px; color: white;';
+                msg.style.cssText = 'padding: 8px 12px; background: rgba(219, 39, 119, 0.3); border-radius: 8px; color: white;';
                 msg.textContent = '💬 ' + input.value;
                 chat.appendChild(msg);
                 input.value = '';
@@ -4113,12 +4115,12 @@
             }
         }
 
-        function sendGemChat() {
-            const input = document.getElementById('gemChatInput');
-            const chat = document.getElementById('gemChat');
+        function sendClaudeChat() {
+            const input = document.getElementById('claudeChatInput');
+            const chat = document.getElementById('claudeChat');
             if (input.value.trim()) {
                 const msg = document.createElement('div');
-                msg.style.cssText = 'padding: 8px 12px; background: rgba(219, 39, 119, 0.3); border-radius: 8px; color: white;';
+                msg.style.cssText = 'padding: 8px 12px; background: rgba(138, 43, 226, 0.3); border-radius: 8px; color: white;';
                 msg.textContent = '💬 ' + input.value;
                 chat.appendChild(msg);
                 input.value = '';
@@ -4622,6 +4624,7 @@
                 setTimeout(() => locationData.map.invalidateSize(), 100);
             }
         }
+        window.switchTab = switchTab;
 
         // ===== 언어 전환 기능 =====
         let currentLanguage = 'ko'; // 기본 언어: 한국어

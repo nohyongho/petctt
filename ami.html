@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐾 아미 AI 감정분석 - PetCTT</title>
+<style>
+:root {
+  --bg-dark: #0a0e1a;
+  --bg-card: #141828;
+  --bg-card2: #1a2035;
+  --accent: #00e5ff;
+  --accent2: #ff6b9d;
+  --accent3: #7c4dff;
+  --accent4: #00e676;
+  --accent5: #ffab40;
+  --text: #e0e0e0;
+  --text-muted: #8892b0;
+  --gradient-ami: linear-gradient(135deg, #7c4dff, #e040fb);
+  --gradient1: linear-gradient(135deg, #00e5ff, #7c4dff);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-dark); color: var(--text); line-height: 1.7; min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Top Bar */
+.top-bar {
+  background: rgba(10,14,26,0.95); backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(124,77,255,0.15);
+  padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.logo-link { text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.logo-text { font-size: 22px; font-weight: 800; background: var(--gradient-ami); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.top-right { display: flex; align-items: center; gap: 10px; }
+.token-badge {
+  padding: 6px 14px; border-radius: 14px;
+  background: rgba(124,77,255,0.12); border: 1px solid rgba(124,77,255,0.2);
+  color: var(--accent3); font-size: 13px; font-weight: 700;
+}
+.back-btn {
+  color: var(--accent); text-decoration: none; font-size: 13px;
+  padding: 7px 14px; border: 1px solid rgba(0,229,255,0.3); border-radius: 18px; transition: all 0.3s;
+}
+.back-btn:hover { background: rgba(0,229,255,0.1); }
+
+.container { max-width: 960px; margin: 0 auto; padding: 24px; }
+
+/* Hero */
+.hero {
+  text-align: center; padding: 48px 20px 36px; position: relative;
+}
+.ami-avatar {
+  width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 20px;
+  background: var(--gradient-ami); display: flex; align-items: center; justify-content: center;
+  font-size: 56px; box-shadow: 0 0 40px rgba(124,77,255,0.3);
+  animation: amiFloat 3s ease-in-out infinite;
+  position: relative;
+}
+.ami-avatar::after {
+  content: ''; position: absolute; inset: -4px; border-radius: 50%;
+  background: var(--gradient-ami); z-index: -1; opacity: 0.3;
+  animation: amiPulse 2s ease-in-out infinite;
+}
+@keyframes amiFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes amiPulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.15); opacity: 0.1; }
+}
+.hero h1 {
+  font-size: 32px; font-weight: 900; margin-bottom: 8px;
+  background: var(--gradient-ami); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hero p { color: var(--text-muted); font-size: 15px; max-width: 500px; margin: 0 auto; }
+.ami-status {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
+  padding: 6px 16px; border-radius: 12px;
+  background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.2);
+  font-size: 13px; color: var(--accent4);
+}
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--accent4);
+  animation: blink 1.5s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+/* Demo Section: Pet Selector */
+.demo-section {
+  background: var(--bg-card); border: 1px solid rgba(124,77,255,0.1);
+  border-radius: 24px; padding: 32px; margin-bottom: 28px;
+  position: relative; overflow: hidden;
+}
+.demo-section::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--gradient-ami);
+}
+.demo-section h2 { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+.demo-section > p.sub { color: var(--text-muted); font-size: 13.5px; margin-bottom: 22px; }
+
+/* Pet Type Selector */
+.pet-selector {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px;
+}
+.pet-option {
+  padding: 14px 24px; border-radius: 18px;
+  background: rgba(255,255,255,0.03); border: 2px solid rgba(255,255,255,0.06);
+  cursor: pointer; transition: all 0.3s; text-align: center; min-width: 100px;
+}
+.pet-option:hover { border-color: rgba(124,77,255,0.3); }
+.pet-option.active {
+  border-color: rgba(124,77,255,0.5); background: rgba(124,77,255,0.08);
+  box-shadow: 0 4px 20px rgba(124,77,255,0.15);
+}
+.pet-option .pet-emoji { font-size: 36px; display: block; margin-bottom: 4px; }
+.pet-option .pet-label { font-size: 13px; font-weight: 700; }
+
+/* Behavior Input */
+.behavior-area {
+  margin-bottom: 24px;
+}
+.behavior-label { font-size: 14px; font-weight: 700; margin-bottom: 10px; display: block; }
+.behavior-chips {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;
+}
+.bchip {
+  padding: 8px 16px; border-radius: 12px;
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  font-size: 13px; cursor: pointer; transition: all 0.3s; font-family: inherit; color: var(--text);
+}
+.bchip:hover { border-color: rgba(124,77,255,0.3); }
+.bchip.selected {
+  background: rgba(124,77,255,0.12); border-color: rgba(124,77,255,0.4);
+  color: #e0b0ff;
+}
+.behavior-input {
+  width: 100%; padding: 14px 18px; border-radius: 16px;
+  background: var(--bg-card2); border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text); font-size: 14px; font-family: inherit;
+  resize: vertical; min-height: 80px; transition: border-color 0.3s;
+}
+.behavior-input:focus { outline: none; border-color: rgba(124,77,255,0.4); }
+.behavior-input::placeholder { color: var(--text-muted); }
+
+/* Analyze Button */
+.analyze-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 16px; border-radius: 18px; border: none;
+  background: var(--gradient-ami); color: #fff; font-size: 16px; font-weight: 800;
+  cursor: pointer; transition: all 0.3s; font-family: inherit;
+}
+.analyze-btn:hover { box-shadow: 0 8px 30px rgba(124,77,255,0.4); transform: translateY(-2px); }
+.analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.token-cost { font-size: 12px; opacity: 0.8; }
+
+/* Loading */
+.loading-area {
+  display: none; text-align: center; padding: 40px;
+}
+.loading-area.active { display: block; }
+.loading-dots { display: inline-flex; gap: 8px; }
+.loading-dots span {
+  width: 12px; height: 12px; border-radius: 50%; background: var(--accent3);
+  animation: loadBounce 1.4s infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes loadBounce {
+  0%,80%,100% { transform: scale(0.6); opacity: 0.3; }
+  40% { transform: scale(1); opacity: 1; }
+}
+.loading-text { color: var(--text-muted); font-size: 14px; margin-top: 14px; }
+
+/* Result */
+.result-area { display: none; }
+.result-area.active { display: block; }
+
+.result-card {
+  background: var(--bg-card); border: 1px solid rgba(124,77,255,0.15);
+  border-radius: 24px; padding: 32px; margin-bottom: 20px;
+  position: relative; overflow: hidden;
+}
+.result-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--gradient-ami);
+}
+
+/* Emotion Result */
+.emotion-header {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 24px;
+}
+.emotion-avatar { font-size: 48px; }
+.emotion-main { flex: 1; }
+.emotion-label {
+  font-size: 13px; color: var(--text-muted); margin-bottom: 2px;
+}
+.emotion-name { font-size: 28px; font-weight: 900; }
+.emotion-confidence {
+  padding: 4px 12px; border-radius: 10px; font-size: 12px; font-weight: 700;
+  display: inline-block; margin-top: 4px;
+}
+
+/* Emotion Bars */
+.emotion-bars { margin-bottom: 24px; }
+.ebar {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+}
+.ebar-label { width: 80px; font-size: 13px; font-weight: 600; text-align: right; }
+.ebar-track {
+  flex: 1; height: 10px; background: rgba(255,255,255,0.06);
+  border-radius: 6px; overflow: hidden; position: relative;
+}
+.ebar-fill {
+  height: 100%; border-radius: 6px; transition: width 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  width: 0;
+}
+.ebar-value { width: 40px; font-size: 13px; font-weight: 700; }
+
+/* Translation Bubble */
+.translation-section { margin-bottom: 24px; }
+.translation-section h3 {
+  font-size: 16px; font-weight: 800; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.speech-bubble {
+  background: rgba(124,77,255,0.08); border: 1px solid rgba(124,77,255,0.15);
+  border-radius: 20px 20px 20px 4px; padding: 20px 24px;
+  position: relative; margin-bottom: 12px;
+  font-size: 17px; font-weight: 600; line-height: 1.6;
+}
+.speech-bubble::before {
+  content: '🐾'; position: absolute; bottom: -12px; left: 16px; font-size: 16px;
+}
+.speech-sub {
+  font-size: 13px; color: var(--text-muted); font-style: italic;
+  margin-left: 8px;
+}
+
+/* Advice Section */
+.advice-section h3 {
+  font-size: 16px; font-weight: 800; margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.advice-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;
+}
+.advice-card {
+  padding: 16px; border-radius: 16px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  transition: all 0.3s;
+}
+.advice-card:hover { border-color: rgba(124,77,255,0.2); }
+.advice-icon { font-size: 24px; margin-bottom: 8px; display: block; }
+.advice-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.advice-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+/* History Timeline */
+.history-section {
+  background: var(--bg-card); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 24px; padding: 32px; margin-bottom: 28px;
+}
+.history-section h2 { font-size: 20px; font-weight: 800; margin-bottom: 18px; }
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.timeline-item {
+  display: flex; gap: 16px; padding: 16px 0;
+  border-left: 2px solid rgba(124,77,255,0.2); margin-left: 10px; padding-left: 20px;
+  position: relative;
+}
+.timeline-item::before {
+  content: ''; position: absolute; left: -7px; top: 20px;
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 2px solid var(--accent3); background: var(--bg-dark);
+}
+.timeline-emoji { font-size: 28px; flex-shrink: 0; }
+.timeline-content { flex: 1; }
+.timeline-emotion { font-size: 14px; font-weight: 700; }
+.timeline-time { font-size: 12px; color: var(--text-muted); }
+.timeline-translation { font-size: 13px; color: var(--text-muted); margin-top: 4px; font-style: italic; }
+
+/* Features */
+.features-section {
+  background: var(--bg-card); border: 1px solid rgba(0,229,255,0.1);
+  border-radius: 24px; padding: 32px; margin-bottom: 28px;
+}
+.features-section h2 { font-size: 20px; font-weight: 800; margin-bottom: 18px; }
+.feature-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;
+}
+.feature-card {
+  padding: 20px; border-radius: 16px;
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+  text-align: center; transition: all 0.3s;
+}
+.feature-card:hover { border-color: rgba(0,229,255,0.2); transform: translateY(-3px); }
+.feature-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+.feature-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.feature-desc { font-size: 12px; color: var(--text-muted); }
+
+/* CTA */
+.cta-section {
+  text-align: center; padding: 40px; margin-bottom: 28px;
+  background: linear-gradient(135deg, rgba(124,77,255,0.08), rgba(224,64,251,0.08));
+  border: 1px solid rgba(124,77,255,0.15); border-radius: 24px;
+}
+.cta-section h2 {
+  font-size: 24px; font-weight: 800; margin-bottom: 8px;
+  background: var(--gradient-ami); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.cta-section p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+.cta-btn {
+  display: inline-block; padding: 14px 36px; border-radius: 18px; border: none;
+  background: var(--gradient-ami); color: #fff; font-size: 15px; font-weight: 800;
+  cursor: pointer; transition: all 0.3s; font-family: inherit; text-decoration: none;
+}
+.cta-btn:hover { box-shadow: 0 8px 30px rgba(124,77,255,0.4); transform: translateY(-2px); }
+
+/* Footer */
+.footer {
+  text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px;
+  border-top: 1px solid rgba(255,255,255,0.06); margin-top: 20px;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: var(--gradient-ami); color: #fff; padding: 14px 28px; border-radius: 14px;
+  font-size: 14px; font-weight: 700; z-index: 9999;
+  opacity: 0; transition: all 0.4s cubic-bezier(0.68,-0.55,0.265,1.55);
+  box-shadow: 0 8px 30px rgba(124,77,255,0.3);
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+@media (max-width: 768px) {
+  .hero h1 { font-size: 24px; }
+  .container { padding: 16px; }
+  .pet-selector { gap: 8px; }
+  .pet-option { padding: 10px 16px; min-width: 80px; }
+  .pet-option .pet-emoji { font-size: 28px; }
+  .emotion-header { flex-direction: column; text-align: center; }
+  .ebar-label { width: 60px; font-size: 12px; }
+  .advice-grid { grid-template-columns: 1fr; }
+  .feature-grid { grid-template-columns: repeat(2, 1fr); }
+  .speech-bubble { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <a href="index.html" class="logo-link"><span class="logo-text">🐾 아미 AI</span></a>
+  <div class="top-right">
+    <span class="token-badge">🪙 350 토큰</span>
+    <a href="index.html" class="back-btn">← 홈</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="ami-avatar">🐰</div>
+    <h1>아미 AI 감정분석</h1>
+    <p>반려동물의 행동을 입력하면 아미가 감정을 분석하고 통역해드려요!</p>
+    <div class="ami-status"><span class="status-dot"></span> 아미 온라인 · 분석 대기 중</div>
+  </div>
+
+  <!-- Demo: Analysis Input -->
+  <div class="demo-section" id="inputSection">
+    <h2>🔍 감정분석 시작하기</h2>
+    <p class="sub">반려동물 종류를 선택하고, 현재 행동을 알려주세요!</p>
+
+    <!-- Pet Selector -->
+    <div class="pet-selector">
+      <div class="pet-option active" onclick="selectPet(this, 'dog')">
+        <span class="pet-emoji">🐕</span>
+        <span class="pet-label">강아지</span>
+      </div>
+      <div class="pet-option" onclick="selectPet(this, 'cat')">
+        <span class="pet-emoji">🐱</span>
+        <span class="pet-label">고양이</span>
+      </div>
+      <div class="pet-option" onclick="selectPet(this, 'rabbit')">
+        <span class="pet-emoji">🐰</span>
+        <span class="pet-label">토끼</span>
+      </div>
+      <div class="pet-option" onclick="selectPet(this, 'bird')">
+        <span class="pet-emoji">🐦</span>
+        <span class="pet-label">새</span>
+      </div>
+      <div class="pet-option" onclick="selectPet(this, 'hamster')">
+        <span class="pet-emoji">🐹</span>
+        <span class="pet-label">햄스터</span>
+      </div>
+    </div>
+
+    <!-- Behavior Chips -->
+    <div class="behavior-area">
+      <span class="behavior-label">📋 행동 빠른 선택</span>
+      <div class="behavior-chips" id="behaviorChips">
+        <!-- filled by JS -->
+      </div>
+      <span class="behavior-label" style="margin-top: 16px;">✏️ 직접 입력하기</span>
+      <textarea class="behavior-input" id="behaviorInput" placeholder="예: 꼬리를 살랑살랑 흔들면서 낮은 소리로 끙끙거려요..."></textarea>
+    </div>
+
+    <button class="analyze-btn" id="analyzeBtn" onclick="startAnalysis()">
+      🐾 아미에게 감정분석 요청하기 <span class="token-cost">(🪙 5 토큰)</span>
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-area" id="loadingArea">
+    <div class="ami-avatar" style="width: 80px; height: 80px; font-size: 36px; margin: 0 auto 16px;">🐰</div>
+    <div class="loading-dots"><span></span><span></span><span></span></div>
+    <div class="loading-text" id="loadingText">아미가 감정을 분석하고 있어요...</div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-area" id="resultArea">
+
+    <!-- Main Emotion -->
+    <div class="result-card">
+      <div class="emotion-header">
+        <span class="emotion-avatar" id="resEmoji">😊</span>
+        <div class="emotion-main">
+          <div class="emotion-label">주요 감정</div>
+          <div class="emotion-name" id="resEmotion" style="background: var(--gradient-ami); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">행복함</div>
+          <span class="emotion-confidence" id="resConfidence" style="background: rgba(0,230,118,0.12); color: var(--accent4);">신뢰도 92%</span>
+        </div>
+      </div>
+
+      <!-- Emotion Bars -->
+      <div class="emotion-bars" id="emotionBars">
+        <!-- filled by JS -->
+      </div>
+
+      <!-- Translation -->
+      <div class="translation-section">
+        <h3>💬 아미의 통역</h3>
+        <div class="speech-bubble" id="resSpeech">"나 지금 너무 기분 좋아! 같이 놀자~! 🎾"</div>
+        <div class="speech-sub" id="resSpeechSub">— AI 감정 통역 (신뢰도 92%)</div>
+      </div>
+
+      <!-- Advice -->
+      <div class="advice-section">
+        <h3>💡 아미의 조언</h3>
+        <div class="advice-grid" id="adviceGrid">
+          <!-- filled by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Retry -->
+    <button class="analyze-btn" onclick="resetAnalysis()" style="background: linear-gradient(135deg, #00e5ff, #7c4dff);">
+      🔄 다른 행동 분석하기
+    </button>
+  </div>
+
+  <!-- History -->
+  <div class="history-section">
+    <h2>📊 최근 분석 기록</h2>
+    <div class="timeline" id="historyTimeline">
+      <div class="timeline-item">
+        <span class="timeline-emoji">😊</span>
+        <div class="timeline-content">
+          <div class="timeline-emotion">행복함 <span style="color: var(--accent4); font-size: 12px;">92%</span></div>
+          <div class="timeline-time">🐕 강아지 · 2분 전</div>
+          <div class="timeline-translation">"같이 놀자~! 기분 최고!"</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <span class="timeline-emoji">😴</span>
+        <div class="timeline-content">
+          <div class="timeline-emotion">졸림 <span style="color: var(--accent5); font-size: 12px;">85%</span></div>
+          <div class="timeline-time">🐱 고양이 · 1시간 전</div>
+          <div class="timeline-translation">"조용히 해... 나 자고 싶어..."</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <span class="timeline-emoji">🥰</span>
+        <div class="timeline-content">
+          <div class="timeline-emotion">애정표현 <span style="color: var(--accent2); font-size: 12px;">97%</span></div>
+          <div class="timeline-time">🐰 토끼 · 3시간 전</div>
+          <div class="timeline-translation">"너무 좋아! 더 쓰다듬어줘~"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="features-section">
+    <h2>✨ 아미 AI 기능</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="feature-icon">🧠</span>
+        <div class="feature-name">딥 감정분석</div>
+        <div class="feature-desc">7가지 감정을 다층 분석하여 정확한 감정 상태를 파악해요</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">💬</span>
+        <div class="feature-name">실시간 통역</div>
+        <div class="feature-desc">반려동물의 마음을 사람의 말로 자연스럽게 통역해요</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📈</span>
+        <div class="feature-name">감정 트렌드</div>
+        <div class="feature-desc">시간대별 감정 변화를 추적하고 패턴을 분석해요</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🏥</span>
+        <div class="feature-name">건강 알림</div>
+        <div class="feature-desc">이상 행동 감지 시 건강 이상 신호를 알려드려요</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🎤</span>
+        <div class="feature-name">음성 TTS</div>
+        <div class="feature-desc">아미의 통역을 음성으로 들을 수 있어요 (Pro)</div>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🌐</span>
+        <div class="feature-name">다국어 지원</div>
+        <div class="feature-desc">한국어, 영어, 일본어, 중국어, 스페인어 지원</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <h2>🐾 아미와 더 대화하고 싶다면?</h2>
+    <p>Pro 이상 요금제에서 무제한 감정분석과 실시간 음성 통역을 이용하세요!</p>
+    <a href="pricing.html" class="cta-btn">💎 요금제 보러가기</a>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  © 2026 <a href="index.html">PetCTT Pro</a> - 반려동물 통역 + 위치 추적 | 주식회사 발로레<br>
+  <a href="guide.html" style="margin: 0 6px;">📖 사용설명서</a> ·
+  <a href="broadcast.html" style="margin: 0 6px;">📡 방송국</a> ·
+  <a href="market.html" style="margin: 0 6px;">☁️ 구름장터</a> ·
+  <a href="coupon.html" style="margin: 0 6px;">🎮 쿠폰톡톡</a> ·
+  <a href="ami.html" style="margin: 0 6px;">🐾 아미</a> ·
+  <a href="pricing.html" style="margin: 0 6px;">💎 요금제</a><br>
+  <a href="privacy.html" style="margin: 0 6px;">개인정보처리방침</a> ·
+  <a href="terms.html" style="margin: 0 6px;">이용약관</a> ·
+  <a href="contact.html" style="margin: 0 6px;">문의하기</a>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* Data */
+const BEHAVIOR_DATA = {
+  dog: {
+    chips: ['꼬리 흔들기 🐕', '짖기 🗣️', '뱅글뱅글 도는 중 🌀', '발을 핥는 중 👅', '배를 보여줌 🤗', '끙끙거림 😢', '으르렁거림 😠', '꼬리 내림 😰'],
+    results: [
+      {
+        trigger: ['꼬리', '흔들', '살랑'],
+        emotion: '행복함', emoji: '😊', color: '#00e676',
+        bars: { 행복: 92, 흥분: 75, 기대: 68, 불안: 8, 슬픔: 3, 분노: 2, 무관심: 5 },
+        speech: '"와아~ 나 지금 너무너무 기분 좋아! 같이 뛰어놀자!! 🎾"',
+        advice: [
+          { icon: '🎾', title: '놀아주기', desc: '공놀이나 터그 장난감으로 함께 놀아주세요!' },
+          { icon: '🥰', title: '교감하기', desc: '이때 훈련하면 효과가 좋아요!' },
+          { icon: '📸', title: '사진 찍기', desc: '행복한 순간을 기록해보세요!' },
+        ]
+      },
+      {
+        trigger: ['짖', '짖기', '소리'],
+        emotion: '경계/불안', emoji: '⚠️', color: '#ffab40',
+        bars: { 행복: 15, 흥분: 60, 기대: 20, 불안: 78, 슬픔: 10, 분노: 35, 무관심: 5 },
+        speech: '"뭔가 이상해! 조심해야 해! 내가 지켜줄게! 🛡️"',
+        advice: [
+          { icon: '🤫', title: '안정시키기', desc: '부드러운 목소리로 이름을 불러주세요' },
+          { icon: '🏠', title: '안전한 공간', desc: '편안한 장소로 이동시켜주세요' },
+          { icon: '🔍', title: '원인 파악', desc: '주변에 자극 요인이 있는지 확인하세요' },
+        ]
+      },
+      {
+        trigger: ['끙끙', '울', '슬'],
+        emotion: '슬픔/아픔', emoji: '😢', color: '#64b5f6',
+        bars: { 행복: 5, 흥분: 10, 기대: 8, 불안: 55, 슬픔: 88, 분노: 5, 무관심: 12 },
+        speech: '"아파... 어딘가 불편해... 도와줘... 😿"',
+        advice: [
+          { icon: '🏥', title: '건강 체크', desc: '몸 상태를 확인하고 병원 방문을 고려하세요' },
+          { icon: '🫂', title: '위로하기', desc: '곁에 있어주며 부드럽게 쓰다듬어주세요' },
+          { icon: '🌡️', title: '상태 기록', desc: '증상을 기록해 수의사에게 전달하세요' },
+        ]
+      },
+      {
+        trigger: ['배', '보여', '눕'],
+        emotion: '신뢰/복종', emoji: '🥰', color: '#e040fb',
+        bars: { 행복: 80, 흥분: 30, 기대: 55, 불안: 5, 슬픔: 2, 분노: 0, 무관심: 8 },
+        speech: '"나 너를 완전 믿어! 배 만져줘~ 사랑해! 💕"',
+        advice: [
+          { icon: '💕', title: '배 만져주기', desc: '부드럽게 배를 쓰다듬어주세요!' },
+          { icon: '🍖', title: '간식 주기', desc: '좋은 행동에 보상을 해주세요' },
+          { icon: '😊', title: '칭찬하기', desc: '신뢰 관계가 좋은 신호예요!' },
+        ]
+      },
+      {
+        trigger: ['으르렁', '화', '분노'],
+        emotion: '분노/경고', emoji: '😠', color: '#ff5252',
+        bars: { 행복: 3, 흥분: 70, 기대: 5, 불안: 60, 슬픔: 10, 분노: 90, 무관심: 2 },
+        speech: '"지금 건드리지 마! 나 화났어! 가까이 오지 마!! 😤"',
+        advice: [
+          { icon: '🚫', title: '거리두기', desc: '자극을 주지 말고 거리를 두세요' },
+          { icon: '⏰', title: '시간 주기', desc: '스스로 진정할 시간을 주세요' },
+          { icon: '🏥', title: '전문가 상담', desc: '공격성이 반복되면 전문가 상담을 받으세요' },
+        ]
+      },
+    ]
+  },
+  cat: {
+    chips: ['그루밍 중 🐱', '골골송 🎵', '꼬리 세우기 ⬆️', '하악질 😾', '냥냥 울음 🗣️', '물건 떨어뜨리기 💥', '꾹꾹이 🐾', '숨기 🫣'],
+    results: [
+      {
+        trigger: ['골골', '그르릉', '그루밍', '꾹꾹'],
+        emotion: '만족/행복', emoji: '😺', color: '#00e676',
+        bars: { 행복: 95, 흥분: 20, 기대: 40, 불안: 3, 슬픔: 2, 분노: 0, 무관심: 15 },
+        speech: '"흐으으음~ 여기가 천국이야... 더 만져줘... 😻"',
+        advice: [
+          { icon: '✋', title: '쓰다듬기', desc: '턱 아래와 귀 뒤를 부드럽게 쓸어주세요' },
+          { icon: '📸', title: '기록하기', desc: '만족 상태의 패턴을 기록해보세요' },
+          { icon: '🛋️', title: '편안한 환경', desc: '현재 환경이 좋다는 신호입니다!' },
+        ]
+      },
+      {
+        trigger: ['하악', '화', '으르'],
+        emotion: '분노/공포', emoji: '😾', color: '#ff5252',
+        bars: { 행복: 2, 흥분: 85, 기대: 5, 불안: 75, 슬픔: 10, 분노: 92, 무관심: 0 },
+        speech: '"쉿!! 접근하지 마! 너무 무서워!! 😱"',
+        advice: [
+          { icon: '🚫', title: '만지지 마세요', desc: '절대 억지로 안거나 만지지 마세요' },
+          { icon: '🏠', title: '숨을 곳', desc: '안전한 은신처를 마련해주세요' },
+          { icon: '⏰', title: '기다리기', desc: '스스로 나올 때까지 기다려주세요' },
+        ]
+      },
+    ]
+  },
+  rabbit: {
+    chips: ['빙키 점프 🐰', '이갈기 🦷', '코 킁킁 👃', '바닥 쿵쿵 🦶', '옆으로 눕기 😴', '쪼르르 달리기 🏃', '귀 세우기 👂', '물건 물어뜯기 🪵'],
+    results: [
+      {
+        trigger: ['빙키', '점프', '뛰', '쪼르르', '달리'],
+        emotion: '기쁨/신남', emoji: '🥳', color: '#00e676',
+        bars: { 행복: 98, 흥분: 90, 기대: 70, 불안: 2, 슬픔: 0, 분노: 0, 무관심: 3 },
+        speech: '"야호!! 나 지금 세상에서 제일 행복해!! 같이 뛰자!! 🎉"',
+        advice: [
+          { icon: '🏠', title: '놀이 공간', desc: '안전한 공간에서 마음껏 뛰게 해주세요' },
+          { icon: '🥕', title: '간식 타임', desc: '기쁜 순간에 좋아하는 간식을 주세요' },
+          { icon: '📹', title: '영상 찍기', desc: '빙키는 최고의 행복 표현이에요!' },
+        ]
+      },
+      {
+        trigger: ['쿵쿵', '바닥', '발'],
+        emotion: '경고/불안', emoji: '😰', color: '#ffab40',
+        bars: { 행복: 5, 흥분: 65, 기대: 10, 불안: 85, 슬픔: 20, 분노: 40, 무관심: 3 },
+        speech: '"위험해! 뭔가 무서운 게 있어! 조심해!! ⚠️"',
+        advice: [
+          { icon: '🔇', title: '소음 제거', desc: '큰 소리나 진동을 제거해주세요' },
+          { icon: '🫂', title: '안정시키기', desc: '조용히 옆에서 말을 걸어주세요' },
+          { icon: '🌿', title: '건초 제공', desc: '건초를 먹으면 안정감을 느껴요' },
+        ]
+      },
+      {
+        trigger: ['이갈', '갈기', '옆', '눕'],
+        emotion: '편안함/신뢰', emoji: '😌', color: '#e040fb',
+        bars: { 행복: 88, 흥분: 15, 기대: 30, 불안: 3, 슬픔: 0, 분노: 0, 무관심: 20 },
+        speech: '"아~ 여기 너무 편해... 완전 안심이야... 사랑해~ 💤"',
+        advice: [
+          { icon: '🤫', title: '조용히', desc: '편안한 상태를 유지해주세요' },
+          { icon: '🥕', title: '간식', desc: '좋아하는 간식을 가까이 놔주세요' },
+          { icon: '💕', title: '신뢰', desc: '당신을 완전히 신뢰한다는 증거예요!' },
+        ]
+      },
+    ]
+  },
+  bird: {
+    chips: ['노래 부르기 🎵', '머리 깃 세우기 🦜', '날개 펴기 🦅', '깃털 부풀리기 🫧', '한발 서기 🦩', '머리 숙이기 🙇', '물 튀기기 💦', '종이 씹기 📄'],
+    results: [
+      {
+        trigger: ['노래', '지저귀', '소리'],
+        emotion: '행복/기분좋음', emoji: '🎶', color: '#00e676',
+        bars: { 행복: 90, 흥분: 60, 기대: 50, 불안: 5, 슬픔: 3, 분노: 0, 무관심: 8 },
+        speech: '"랄라라~ 오늘 기분 최고야! 나한테 노래 들어봐! 🎤"',
+        advice: [
+          { icon: '🎵', title: '함께 노래', desc: '같이 말을 걸어주면 더 좋아해요' },
+          { icon: '🍎', title: '과일 간식', desc: '좋아하는 과일을 보상으로 주세요' },
+          { icon: '☀️', title: '환경 유지', desc: '현재 환경이 아주 좋다는 뜻이에요' },
+        ]
+      },
+    ]
+  },
+  hamster: {
+    chips: ['쳇바퀴 돌리기 🎡', '볼 부풀리기 🐹', '뒷발 서기 🧍', '파기 ⛏️', '몸 긁기 🤏', '이를 드러냄 😬', '구석에 숨기 🫣', '간식 물고 도망 🏃'],
+    results: [
+      {
+        trigger: ['쳇바퀴', '돌리', '달리'],
+        emotion: '활력/에너지', emoji: '⚡', color: '#00e5ff',
+        bars: { 행복: 75, 흥분: 95, 기대: 60, 불안: 10, 슬픔: 2, 분노: 0, 무관심: 5 },
+        speech: '"더 빨리! 더 빨리! 달리는 게 세상에서 제일 좋아!! 🏃💨"',
+        advice: [
+          { icon: '🎡', title: '쳇바퀴 점검', desc: '소음이 없고 크기가 적당한지 확인하세요' },
+          { icon: '💧', title: '물 확인', desc: '운동 후 충분한 수분 공급이 필요해요' },
+          { icon: '🌙', title: '야행성', desc: '밤에 활발한 건 정상이에요!' },
+        ]
+      },
+    ]
+  }
+};
+
+let selectedPet = 'dog';
+let selectedBehaviors = [];
+
+/* Functions */
+function selectPet(el, pet) {
+  document.querySelectorAll('.pet-option').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  selectedPet = pet;
+  selectedBehaviors = [];
+  loadBehaviorChips();
+}
+
+function loadBehaviorChips() {
+  const chips = BEHAVIOR_DATA[selectedPet]?.chips || [];
+  const container = document.getElementById('behaviorChips');
+  container.innerHTML = chips.map(c => `<button class="bchip" onclick="toggleBChip(this)">${c}</button>`).join('');
+}
+
+function toggleBChip(el) {
+  el.classList.toggle('selected');
+  const text = el.textContent.trim();
+  if (el.classList.contains('selected')) {
+    selectedBehaviors.push(text);
+    document.getElementById('behaviorInput').value += (document.getElementById('behaviorInput').value ? ', ' : '') + text;
+  }
+}
+
+function startAnalysis() {
+  const input = document.getElementById('behaviorInput').value.trim();
+  if (!input && selectedBehaviors.length === 0) {
+    showToast('⚠️ 행동을 선택하거나 입력해주세요!');
+    return;
+  }
+
+  document.getElementById('inputSection').style.display = 'none';
+  document.getElementById('loadingArea').classList.add('active');
+  document.getElementById('resultArea').classList.remove('active');
+
+  const msgs = ['아미가 행동 패턴을 읽고 있어요... 🔍', '감정 데이터를 분석 중... 🧠', '통역 결과를 준비하고 있어요... 💬'];
+  let mi = 0;
+  const loadInterval = setInterval(() => {
+    mi = (mi + 1) % msgs.length;
+    document.getElementById('loadingText').textContent = msgs[mi];
+  }, 1200);
+
+  setTimeout(() => {
+    clearInterval(loadInterval);
+    showResult(input);
+  }, 3600);
+}
+
+function showResult(input) {
+  const petData = BEHAVIOR_DATA[selectedPet];
+  let result = null;
+
+  // Match
+  for (const r of petData.results) {
+    if (r.trigger.some(t => input.includes(t))) {
+      result = r; break;
+    }
+  }
+  if (!result) result = petData.results[0]; // default
+
+  // Populate
+  document.getElementById('resEmoji').textContent = result.emoji;
+  document.getElementById('resEmotion').textContent = result.emotion;
+  document.getElementById('resConfidence').textContent = '신뢰도 ' + result.bars[Object.keys(result.bars)[0]] + '%';
+  document.getElementById('resSpeech').textContent = result.speech;
+  document.getElementById('resSpeechSub').textContent = '— 아미 AI 감정 통역 (신뢰도 ' + result.bars[Object.keys(result.bars)[0]] + '%)';
+
+  // Bars
+  const barsHTML = Object.entries(result.bars).map(([k, v]) => {
+    const color = v > 70 ? result.color : v > 40 ? 'var(--accent5)' : 'var(--text-muted)';
+    return `<div class="ebar">
+      <span class="ebar-label">${k}</span>
+      <div class="ebar-track"><div class="ebar-fill" style="background: ${color};" data-width="${v}%"></div></div>
+      <span class="ebar-value" style="color: ${color};">${v}%</span>
+    </div>`;
+  }).join('');
+  document.getElementById('emotionBars').innerHTML = barsHTML;
+
+  // Advice
+  const advHTML = result.advice.map(a =>
+    `<div class="advice-card">
+      <span class="advice-icon">${a.icon}</span>
+      <div class="advice-title">${a.title}</div>
+      <div class="advice-desc">${a.desc}</div>
+    </div>`
+  ).join('');
+  document.getElementById('adviceGrid').innerHTML = advHTML;
+
+  // Show
+  document.getElementById('loadingArea').classList.remove('active');
+  document.getElementById('resultArea').classList.add('active');
+
+  // Animate bars
+  setTimeout(() => {
+    document.querySelectorAll('.ebar-fill').forEach(bar => {
+      bar.style.width = bar.dataset.width;
+    });
+  }, 100);
+
+  // Add to history
+  addToHistory(result);
+}
+
+function addToHistory(result) {
+  const petEmojis = { dog: '🐕', cat: '🐱', rabbit: '🐰', bird: '🐦', hamster: '🐹' };
+  const petNames = { dog: '강아지', cat: '고양이', rabbit: '토끼', bird: '새', hamster: '햄스터' };
+  const topEmotion = Object.entries(result.bars).sort((a,b) => b[1]-a[1])[0];
+
+  const item = document.createElement('div');
+  item.className = 'timeline-item';
+  item.style.opacity = '0'; item.style.transform = 'translateX(-20px)';
+  item.innerHTML = `
+    <span class="timeline-emoji">${result.emoji}</span>
+    <div class="timeline-content">
+      <div class="timeline-emotion">${result.emotion} <span style="color: ${result.color}; font-size: 12px;">${topEmotion[1]}%</span></div>
+      <div class="timeline-time">${petEmojis[selectedPet]} ${petNames[selectedPet]} · 방금 전</div>
+      <div class="timeline-translation">${result.speech.substring(0, 30)}...</div>
+    </div>
+  `;
+  const timeline = document.getElementById('historyTimeline');
+  timeline.insertBefore(item, timeline.firstChild);
+  setTimeout(() => { item.style.transition = 'all 0.5s'; item.style.opacity = '1'; item.style.transform = 'translateX(0)'; }, 50);
+}
+
+function resetAnalysis() {
+  document.getElementById('resultArea').classList.remove('active');
+  document.getElementById('inputSection').style.display = 'block';
+  document.getElementById('behaviorInput').value = '';
+  selectedBehaviors = [];
+  document.querySelectorAll('.bchip').forEach(b => b.classList.remove('selected'));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Init
+loadBehaviorChips();
+</script>
+
+</body>
+</html>

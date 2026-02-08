@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사용 설명서 - PetCTT</title>
+<style>
+:root {
+  --bg-dark: #0a0e1a;
+  --bg-card: #141828;
+  --bg-card2: #1a2035;
+  --accent: #00e5ff;
+  --accent2: #ff6b9d;
+  --accent3: #7c4dff;
+  --accent4: #00e676;
+  --accent5: #ffab40;
+  --text: #e0e0e0;
+  --text-muted: #8892b0;
+  --gradient1: linear-gradient(135deg, #00e5ff, #7c4dff);
+  --gradient2: linear-gradient(135deg, #ff6b9d, #ff8a65);
+  --gradient3: linear-gradient(135deg, #00e676, #00e5ff);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-dark);
+  color: var(--text);
+  line-height: 1.8;
+  min-height: 100vh;
+}
+
+/* Top Bar */
+.top-bar {
+  background: rgba(10, 14, 26, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo-link { text-decoration: none; display: flex; align-items: center; gap: 10px; }
+.logo-text {
+  font-size: 24px; font-weight: 800;
+  background: var(--gradient1);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.back-btn {
+  color: var(--accent); text-decoration: none; font-size: 14px;
+  padding: 8px 16px; border: 1px solid rgba(0,229,255,0.3);
+  border-radius: 20px; transition: all 0.3s;
+}
+.back-btn:hover { background: rgba(0,229,255,0.1); border-color: var(--accent); }
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 60px 24px 40px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -100px; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(0,229,255,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-emoji { font-size: 64px; margin-bottom: 16px; display: block; }
+.hero h1 {
+  font-size: 36px; font-weight: 800;
+  background: var(--gradient1);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 12px;
+}
+.hero p { color: var(--text-muted); font-size: 16px; max-width: 500px; margin: 0 auto; }
+
+/* Quick Nav */
+.quick-nav {
+  max-width: 900px; margin: 0 auto 50px;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+}
+.nav-chip {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 16px 10px;
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  text-decoration: none; color: var(--text);
+  font-size: 13px; font-weight: 600;
+  transition: all 0.3s;
+  text-align: center;
+}
+.nav-chip:hover {
+  border-color: rgba(0,229,255,0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,229,255,0.08);
+}
+.nav-chip .chip-icon { font-size: 28px; }
+
+/* Container */
+.container { max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+
+/* Section */
+.guide-section {
+  margin-bottom: 40px;
+  scroll-margin-top: 80px;
+}
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.section-icon {
+  width: 48px; height: 48px;
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.section-header h2 {
+  font-size: 24px; font-weight: 800;
+}
+.section-header .section-badge {
+  font-size: 11px; font-weight: 700;
+  padding: 3px 10px; border-radius: 10px;
+  margin-left: 8px;
+}
+
+/* Step Cards */
+.step-list { display: flex; flex-direction: column; gap: 16px; }
+.step-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px;
+  padding: 24px 28px;
+  display: flex; gap: 20px;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.step-card:hover {
+  border-color: rgba(0,229,255,0.15);
+  transform: translateX(4px);
+}
+.step-num {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+.step-content { flex: 1; }
+.step-content h3 {
+  font-size: 16px; font-weight: 700;
+  color: var(--text); margin-bottom: 6px;
+}
+.step-content p {
+  color: var(--text-muted); font-size: 14px; line-height: 1.7;
+}
+.step-tip {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: rgba(0,229,255,0.05);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+  font-size: 13px;
+  color: var(--accent);
+}
+
+/* Feature Grid */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px;
+  padding: 24px;
+  transition: all 0.3s;
+}
+.feature-card:hover {
+  border-color: rgba(0,229,255,0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+}
+.feature-card .f-icon { font-size: 32px; margin-bottom: 12px; display: block; }
+.feature-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.feature-card p { color: var(--text-muted); font-size: 13.5px; line-height: 1.7; }
+.feature-card .status {
+  display: inline-block; margin-top: 12px;
+  padding: 4px 12px; border-radius: 10px;
+  font-size: 11px; font-weight: 700;
+}
+.status-live { background: rgba(0,230,118,0.15); color: #00e676; }
+.status-soon { background: rgba(255,171,64,0.15); color: #ffab40; }
+.status-dev { background: rgba(124,77,255,0.15); color: #7c4dff; }
+
+/* FAQ */
+.faq-item {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+.faq-item:hover { border-color: rgba(0,229,255,0.12); }
+.faq-q {
+  padding: 20px 24px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between;
+  font-weight: 700; font-size: 15px;
+  user-select: none;
+  transition: background 0.3s;
+}
+.faq-q:hover { background: rgba(255,255,255,0.02); }
+.faq-q .q-icon { color: var(--accent); font-size: 18px; margin-right: 12px; }
+.faq-q .arrow {
+  color: var(--text-muted); font-size: 14px;
+  transition: transform 0.3s;
+}
+.faq-a {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.3s;
+  padding: 0 24px;
+}
+.faq-a.open {
+  max-height: 300px;
+  padding: 0 24px 20px;
+}
+.faq-a p { color: var(--text-muted); font-size: 14px; line-height: 1.8; }
+.faq-item.active .arrow { transform: rotate(180deg); }
+
+/* Ami Character */
+.ami-section {
+  background: var(--bg-card);
+  border: 1px solid rgba(0,229,255,0.1);
+  border-radius: 24px;
+  padding: 36px;
+  text-align: center;
+  margin-top: 40px;
+  position: relative;
+  overflow: hidden;
+}
+.ami-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--gradient1);
+}
+.ami-avatar {
+  font-size: 72px;
+  margin-bottom: 16px;
+  display: block;
+  animation: amiBounce 3s ease-in-out infinite;
+}
+@keyframes amiBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.ami-section h3 {
+  font-size: 22px; font-weight: 800;
+  background: var(--gradient1);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+.ami-section p { color: var(--text-muted); font-size: 14.5px; max-width: 500px; margin: 0 auto; }
+.ami-cta {
+  display: inline-block; margin-top: 20px;
+  padding: 12px 28px;
+  background: var(--gradient1);
+  color: #fff; font-weight: 700; font-size: 15px;
+  border-radius: 14px;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+.ami-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,229,255,0.25);
+}
+
+.footer {
+  text-align: center; padding: 30px;
+  color: var(--text-muted); font-size: 13px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 50px;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+@media (max-width: 600px) {
+  .hero h1 { font-size: 28px; }
+  .hero-emoji { font-size: 48px; }
+  .step-card { flex-direction: column; gap: 12px; }
+  .quick-nav { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="index.html" class="logo-link">
+    <span class="logo-text">🐾 PetCTT</span>
+  </a>
+  <a href="index.html" class="back-btn">← 홈으로 돌아가기</a>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <span class="hero-emoji">📖</span>
+  <h1>PetCTT 사용 설명서</h1>
+  <p>반려동물과의 소통, AI가 도와드립니다!<br>PetCTT의 모든 기능을 쉽게 알아보세요.</p>
+</div>
+
+<!-- Quick Navigation -->
+<div class="quick-nav">
+  <a href="#start" class="nav-chip">
+    <span class="chip-icon">🚀</span>시작하기
+  </a>
+  <a href="#ai" class="nav-chip">
+    <span class="chip-icon">🤖</span>AI 통역
+  </a>
+  <a href="#gps" class="nav-chip">
+    <span class="chip-icon">📍</span>GPS 추적
+  </a>
+  <a href="#market" class="nav-chip">
+    <span class="chip-icon">🛒</span>구름장터
+  </a>
+  <a href="#coupon" class="nav-chip">
+    <span class="chip-icon">🎫</span>쿠폰톡톡
+  </a>
+  <a href="#broadcast" class="nav-chip">
+    <span class="chip-icon">📺</span>방송국
+  </a>
+  <a href="#faq" class="nav-chip">
+    <span class="chip-icon">❓</span>FAQ
+  </a>
+</div>
+
+<div class="container">
+
+  <!-- 1. Getting Started -->
+  <div class="guide-section" id="start">
+    <div class="section-header">
+      <div class="section-icon" style="background: rgba(0,229,255,0.12);">🚀</div>
+      <div>
+        <h2 style="color: var(--accent);">시작하기</h2>
+      </div>
+    </div>
+    <div class="step-list">
+      <div class="step-card">
+        <div class="step-num" style="background: var(--gradient1);">1</div>
+        <div class="step-content">
+          <h3>회원가입 & 로그인</h3>
+          <p>PetCTT는 간편한 소셜 로그인을 지원합니다. Google, Kakao, Naver 계정으로 3초 만에 가입하세요!</p>
+          <div class="step-tip">💡 소셜 로그인으로 별도 비밀번호 없이 안전하게 이용 가능!</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num" style="background: var(--gradient1);">2</div>
+        <div class="step-content">
+          <h3>반려동물 프로필 등록</h3>
+          <p>반려동물의 이름, 종류(강아지/고양이/토끼 등), 나이, 사진을 등록하세요. AI가 더 정확한 감정 분석을 제공합니다.</p>
+          <div class="step-tip">📸 사진을 등록하면 AI 인식 정확도가 크게 향상됩니다!</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num" style="background: var(--gradient1);">3</div>
+        <div class="step-content">
+          <h3>아미(Ami)와 대화 시작</h3>
+          <p>홈 화면의 아미 캐릭터를 터치하면 AI 통역 서비스가 시작됩니다. 반려동물의 행동이나 소리를 아미에게 알려주세요!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. AI Translation -->
+  <div class="guide-section" id="ai">
+    <div class="section-header">
+      <div class="section-icon" style="background: rgba(124,77,255,0.12);">🤖</div>
+      <div>
+        <h2 style="color: var(--accent3);">AI 감정분석 & 통역</h2>
+        <span class="section-badge" style="background: rgba(0,230,118,0.15); color: #00e676;">LIVE</span>
+      </div>
+    </div>
+    <div class="step-list">
+      <div class="step-card">
+        <div class="step-num" style="background: linear-gradient(135deg, #7c4dff, #e040fb);">1</div>
+        <div class="step-content">
+          <h3>행동 입력하기</h3>
+          <p>반려동물의 현재 행동을 텍스트나 음성으로 아미에게 알려주세요. 예: "우리 강아지가 꼬리를 흔들면서 짖어요", "고양이가 가르릉 소리를 내요"</p>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num" style="background: linear-gradient(135deg, #7c4dff, #e040fb);">2</div>
+        <div class="step-content">
+          <h3>AI 감정 분석 결과 확인</h3>
+          <p>아미가 반려동물의 감정 상태를 분석해서 알려줍니다. 기쁨, 불안, 배고픔, 외로움 등 다양한 감정을 파악할 수 있어요.</p>
+          <div class="step-tip">🎯 감정 분석은 통계적 모델 기반이며, 수의사 진단을 대체하지 않습니다.</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num" style="background: linear-gradient(135deg, #7c4dff, #e040fb);">3</div>
+        <div class="step-content">
+          <h3>맞춤 조언 받기</h3>
+          <p>분석 결과와 함께 반려동물과의 소통 방법, 케어 팁 등을 아미가 알려드립니다. 아미의 TTS 음성으로 편하게 들을 수도 있어요!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. GPS Tracking -->
+  <div class="guide-section" id="gps">
+    <div class="section-header">
+      <div class="section-icon" style="background: rgba(0,230,118,0.12);">📍</div>
+      <div>
+        <h2 style="color: var(--accent4);">GPS 위치 추적</h2>
+        <span class="section-badge" style="background: rgba(0,230,118,0.15); color: #00e676;">LIVE</span>
+      </div>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="f-icon">🗺️</span>
+        <h3>실시간 위치 확인</h3>
+        <p>지도에서 반려동물의 현재 위치를 실시간으로 확인하세요. 산책 중에도 안심할 수 있습니다.</p>
+      </div>
+      <div class="feature-card">
+        <span class="f-icon">🚨</span>
+        <h3>안심 구역 설정</h3>
+        <p>집, 공원 등 안전 구역을 설정하면 반려동물이 구역을 벗어날 때 즉시 알림을 받을 수 있습니다.</p>
+      </div>
+      <div class="feature-card">
+        <span class="f-icon">📊</span>
+        <h3>이동 기록</h3>
+        <p>반려동물의 하루 이동 경로와 활동량을 기록하고 확인할 수 있습니다. 건강 관리에 활용하세요!</p>
+      </div>
+      <div class="feature-card">
+        <span class="f-icon">🔍</span>
+        <h3>미아 찾기</h3>
+        <p>반려동물을 잃어버렸을 때 마지막 위치와 이동 경로를 확인하고, 주변에 도움을 요청할 수 있습니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Cloud Market -->
+  <div class="guide-section" id="market">
+    <div class="section-header">
+      <div class="section-icon" style="background: rgba(255,107,157,0.12);">🛒</div>
+      <div>
+        <h2 style="color: var(--accent2);">구름장터</h2>
+        <span class="section-badge status-soon">Coming Soon</span>
+      </div>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="f-icon">🏪</span>
+        <h3>반려용품 마켓</h3>
+        <p>사료, 간식, 장난감, 건강용품 등 반려동물에게 필요한 모든 것을 한 곳에서! 상생 공존 마켓 철학으로 운영됩니다.</p>
+        <span class="status status-soon">개발 중 35%</span>
+      </div>
+      <div class="feature-card">
+        <span class="f-icon">🤝</span>
+        <h3>상생 공존 마켓</h3>
+        <p>소상공인과 함께 성장하는 공정한 플랫폼. 하림 펫푸드 등 신뢰할 수 있는 파트너와 협력합니다.</p>
+        <span class="status status-soon">개발 중 35%</span>
+      </div>
+      <div class="feature-card">
+        <span class="f-icon">📦</span>
+        <h3>중고 거래</h3>
+        <p>사용하지 않는 반려용품을 이웃에게 합리적인 가격에 나눠보세요. 위치 기반으로 가까운 거래를 추천합니다.</p>
+        <span class="status status-dev">기획 중</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. CouponTokTok -->
+  <div class="guide-section" id="coupon">
+    <div class="section-header">
+      <div class="section-icon" style="background: rgba(255,171,64,0.12);">🎫</div>
+      <div>
+        <h2 style="color: var(--accent5);">쿠폰톡톡</h2>
+        <span class="section-badge status-soon">Coming Soon</span>
+      </div>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="f-icon">🎮</span>
+        <h3>게임으로 쿠폰 획득</h3>
+        <p>재미있는 미니게임을 플레이하고 할인 쿠폰을 획득하세요! AR 요소와 함께하는 새로운 쇼핑 경험.</p>
+        <span class="status status-soon">개발 중 25%</span>
+      </div>
+      <div class="feature-card">
+        <span class="f-icon">💰</span>
+        <h3>할인쿠폰 마켓</h3>
+        <p>동물병원, 펫샵, 미용실 등 반려동물 관련 업체의 특별 할인 쿠폰을 모아보세요.</p>
+        <span class="status status-soon">개발 중 25%</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Broadcasting -->
+  <div class="guide-section" id="broadcast">
+    <div class="section-header">
+      <div class="section-icon" style="background: rgba(255,61,0,0.12);">📺</div>
+      <div>
+        <h2 style="color: #ff6e40;">방송국</h2>
+        <span class="section-badge status-soon">Coming Soon</span>
+      </div>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="f-icon">🔴</span>
+        <h3>라이브 스트리밍</h3>
+        <p>반려동물의 일상을 라이브로 공유하세요! 귀여운 순간을 실시간으로 함께 나눌 수 있습니다.</p>
+        <span class="status status-soon">개발 중 20%</span>
+      </div>
+      <div class="feature-card">
+        <span class="f-icon">🏆</span>
+        <h3>펫 챌린지</h3>
+        <p>매주 진행되는 다양한 반려동물 챌린지에 참여하고 상품도 받아보세요!</p>
+        <span class="status status-dev">기획 중</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="guide-section" id="faq">
+    <div class="section-header">
+      <div class="section-icon" style="background: rgba(0,229,255,0.12);">❓</div>
+      <div><h2 style="color: var(--accent);">자주 묻는 질문 (FAQ)</h2></div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        <span><span class="q-icon">Q.</span> PetCTT는 무료인가요?</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>기본 AI 감정분석과 GPS 추적 기능은 무료로 이용 가능합니다. 프리미엄 기능(고급 분석, 무제한 추적 등)은 추후 구독 모델로 제공될 예정입니다.</p>
+      </div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        <span><span class="q-icon">Q.</span> 어떤 반려동물을 지원하나요?</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>현재 강아지, 고양이, 토끼를 중심으로 AI 분석을 지원합니다. 향후 햄스터, 앵무새, 파충류 등으로 확대할 예정입니다!</p>
+      </div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        <span><span class="q-icon">Q.</span> AI 분석은 얼마나 정확한가요?</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>PetCTT의 AI는 대규모 반려동물 행동 데이터를 기반으로 학습되어 높은 정확도를 자랑합니다. 다만 AI 분석은 참고용이며, 건강 관련 문제는 반드시 수의사와 상담하시기 바랍니다.</p>
+      </div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        <span><span class="q-icon">Q.</span> GPS 추적에 별도 기기가 필요한가요?</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>기본적인 위치 공유는 스마트폰만으로 가능합니다. 더 정확한 실시간 추적을 위해 향후 전용 GPS 디바이스도 지원할 예정입니다.</p>
+      </div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        <span><span class="q-icon">Q.</span> 아미(Ami)는 누구인가요?</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>아미는 PetCTT의 AI 캐릭터입니다! 반려동물의 감정과 행동을 분석하고 통역해주는 친절한 AI 친구예요. 음성(TTS)으로도 대화할 수 있습니다. 🐾</p>
+      </div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">
+        <span><span class="q-icon">Q.</span> 개인정보는 안전한가요?</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="faq-a">
+        <p>PetCTT는 개인정보 보호법을 철저히 준수하며, 모든 데이터는 암호화되어 안전하게 저장됩니다. 자세한 내용은 <a href="privacy.html" style="color: var(--accent);">개인정보처리방침</a>을 확인해주세요.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== AI 프로세스 시각화 ===== -->
+  <div class="guide-section" id="process">
+    <div class="section-header">
+      <div class="section-icon" style="background: rgba(255,107,157,0.12);">🔄</div>
+      <div>
+        <h2>PetCTT 작동 원리</h2>
+        <span class="section-badge" style="background: rgba(255,107,157,0.15); color: #ff6b9d;">FLOW</span>
+      </div>
+    </div>
+
+    <!-- 프로세스 플로우 다이어그램 -->
+    <div style="display: flex; flex-direction: column; gap: 0; align-items: center; margin: 20px 0;">
+      <!-- Step 1: 입력 -->
+      <div style="background: rgba(0,229,255,0.08); border: 1px solid rgba(0,229,255,0.2); border-radius: 16px; padding: 20px; width: 100%; text-align: center;">
+        <div style="font-size: 1.8rem; margin-bottom: 8px;">🎤📷</div>
+        <div style="font-weight: 700; color: #00e5ff; font-size: 1rem;">1단계: 입력</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
+          음성 · 카메라 · 텍스트 · 센서 데이터
+        </div>
+      </div>
+
+      <div style="font-size: 1.5rem; color: var(--text-muted); padding: 4px 0;">⬇️</div>
+
+      <!-- Step 2: AI 처리 -->
+      <div style="background: linear-gradient(135deg, rgba(124,77,255,0.1), rgba(0,229,255,0.1)); border: 1px solid rgba(124,77,255,0.25); border-radius: 16px; padding: 20px; width: 100%; text-align: center;">
+        <div style="font-size: 1.8rem; margin-bottom: 8px;">🧠✨</div>
+        <div style="font-weight: 700; color: #a78bfa; font-size: 1rem;">2단계: AI 멀티모달 해석</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
+          감정 분석 · 행동 패턴 인식 · 음성 인식 · 자연어 처리
+        </div>
+      </div>
+
+      <div style="font-size: 1.5rem; color: var(--text-muted); padding: 4px 0;">⬇️</div>
+
+      <!-- Step 3: 실시간 처리 -->
+      <div style="background: rgba(255,107,157,0.08); border: 1px solid rgba(255,107,157,0.2); border-radius: 16px; padding: 20px; width: 100%; text-align: center;">
+        <div style="font-size: 1.8rem; margin-bottom: 8px;">⚡📝</div>
+        <div style="font-weight: 700; color: #ff6b9d; font-size: 1rem;">3단계: 실시간 자막 · 요약 · 추론</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
+          양방향 대화 생성 · 실시간 자막 · 감정 리포트
+        </div>
+      </div>
+
+      <div style="font-size: 1.5rem; color: var(--text-muted); padding: 4px 0;">⬇️</div>
+
+      <!-- Step 4: 출력 -->
+      <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); border-radius: 16px; padding: 20px; width: 100%; text-align: center;">
+        <div style="font-size: 1.8rem; margin-bottom: 8px;">🔊🐾</div>
+        <div style="font-weight: 700; color: #34d399; font-size: 1rem;">4단계: 출력</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 6px;">
+          TTS 음성 통역 · 화면 자막 · 건강 리포트 · GPS 알림
+        </div>
+      </div>
+    </div>
+
+    <!-- AI 글래스 확장 -->
+    <div style="background: linear-gradient(135deg, rgba(0,229,255,0.06), rgba(124,77,255,0.06)); border: 1px solid rgba(0,229,255,0.15); border-radius: 14px; padding: 18px; margin-top: 16px; text-align: center;">
+      <div style="font-size: 0.9rem; font-weight: 700; color: #00e5ff; margin-bottom: 6px;">🕶️ AI 글래스 시대 확장</div>
+      <div style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.6;">
+        현재 웹 기반 → 향후 AI 글래스(Ray-Ban Meta, Rokid 등) 웨어러블로 확장<br>
+        실시간 자막 + 대화 + 추론이 안경에서 바로 동작하는 미래 🚀
+      </div>
+    </div>
+  </div>
+
+  <!-- Ami Section -->
+  <div class="ami-section">
+    <span class="ami-avatar">🐾</span>
+    <h3>아미와 함께 시작하세요!</h3>
+    <p>반려동물과의 소통이 어렵다면, 아미가 도와드릴게요.<br>지금 바로 PetCTT를 시작해보세요!</p>
+    <a href="index.html" class="ami-cta">🚀 PetCTT 시작하기</a>
+  </div>
+
+  <div class="footer">
+  © 2026 <a href="index.html">PetCTT Pro</a> - 반려동물 통역 + 위치 추적 | 주식회사 발로레<br>
+  <a href="guide.html" style="margin: 0 6px;">📖 사용설명서</a> ·
+  <a href="broadcast.html" style="margin: 0 6px;">📡 방송국</a> ·
+  <a href="market.html" style="margin: 0 6px;">☁️ 구름장터</a> ·
+  <a href="coupon.html" style="margin: 0 6px;">🎮 쿠폰톡톡</a> ·
+  <a href="ami.html" style="margin: 0 6px;">🐾 아미</a> ·
+  <a href="pricing.html" style="margin: 0 6px;">💎 요금제</a><br>
+  <a href="privacy.html" style="margin: 0 6px;">개인정보처리방침</a> ·
+  <a href="terms.html" style="margin: 0 6px;">이용약관</a> ·
+  <a href="contact.html" style="margin: 0 6px;">문의하기</a>
+</div>
+</div>
+
+<script>
+function toggleFaq(el) {
+  const wasActive = el.classList.contains('active');
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.classList.remove('active');
+    item.querySelector('.faq-a').classList.remove('open');
+  });
+  if (!wasActive) {
+    el.classList.add('active');
+    el.querySelector('.faq-a').classList.add('open');
+  }
+}
+</script>
+
+</body>
+</html>

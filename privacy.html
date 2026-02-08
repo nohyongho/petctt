@@ -1,161 +1,278 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>개인정보처리방침 - PetCTT</title>
-
-  <!-- Google Analytics (GA4) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R4DBR11KDR"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-R4DBR11KDR');
-  </script>
-
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #0b1220;
-      --card: #0f1b33;
-      --text: #e8f0ff;
-      --muted: #9fb3d9;
-      --primary: #37d67a;
-      --line: rgba(255,255,255,.10);
-    }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.8;
-      padding: 40px 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    h1 {
-      font-size: 28px;
-      margin-bottom: 10px;
-      color: var(--primary);
-    }
-    .update-date {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 40px;
-    }
-    h2 {
-      font-size: 20px;
-      margin: 32px 0 16px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--line);
-      color: var(--primary);
-    }
-    p, li {
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-    ul {
-      padding-left: 24px;
-      margin-bottom: 16px;
-    }
-    a {
-      color: var(--primary);
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    .back-link {
-      display: inline-block;
-      margin-top: 40px;
-      padding: 12px 24px;
-      background: rgba(55,214,122,.15);
-      border: 1px solid rgba(55,214,122,.3);
-      border-radius: 8px;
-      color: var(--primary);
-      font-weight: 600;
-    }
-    .back-link:hover {
-      background: rgba(55,214,122,.25);
-      text-decoration: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개인정보처리방침 - PetCTT</title>
+<style>
+:root {
+  --bg-dark: #0a0e1a;
+  --bg-card: #141828;
+  --accent: #00e5ff;
+  --accent2: #ff6b9d;
+  --text: #e0e0e0;
+  --text-muted: #8892b0;
+  --gradient1: linear-gradient(135deg, #00e5ff, #7c4dff);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-dark);
+  color: var(--text);
+  line-height: 1.8;
+  min-height: 100vh;
+}
+.top-bar {
+  background: rgba(10, 14, 26, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo-link {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-text {
+  font-size: 24px;
+  font-weight: 800;
+  background: var(--gradient1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+.back-btn {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 8px 16px;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 20px;
+  transition: all 0.3s;
+}
+.back-btn:hover {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: var(--accent);
+}
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+.page-title {
+  font-size: 32px;
+  font-weight: 800;
+  background: var(--gradient1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+.page-subtitle {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.section {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 20px;
+  transition: border-color 0.3s;
+}
+.section:hover {
+  border-color: rgba(0, 229, 255, 0.15);
+}
+.section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section h2 .num {
+  background: rgba(0, 229, 255, 0.15);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+.section p, .section li {
+  color: var(--text-muted);
+  font-size: 14.5px;
+  line-height: 1.9;
+}
+.section ul {
+  list-style: none;
+  padding-left: 0;
+}
+.section ul li {
+  padding: 4px 0 4px 20px;
+  position: relative;
+}
+.section ul li::before {
+  content: '•';
+  color: var(--accent);
+  position: absolute;
+  left: 4px;
+  font-weight: bold;
+}
+table.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+table.info-table th, table.info-table td {
+  padding: 10px 14px;
+  font-size: 13.5px;
+  text-align: left;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+table.info-table th {
+  background: rgba(0, 229, 255, 0.08);
+  color: var(--accent);
+  font-weight: 600;
+  white-space: nowrap;
+}
+table.info-table td {
+  color: var(--text-muted);
+}
+.footer {
+  text-align: center;
+  padding: 30px;
+  color: var(--text-muted);
+  font-size: 13px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 40px;
+}
+.footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>🔒 개인정보처리방침</h1>
-    <p class="update-date">시행일: 2026년 1월 24일 | 최종 수정: 2026년 1월 24일</p>
 
-    <p>PetCTT(이하 "서비스")는 이용자의 개인정보를 소중히 여기며, 관련 법령을 준수합니다. 본 방침을 통해 어떤 정보를 수집하고 어떻게 활용하는지 안내드립니다.</p>
+<div class="top-bar">
+  <a href="index.html" class="logo-link">
+    <span class="logo-text">🐾 PetCTT</span>
+  </a>
+  <a href="index.html" class="back-btn">← 홈으로 돌아가기</a>
+</div>
 
-    <h2>1. 수집하는 개인정보</h2>
-    <p>서비스 이용 과정에서 아래 정보가 수집될 수 있습니다:</p>
-    <ul>
-      <li><strong>소셜 로그인 시:</strong> 이메일 주소, 이름(닉네임), 프로필 사진 URL</li>
-      <li><strong>자동 수집:</strong> 기기 정보, 브라우저 종류, 접속 IP, 쿠키</li>
-      <li><strong>서비스 이용 기록:</strong> 반려동물 음성 분석 데이터(로컬 저장), 이용 시간</li>
-    </ul>
+<div class="container">
+  <h1 class="page-title">🔒 개인정보처리방침</h1>
+  <p class="page-subtitle">시행일: 2025년 2월 8일 | 주식회사 발로레 (Valore Inc.)</p>
 
-    <h2>2. 개인정보 이용 목적</h2>
-    <ul>
-      <li>서비스 제공 및 회원 관리</li>
-      <li>반려동물 음성 분석 및 건강 체크 기능 제공</li>
-      <li>서비스 개선 및 신규 기능 개발</li>
-      <li>맞춤형 광고 제공 (Google AdSense)</li>
-      <li>고객 문의 응대</li>
-    </ul>
-
-    <h2>3. 개인정보 보관 기간</h2>
-    <p>원칙적으로 수집 목적이 달성되면 지체 없이 파기합니다. 단, 법령에 따라 보존이 필요한 경우 해당 기간 동안 보관합니다.</p>
-    <ul>
-      <li>계약 또는 청약철회 기록: 5년</li>
-      <li>소비자 불만 또는 분쟁처리 기록: 3년</li>
-      <li>로그인 기록: 3개월</li>
-    </ul>
-
-    <h2>4. 제3자 제공</h2>
-    <p>PetCTT는 원칙적으로 이용자의 동의 없이 개인정보를 외부에 제공하지 않습니다. 다만, 아래의 경우는 예외입니다:</p>
-    <ul>
-      <li>이용자가 사전에 동의한 경우</li>
-      <li>법령에 의해 요구되는 경우</li>
-    </ul>
-
-    <h2>5. 처리위탁</h2>
-    <p>서비스 운영을 위해 아래 업체에 개인정보 처리를 위탁할 수 있습니다:</p>
-    <ul>
-      <li><strong>Cloudflare:</strong> 웹 호스팅 및 CDN 서비스</li>
-      <li><strong>Supabase:</strong> 회원 인증 및 데이터베이스</li>
-      <li><strong>Google:</strong> 애널리틱스, 광고(AdSense)</li>
-    </ul>
-
-    <h2>6. 쿠키 및 광고</h2>
-    <p>PetCTT는 Google AdSense를 통해 맞춤형 광고를 제공합니다. 이 과정에서 쿠키가 사용될 수 있으며, 브라우저 설정에서 쿠키 사용을 거부할 수 있습니다.</p>
-    <ul>
-      <li>쿠키 거부 시 일부 서비스 이용에 제한이 있을 수 있습니다.</li>
-      <li>Google의 광고 개인정보 보호 정책: <a href="https://policies.google.com/privacy" target="_blank">policies.google.com/privacy</a></li>
-    </ul>
-
-    <h2>7. 이용자의 권리</h2>
-    <p>이용자는 언제든지 아래의 권리를 행사할 수 있습니다:</p>
-    <ul>
-      <li>개인정보 열람, 정정, 삭제 요청</li>
-      <li>처리 정지 요청</li>
-      <li>동의 철회</li>
-    </ul>
-    <p>권리 행사는 문의하기 페이지를 통해 요청해 주세요.</p>
-
-    <h2>8. 개인정보 보호책임자</h2>
-    <ul>
-      <li><strong>담당:</strong> PetCTT 운영팀</li>
-      <li><strong>이메일:</strong> [문의 이메일 입력]</li>
-    </ul>
-
-    <h2>9. 방침 변경</h2>
-    <p>본 개인정보처리방침이 변경되는 경우, 시행일 7일 전부터 서비스 내 공지사항을 통해 안내드립니다.</p>
-
-    <a href="PetCTT_index.html" class="back-link">← PetCTT로 돌아가기</a>
+  <div class="section">
+    <h2><span class="num">제1조</span> 총칙</h2>
+    <p>주식회사 발로레(이하 "회사")는 「개인정보 보호법」 제30조에 따라 정보주체의 개인정보를 보호하고 이와 관련한 고충을 신속하고 원활하게 처리할 수 있도록 하기 위하여 다음과 같이 개인정보 처리방침을 수립·공개합니다.</p>
+    <p style="margin-top:12px;">본 방침은 PetCTT(펫시티티) 서비스 및 관련 웹사이트(petctt.com)에 적용됩니다.</p>
   </div>
+
+  <div class="section">
+    <h2><span class="num">제2조</span> 수집하는 개인정보 항목</h2>
+    <p>회사는 서비스 제공을 위해 아래의 개인정보를 수집합니다.</p>
+    <table class="info-table">
+      <tr><th>구분</th><th>수집항목</th><th>수집목적</th></tr>
+      <tr><td>필수</td><td>이메일, 닉네임, 프로필이미지</td><td>회원가입 및 서비스 이용</td></tr>
+      <tr><td>소셜로그인</td><td>소셜ID, 연동이메일</td><td>간편 로그인 (Google, Kakao, Naver)</td></tr>
+      <tr><td>반려동물 정보</td><td>이름, 종류, 나이, 사진</td><td>AI 감정 분석 및 통역 서비스</td></tr>
+      <tr><td>자동수집</td><td>IP주소, 접속로그, 기기정보</td><td>서비스 개선 및 보안</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제3조</span> 개인정보의 처리 목적</h2>
+    <ul>
+      <li>회원 가입 및 관리: 본인 확인, 서비스 부정이용 방지</li>
+      <li>서비스 제공: AI 반려동물 감정분석, 통역, GPS 추적 서비스</li>
+      <li>마케팅 및 광고: 이벤트 정보 및 신규 서비스 안내 (동의 시)</li>
+      <li>서비스 개선: 이용 통계 분석 및 서비스 품질 향상</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제4조</span> 개인정보의 보유 및 이용기간</h2>
+    <table class="info-table">
+      <tr><th>보유 정보</th><th>보유 기간</th><th>근거</th></tr>
+      <tr><td>회원 정보</td><td>탈퇴 시까지</td><td>서비스 이용계약</td></tr>
+      <tr><td>접속 로그</td><td>3개월</td><td>통신비밀보호법</td></tr>
+      <tr><td>전자상거래 기록</td><td>5년</td><td>전자상거래법</td></tr>
+      <tr><td>소비자 불만 기록</td><td>3년</td><td>전자상거래법</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제5조</span> 개인정보의 제3자 제공</h2>
+    <p>회사는 원칙적으로 정보주체의 개인정보를 제3자에게 제공하지 않습니다. 다만, 다음의 경우에는 예외로 합니다.</p>
+    <ul>
+      <li>정보주체의 별도 동의가 있는 경우</li>
+      <li>법령에 의해 요구되는 경우</li>
+      <li>서비스 제공을 위해 필요한 경우 (제휴사 연동 등)</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제6조</span> 개인정보의 파기</h2>
+    <p>회사는 개인정보 보유기간의 경과, 처리목적 달성 등 개인정보가 불필요하게 되었을 때에는 지체없이 해당 개인정보를 파기합니다.</p>
+    <ul>
+      <li>전자적 파일: 기술적 방법을 이용하여 복구 불가능하도록 삭제</li>
+      <li>종이 문서: 분쇄기로 분쇄하거나 소각하여 파기</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제7조</span> 정보주체의 권리·의무</h2>
+    <ul>
+      <li>개인정보 열람, 정정, 삭제, 처리정지 요구 가능</li>
+      <li>권리 행사는 서면, 전자우편 등을 통해 가능</li>
+      <li>만 14세 미만 아동의 법정대리인은 아동의 개인정보에 대한 열람, 정정·삭제, 처리정지를 요구할 수 있음</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제8조</span> 개인정보 보호책임자</h2>
+    <table class="info-table">
+      <tr><th>구분</th><th>내용</th></tr>
+      <tr><td>회사명</td><td>주식회사 발로레 (Valore Inc.)</td></tr>
+      <tr><td>사업자등록번호</td><td>277-87-01333</td></tr>
+      <tr><td>담당부서</td><td>개인정보보호팀</td></tr>
+      <tr><td>이메일</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7c0c0e150a1d1f053c0c19081f0808521f1311">[email&#160;protected]</a></td></tr>
+      <tr><td>서비스</td><td>PetCTT - 반려동물 통역 + 위치 추적</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제9조</span> 개인정보 처리방침 변경</h2>
+    <p>이 개인정보처리방침은 2025년 2월 8일부터 적용되며, 법령·정책 또는 보안기술의 변경에 따라 내용의 추가·삭제·수정이 있을 시에는 변경사항의 시행 7일 전부터 PetCTT 웹사이트를 통하여 공지할 것입니다.</p>
+  </div>
+
+  <div class="footer">
+  © 2026 <a href="index.html">PetCTT Pro</a> - 반려동물 통역 + 위치 추적 | 주식회사 발로레<br>
+  <a href="guide.html" style="margin: 0 6px;">📖 사용설명서</a> ·
+  <a href="broadcast.html" style="margin: 0 6px;">📡 방송국</a> ·
+  <a href="market.html" style="margin: 0 6px;">☁️ 구름장터</a> ·
+  <a href="coupon.html" style="margin: 0 6px;">🎮 쿠폰톡톡</a> ·
+  <a href="ami.html" style="margin: 0 6px;">🐾 아미</a> ·
+  <a href="pricing.html" style="margin: 0 6px;">💎 요금제</a><br>
+  <a href="privacy.html" style="margin: 0 6px;">개인정보처리방침</a> ·
+  <a href="terms.html" style="margin: 0 6px;">이용약관</a> ·
+  <a href="contact.html" style="margin: 0 6px;">문의하기</a>
+</div>
+</div>
+
 </body>
 </html>

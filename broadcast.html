@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📡 PetCTT 방송국</title>
+<style>
+:root {
+  --bg-dark: #0a0e1a;
+  --bg-card: #141828;
+  --bg-card2: #1a2035;
+  --accent: #00e5ff;
+  --accent2: #ff6b9d;
+  --accent3: #7c4dff;
+  --accent4: #00e676;
+  --accent5: #ffab40;
+  --text: #e0e0e0;
+  --text-muted: #8892b0;
+  --gradient1: linear-gradient(135deg, #00e5ff, #7c4dff);
+  --gradient2: linear-gradient(135deg, #ff6b9d, #ff8a65);
+  --live-red: #ef4444;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-dark); color: var(--text); line-height: 1.7; min-height: 100vh;
+}
+
+/* Top Bar */
+.top-bar {
+  background: rgba(10,14,26,0.95); backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,229,255,0.1);
+  padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.logo-link { text-decoration: none; display: flex; align-items: center; gap: 10px; }
+.logo-text { font-size: 22px; font-weight: 800; background: var(--gradient1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.top-right { display: flex; align-items: center; gap: 12px; }
+.back-btn {
+  color: var(--accent); text-decoration: none; font-size: 13px;
+  padding: 7px 14px; border: 1px solid rgba(0,229,255,0.3); border-radius: 18px; transition: all 0.3s;
+}
+.back-btn:hover { background: rgba(0,229,255,0.1); }
+.live-indicator {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 14px; background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.3); border-radius: 18px;
+  font-size: 12px; font-weight: 700; color: var(--live-red);
+}
+.live-dot {
+  width: 8px; height: 8px; background: var(--live-red);
+  border-radius: 50%; animation: livePulse 1.5s ease-in-out infinite;
+}
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+
+/* Container */
+.container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+/* Hero Banner */
+.hero-banner {
+  background: var(--bg-card); border: 1px solid rgba(124,77,255,0.15);
+  border-radius: 24px; padding: 40px 36px; margin-bottom: 32px;
+  position: relative; overflow: hidden;
+}
+.hero-banner::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--gradient1);
+}
+.hero-banner::after {
+  content: ''; position: absolute; top: -100px; right: -100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(124,77,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-banner h1 {
+  font-size: 32px; font-weight: 900;
+  background: var(--gradient1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 8px; position: relative; z-index: 1;
+}
+.hero-banner p { color: var(--text-muted); font-size: 15px; position: relative; z-index: 1; }
+.hero-stats {
+  display: flex; gap: 24px; margin-top: 20px; position: relative; z-index: 1;
+}
+.hero-stat {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px; background: rgba(255,255,255,0.04);
+  border-radius: 12px; font-size: 13px;
+}
+.hero-stat .stat-num { font-weight: 800; color: var(--accent); }
+
+/* Tab Navigation */
+.tab-nav {
+  display: flex; gap: 6px; margin-bottom: 28px; overflow-x: auto;
+  padding-bottom: 4px; scrollbar-width: none;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-btn2 {
+  padding: 10px 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.06);
+  background: var(--bg-card); color: var(--text-muted); font-size: 13.5px;
+  font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: inherit;
+  white-space: nowrap;
+}
+.tab-btn2.active {
+  background: var(--gradient1); color: #fff; border-color: transparent;
+  box-shadow: 0 4px 15px rgba(0,229,255,0.2);
+}
+.tab-btn2:hover:not(.active) { border-color: rgba(0,229,255,0.2); }
+
+/* Tab Panels */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* === LIVE NOW Section === */
+.live-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;
+}
+.live-card {
+  background: var(--bg-card); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px; overflow: hidden; transition: all 0.3s; cursor: pointer;
+}
+.live-card:hover {
+  border-color: rgba(0,229,255,0.2); transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+.live-thumbnail {
+  position: relative; padding-top: 56.25%; background: var(--bg-card2);
+  overflow: hidden;
+}
+.live-thumbnail .thumb-bg {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 64px;
+}
+.live-badge {
+  position: absolute; top: 12px; left: 12px;
+  padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800;
+}
+.live-badge.on { background: var(--live-red); color: #fff; animation: livePulse 1.5s ease-in-out infinite; }
+.live-badge.soon { background: rgba(255,171,64,0.9); color: #1a1a2e; }
+.live-badge.replay { background: rgba(124,77,255,0.9); color: #fff; }
+.live-viewers {
+  position: absolute; top: 12px; right: 12px;
+  padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;
+  background: rgba(0,0,0,0.6); color: #fff; display: flex; align-items: center; gap: 4px;
+}
+.live-duration {
+  position: absolute; bottom: 8px; right: 8px;
+  padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;
+  background: rgba(0,0,0,0.7); color: #fff;
+}
+.live-info { padding: 16px 18px; }
+.live-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.live-meta {
+  display: flex; align-items: center; gap: 10px;
+  color: var(--text-muted); font-size: 12.5px;
+}
+.live-host-avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.live-tags { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.live-tag {
+  padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 600;
+  background: rgba(0,229,255,0.08); color: var(--accent);
+}
+
+/* === Member Channels === */
+.channel-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px;
+}
+.channel-card {
+  background: var(--bg-card); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px; padding: 28px; text-align: center; transition: all 0.3s; cursor: pointer;
+  position: relative; overflow: hidden;
+}
+.channel-card:hover {
+  transform: translateY(-4px); border-color: rgba(124,77,255,0.2);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+}
+.channel-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  opacity: 0; transition: opacity 0.3s;
+}
+.channel-card:hover::before { opacity: 1; }
+.channel-avatar {
+  width: 72px; height: 72px; border-radius: 20px; margin: 0 auto 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+}
+.channel-name { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+.channel-role { color: var(--text-muted); font-size: 13px; margin-bottom: 16px; }
+.channel-stats {
+  display: flex; justify-content: center; gap: 20px;
+  padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.06);
+}
+.channel-stat { text-align: center; }
+.channel-stat .num { font-size: 16px; font-weight: 800; }
+.channel-stat .label { font-size: 11px; color: var(--text-muted); }
+.channel-sub-btn {
+  display: inline-block; margin-top: 16px; padding: 8px 24px;
+  border-radius: 12px; border: none; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all 0.3s; font-family: inherit;
+}
+
+/* === Challenges === */
+.challenge-list { display: flex; flex-direction: column; gap: 16px; }
+.challenge-card {
+  background: var(--bg-card); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px; padding: 24px; display: flex; gap: 20px;
+  transition: all 0.3s; cursor: pointer;
+}
+.challenge-card:hover {
+  border-color: rgba(255,107,157,0.2); transform: translateX(4px);
+}
+.challenge-icon {
+  width: 64px; height: 64px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; flex-shrink: 0;
+}
+.challenge-content { flex: 1; }
+.challenge-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.challenge-desc { color: var(--text-muted); font-size: 13.5px; margin-bottom: 10px; }
+.challenge-footer { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.challenge-badge {
+  padding: 4px 12px; border-radius: 10px; font-size: 11px; font-weight: 700;
+}
+.badge-active { background: rgba(0,230,118,0.15); color: #00e676; }
+.badge-upcoming { background: rgba(255,171,64,0.15); color: #ffab40; }
+.badge-ended { background: rgba(136,146,176,0.15); color: var(--text-muted); }
+.challenge-prize {
+  font-size: 12px; font-weight: 700; color: var(--accent5);
+  display: flex; align-items: center; gap: 4px;
+}
+.challenge-participants {
+  font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px;
+}
+.progress-bar {
+  width: 100%; height: 6px; background: rgba(255,255,255,0.06);
+  border-radius: 3px; margin-top: 10px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; border-radius: 3px; transition: width 1s ease;
+}
+
+/* === Schedule === */
+.schedule-list { display: flex; flex-direction: column; gap: 12px; }
+.schedule-day {
+  margin-bottom: 20px;
+}
+.schedule-day-header {
+  font-size: 16px; font-weight: 800; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.schedule-day-badge {
+  padding: 3px 12px; border-radius: 10px; font-size: 11px; font-weight: 700;
+  background: rgba(0,229,255,0.1); color: var(--accent);
+}
+.schedule-item {
+  background: var(--bg-card); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px; padding: 16px 20px;
+  display: flex; align-items: center; gap: 16px;
+  transition: all 0.3s; margin-bottom: 8px;
+}
+.schedule-item:hover { border-color: rgba(0,229,255,0.15); }
+.schedule-time {
+  min-width: 56px; text-align: center;
+  font-size: 14px; font-weight: 800; color: var(--accent);
+}
+.schedule-divider {
+  width: 3px; height: 40px; border-radius: 2px;
+  flex-shrink: 0;
+}
+.schedule-detail { flex: 1; }
+.schedule-title2 { font-size: 14px; font-weight: 700; }
+.schedule-host { font-size: 12px; color: var(--text-muted); }
+.schedule-notify {
+  padding: 6px 14px; border-radius: 10px; border: 1px solid rgba(0,229,255,0.3);
+  background: transparent; color: var(--accent); font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all 0.3s; font-family: inherit;
+}
+.schedule-notify:hover { background: rgba(0,229,255,0.1); }
+.schedule-notify.on { background: rgba(0,229,255,0.15); border-color: var(--accent); }
+
+/* Create Broadcast */
+.create-section {
+  background: var(--bg-card); border: 1px solid rgba(0,229,255,0.1);
+  border-radius: 24px; padding: 36px; margin-top: 32px;
+  position: relative; overflow: hidden;
+}
+.create-section::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--gradient2);
+}
+.create-section h2 {
+  font-size: 22px; font-weight: 800; margin-bottom: 8px;
+  background: var(--gradient2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.create-section p { color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+.create-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;
+}
+.create-option {
+  padding: 20px; background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06); border-radius: 16px;
+  text-align: center; cursor: pointer; transition: all 0.3s;
+}
+.create-option:hover {
+  border-color: rgba(255,107,157,0.2); background: rgba(255,107,157,0.04);
+  transform: translateY(-3px);
+}
+.create-option .co-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+.create-option h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.create-option p { font-size: 12px; color: var(--text-muted); margin-bottom: 0; }
+
+/* Footer */
+.footer {
+  text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px;
+  border-top: 1px solid rgba(255,255,255,0.06); margin-top: 40px;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: linear-gradient(135deg, #00e5ff, #7c4dff);
+  color: #fff; padding: 14px 28px; border-radius: 14px;
+  font-size: 14px; font-weight: 600; z-index: 9999;
+  opacity: 0; transition: all 0.4s cubic-bezier(0.68,-0.55,0.265,1.55);
+  box-shadow: 0 8px 30px rgba(0,229,255,0.3);
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+@media (max-width: 768px) {
+  .hero-banner h1 { font-size: 24px; }
+  .hero-stats { flex-wrap: wrap; gap: 10px; }
+  .live-grid { grid-template-columns: 1fr; }
+  .channel-grid { grid-template-columns: repeat(2, 1fr); }
+  .challenge-card { flex-direction: column; gap: 12px; }
+  .container { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <a href="index.html" class="logo-link"><span class="logo-text">📡 PetCTT 방송국</span></a>
+  <div class="top-right">
+    <div class="live-indicator"><span class="live-dot"></span> LIVE 3</div>
+    <a href="index.html" class="back-btn">← 홈</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Hero Banner -->
+  <div class="hero-banner">
+    <h1>🎬 PetCTT 방송국</h1>
+    <p>반려동물과 함께하는 라이브 방송! AI 감정 자막, 펫 챌린지, 그리고 멤버 채널을 만나보세요.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><span>🔴</span> 실시간 <span class="stat-num">3</span>개 방송 중</div>
+      <div class="hero-stat"><span>👥</span> 시청자 <span class="stat-num">1,247</span>명</div>
+      <div class="hero-stat"><span>📺</span> 총 채널 <span class="stat-num">12</span>개</div>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-nav">
+    <button class="tab-btn2 active" onclick="switchTab2('live')">🔴 실시간</button>
+    <button class="tab-btn2" onclick="switchTab2('channels')">📺 멤버 채널</button>
+    <button class="tab-btn2" onclick="switchTab2('challenges')">🏆 챌린지</button>
+    <button class="tab-btn2" onclick="switchTab2('schedule')">📅 편성표</button>
+  </div>
+
+  <!-- TAB 1: Live Now -->
+  <div class="tab-panel active" id="panel-live">
+    <div class="live-grid">
+
+      <!-- Live Card 1 -->
+      <div class="live-card" onclick="showToast('🔴 라이브 방송 접속 중...')">
+        <div class="live-thumbnail">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #1a1040, #2d1b69);">🐕</div>
+          <span class="live-badge on">● LIVE</span>
+          <span class="live-viewers">👁️ 423</span>
+          <span class="live-duration">32:15</span>
+        </div>
+        <div class="live-info">
+          <div class="live-title">🏥 우리 강아지가 갑자기 안 먹어요 - 수의사 실시간 상담</div>
+          <div class="live-meta">
+            <span class="live-host-avatar" style="background: rgba(239,68,68,0.2);">🩺</span>
+            <span>Dr. 김수의 · 의학상담</span>
+          </div>
+          <div class="live-tags">
+            <span class="live-tag">의학상담</span>
+            <span class="live-tag">식욕부진</span>
+            <span class="live-tag">강아지</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Card 2 -->
+      <div class="live-card" onclick="showToast('🔴 라이브 방송 접속 중...')">
+        <div class="live-thumbnail">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #1a2040, #0d3b4f);">🐱</div>
+          <span class="live-badge on">● LIVE</span>
+          <span class="live-viewers">👁️ 587</span>
+          <span class="live-duration">1:05:42</span>
+        </div>
+        <div class="live-info">
+          <div class="live-title">🐾 아미와 함께하는 고양이 감정 통역 LIVE</div>
+          <div class="live-meta">
+            <span class="live-host-avatar" style="background: rgba(124,77,255,0.2);">🐰</span>
+            <span>아미 AI · 감정분석</span>
+          </div>
+          <div class="live-tags">
+            <span class="live-tag">AI 통역</span>
+            <span class="live-tag">고양이</span>
+            <span class="live-tag" style="background: rgba(255,107,157,0.1); color: var(--accent2);">인기</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Card 3 -->
+      <div class="live-card" onclick="showToast('🔴 라이브 방송 접속 중...')">
+        <div class="live-thumbnail">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #1a3020, #0d4f2b);">🐰</div>
+          <span class="live-badge on">● LIVE</span>
+          <span class="live-viewers">👁️ 237</span>
+          <span class="live-duration">15:30</span>
+        </div>
+        <div class="live-info">
+          <div class="live-title">🥕 토끼 간식 먹방 + 행동 분석 ASMR</div>
+          <div class="live-meta">
+            <span class="live-host-avatar" style="background: rgba(0,230,118,0.2);">🧑‍🌾</span>
+            <span>토끼농장 · 일상</span>
+          </div>
+          <div class="live-tags">
+            <span class="live-tag">토끼</span>
+            <span class="live-tag">ASMR</span>
+            <span class="live-tag">먹방</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming -->
+      <div class="live-card" onclick="showToast('⏰ 알림 설정 완료!')">
+        <div class="live-thumbnail">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #2d1a40, #4a1a69);">🎤</div>
+          <span class="live-badge soon">🕐 30분 후</span>
+        </div>
+        <div class="live-info">
+          <div class="live-title">🎤 제3회 펫 아이돌 오디션 - 결선 진출자 발표!</div>
+          <div class="live-meta">
+            <span class="live-host-avatar" style="background: rgba(168,85,247,0.2);">🎬</span>
+            <span>PetCTT 공식 · 오디션</span>
+          </div>
+          <div class="live-tags">
+            <span class="live-tag" style="background: rgba(255,171,64,0.1); color: var(--accent5);">예정</span>
+            <span class="live-tag">오디션</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Replay -->
+      <div class="live-card" onclick="showToast('📹 다시보기 재생 중...')">
+        <div class="live-thumbnail">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #1a2040, #1a3060);">🐕‍🦺</div>
+          <span class="live-badge replay">📹 다시보기</span>
+          <span class="live-viewers">👁️ 2,341</span>
+          <span class="live-duration">45:20</span>
+        </div>
+        <div class="live-info">
+          <div class="live-title">🛍️ 하림 펫푸드 신제품 리뷰 + 시식 반응</div>
+          <div class="live-meta">
+            <span class="live-host-avatar" style="background: rgba(34,197,94,0.2);">🛒</span>
+            <span>쇼핑 채널 · 리뷰</span>
+          </div>
+          <div class="live-tags">
+            <span class="live-tag">쇼핑</span>
+            <span class="live-tag">리뷰</span>
+            <span class="live-tag">하림</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Replay 2 -->
+      <div class="live-card" onclick="showToast('📹 다시보기 재생 중...')">
+        <div class="live-thumbnail">
+          <div class="thumb-bg" style="background: linear-gradient(135deg, #302010, #4f3010);">🌍</div>
+          <span class="live-badge replay">📹 다시보기</span>
+          <span class="live-viewers">👁️ 1,890</span>
+          <span class="live-duration">1:20:15</span>
+        </div>
+        <div class="live-info">
+          <div class="live-title">🌍 일본 펫 문화 탐방 - 도쿄 펫 카페 투어</div>
+          <div class="live-meta">
+            <span class="live-host-avatar" style="background: rgba(249,115,22,0.2);">🔍</span>
+            <span>글로벌 채널 · 탐사</span>
+          </div>
+          <div class="live-tags">
+            <span class="live-tag">글로벌</span>
+            <span class="live-tag">일본</span>
+            <span class="live-tag">탐사</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB 2: Member Channels -->
+  <div class="tab-panel" id="panel-channels">
+    <div class="channel-grid">
+
+      <div class="channel-card" onclick="showToast('📺 클 TV 채널 입장!')">
+        <div class="channel-avatar" style="background: linear-gradient(135deg, rgba(138,43,226,0.3), rgba(168,85,247,0.3));">📺</div>
+        <div class="channel-name" style="color: #d8b4fe;">클 TV</div>
+        <div class="channel-role">AI 코딩 · 기술 방송</div>
+        <div class="channel-stats">
+          <div class="channel-stat"><div class="num" style="color: #d8b4fe;">128</div><div class="label">영상</div></div>
+          <div class="channel-stat"><div class="num" style="color: #d8b4fe;">5.2K</div><div class="label">구독자</div></div>
+        </div>
+        <button class="channel-sub-btn" style="background: rgba(138,43,226,0.2); color: #d8b4fe; border: 1px solid rgba(138,43,226,0.4);">구독하기</button>
+      </div>
+
+      <div class="channel-card" onclick="showToast('🎨 젬 스튜디오 채널 입장!')">
+        <div class="channel-avatar" style="background: linear-gradient(135deg, rgba(219,39,119,0.3), rgba(244,114,182,0.3));">🎨</div>
+        <div class="channel-name" style="color: #fbcfe8;">젬 스튜디오</div>
+        <div class="channel-role">디자인 · 크리에이티브</div>
+        <div class="channel-stats">
+          <div class="channel-stat"><div class="num" style="color: #fbcfe8;">95</div><div class="label">영상</div></div>
+          <div class="channel-stat"><div class="num" style="color: #fbcfe8;">3.8K</div><div class="label">구독자</div></div>
+        </div>
+        <button class="channel-sub-btn" style="background: rgba(219,39,119,0.2); color: #fbcfe8; border: 1px solid rgba(219,39,119,0.4);">구독하기</button>
+      </div>
+
+      <div class="channel-card" onclick="showToast('🔧 엔티 공방 채널 입장!')">
+        <div class="channel-avatar" style="background: linear-gradient(135deg, rgba(234,88,12,0.3), rgba(249,115,22,0.3));">🔧</div>
+        <div class="channel-name" style="color: #fed7aa;">엔티 공방</div>
+        <div class="channel-role">AI 로직 · 시스템 설계</div>
+        <div class="channel-stats">
+          <div class="channel-stat"><div class="num" style="color: #fed7aa;">76</div><div class="label">영상</div></div>
+          <div class="channel-stat"><div class="num" style="color: #fed7aa;">2.9K</div><div class="label">구독자</div></div>
+        </div>
+        <button class="channel-sub-btn" style="background: rgba(234,88,12,0.2); color: #fed7aa; border: 1px solid rgba(234,88,12,0.4);">구독하기</button>
+      </div>
+
+      <div class="channel-card" onclick="showToast('🐰 아미 라이브 채널 입장!')">
+        <div class="channel-avatar" style="background: linear-gradient(135deg, rgba(124,77,255,0.3), rgba(168,85,247,0.3));">🐰</div>
+        <div class="channel-name" style="color: #e9d5ff;">아미 LIVE</div>
+        <div class="channel-role">AI 감정분석 · 통역 방송</div>
+        <div class="channel-stats">
+          <div class="channel-stat"><div class="num" style="color: #e9d5ff;">210</div><div class="label">영상</div></div>
+          <div class="channel-stat"><div class="num" style="color: #e9d5ff;">8.7K</div><div class="label">구독자</div></div>
+        </div>
+        <button class="channel-sub-btn" style="background: rgba(124,77,255,0.2); color: #e9d5ff; border: 1px solid rgba(124,77,255,0.4);">구독 중 ✓</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB 3: Challenges -->
+  <div class="tab-panel" id="panel-challenges">
+    <div class="challenge-list">
+
+      <div class="challenge-card">
+        <div class="challenge-icon" style="background: linear-gradient(135deg, rgba(255,107,157,0.2), rgba(255,138,101,0.2));">🏆</div>
+        <div class="challenge-content">
+          <div class="challenge-title">제3회 펫 아이돌 오디션</div>
+          <div class="challenge-desc">우리 집 반려동물의 숨겨진 재능을 보여주세요! 노래, 댄스, 묘기 무엇이든 OK!</div>
+          <div class="challenge-footer">
+            <span class="challenge-badge badge-active">🟢 진행 중</span>
+            <span class="challenge-prize">🏅 상금 50만원 + 🪙 1,000 토큰</span>
+            <span class="challenge-participants">👥 342명 참가</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 72%; background: var(--gradient2);"></div></div>
+        </div>
+      </div>
+
+      <div class="challenge-card">
+        <div class="challenge-icon" style="background: linear-gradient(135deg, rgba(0,229,255,0.2), rgba(124,77,255,0.2));">📸</div>
+        <div class="challenge-content">
+          <div class="challenge-title">반려동물 포토 챌린지 - "봄맞이"</div>
+          <div class="challenge-desc">봄을 맞이한 반려동물의 귀여운 순간을 포착하세요! 꽃, 나들이, 새싹과 함께!</div>
+          <div class="challenge-footer">
+            <span class="challenge-badge badge-active">🟢 진행 중</span>
+            <span class="challenge-prize">🏅 상품권 10만원 + 🪙 500 토큰</span>
+            <span class="challenge-participants">👥 1,205명 참가</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width: 45%; background: var(--gradient1);"></div></div>
+        </div>
+      </div>
+
+      <div class="challenge-card">
+        <div class="challenge-icon" style="background: linear-gradient(135deg, rgba(255,171,64,0.2), rgba(255,107,157,0.2));">🎮</div>
+        <div class="challenge-content">
+          <div class="challenge-title">펫 장애물 경주 대회</div>
+          <div class="challenge-desc">반려동물이 장애물을 통과하는 영상을 올려주세요! 가장 빠른 기록 TOP 10에게 상금!</div>
+          <div class="challenge-footer">
+            <span class="challenge-badge badge-upcoming">🟡 D-7</span>
+            <span class="challenge-prize">🏅 상금 30만원</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="challenge-card">
+        <div class="challenge-icon" style="background: linear-gradient(135deg, rgba(0,230,118,0.2), rgba(0,229,255,0.2));">🥗</div>
+        <div class="challenge-content">
+          <div class="challenge-title">건강한 간식 레시피 챌린지</div>
+          <div class="challenge-desc">반려동물을 위한 수제 간식 레시피를 공유해주세요! AI가 영양 분석을 해드립니다.</div>
+          <div class="challenge-footer">
+            <span class="challenge-badge badge-ended">⚫ 종료</span>
+            <span class="challenge-participants">👥 876명 참가</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB 4: Schedule -->
+  <div class="tab-panel" id="panel-schedule">
+
+    <div class="schedule-day">
+      <div class="schedule-day-header">📅 오늘 <span class="schedule-day-badge">2월 8일 (토)</span></div>
+
+      <div class="schedule-item">
+        <div class="schedule-time">10:00</div>
+        <div class="schedule-divider" style="background: var(--live-red);"></div>
+        <div class="schedule-detail">
+          <div class="schedule-title2">🏥 모닝 수의 상담 - 겨울철 반려동물 건강관리</div>
+          <div class="schedule-host">Dr. 김수의 · 의학상담 채널</div>
+        </div>
+        <button class="schedule-notify on" onclick="this.classList.toggle('on'); showToast('🔔 알림 설정 변경!')">🔔</button>
+      </div>
+
+      <div class="schedule-item">
+        <div class="schedule-time">14:00</div>
+        <div class="schedule-divider" style="background: var(--accent3);"></div>
+        <div class="schedule-detail">
+          <div class="schedule-title2">🐰 아미의 실시간 감정 통역 쇼</div>
+          <div class="schedule-host">아미 AI · 감정분석 채널</div>
+        </div>
+        <button class="schedule-notify" onclick="this.classList.toggle('on'); showToast('🔔 알림 설정!')">🔔</button>
+      </div>
+
+      <div class="schedule-item">
+        <div class="schedule-time">16:00</div>
+        <div class="schedule-divider" style="background: var(--accent2);"></div>
+        <div class="schedule-detail">
+          <div class="schedule-title2">🎤 제3회 펫 아이돌 오디션 결선</div>
+          <div class="schedule-host">PetCTT 공식 · 특별 방송</div>
+        </div>
+        <button class="schedule-notify" onclick="this.classList.toggle('on'); showToast('🔔 알림 설정!')">🔔</button>
+      </div>
+
+      <div class="schedule-item">
+        <div class="schedule-time">20:00</div>
+        <div class="schedule-divider" style="background: var(--accent4);"></div>
+        <div class="schedule-detail">
+          <div class="schedule-title2">🛍️ 하림 펫푸드 라이브 커머스</div>
+          <div class="schedule-host">쇼핑 채널 · 특별 할인</div>
+        </div>
+        <button class="schedule-notify" onclick="this.classList.toggle('on'); showToast('🔔 알림 설정!')">🔔</button>
+      </div>
+    </div>
+
+    <div class="schedule-day">
+      <div class="schedule-day-header">📅 내일 <span class="schedule-day-badge">2월 9일 (일)</span></div>
+
+      <div class="schedule-item">
+        <div class="schedule-time">11:00</div>
+        <div class="schedule-divider" style="background: var(--accent5);"></div>
+        <div class="schedule-detail">
+          <div class="schedule-title2">🌍 해외 펫 문화 탐방 - 프랑스 편</div>
+          <div class="schedule-host">글로벌 채널 · 탐사</div>
+        </div>
+        <button class="schedule-notify" onclick="this.classList.toggle('on'); showToast('🔔 알림 설정!')">🔔</button>
+      </div>
+
+      <div class="schedule-item">
+        <div class="schedule-time">15:00</div>
+        <div class="schedule-divider" style="background: #d8b4fe;"></div>
+        <div class="schedule-detail">
+          <div class="schedule-title2">📺 클 TV - PetCTT 개발 비하인드 스토리</div>
+          <div class="schedule-host">클 TV · 기술 방송</div>
+        </div>
+        <button class="schedule-notify" onclick="this.classList.toggle('on'); showToast('🔔 알림 설정!')">🔔</button>
+      </div>
+
+      <div class="schedule-item">
+        <div class="schedule-time">19:00</div>
+        <div class="schedule-divider" style="background: #fbcfe8;"></div>
+        <div class="schedule-detail">
+          <div class="schedule-title2">🎨 젬 스튜디오 - 반려동물 일러스트 그리기</div>
+          <div class="schedule-host">젬 스튜디오 · 크리에이티브</div>
+        </div>
+        <button class="schedule-notify" onclick="this.classList.toggle('on'); showToast('🔔 알림 설정!')">🔔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Broadcast -->
+  <div class="create-section">
+    <h2>🎬 나도 방송하기</h2>
+    <p>반려동물과의 일상을 라이브로 공유해보세요! Pro 이상 요금제에서 방송이 가능합니다.</p>
+    <div class="create-grid">
+      <div class="create-option" onclick="showToast('📹 라이브 방송은 Pro 이상에서 이용 가능합니다!')">
+        <span class="co-icon">📹</span>
+        <h4>라이브 방송</h4>
+        <p>실시간 스트리밍</p>
+      </div>
+      <div class="create-option" onclick="showToast('🎤 오디션은 곧 오픈됩니다!')">
+        <span class="co-icon">🎤</span>
+        <h4>오디션 참가</h4>
+        <p>펫 아이돌 도전</p>
+      </div>
+      <div class="create-option" onclick="showToast('📸 챌린지 참가가 접수되었습니다!')">
+        <span class="co-icon">📸</span>
+        <h4>챌린지 참가</h4>
+        <p>포토/영상 챌린지</p>
+      </div>
+      <div class="create-option" onclick="showToast('📺 채널 개설은 Premium에서 가능합니다!')">
+        <span class="co-icon">📺</span>
+        <h4>채널 개설</h4>
+        <p>나만의 채널 만들기</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  © 2026 <a href="index.html">PetCTT Pro</a> - 반려동물 통역 + 위치 추적 | 주식회사 발로레<br>
+  <a href="guide.html" style="margin: 0 6px;">📖 사용설명서</a> ·
+  <a href="broadcast.html" style="margin: 0 6px;">📡 방송국</a> ·
+  <a href="market.html" style="margin: 0 6px;">☁️ 구름장터</a> ·
+  <a href="coupon.html" style="margin: 0 6px;">🎮 쿠폰톡톡</a> ·
+  <a href="ami.html" style="margin: 0 6px;">🐾 아미</a> ·
+  <a href="pricing.html" style="margin: 0 6px;">💎 요금제</a><br>
+  <a href="privacy.html" style="margin: 0 6px;">개인정보처리방침</a> ·
+  <a href="terms.html" style="margin: 0 6px;">이용약관</a> ·
+  <a href="contact.html" style="margin: 0 6px;">문의하기</a>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+function switchTab2(tab) {
+  document.querySelectorAll('.tab-btn2').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+
+</body>
+</html>

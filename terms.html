@@ -1,157 +1,297 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>이용약관 - PetCTT</title>
-
-  <!-- Google Analytics (GA4) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R4DBR11KDR"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-R4DBR11KDR');
-  </script>
-
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #0b1220;
-      --card: #0f1b33;
-      --text: #e8f0ff;
-      --muted: #9fb3d9;
-      --primary: #37d67a;
-      --line: rgba(255,255,255,.10);
-    }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      line-height: 1.8;
-      padding: 40px 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    h1 {
-      font-size: 28px;
-      margin-bottom: 10px;
-      color: var(--primary);
-    }
-    .update-date {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 40px;
-    }
-    h2 {
-      font-size: 20px;
-      margin: 32px 0 16px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--line);
-      color: var(--primary);
-    }
-    p, li {
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-    ul, ol {
-      padding-left: 24px;
-      margin-bottom: 16px;
-    }
-    a {
-      color: var(--primary);
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    .back-link {
-      display: inline-block;
-      margin-top: 40px;
-      padding: 12px 24px;
-      background: rgba(55,214,122,.15);
-      border: 1px solid rgba(55,214,122,.3);
-      border-radius: 8px;
-      color: var(--primary);
-      font-weight: 600;
-    }
-    .back-link:hover {
-      background: rgba(55,214,122,.25);
-      text-decoration: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이용약관 - PetCTT</title>
+<style>
+:root {
+  --bg-dark: #0a0e1a;
+  --bg-card: #141828;
+  --accent: #00e5ff;
+  --accent2: #ff6b9d;
+  --text: #e0e0e0;
+  --text-muted: #8892b0;
+  --gradient1: linear-gradient(135deg, #00e5ff, #7c4dff);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-dark);
+  color: var(--text);
+  line-height: 1.8;
+  min-height: 100vh;
+}
+.top-bar {
+  background: rgba(10, 14, 26, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo-link {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-text {
+  font-size: 24px;
+  font-weight: 800;
+  background: var(--gradient1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.back-btn {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 8px 16px;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 20px;
+  transition: all 0.3s;
+}
+.back-btn:hover {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: var(--accent);
+}
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+.page-title {
+  font-size: 32px;
+  font-weight: 800;
+  background: var(--gradient1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+.page-subtitle {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.section {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 20px;
+  transition: border-color 0.3s;
+}
+.section:hover {
+  border-color: rgba(0, 229, 255, 0.15);
+}
+.section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section h2 .num {
+  background: rgba(0, 229, 255, 0.15);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+.section p, .section li {
+  color: var(--text-muted);
+  font-size: 14.5px;
+  line-height: 1.9;
+}
+.section ul, .section ol {
+  padding-left: 0;
+  list-style: none;
+}
+.section ul li, .section ol li {
+  padding: 4px 0 4px 20px;
+  position: relative;
+}
+.section ul li::before {
+  content: '•';
+  color: var(--accent);
+  position: absolute;
+  left: 4px;
+  font-weight: bold;
+}
+.section ol { counter-reset: item; }
+.section ol li { counter-increment: item; }
+.section ol li::before {
+  content: counter(item) '.';
+  color: var(--accent);
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+  font-size: 13px;
+}
+.highlight-box {
+  background: rgba(0, 229, 255, 0.05);
+  border-left: 3px solid var(--accent);
+  padding: 16px 20px;
+  border-radius: 0 12px 12px 0;
+  margin: 16px 0;
+}
+.highlight-box p {
+  color: var(--text) !important;
+  font-size: 14px !important;
+}
+.footer {
+  text-align: center;
+  padding: 30px;
+  color: var(--text-muted);
+  font-size: 13px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 40px;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <h1>📜 이용약관</h1>
-    <p class="update-date">시행일: 2026년 1월 24일 | 최종 수정: 2026년 1월 24일</p>
 
-    <h2>제1조 (목적)</h2>
-    <p>본 약관은 PetCTT(이하 "서비스")가 제공하는 반려동물 음성 분석 및 건강 체크 서비스의 이용 조건과 절차, 회사와 이용자 간의 권리·의무를 규정함을 목적으로 합니다.</p>
+<div class="top-bar">
+  <a href="index.html" class="logo-link">
+    <span class="logo-text">🐾 PetCTT</span>
+  </a>
+  <a href="index.html" class="back-btn">← 홈으로 돌아가기</a>
+</div>
 
-    <h2>제2조 (서비스 정의)</h2>
-    <p>PetCTT는 AI 기반 반려동물 음성 분석, 건강 상태 체크, 양방향 통역 기능을 제공하는 웹 서비스입니다.</p>
-    <ul>
-      <li>반려동물(강아지, 고양이 등) 음성 실시간 분석</li>
-      <li>건강 상태 점수 및 평가 제공</li>
-      <li>분석 기록 저장 및 내보내기</li>
-      <li>기타 부가 서비스</li>
-    </ul>
+<div class="container">
+  <h1 class="page-title">📋 이용약관</h1>
+  <p class="page-subtitle">시행일: 2025년 2월 8일 | 주식회사 발로레 (Valore Inc.)</p>
 
-    <h2>제3조 (회원가입 및 이용)</h2>
-    <ol>
-      <li>서비스는 소셜 로그인(Google, 카카오, 네이버)을 통해 간편하게 가입할 수 있습니다.</li>
-      <li>회원은 정확한 정보를 제공해야 하며, 허위 정보 입력 시 서비스 이용이 제한될 수 있습니다.</li>
-      <li>만 14세 미만의 경우 법정대리인의 동의가 필요합니다.</li>
-    </ol>
-
-    <h2>제4조 (금지행위)</h2>
-    <p>이용자는 다음 행위를 해서는 안 됩니다:</p>
-    <ul>
-      <li>타인의 개인정보를 도용하거나 부정하게 사용하는 행위</li>
-      <li>서비스의 정상적인 운영을 방해하는 행위</li>
-      <li>서비스를 이용하여 불법적인 목적을 추구하는 행위</li>
-      <li>서비스 내 정보를 무단으로 수집, 저장, 공개하는 행위</li>
-      <li>악성 코드나 바이러스를 유포하는 행위</li>
-      <li>기타 관련 법령에 위반되는 행위</li>
-    </ul>
-
-    <h2>제5조 (서비스 이용 제한)</h2>
-    <p>회사는 다음의 경우 사전 통지 없이 서비스 이용을 제한하거나 회원 자격을 박탈할 수 있습니다:</p>
-    <ul>
-      <li>본 약관을 위반한 경우</li>
-      <li>서비스 운영을 고의로 방해한 경우</li>
-      <li>기타 회사가 합리적으로 판단하여 필요하다고 인정하는 경우</li>
-    </ul>
-
-    <h2>제6조 (책임 제한)</h2>
-    <ol>
-      <li>회사는 천재지변, 전쟁, 기타 불가항력으로 인해 서비스를 제공할 수 없는 경우 책임을 지지 않습니다.</li>
-      <li>서비스에서 제공하는 반려동물 건강 분석 결과는 참고용이며, 전문 수의사의 진료를 대체하지 않습니다.</li>
-      <li>이용자가 자신의 계정 정보를 관리하지 않아 발생한 손해에 대해 회사는 책임지지 않습니다.</li>
-      <li>무료로 제공되는 서비스에 대해서는 회사의 고의 또는 중과실이 없는 한 손해배상 책임을 지지 않습니다.</li>
-    </ol>
-
-    <h2>제7조 (콘텐츠 및 저작권)</h2>
-    <ol>
-      <li>서비스 내 모든 콘텐츠(디자인, 로고, 텍스트, 이미지, 소프트웨어 등)의 저작권은 회사에 귀속됩니다.</li>
-      <li>이용자가 서비스를 통해 생성한 분석 데이터의 권리는 해당 이용자에게 있습니다.</li>
-      <li>이용자는 회사의 사전 동의 없이 서비스 콘텐츠를 복제, 배포, 수정할 수 없습니다.</li>
-    </ol>
-
-    <h2>제8조 (분쟁 해결 및 준거법)</h2>
-    <ol>
-      <li>본 약관은 대한민국 법령에 따라 해석됩니다.</li>
-      <li>서비스 이용과 관련하여 분쟁이 발생한 경우, 회사와 이용자는 성실히 협의하여 해결합니다.</li>
-      <li>협의가 이루어지지 않는 경우, 관할 법원은 민사소송법에 따른 법원으로 합니다.</li>
-    </ol>
-
-    <h2>제9조 (약관의 변경)</h2>
-    <p>회사는 필요 시 본 약관을 변경할 수 있으며, 변경된 약관은 시행일 7일 전부터 서비스 내에 공지합니다. 변경된 약관에 동의하지 않는 이용자는 서비스 이용을 중단하고 탈퇴할 수 있습니다.</p>
-
-    <a href="PetCTT_index.html" class="back-link">← PetCTT로 돌아가기</a>
+  <div class="section">
+    <h2><span class="num">제1조</span> 목적</h2>
+    <p>이 약관은 주식회사 발로레(이하 "회사")가 운영하는 PetCTT 서비스(이하 "서비스")의 이용조건 및 절차, 회사와 이용자의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.</p>
   </div>
+
+  <div class="section">
+    <h2><span class="num">제2조</span> 정의</h2>
+    <ol>
+      <li>"서비스"란 회사가 제공하는 AI 반려동물 감정분석, 통역, GPS 추적, 구름장터, 쿠폰톡톡 등의 서비스를 말합니다.</li>
+      <li>"이용자"란 이 약관에 동의하고 회사가 제공하는 서비스를 이용하는 자를 말합니다.</li>
+      <li>"회원"이란 서비스에 회원가입하여 아이디를 부여받은 이용자를 말합니다.</li>
+      <li>"콘텐츠"란 서비스 내에서 제공되는 텍스트, 이미지, 영상, AI 분석 결과 등을 말합니다.</li>
+    </ol>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제3조</span> 약관의 효력 및 변경</h2>
+    <ol>
+      <li>이 약관은 서비스 화면에 게시하거나 기타의 방법으로 이용자에게 공지함으로써 효력을 발생합니다.</li>
+      <li>회사는 관련 법령을 위배하지 않는 범위에서 이 약관을 개정할 수 있으며, 개정 시 적용일자 7일 전부터 공지합니다.</li>
+    </ol>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제4조</span> 서비스 내용</h2>
+    <p>회사가 제공하는 서비스는 다음과 같습니다.</p>
+    <ul>
+      <li><strong style="color:var(--accent)">AI 통역 서비스</strong> — 반려동물의 행동·표정을 AI로 분석하여 감정 상태를 통역</li>
+      <li><strong style="color:var(--accent)">GPS 추적</strong> — 반려동물의 실시간 위치 추적 및 이동 기록</li>
+      <li><strong style="color:var(--accent)">구름장터</strong> — 반려동물 용품 및 서비스 거래 플랫폼</li>
+      <li><strong style="color:var(--accent)">쿠폰톡톡</strong> — 할인쿠폰 마켓 및 이벤트 서비스</li>
+      <li><strong style="color:var(--accent)">방송국</strong> — 반려동물 라이브 스트리밍 서비스</li>
+      <li><strong style="color:var(--accent)">커뮤니티</strong> — 반려인 소통 및 정보 공유 공간</li>
+    </ul>
+    <div class="highlight-box">
+      <p>💡 일부 서비스는 현재 개발 중이며, 순차적으로 오픈됩니다. Coming Soon으로 표시된 서비스는 개발 완료 후 이용 가능합니다.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제5조</span> 회원가입</h2>
+    <ol>
+      <li>이용자는 회사가 정한 가입양식에 따라 회원정보를 기입하고 이 약관에 동의한다는 의사표시를 함으로써 회원가입을 신청합니다.</li>
+      <li>소셜 로그인(Google, Kakao, Naver)을 통한 간편가입을 지원합니다.</li>
+      <li>회사는 다음에 해당하는 경우 가입을 거부할 수 있습니다: 타인의 명의 사용, 허위 정보 기재, 기술상 장애 등.</li>
+    </ol>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제6조</span> 이용자의 의무</h2>
+    <ul>
+      <li>타인의 개인정보를 도용하거나 부정하게 사용하는 행위 금지</li>
+      <li>서비스의 안정적 운영을 방해하는 행위 금지</li>
+      <li>AI 분석 결과를 의료적 진단 목적으로 사용하는 행위 금지</li>
+      <li>음란, 폭력적, 불법적인 콘텐츠를 게시하는 행위 금지</li>
+      <li>회사의 지적재산권을 침해하는 행위 금지</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제7조</span> 회사의 의무</h2>
+    <ul>
+      <li>안정적인 서비스 제공을 위해 최선을 다합니다.</li>
+      <li>이용자의 개인정보를 보호하고 관련 법령을 준수합니다.</li>
+      <li>서비스 장애 발생 시 신속히 복구합니다.</li>
+      <li>이용자의 의견과 불만을 성실히 처리합니다.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제8조</span> AI 서비스 면책</h2>
+    <div class="highlight-box">
+      <p>⚠️ PetCTT의 AI 감정분석 및 통역 서비스는 참고용이며, 전문 수의사의 진단을 대체하지 않습니다. AI 분석 결과에 대한 의료적 판단은 반드시 전문가와 상담하시기 바랍니다.</p>
+    </div>
+    <ul>
+      <li>AI 분석은 통계적 모델에 기반하며 100% 정확하지 않을 수 있습니다.</li>
+      <li>GPS 추적은 기기·네트워크 환경에 따라 오차가 발생할 수 있습니다.</li>
+      <li>회사는 AI 결과를 바탕으로 한 이용자의 판단에 대해 책임을 지지 않습니다.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제9조</span> 서비스 중단</h2>
+    <p>회사는 다음 각 호에 해당하는 경우 서비스 제공을 일시적으로 중단할 수 있습니다.</p>
+    <ul>
+      <li>시스템 정기점검, 증설 및 교체 시</li>
+      <li>천재지변, 정전, 서비스 설비의 장애 등 불가항력적 사유 발생 시</li>
+      <li>서비스 이용의 폭주 등으로 정상적인 운영이 불가능할 경우</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제10조</span> 지적재산권</h2>
+    <p>서비스 내 회사가 제작한 콘텐츠(AI 캐릭터 "아미", 디자인, 소프트웨어 등)의 지적재산권은 회사에 귀속됩니다. 이용자가 서비스 내 생성한 콘텐츠의 권리는 이용자에게 귀속되나, 서비스 운영을 위해 회사가 이용할 수 있습니다.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">제11조</span> 분쟁 해결</h2>
+    <p>서비스 이용과 관련하여 회사와 이용자 간에 분쟁이 발생한 경우, 양 당사자는 원만한 해결을 위해 성실히 협의합니다. 협의가 이루어지지 않을 경우 관할법원은 회사 소재지의 법원으로 합니다.</p>
+  </div>
+
+  <div class="section">
+    <h2><span class="num">부칙</span></h2>
+    <p>이 약관은 2025년 2월 8일부터 시행합니다.</p>
+  </div>
+
+  <div class="footer">
+  © 2026 <a href="index.html">PetCTT Pro</a> - 반려동물 통역 + 위치 추적 | 주식회사 발로레<br>
+  <a href="guide.html" style="margin: 0 6px;">📖 사용설명서</a> ·
+  <a href="broadcast.html" style="margin: 0 6px;">📡 방송국</a> ·
+  <a href="market.html" style="margin: 0 6px;">☁️ 구름장터</a> ·
+  <a href="coupon.html" style="margin: 0 6px;">🎮 쿠폰톡톡</a> ·
+  <a href="ami.html" style="margin: 0 6px;">🐾 아미</a> ·
+  <a href="pricing.html" style="margin: 0 6px;">💎 요금제</a><br>
+  <a href="privacy.html" style="margin: 0 6px;">개인정보처리방침</a> ·
+  <a href="terms.html" style="margin: 0 6px;">이용약관</a> ·
+  <a href="contact.html" style="margin: 0 6px;">문의하기</a>
+</div>
+</div>
+
 </body>
 </html>

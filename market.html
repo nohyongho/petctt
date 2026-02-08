@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🛒 구름장터 - PetCTT</title>
+<style>
+:root {
+  --bg-dark: #0a0e1a;
+  --bg-card: #141828;
+  --bg-card2: #1a2035;
+  --accent: #00e5ff;
+  --accent2: #ff6b9d;
+  --accent3: #7c4dff;
+  --accent4: #00e676;
+  --accent5: #ffab40;
+  --text: #e0e0e0;
+  --text-muted: #8892b0;
+  --gradient1: linear-gradient(135deg, #00e5ff, #7c4dff);
+  --gradient2: linear-gradient(135deg, #ff6b9d, #ff8a65);
+  --gradient3: linear-gradient(135deg, #00e676, #00e5ff);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg-dark); color: var(--text); line-height: 1.7; min-height: 100vh;
+}
+
+/* Top Bar */
+.top-bar {
+  background: rgba(10,14,26,0.95); backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,229,255,0.1);
+  padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.logo-link { text-decoration: none; display: flex; align-items: center; gap: 8px; }
+.logo-text { font-size: 22px; font-weight: 800; background: var(--gradient3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.top-right { display: flex; align-items: center; gap: 10px; }
+.back-btn {
+  color: var(--accent); text-decoration: none; font-size: 13px;
+  padding: 7px 14px; border: 1px solid rgba(0,229,255,0.3); border-radius: 18px; transition: all 0.3s;
+}
+.back-btn:hover { background: rgba(0,229,255,0.1); }
+.sell-btn {
+  padding: 8px 18px; border-radius: 18px; border: none;
+  background: var(--gradient2); color: #fff; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all 0.3s; font-family: inherit;
+}
+.sell-btn:hover { box-shadow: 0 4px 15px rgba(255,107,157,0.3); transform: translateY(-1px); }
+
+/* Container */
+.container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+/* Search Bar */
+.search-bar {
+  display: flex; gap: 10px; margin-bottom: 24px;
+}
+.search-input {
+  flex: 1; padding: 14px 20px; border-radius: 16px;
+  background: var(--bg-card); border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text); font-size: 14px; font-family: inherit;
+  transition: border-color 0.3s;
+}
+.search-input:focus { outline: none; border-color: rgba(0,229,255,0.3); }
+.search-input::placeholder { color: var(--text-muted); }
+.search-btn {
+  padding: 14px 24px; border-radius: 16px; border: none;
+  background: var(--gradient1); color: #fff; font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all 0.3s; font-family: inherit;
+}
+.search-btn:hover { box-shadow: 0 4px 15px rgba(0,229,255,0.3); }
+
+/* Category Chips */
+.category-chips {
+  display: flex; gap: 8px; margin-bottom: 28px; overflow-x: auto;
+  padding-bottom: 4px; scrollbar-width: none;
+}
+.category-chips::-webkit-scrollbar { display: none; }
+.chip {
+  padding: 8px 18px; border-radius: 14px;
+  background: var(--bg-card); border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text-muted); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.3s; white-space: nowrap; font-family: inherit;
+}
+.chip.active {
+  background: var(--gradient3); color: #fff; border-color: transparent;
+  box-shadow: 0 4px 12px rgba(0,230,118,0.2);
+}
+.chip:hover:not(.active) { border-color: rgba(0,230,118,0.2); }
+
+/* AI Recommendation Banner */
+.ai-banner {
+  background: var(--bg-card); border: 1px solid rgba(124,77,255,0.15);
+  border-radius: 20px; padding: 24px; margin-bottom: 28px;
+  display: flex; align-items: center; gap: 20px;
+  position: relative; overflow: hidden;
+}
+.ai-banner::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent3), var(--accent));
+}
+.ai-banner-icon { font-size: 42px; flex-shrink: 0; }
+.ai-banner-content { flex: 1; }
+.ai-banner-title { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+.ai-banner-desc { color: var(--text-muted); font-size: 13px; }
+.ai-banner-btn {
+  padding: 10px 22px; border-radius: 14px; border: none;
+  background: linear-gradient(135deg, var(--accent3), var(--accent));
+  color: #fff; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: all 0.3s; font-family: inherit; white-space: nowrap;
+}
+.ai-banner-btn:hover { box-shadow: 0 4px 15px rgba(124,77,255,0.3); }
+
+/* Section Title */
+.section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px;
+}
+.section-head h2 { font-size: 20px; font-weight: 800; }
+.section-head .more-link {
+  color: var(--accent); font-size: 13px; text-decoration: none;
+  padding: 6px 14px; border: 1px solid rgba(0,229,255,0.2); border-radius: 12px;
+  transition: all 0.3s;
+}
+.section-head .more-link:hover { background: rgba(0,229,255,0.08); }
+
+/* Product Grid */
+.product-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px;
+  margin-bottom: 40px;
+}
+.product-card {
+  background: var(--bg-card); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px; overflow: hidden; transition: all 0.3s; cursor: pointer;
+}
+.product-card:hover {
+  border-color: rgba(0,230,118,0.2); transform: translateY(-4px);
+  box-shadow: 0 10px 35px rgba(0,0,0,0.3);
+}
+.product-thumb {
+  position: relative; padding-top: 100%; background: var(--bg-card2);
+}
+.product-thumb .thumb-emoji {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 56px;
+}
+.product-status {
+  position: absolute; top: 10px; left: 10px;
+  padding: 3px 10px; border-radius: 8px; font-size: 11px; font-weight: 700;
+}
+.status-sale { background: rgba(0,230,118,0.9); color: #0a0e1a; }
+.status-reserved { background: rgba(255,171,64,0.9); color: #1a1a2e; }
+.status-sold { background: rgba(136,146,176,0.6); color: #fff; }
+.product-like {
+  position: absolute; top: 10px; right: 10px;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(0,0,0,0.4); border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; cursor: pointer; transition: all 0.3s;
+}
+.product-like:hover { background: rgba(255,107,157,0.3); transform: scale(1.1); }
+.product-like.liked { background: rgba(255,107,157,0.5); }
+.product-ai-badge {
+  position: absolute; bottom: 8px; left: 8px;
+  padding: 3px 8px; border-radius: 8px; font-size: 10px; font-weight: 700;
+  background: rgba(124,77,255,0.8); color: #fff;
+}
+.product-info { padding: 14px 16px; }
+.product-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; line-height: 1.4; }
+.product-price { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+.product-meta {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--text-muted); font-size: 12px;
+}
+.product-location { display: flex; align-items: center; gap: 3px; }
+.product-time { display: flex; align-items: center; gap: 3px; }
+.product-stats {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  color: var(--text-muted); font-size: 12px;
+}
+
+/* Partner Section */
+.partner-section {
+  background: var(--bg-card); border: 1px solid rgba(0,230,118,0.1);
+  border-radius: 24px; padding: 32px; margin-bottom: 40px;
+  position: relative; overflow: hidden;
+}
+.partner-section::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--gradient3);
+}
+.partner-section h2 {
+  font-size: 20px; font-weight: 800; margin-bottom: 6px;
+  background: var(--gradient3); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.partner-section > p { color: var(--text-muted); font-size: 13.5px; margin-bottom: 20px; }
+.partner-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px;
+}
+.partner-card {
+  padding: 20px; background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06); border-radius: 16px;
+  text-align: center; transition: all 0.3s; cursor: pointer;
+}
+.partner-card:hover { border-color: rgba(0,230,118,0.2); transform: translateY(-3px); }
+.partner-logo { font-size: 36px; margin-bottom: 10px; display: block; }
+.partner-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.partner-desc { font-size: 12px; color: var(--text-muted); }
+.partner-badge {
+  display: inline-block; margin-top: 8px;
+  padding: 2px 10px; border-radius: 8px; font-size: 10px; font-weight: 700;
+  background: rgba(0,230,118,0.12); color: var(--accent4);
+}
+
+/* Coupon Banner */
+.coupon-banner {
+  background: linear-gradient(135deg, rgba(255,107,157,0.1), rgba(255,171,64,0.1));
+  border: 1px solid rgba(255,107,157,0.15);
+  border-radius: 20px; padding: 24px; margin-bottom: 40px;
+  display: flex; align-items: center; gap: 20px;
+  cursor: pointer; transition: all 0.3s;
+}
+.coupon-banner:hover {
+  border-color: rgba(255,107,157,0.3); transform: translateY(-2px);
+}
+.coupon-icon { font-size: 42px; flex-shrink: 0; }
+.coupon-content { flex: 1; }
+.coupon-title { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+.coupon-desc { color: var(--text-muted); font-size: 13px; }
+.coupon-arrow { font-size: 20px; color: var(--accent2); }
+
+/* Safety Tips */
+.safety-section {
+  background: var(--bg-card); border: 1px solid rgba(255,171,64,0.1);
+  border-radius: 20px; padding: 28px; margin-bottom: 40px;
+}
+.safety-section h3 { font-size: 16px; font-weight: 800; margin-bottom: 16px; color: var(--accent5); }
+.safety-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;
+}
+.safety-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.02);
+}
+.safety-icon { font-size: 22px; flex-shrink: 0; }
+.safety-text { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+.safety-text strong { color: var(--text); }
+
+/* Footer */
+.footer {
+  text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px;
+  border-top: 1px solid rgba(255,255,255,0.06); margin-top: 20px;
+}
+.footer a { color: var(--accent); text-decoration: none; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: linear-gradient(135deg, #00e676, #00e5ff);
+  color: #0a0e1a; padding: 14px 28px; border-radius: 14px;
+  font-size: 14px; font-weight: 700; z-index: 9999;
+  opacity: 0; transition: all 0.4s cubic-bezier(0.68,-0.55,0.265,1.55);
+  box-shadow: 0 8px 30px rgba(0,230,118,0.3);
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+@media (max-width: 768px) {
+  .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .ai-banner { flex-direction: column; text-align: center; }
+  .partner-grid { grid-template-columns: repeat(2, 1fr); }
+  .coupon-banner { flex-direction: column; text-align: center; }
+  .search-bar { flex-direction: column; }
+  .container { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <a href="index.html" class="logo-link"><span class="logo-text">☁️ 구름장터</span></a>
+  <div class="top-right">
+    <button class="sell-btn" onclick="showToast('📝 판매 등록은 Pro 이상에서 가능합니다!')">+ 판매하기</button>
+    <a href="index.html" class="back-btn">← 홈</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Search -->
+  <div class="search-bar">
+    <input type="text" class="search-input" placeholder="🔍 반려동물 용품, 사료, 장난감 검색..." id="searchInput">
+    <button class="search-btn" onclick="showToast('🔍 검색 기능은 서비스 오픈 후 이용 가능합니다!')">검색</button>
+  </div>
+
+  <!-- Category Chips -->
+  <div class="category-chips">
+    <button class="chip active" onclick="selectChip(this)">전체</button>
+    <button class="chip" onclick="selectChip(this)">🍖 사료/간식</button>
+    <button class="chip" onclick="selectChip(this)">🧸 장난감</button>
+    <button class="chip" onclick="selectChip(this)">🏠 하우스/케이지</button>
+    <button class="chip" onclick="selectChip(this)">👕 의류/패션</button>
+    <button class="chip" onclick="selectChip(this)">💊 건강/영양</button>
+    <button class="chip" onclick="selectChip(this)">🛁 위생/미용</button>
+    <button class="chip" onclick="selectChip(this)">📦 기타</button>
+  </div>
+
+  <!-- AI Recommendation -->
+  <div class="ai-banner">
+    <span class="ai-banner-icon">🤖</span>
+    <div class="ai-banner-content">
+      <div class="ai-banner-title">🐰 AI가 추천하는 맞춤 상품</div>
+      <div class="ai-banner-desc">반려동물의 건강 상태와 취향을 분석하여 최적의 상품을 추천해드려요!</div>
+    </div>
+    <button class="ai-banner-btn" onclick="showToast('🤖 AI 추천을 분석 중... (🪙 3 토큰)')">AI 추천받기</button>
+  </div>
+
+  <!-- Products: 인기 상품 -->
+  <div class="section-head">
+    <h2>🔥 인기 상품</h2>
+    <a href="#" class="more-link" onclick="event.preventDefault(); showToast('더보기 준비 중!')">더보기 →</a>
+  </div>
+  <div class="product-grid">
+
+    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+      <div class="product-thumb">
+        <div class="thumb-emoji" style="background: linear-gradient(135deg, #1a2030, #1f2940);">🍖</div>
+        <span class="product-status status-sale">판매 중</span>
+        <button class="product-like" onclick="event.stopPropagation(); toggleLike(this)">🤍</button>
+        <span class="product-ai-badge">🤖 AI추천</span>
+      </div>
+      <div class="product-info">
+        <div class="product-title">하림 펫푸드 더리얼 그레인프리 닭가슴살 3kg (미개봉)</div>
+        <div class="product-price" style="color: var(--accent4);">₩28,000</div>
+        <div class="product-meta">
+          <span class="product-location">📍 서울 강남</span>
+          <span class="product-time">⏰ 2시간 전</span>
+        </div>
+        <div class="product-stats">
+          <span>❤️ 24</span>
+          <span>💬 8</span>
+          <span>👁️ 156</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+      <div class="product-thumb">
+        <div class="thumb-emoji" style="background: linear-gradient(135deg, #201a30, #2d1f40);">🧸</div>
+        <span class="product-status status-sale">판매 중</span>
+        <button class="product-like" onclick="event.stopPropagation(); toggleLike(this)">🤍</button>
+      </div>
+      <div class="product-info">
+        <div class="product-title">강아지 노즈워크 장난감 세트 (3종) - 상태 최상</div>
+        <div class="product-price" style="color: var(--accent4);">₩15,000</div>
+        <div class="product-meta">
+          <span class="product-location">📍 부산 해운대</span>
+          <span class="product-time">⏰ 5시간 전</span>
+        </div>
+        <div class="product-stats">
+          <span>❤️ 18</span>
+          <span>💬 5</span>
+          <span>👁️ 98</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+      <div class="product-thumb">
+        <div class="thumb-emoji" style="background: linear-gradient(135deg, #1a2520, #0d3f2b);">🏠</div>
+        <span class="product-status status-reserved">예약 중</span>
+        <button class="product-like liked" onclick="event.stopPropagation(); toggleLike(this)">❤️</button>
+      </div>
+      <div class="product-info">
+        <div class="product-title">고양이 캣타워 3단 (160cm) - 6개월 사용</div>
+        <div class="product-price" style="color: var(--accent5);">₩45,000</div>
+        <div class="product-meta">
+          <span class="product-location">📍 인천 송도</span>
+          <span class="product-time">⏰ 1일 전</span>
+        </div>
+        <div class="product-stats">
+          <span>❤️ 42</span>
+          <span>💬 12</span>
+          <span>👁️ 320</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+      <div class="product-thumb">
+        <div class="thumb-emoji" style="background: linear-gradient(135deg, #2a1a20, #401f2a);">👕</div>
+        <span class="product-status status-sale">판매 중</span>
+        <button class="product-like" onclick="event.stopPropagation(); toggleLike(this)">🤍</button>
+        <span class="product-ai-badge">🤖 AI추천</span>
+      </div>
+      <div class="product-info">
+        <div class="product-title">강아지 패딩 조끼 (L) 겨울용 - 1회 착용</div>
+        <div class="product-price" style="color: var(--accent4);">₩12,000</div>
+        <div class="product-meta">
+          <span class="product-location">📍 대전 유성</span>
+          <span class="product-time">⏰ 3시간 전</span>
+        </div>
+        <div class="product-stats">
+          <span>❤️ 9</span>
+          <span>💬 3</span>
+          <span>👁️ 67</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Products: 최신 등록 -->
+  <div class="section-head">
+    <h2>🆕 방금 올라왔어요</h2>
+    <a href="#" class="more-link" onclick="event.preventDefault(); showToast('더보기 준비 중!')">더보기 →</a>
+  </div>
+  <div class="product-grid">
+
+    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+      <div class="product-thumb">
+        <div class="thumb-emoji" style="background: linear-gradient(135deg, #1a2030, #1f3040);">💊</div>
+        <span class="product-status status-sale">판매 중</span>
+        <button class="product-like" onclick="event.stopPropagation(); toggleLike(this)">🤍</button>
+      </div>
+      <div class="product-info">
+        <div class="product-title">반려동물 유산균 뉴트리벳 30포 (미개봉)</div>
+        <div class="product-price" style="color: var(--accent4);">₩18,000</div>
+        <div class="product-meta">
+          <span class="product-location">📍 서울 마포</span>
+          <span class="product-time">⏰ 15분 전</span>
+        </div>
+        <div class="product-stats">
+          <span>❤️ 2</span>
+          <span>💬 0</span>
+          <span>👁️ 12</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+      <div class="product-thumb">
+        <div class="thumb-emoji" style="background: linear-gradient(135deg, #201a25, #2d1f35);">🛁</div>
+        <span class="product-status status-sale">판매 중</span>
+        <button class="product-like" onclick="event.stopPropagation(); toggleLike(this)">🤍</button>
+      </div>
+      <div class="product-info">
+        <div class="product-title">고양이 자동 급수기 + 필터 3개 세트</div>
+        <div class="product-price" style="color: var(--accent4);">₩22,000</div>
+        <div class="product-meta">
+          <span class="product-location">📍 경기 성남</span>
+          <span class="product-time">⏰ 30분 전</span>
+        </div>
+        <div class="product-stats">
+          <span>❤️ 5</span>
+          <span>💬 1</span>
+          <span>👁️ 28</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+      <div class="product-thumb">
+        <div class="thumb-emoji" style="background: linear-gradient(135deg, #1a2520, #0d3f2b);">🐰</div>
+        <span class="product-status status-sale">판매 중</span>
+        <button class="product-like" onclick="event.stopPropagation(); toggleLike(this)">🤍</button>
+      </div>
+      <div class="product-info">
+        <div class="product-title">토끼 건초 티모시 1kg + 알팔파 500g 세트</div>
+        <div class="product-price" style="color: var(--accent4);">₩8,500</div>
+        <div class="product-meta">
+          <span class="product-location">📍 수원 영통</span>
+          <span class="product-time">⏰ 1시간 전</span>
+        </div>
+        <div class="product-stats">
+          <span>❤️ 7</span>
+          <span>💬 2</span>
+          <span>👁️ 45</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+      <div class="product-thumb">
+        <div class="thumb-emoji" style="background: linear-gradient(135deg, #1a2030, #102040);">📦</div>
+        <span class="product-status status-sold">판매 완료</span>
+        <button class="product-like liked" onclick="event.stopPropagation(); toggleLike(this)">❤️</button>
+      </div>
+      <div class="product-info">
+        <div class="product-title">반려동물 GPS 트래커 (PetCTT 호환) - 새것</div>
+        <div class="product-price" style="color: var(--text-muted); text-decoration: line-through;">₩35,000</div>
+        <div class="product-meta">
+          <span class="product-location">📍 서울 강서</span>
+          <span class="product-time">⏰ 3일 전</span>
+        </div>
+        <div class="product-stats">
+          <span>❤️ 56</span>
+          <span>💬 21</span>
+          <span>👁️ 512</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Coupon Talk Link -->
+  <div class="coupon-banner" onclick="showToast('🎮 쿠폰톡톡은 곧 오픈됩니다!')">
+    <span class="coupon-icon">🎟️</span>
+    <div class="coupon-content">
+      <div class="coupon-title">🎮 쿠폰톡톡에서 할인 쿠폰 받기!</div>
+      <div class="coupon-desc">미니게임을 플레이하고 구름장터에서 사용할 수 있는 할인 쿠폰을 획득하세요!</div>
+    </div>
+    <span class="coupon-arrow">→</span>
+  </div>
+
+  <!-- Partner Stores -->
+  <div class="partner-section">
+    <h2>🤝 상생 공존 마켓 파트너</h2>
+    <p>PetCTT와 함께하는 믿을 수 있는 파트너사들입니다.</p>
+    <div class="partner-grid">
+      <div class="partner-card" onclick="showToast('🐔 하림 펫푸드 스토어 준비 중!')">
+        <span class="partner-logo">🐔</span>
+        <div class="partner-name">하림 펫푸드</div>
+        <div class="partner-desc">프리미엄 펫 사료</div>
+        <span class="partner-badge">✓ 공식 파트너</span>
+      </div>
+      <div class="partner-card" onclick="showToast('🏥 펫 닥터 스토어 준비 중!')">
+        <span class="partner-logo">🏥</span>
+        <div class="partner-name">펫 닥터</div>
+        <div class="partner-desc">동물 건강 영양제</div>
+        <span class="partner-badge">✓ 공식 파트너</span>
+      </div>
+      <div class="partner-card" onclick="showToast('🧸 펫 토이랜드 스토어 준비 중!')">
+        <span class="partner-logo">🧸</span>
+        <div class="partner-name">펫 토이랜드</div>
+        <div class="partner-desc">반려동물 장난감</div>
+        <span class="partner-badge">✓ 공식 파트너</span>
+      </div>
+      <div class="partner-card" onclick="showToast('🐾 파트너 제휴 문의: biz@petctt.com')">
+        <span class="partner-logo">➕</span>
+        <div class="partner-name">파트너 신청</div>
+        <div class="partner-desc">함께 성장해요!</div>
+        <span class="partner-badge" style="background: rgba(0,229,255,0.12); color: var(--accent);">신청하기</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 메이커 입점관 ===== -->
+  <div class="partner-section" style="margin-top: 24px;">
+    <h2>🏪 메이커 입점관</h2>
+    <p>판을 깔아주는 플랫폼 — 혁신적인 메이커들의 쇼케이스</p>
+
+    <!-- AI 글래스 카테고리 -->
+    <div style="margin-top: 20px; margin-bottom: 16px;">
+      <div style="font-weight: 700; font-size: 1rem; color: #00e5ff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <span style="background: rgba(0,229,255,0.12); padding: 4px 12px; border-radius: 10px; font-size: 0.8rem;">🕶️ AI 글래스</span>
+      </div>
+      <div class="partner-grid">
+        <div class="partner-card" onclick="window.open('https://www.meta.com/ray-ban-meta-glasses/', '_blank')">
+          <span class="partner-logo">🕶️</span>
+          <div class="partner-name">Ray-Ban Meta</div>
+          <div class="partner-desc">AI 카메라 탑재 스마트 글래스</div>
+          <span class="partner-badge" style="background: rgba(0,229,255,0.12); color: var(--accent);">입점 예정</span>
+        </div>
+        <div class="partner-card" onclick="showToast('🕶️ 로키드 입점 준비 중!')">
+          <span class="partner-logo">👓</span>
+          <div class="partner-name">Rokid</div>
+          <div class="partner-desc">실시간 자막/통역 AR 글래스</div>
+          <span class="partner-badge" style="background: rgba(0,229,255,0.12); color: var(--accent);">입점 예정</span>
+        </div>
+        <div class="partner-card" onclick="showToast('🕶️ 이븐 리얼리티 입점 준비 중!')">
+          <span class="partner-logo">🔮</span>
+          <div class="partner-name">Even Realities</div>
+          <div class="partner-desc">초경량 AI 스마트 글래스</div>
+          <span class="partner-badge" style="background: rgba(0,229,255,0.12); color: var(--accent);">입점 예정</span>
+        </div>
+        <div class="partner-card" onclick="showToast('🤝 AI 글래스 메이커 입점 문의: biz@petctt.com')">
+          <span class="partner-logo">➕</span>
+          <div class="partner-name">입점 신청</div>
+          <div class="partner-desc">AI 글래스 메이커</div>
+          <span class="partner-badge" style="background: rgba(124,77,255,0.12); color: #a78bfa;">신청하기</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 펫테크 카테고리 -->
+    <div style="margin-bottom: 16px;">
+      <div style="font-weight: 700; font-size: 1rem; color: #ff6b9d; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <span style="background: rgba(255,107,157,0.12); padding: 4px 12px; border-radius: 10px; font-size: 0.8rem;">🐾 펫테크</span>
+      </div>
+      <div class="partner-grid">
+        <div class="partner-card" onclick="showToast('🐾 스마트 펫 피더 입점 준비 중!')">
+          <span class="partner-logo">🍽️</span>
+          <div class="partner-name">펫 스마트 피더</div>
+          <div class="partner-desc">AI 자동 급식기</div>
+          <span class="partner-badge" style="background: rgba(255,107,157,0.12); color: #ff6b9d;">입점 예정</span>
+        </div>
+        <div class="partner-card" onclick="showToast('📡 펫 GPS 트래커 입점 준비 중!')">
+          <span class="partner-logo">📡</span>
+          <div class="partner-name">펫 GPS 트래커</div>
+          <div class="partner-desc">실시간 위치 추적 디바이스</div>
+          <span class="partner-badge" style="background: rgba(255,107,157,0.12); color: #ff6b9d;">입점 예정</span>
+        </div>
+        <div class="partner-card" onclick="showToast('🏥 스마트 건강 모니터 입점 준비 중!')">
+          <span class="partner-logo">💓</span>
+          <div class="partner-name">펫 헬스 밴드</div>
+          <div class="partner-desc">반려동물 건강 모니터링</div>
+          <span class="partner-badge" style="background: rgba(255,107,157,0.12); color: #ff6b9d;">입점 예정</span>
+        </div>
+        <div class="partner-card" onclick="showToast('🤝 펫테크 메이커 입점 문의: biz@petctt.com')">
+          <span class="partner-logo">➕</span>
+          <div class="partner-name">입점 신청</div>
+          <div class="partner-desc">펫테크 메이커</div>
+          <span class="partner-badge" style="background: rgba(124,77,255,0.12); color: #a78bfa;">신청하기</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 스마트 웨어러블 카테고리 -->
+    <div>
+      <div style="font-weight: 700; font-size: 1rem; color: #34d399; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <span style="background: rgba(52,211,153,0.12); padding: 4px 12px; border-radius: 10px; font-size: 0.8rem;">⌚ 스마트 웨어러블</span>
+      </div>
+      <div class="partner-grid">
+        <div class="partner-card" onclick="showToast('⌚ 스마트워치 입점 준비 중!')">
+          <span class="partner-logo">⌚</span>
+          <div class="partner-name">펫 스마트워치</div>
+          <div class="partner-desc">보호자+반려동물 연동 워치</div>
+          <span class="partner-badge" style="background: rgba(52,211,153,0.12); color: #34d399;">입점 예정</span>
+        </div>
+        <div class="partner-card" onclick="showToast('🎧 스마트 이어버드 입점 준비 중!')">
+          <span class="partner-logo">🎧</span>
+          <div class="partner-name">AI 이어버드</div>
+          <div class="partner-desc">실시간 동물소리 통역</div>
+          <span class="partner-badge" style="background: rgba(52,211,153,0.12); color: #34d399;">입점 예정</span>
+        </div>
+        <div class="partner-card" onclick="showToast('📱 스마트 카메라 입점 준비 중!')">
+          <span class="partner-logo">📸</span>
+          <div class="partner-name">AI 펫 캠</div>
+          <div class="partner-desc">AI 행동분석 홈카메라</div>
+          <span class="partner-badge" style="background: rgba(52,211,153,0.12); color: #34d399;">입점 예정</span>
+        </div>
+        <div class="partner-card" onclick="showToast('🤝 웨어러블 메이커 입점 문의: biz@petctt.com')">
+          <span class="partner-logo">➕</span>
+          <div class="partner-name">입점 신청</div>
+          <div class="partner-desc">웨어러블 메이커</div>
+          <span class="partner-badge" style="background: rgba(124,77,255,0.12); color: #a78bfa;">신청하기</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Safety Tips -->
+  <div class="safety-section">
+    <h3>🛡️ 안전거래 가이드</h3>
+    <div class="safety-grid">
+      <div class="safety-item">
+        <span class="safety-icon">✅</span>
+        <div class="safety-text"><strong>직거래 권장</strong><br>가급적 직접 만나서 물건을 확인한 후 거래하세요.</div>
+      </div>
+      <div class="safety-item">
+        <span class="safety-icon">🔒</span>
+        <div class="safety-text"><strong>안전결제 사용</strong><br>PetCTT 안전결제를 통해 사기 피해를 예방하세요.</div>
+      </div>
+      <div class="safety-item">
+        <span class="safety-icon">📸</span>
+        <div class="safety-text"><strong>실물 사진 확인</strong><br>판매자에게 실물 사진과 영수증을 요청하세요.</div>
+      </div>
+      <div class="safety-item">
+        <span class="safety-icon">⚠️</span>
+        <div class="safety-text"><strong>선입금 주의</strong><br>과도한 선입금을 요구하는 거래는 피하세요.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  © 2026 <a href="index.html">PetCTT Pro</a> - 반려동물 통역 + 위치 추적 | 주식회사 발로레<br>
+  <a href="guide.html" style="margin: 0 6px;">📖 사용설명서</a> ·
+  <a href="broadcast.html" style="margin: 0 6px;">📡 방송국</a> ·
+  <a href="market.html" style="margin: 0 6px;">☁️ 구름장터</a> ·
+  <a href="coupon.html" style="margin: 0 6px;">🎮 쿠폰톡톡</a> ·
+  <a href="ami.html" style="margin: 0 6px;">🐾 아미</a> ·
+  <a href="pricing.html" style="margin: 0 6px;">💎 요금제</a><br>
+  <a href="privacy.html" style="margin: 0 6px;">개인정보처리방침</a> ·
+  <a href="terms.html" style="margin: 0 6px;">이용약관</a> ·
+  <a href="contact.html" style="margin: 0 6px;">문의하기</a>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+function selectChip(el) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  showToast('📂 카테고리: ' + el.textContent.trim());
+}
+
+function toggleLike(btn) {
+  btn.classList.toggle('liked');
+  btn.textContent = btn.classList.contains('liked') ? '❤️' : '🤍';
+  showToast(btn.classList.contains('liked') ? '❤️ 관심 목록에 추가!' : '💔 관심 목록에서 제거');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Enter key search
+document.getElementById('searchInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') showToast('🔍 검색 기능은 서비스 오픈 후 이용 가능합니다!');
+});
+</script>
+
+</body>
+</html>

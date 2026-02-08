@@ -6,8 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>PetCTT Pro - 반려동물 양방향 통역 + 위치 추적</title>
 
-    <!-- 버전 정보 (캐시 헤더 제거 - 브라우저 기본 캐싱 허용) -->
-    <meta name="version" content="4f88d81-20260129-optimized">
+    <!-- 캐시 무효화 (강제 새로고침용) -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="version" content="4f88d81-20260115-complete">
 
     <!-- PWA -->
     <link rel="manifest" href="manifest.webmanifest">
@@ -16,35 +19,16 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="AI 기반 반려동물 양방향 실시간 음성 통역 + GPS 위치 추적 시스템">
 
-    <!-- Leaflet 지도 라이브러리 (지연 로딩) -->
+    <!-- Leaflet 지도 라이브러리 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
-    <!-- 폰트 최적화: 필수 weight만 로드 (6개 → 2개) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap"
         rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
-
-    <!-- Three.js (580KB) - defer로 렌더 블로킹 방지 -->
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-    <!-- App Override CSS -->
-    <link rel="stylesheet" href="app.css">
-
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7895014528836146"
-        crossorigin="anonymous"></script>
-
-    <!-- Google Analytics (GA4) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R4DBR11KDR"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-R4DBR11KDR');
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <style>
         :root {
@@ -2089,12 +2073,6 @@
 
     <!-- 메인 -->
     <main class="container">
-        <!-- AdSense Placeholder: 상단 -->
-        <div class="adsense-placeholder" style="background: rgba(255,255,255,.03); border: 1px dashed rgba(255,255,255,.15); border-radius: 12px; padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px; margin-bottom: 16px;">
-            <!-- Google AdSense code here -->
-            📢 광고 영역 (AdSense 승인 후 활성화)
-        </div>
-
         <!-- 탭 네비게이션 -->
         <div class="tab-nav">
             <button class="tab-btn active" data-tab="live" onclick="switchTab('live')">🎙️ LIVE</button>
@@ -2102,8 +2080,6 @@
             <button class="tab-btn" data-tab="locate" onclick="switchTab('locate')">🗺️ 찾기</button>
             <button class="tab-btn" data-tab="shop" onclick="switchTab('shop')"
                 style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24;">🛒 쇼핑</button>
-            <a href="http://localhost:3000" target="_blank" class="tab-btn"
-                style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(236, 72, 153, 0.3)); border: 1px solid rgba(168, 85, 247, 0.5); color: #e879f9; text-decoration: none;">🎨 젬 스튜디오</a>
             <button class="tab-btn"
                 style="background: rgba(45, 212, 191, 0.2); border: 1px solid rgba(45, 212, 191, 0.4); color: var(--primary-light);"
                 onclick="openBroadcastStation()">📡 설정</button>
@@ -2278,12 +2254,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- AdSense Placeholder: 중간 -->
-        <div class="adsense-placeholder" style="background: rgba(255,255,255,.03); border: 1px dashed rgba(255,255,255,.15); border-radius: 12px; padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px; margin: 16px 0;">
-            <!-- Google AdSense code here -->
-            📢 광고 영역 (AdSense 승인 후 활성화)
-        </div>
 
         <!-- 건강체크 섹션 -->
         <section id="health" class="section">
@@ -2678,17 +2648,94 @@
                 </div>
             </div>
         </section>
+
+        <!-- ===== AI 글래스 비전 섹션 ===== -->
+        <section id="vision" class="section" style="display:block; margin-top: 20px;">
+            <div class="main-card">
+                <div class="section-title">🌍 AI 글래스 시대, PetCTT가 선점합니다</div>
+                
+                <!-- 비전 슬로건 -->
+                <div style="background: linear-gradient(135deg, rgba(0, 229, 255, 0.12), rgba(124, 77, 255, 0.12)); border: 1px solid rgba(0, 229, 255, 0.25); border-radius: 16px; padding: 24px; margin-bottom: 20px; text-align: center;">
+                    <div style="font-size: 1.4rem; font-weight: 800; background: linear-gradient(135deg, #00e5ff, #7c4dff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; line-height: 1.4;">
+                        AI 글래스가 세상을 바꾸는 지금,<br>PetCTT는 이미 실시간 자막·대화·추론을 하고 있습니다.
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 12px;">
+                        지금은 웹, 곧 웨어러블(Ray-Ban 등 AI 글래스)로 확장되는 미래 기술의 첫걸음 🚀
+                    </p>
+                </div>
+
+                <!-- 우주탑스타 데뷔 -->
+                <div style="background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(255, 138, 101, 0.1)); border: 1px solid rgba(255, 107, 157, 0.25); border-radius: 16px; padding: 24px; margin-bottom: 20px;">
+                    <div style="text-align: center; margin-bottom: 16px;">
+                        <div style="font-size: 1.1rem; font-weight: 700; color: #ff6b9d; margin-bottom: 4px;">🎬 PetCTT 우주탑스타</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">AI 시대를 이끄는 4인의 히어로</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center;">
+                        <div style="padding: 16px 8px; background: rgba(0, 229, 255, 0.08); border-radius: 14px; border: 1px solid rgba(0, 229, 255, 0.15);">
+                            <div style="font-size: 2.2rem;">💎</div>
+                            <div style="font-weight: 700; font-size: 0.85rem; color: #00e5ff; margin-top: 6px;">젬</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">디자인</div>
+                        </div>
+                        <div style="padding: 16px 8px; background: rgba(99, 102, 241, 0.08); border-radius: 14px; border: 1px solid rgba(99, 102, 241, 0.15);">
+                            <div style="font-size: 2.2rem;">💙</div>
+                            <div style="font-weight: 700; font-size: 0.85rem; color: #818cf8; margin-top: 6px;">클로드</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">개발</div>
+                        </div>
+                        <div style="padding: 16px 8px; background: rgba(255, 107, 157, 0.08); border-radius: 14px; border: 1px solid rgba(255, 107, 157, 0.15);">
+                            <div style="font-size: 2.2rem;">🐾</div>
+                            <div style="font-weight: 700; font-size: 0.85rem; color: #ff6b9d; margin-top: 6px;">아미</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">코딩</div>
+                        </div>
+                        <div style="padding: 16px 8px; background: rgba(16, 185, 129, 0.08); border-radius: 14px; border: 1px solid rgba(16, 185, 129, 0.15);">
+                            <div style="font-size: 2.2rem;">🧠</div>
+                            <div style="font-weight: 700; font-size: 0.85rem; color: #34d399; margin-top: 6px;">엔티</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">AI 로직</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 특허 기술 철학 -->
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 20px; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                        <span style="font-size: 1.2rem;">📜</span>
+                        <span style="font-weight: 700; color: var(--accent); font-size: 0.95rem;">기술 철학</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.7;">
+                        본 서비스는 <strong style="color: var(--text);">멀티모달 해석 + 양방향 음성 대화 + 실시간 자막/요약 기술</strong>에 대한 자체 특허 개념을 기반으로 설계되었습니다.
+                        방송국, LIVE, 자막, 대화 기능이 하나의 통합 세계관 아래 구현됩니다.
+                    </p>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; opacity: 0.7;">
+                        특허출원 10-2025-0217020 | 주식회사 발로레
+                    </div>
+                </div>
+
+                <!-- AI 글래스 레퍼런스 -->
+                <a href="https://youtu.be/G8pw6KdiYdM" target="_blank" rel="noopener noreferrer"
+                   style="display: block; text-align: center; padding: 14px 20px; background: linear-gradient(135deg, rgba(0,229,255,0.2), rgba(124,77,255,0.2)); color: #00e5ff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 0.9rem; border: 1px solid rgba(0,229,255,0.3); transition: all 0.3s;">
+                    🎥 AI 글래스의 미래 영상 보기 →
+                </a>
+            </div>
+        </section>
+
     </main>
 
     <!-- 푸터 -->
     <footer>
-        <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 20px; margin-bottom: 12px;">
-            <a href="privacy.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">개인정보처리방침</a>
-            <a href="terms.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">이용약관</a>
-            <a href="contact.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">문의하기</a>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 12px;">
+            <a href="guide.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">📖 사용설명서</a>
+            <a href="broadcast.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">📡 방송국</a>
+            <a href="market.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">☁️ 구름장터</a>
+            <a href="coupon.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">🎮 쿠폰톡톡</a>
+            <a href="ami.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">🐾 아미 AI</a>
+            <a href="pricing.html" style="color: var(--text-muted); text-decoration: none; font-size: 13px; transition: color 0.2s;">💎 요금제</a>
         </div>
-        <p>© 2026 <a href="https://petctt.com">PetCTT Pro</a> - 반려동물 통역 + 위치 추적</p>
-        <p style="margin-top:4px">강아지를 잃어버렸을 때 GPS로 찾아주세요 🐾</p>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-bottom: 12px;">
+            <a href="privacy.html" style="color: var(--text-muted); text-decoration: none; font-size: 12px;">개인정보처리방침</a>
+            <a href="terms.html" style="color: var(--text-muted); text-decoration: none; font-size: 12px;">이용약관</a>
+            <a href="contact.html" style="color: var(--text-muted); text-decoration: none; font-size: 12px;">문의하기</a>
+        </div>
+        <p>© 2026 <a href="https://petctt.com">PetCTT Pro</a> - 반려동물 통역 + 위치 추적 | 주식회사 발로레</p>
+        <p style="margin-top:4px; font-size: 0.75rem;">상생 공존 마켓 🌍 AI 글래스 시대를 선점하는 실시간 지능형 방송국 🐾</p>
     </footer>
 
     <!-- 토스트 -->
@@ -2788,6 +2835,20 @@
                     <input type="text" placeholder="클에게 메시지 보내기..." id="claudeChatInput">
                     <button onclick="sendClaudeChat()">전송</button>
                 </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px;">
+                    <button onclick="window.open('https://accounts.google.com/signin', '_blank')" 
+                        style="padding: 10px; background: linear-gradient(135deg, #4285f4 0%, #34a853 100%); border: none; border-radius: 8px; color: white; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
+                        🔐 구글 로그인
+                    </button>
+                    <button onclick="window.open('https://accounts.kakao.com/login', '_blank')" 
+                        style="padding: 10px; background: linear-gradient(135deg, #fee500 0%, #ffd700 100%); border: none; border-radius: 8px; color: #3c1e1e; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
+                        💛 카카오 로그인
+                    </button>
+                </div>
+                <button onclick="window.open('https://claude.ai', '_blank')" 
+                    style="width: 100%; margin-top: 8px; padding: 14px; background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); transition: all 0.3s;">
+                    🤖 Claude 무료 시작 → 유료 전환
+                </button>
             </div>
         </div>
     </div>
@@ -2809,6 +2870,20 @@
                     <input type="text" placeholder="젬에게 메시지 보내기..." id="gemChatInput">
                     <button onclick="sendGemChat()">전송</button>
                 </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px;">
+                    <button onclick="window.open('https://accounts.google.com/signin', '_blank')" 
+                        style="padding: 10px; background: linear-gradient(135deg, #4285f4 0%, #34a853 100%); border: none; border-radius: 8px; color: white; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
+                        🔐 구글 로그인
+                    </button>
+                    <button onclick="window.open('https://accounts.kakao.com/login', '_blank')" 
+                        style="padding: 10px; background: linear-gradient(135deg, #fee500 0%, #ffd700 100%); border: none; border-radius: 8px; color: #3c1e1e; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
+                        💛 카카오 로그인
+                    </button>
+                </div>
+                <button onclick="window.open('https://gemini.google.com', '_blank')" 
+                    style="width: 100%; margin-top: 8px; padding: 14px; background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3); transition: all 0.3s;">
+                    💎 Gemini 무료 시작 → 유료 전환
+                </button>
             </div>
         </div>
     </div>
@@ -2830,6 +2905,20 @@
                     <input type="text" placeholder="엔티에게 메시지 보내기..." id="ntChatInput">
                     <button onclick="sendNtChat()">전송</button>
                 </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px;">
+                    <button onclick="window.open('https://accounts.google.com/signin', '_blank')" 
+                        style="padding: 10px; background: linear-gradient(135deg, #4285f4 0%, #34a853 100%); border: none; border-radius: 8px; color: white; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
+                        🔐 구글 로그인
+                    </button>
+                    <button onclick="window.open('https://accounts.kakao.com/login', '_blank')" 
+                        style="padding: 10px; background: linear-gradient(135deg, #fee500 0%, #ffd700 100%); border: none; border-radius: 8px; color: #3c1e1e; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
+                        💛 카카오 로그인
+                    </button>
+                </div>
+                <button onclick="showToast('🚧 엔티 AI 파트너 준비중! 곧 만나요!', 'info')" 
+                    style="width: 100%; margin-top: 8px; padding: 14px; background: rgba(234, 88, 12, 0.5); border: 1px solid rgba(234, 88, 12, 0.7); border-radius: 12px; color: white; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.3s;">
+                    🛠️ 엔티 AI 파트너 Coming Soon...
+                </button>
             </div>
         </div>
     </div>
@@ -3463,15 +3552,36 @@
                 }
             } catch (error) {
                 console.error('❌ handleStart 에러:', error);
-                showToast('❌ 에러 발생: ' + error.message, 'error');
+                var errMsg = error.message || '알 수 없는 에러';
+                if (errMsg.includes('권한') || errMsg.includes('Permission')) {
+                    showToast('🔒 카메라/마이크 권한을 허용해주세요!', 'error');
+                } else {
+                    showToast('❌ ' + errMsg, 'error');
+                }
                 liveState.live = false;
+                var btnStart2 = document.getElementById('btnStart');
+                if (btnStart2) btnStart2.disabled = false;
             }
         }
 
-        // ===== LIVE 카메라 켜기 (Mobile Optimized) =====
+        // ===== LIVE 카메라 켜기 (Mobile Optimized + Permission Handling) =====
         async function openLiveCamera(videoEl, prefer = "environment") {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showToast('⚠️ 이 브라우저는 카메라를 지원하지 않습니다.', 'warning');
                 throw new Error("getUserMedia not supported");
+            }
+
+            // 0) 권한 상태 사전 체크
+            if (navigator.permissions && navigator.permissions.query) {
+                try {
+                    const camPerm = await navigator.permissions.query({ name: 'camera' });
+                    if (camPerm.state === 'denied') {
+                        showToast('🔒 카메라 권한이 차단됨! 브라우저 설정에서 허용해주세요.', 'error');
+                        throw new Error("카메라 권한 차단됨. 브라우저 설정 > 카메라 > 허용");
+                    }
+                } catch (permErr) {
+                    if (permErr.message.includes('차단')) throw permErr;
+                }
             }
 
             // 1) mobile-friendly constraints (ideal + fallback)
@@ -3490,6 +3600,18 @@
                     break;
                 } catch (e) {
                     lastErr = e;
+                    if (e.name === 'NotAllowedError' || e.name === 'PermissionDeniedError') {
+                        showToast('🔒 카메라 권한을 허용해주세요! 주소창 🔒 클릭!', 'error');
+                        throw new Error("카메라 권한을 허용해주세요.");
+                    }
+                    if (e.name === 'NotFoundError') {
+                        showToast('📷 카메라를 찾을 수 없습니다.', 'error');
+                        throw new Error("카메라를 찾을 수 없습니다.");
+                    }
+                    if (e.name === 'NotReadableError' || e.name === 'AbortError') {
+                        showToast('⚠️ 카메라가 다른 앱에서 사용 중입니다.', 'warning');
+                        throw new Error("카메라가 다른 앱에서 사용 중입니다.");
+                    }
                 }
             }
             if (!stream) throw lastErr || new Error("camera failed");
@@ -5094,29 +5216,8 @@
             }
         });
 
-        // Three.js 지연 초기화 - 페이지 로드 후 3초 뒤 또는 사용자 상호작용 시
-        let threeInitialized = false;
-
-        function initThreeDeferred() {
-            if (threeInitialized) return;
-            if (typeof THREE === 'undefined') {
-                // THREE.js가 아직 로드되지 않은 경우 재시도
-                setTimeout(initThreeDeferred, 500);
-                return;
-            }
-            threeInitialized = true;
-            initThree();
-        }
-
-        // 페이지 로드 후 3초 뒤 초기화 (비용 절감)
-        window.addEventListener('load', () => {
-            setTimeout(initThreeDeferred, 3000);
-        });
-
-        // 또는 사용자 상호작용 시 즉시 초기화
-        ['scroll', 'touchstart', 'click'].forEach(event => {
-            window.addEventListener(event, initThreeDeferred, { once: true, passive: true });
-        });
+        // Initialize after a slight delay to ensure DOM is ready
+        window.addEventListener('load', initThree);
     </script>
 
     <!-- ===== 아미 AR 오버레이 JavaScript ===== -->

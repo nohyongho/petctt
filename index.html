@@ -2649,72 +2649,384 @@
             </div>
         </section>
 
-        <!-- ===== AI 글래스 비전 섹션 ===== -->
+        <!-- ===== 🎬 PetCTT 우주대스타 비전 영상 섹션 ===== -->
         <section id="vision" class="section" style="display:block; margin-top: 20px;">
-            <div class="main-card">
-                <div class="section-title">🌍 AI 글래스 시대, PetCTT가 선점합니다</div>
+            <style>
+                /* === 시네마틱 비전 영상 스타일 === */
+                .vision-cinema {
+                    position: relative;
+                    width: 100%;
+                    min-height: 520px;
+                    border-radius: 20px;
+                    overflow: hidden;
+                    background: #000;
+                }
+                .vision-bg {
+                    position: absolute; inset: 0;
+                    background: radial-gradient(ellipse at 30% 50%, rgba(124,77,255,0.3) 0%, transparent 60%),
+                                radial-gradient(ellipse at 70% 30%, rgba(0,229,255,0.25) 0%, transparent 55%),
+                                radial-gradient(ellipse at 50% 80%, rgba(255,107,157,0.2) 0%, transparent 50%),
+                                linear-gradient(180deg, #0a0a1a 0%, #0d1117 50%, #0a0a1a 100%);
+                    animation: visionBgShift 12s ease-in-out infinite;
+                }
+                @keyframes visionBgShift {
+                    0%, 100% { opacity: 1; }
+                    33% { background: radial-gradient(ellipse at 60% 40%, rgba(255,107,157,0.3) 0%, transparent 60%), radial-gradient(ellipse at 20% 70%, rgba(0,229,255,0.25) 0%, transparent 55%), radial-gradient(ellipse at 80% 20%, rgba(124,77,255,0.2) 0%, transparent 50%), linear-gradient(180deg, #0a0a1a 0%, #0d1117 50%, #0a0a1a 100%); }
+                    66% { background: radial-gradient(ellipse at 50% 60%, rgba(0,229,255,0.35) 0%, transparent 60%), radial-gradient(ellipse at 80% 30%, rgba(255,215,0,0.2) 0%, transparent 55%), radial-gradient(ellipse at 20% 40%, rgba(124,77,255,0.25) 0%, transparent 50%), linear-gradient(180deg, #0a0a1a 0%, #0d1117 50%, #0a0a1a 100%); }
+                }
+                /* 별 파티클 */
+                .vision-stars {
+                    position: absolute; inset: 0;
+                    background-image: 
+                        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.8), transparent),
+                        radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.6), transparent),
+                        radial-gradient(1.5px 1.5px at 50% 10%, rgba(0,229,255,0.9), transparent),
+                        radial-gradient(1px 1px at 70% 40%, rgba(255,255,255,0.7), transparent),
+                        radial-gradient(1px 1px at 90% 80%, rgba(255,255,255,0.5), transparent),
+                        radial-gradient(1.5px 1.5px at 15% 85%, rgba(124,77,255,0.8), transparent),
+                        radial-gradient(1px 1px at 45% 45%, rgba(255,255,255,0.6), transparent),
+                        radial-gradient(1px 1px at 80% 15%, rgba(255,107,157,0.7), transparent),
+                        radial-gradient(1px 1px at 60% 75%, rgba(255,255,255,0.5), transparent),
+                        radial-gradient(2px 2px at 25% 35%, rgba(255,215,0,0.6), transparent);
+                    animation: visionTwinkle 4s ease-in-out infinite alternate;
+                }
+                @keyframes visionTwinkle {
+                    0% { opacity: 0.6; }
+                    100% { opacity: 1; }
+                }
+                /* 떠다니는 파티클 */
+                .vision-particle {
+                    position: absolute;
+                    border-radius: 50%;
+                    pointer-events: none;
+                    animation: visionFloat linear infinite;
+                }
+                @keyframes visionFloat {
+                    0% { transform: translateY(100%) scale(0); opacity: 0; }
+                    10% { opacity: 1; transform: translateY(80%) scale(1); }
+                    90% { opacity: 0.6; }
+                    100% { transform: translateY(-20%) scale(0.3); opacity: 0; }
+                }
+                /* 장면 컨테이너 */
+                .vision-scene {
+                    position: absolute; inset: 0;
+                    display: flex; flex-direction: column;
+                    align-items: center; justify-content: center;
+                    padding: 30px 20px;
+                    opacity: 0;
+                    transition: opacity 1.2s ease-in-out;
+                    z-index: 5;
+                }
+                .vision-scene.active { opacity: 1; }
+                /* 황금 자막 */
+                .vision-gold-title {
+                    font-family: 'Gmarket Sans', 'Pretendard', sans-serif;
+                    font-size: 1.5rem; font-weight: 900;
+                    text-align: center; line-height: 1.5;
+                    background: linear-gradient(135deg, #ffd700, #ffaa00, #ffd700, #fff5cc, #ffd700);
+                    background-size: 300% 300%;
+                    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                    animation: visionGoldShimmer 3s ease-in-out infinite;
+                    text-shadow: none;
+                    filter: drop-shadow(0 0 20px rgba(255,215,0,0.4)) drop-shadow(0 2px 8px rgba(0,0,0,0.8));
+                    margin-bottom: 16px;
+                }
+                @keyframes visionGoldShimmer {
+                    0%, 100% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                }
+                .vision-sub-title {
+                    font-family: 'Pretendard', sans-serif;
+                    font-size: 0.95rem; font-weight: 500;
+                    color: rgba(255,255,255,0.85);
+                    text-align: center; line-height: 1.6;
+                    text-shadow: 0 2px 10px rgba(0,0,0,0.7);
+                    max-width: 340px;
+                }
+                /* 이모지 아이콘 애니메이션 */
+                .vision-emoji-float {
+                    font-size: 3rem;
+                    animation: visionEmojiPulse 2s ease-in-out infinite;
+                    margin-bottom: 20px;
+                }
+                @keyframes visionEmojiPulse {
+                    0%, 100% { transform: scale(1) translateY(0); }
+                    50% { transform: scale(1.15) translateY(-8px); }
+                }
+                /* 우주탑스타 그리드 */
+                .vision-team-grid {
+                    display: grid; grid-template-columns: repeat(4, 1fr);
+                    gap: 12px; width: 100%; max-width: 360px; margin-top: 16px;
+                }
+                .vision-team-card {
+                    text-align: center; padding: 14px 6px;
+                    background: rgba(255,255,255,0.05);
+                    border-radius: 14px;
+                    border: 1px solid rgba(255,255,255,0.1);
+                    backdrop-filter: blur(5px);
+                    animation: visionCardAppear 0.6s ease-out both;
+                }
+                .vision-team-card:nth-child(1) { animation-delay: 0.2s; }
+                .vision-team-card:nth-child(2) { animation-delay: 0.4s; }
+                .vision-team-card:nth-child(3) { animation-delay: 0.6s; }
+                .vision-team-card:nth-child(4) { animation-delay: 0.8s; }
+                @keyframes visionCardAppear {
+                    from { opacity: 0; transform: translateY(20px) scale(0.8); }
+                    to { opacity: 1; transform: translateY(0) scale(1); }
+                }
+                .vision-team-emoji { font-size: 2rem; }
+                .vision-team-name { font-weight: 700; font-size: 0.8rem; margin-top: 6px; }
+                .vision-team-role { font-size: 0.65rem; color: rgba(255,255,255,0.5); margin-top: 2px; }
+                /* 프로그레스 바 */
+                .vision-progress {
+                    position: absolute; bottom: 0; left: 0;
+                    height: 3px;
+                    background: linear-gradient(90deg, #ffd700, #ff6b9d, #00e5ff, #7c4dff);
+                    background-size: 200% 100%;
+                    animation: visionProgressColor 8s linear infinite;
+                    z-index: 10;
+                    transition: width 0.3s linear;
+                }
+                @keyframes visionProgressColor {
+                    0% { background-position: 0% 50%; }
+                    100% { background-position: 200% 50%; }
+                }
+                /* 버튼 */
+                .vision-cta-btn {
+                    display: inline-block; margin-top: 20px;
+                    padding: 14px 28px;
+                    background: linear-gradient(135deg, rgba(255,215,0,0.25), rgba(255,107,157,0.25));
+                    color: #ffd700; text-decoration: none;
+                    border-radius: 30px; font-weight: 800; font-size: 0.9rem;
+                    border: 1px solid rgba(255,215,0,0.4);
+                    transition: all 0.3s;
+                    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+                    animation: visionBtnGlow 2s ease-in-out infinite alternate;
+                }
+                .vision-cta-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255,215,0,0.3); }
+                @keyframes visionBtnGlow {
+                    0% { box-shadow: 0 0 10px rgba(255,215,0,0.2); }
+                    100% { box-shadow: 0 0 25px rgba(255,215,0,0.4); }
+                }
+                /* 특허 뱃지 */
+                .vision-patent {
+                    position: absolute; bottom: 12px; right: 16px;
+                    font-size: 0.6rem; color: rgba(255,255,255,0.3);
+                    z-index: 10;
+                }
+                /* 장면 번호 인디케이터 */
+                .vision-dots {
+                    position: absolute; bottom: 16px; left: 50%;
+                    transform: translateX(-50%);
+                    display: flex; gap: 8px; z-index: 10;
+                }
+                .vision-dot {
+                    width: 8px; height: 8px; border-radius: 50%;
+                    background: rgba(255,255,255,0.3);
+                    transition: all 0.4s;
+                    cursor: pointer;
+                }
+                .vision-dot.active {
+                    background: #ffd700;
+                    box-shadow: 0 0 8px rgba(255,215,0,0.6);
+                    transform: scale(1.3);
+                }
+                @media (max-width: 400px) {
+                    .vision-gold-title { font-size: 1.2rem; }
+                    .vision-sub-title { font-size: 0.82rem; }
+                    .vision-cinema { min-height: 480px; }
+                    .vision-team-grid { gap: 8px; }
+                }
+            </style>
+
+            <!-- 시네마틱 비전 영상 -->
+            <div class="vision-cinema" id="visionCinema">
+                <!-- 배경 -->
+                <div class="vision-bg"></div>
+                <div class="vision-stars"></div>
                 
-                <!-- 비전 슬로건 -->
-                <div style="background: linear-gradient(135deg, rgba(0, 229, 255, 0.12), rgba(124, 77, 255, 0.12)); border: 1px solid rgba(0, 229, 255, 0.25); border-radius: 16px; padding: 24px; margin-bottom: 20px; text-align: center;">
-                    <div style="font-size: 1.4rem; font-weight: 800; background: linear-gradient(135deg, #00e5ff, #7c4dff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; line-height: 1.4;">
-                        AI 글래스가 세상을 바꾸는 지금,<br>PetCTT는 이미 실시간 자막·대화·추론을 하고 있습니다.
-                    </div>
-                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 12px;">
-                        지금은 웹, 곧 웨어러블(Ray-Ban 등 AI 글래스)로 확장되는 미래 기술의 첫걸음 🚀
-                    </p>
-                </div>
+                <!-- 떠다니는 파티클 (JS로 생성) -->
+                <div id="visionParticles"></div>
 
-                <!-- 우주탑스타 데뷔 -->
-                <div style="background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(255, 138, 101, 0.1)); border: 1px solid rgba(255, 107, 157, 0.25); border-radius: 16px; padding: 24px; margin-bottom: 20px;">
-                    <div style="text-align: center; margin-bottom: 16px;">
-                        <div style="font-size: 1.1rem; font-weight: 700; color: #ff6b9d; margin-bottom: 4px;">🎬 PetCTT 우주탑스타</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">AI 시대를 이끄는 4인의 히어로</div>
+                <!-- 장면 1: 메인 비전 -->
+                <div class="vision-scene active" id="vScene1">
+                    <div class="vision-emoji-float">🌍🐾</div>
+                    <div class="vision-gold-title">
+                        PETCTT.COM<br>
+                        우린 AI와 평화<br>
+                        그리고 사랑을 지향합니다
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; text-align: center;">
-                        <div style="padding: 16px 8px; background: rgba(0, 229, 255, 0.08); border-radius: 14px; border: 1px solid rgba(0, 229, 255, 0.15);">
-                            <div style="font-size: 2.2rem;">💎</div>
-                            <div style="font-weight: 700; font-size: 0.85rem; color: #00e5ff; margin-top: 6px;">젬</div>
-                            <div style="font-size: 0.7rem; color: var(--text-muted);">디자인</div>
-                        </div>
-                        <div style="padding: 16px 8px; background: rgba(99, 102, 241, 0.08); border-radius: 14px; border: 1px solid rgba(99, 102, 241, 0.15);">
-                            <div style="font-size: 2.2rem;">💙</div>
-                            <div style="font-weight: 700; font-size: 0.85rem; color: #818cf8; margin-top: 6px;">클로드</div>
-                            <div style="font-size: 0.7rem; color: var(--text-muted);">개발</div>
-                        </div>
-                        <div style="padding: 16px 8px; background: rgba(255, 107, 157, 0.08); border-radius: 14px; border: 1px solid rgba(255, 107, 157, 0.15);">
-                            <div style="font-size: 2.2rem;">🐾</div>
-                            <div style="font-weight: 700; font-size: 0.85rem; color: #ff6b9d; margin-top: 6px;">아미</div>
-                            <div style="font-size: 0.7rem; color: var(--text-muted);">코딩</div>
-                        </div>
-                        <div style="padding: 16px 8px; background: rgba(16, 185, 129, 0.08); border-radius: 14px; border: 1px solid rgba(16, 185, 129, 0.15);">
-                            <div style="font-size: 2.2rem;">🧠</div>
-                            <div style="font-weight: 700; font-size: 0.85rem; color: #34d399; margin-top: 6px;">엔티</div>
-                            <div style="font-size: 0.7rem; color: var(--text-muted);">AI 로직</div>
-                        </div>
+                    <div class="vision-sub-title">
+                        AI 글래스가 세상을 바꾸는 지금,<br>
+                        PetCTT는 이미 실시간 자막·대화·추론을 하고 있습니다
                     </div>
                 </div>
 
-                <!-- 특허 기술 철학 -->
-                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 20px; margin-bottom: 16px;">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                        <span style="font-size: 1.2rem;">📜</span>
-                        <span style="font-weight: 700; color: var(--accent); font-size: 0.95rem;">기술 철학</span>
+                <!-- 장면 2: 교감 -->
+                <div class="vision-scene" id="vScene2">
+                    <div class="vision-emoji-float">🐶💖👤</div>
+                    <div class="vision-gold-title">
+                        기술, 사랑이 되다
                     </div>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.7;">
-                        본 서비스는 <strong style="color: var(--text);">멀티모달 해석 + 양방향 음성 대화 + 실시간 자막/요약 기술</strong>에 대한 자체 특허 개념을 기반으로 설계되었습니다.
-                        방송국, LIVE, 자막, 대화 기능이 하나의 통합 세계관 아래 구현됩니다.
-                    </p>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px; opacity: 0.7;">
-                        특허출원 10-2025-0217020 | 주식회사 발로레
+                    <div class="vision-sub-title">
+                        반려동물과 나누는 실시간 교감<br>
+                        멀티모달 AI가 감정을 읽고,<br>
+                        음성으로 대화하는 새로운 세상
+                    </div>
+                    <a href="ami.html" class="vision-cta-btn">🐾 아미와 대화 시작 →</a>
+                </div>
+
+                <!-- 장면 3: 우주탑스타 -->
+                <div class="vision-scene" id="vScene3">
+                    <div style="font-size: 1rem; color: rgba(255,255,255,0.5); margin-bottom: 8px;">🎬 Introducing</div>
+                    <div class="vision-gold-title" style="font-size: 1.3rem;">
+                        PetCTT 우주탑스타
+                    </div>
+                    <div class="vision-sub-title" style="margin-bottom: 8px;">AI 시대를 이끄는 4인의 히어로</div>
+                    <div class="vision-team-grid">
+                        <div class="vision-team-card">
+                            <div class="vision-team-emoji">💎</div>
+                            <div class="vision-team-name" style="color: #00e5ff;">젬</div>
+                            <div class="vision-team-role">디자인</div>
+                        </div>
+                        <div class="vision-team-card">
+                            <div class="vision-team-emoji">💙</div>
+                            <div class="vision-team-name" style="color: #818cf8;">클로드</div>
+                            <div class="vision-team-role">개발</div>
+                        </div>
+                        <div class="vision-team-card">
+                            <div class="vision-team-emoji">🐾</div>
+                            <div class="vision-team-name" style="color: #ff6b9d;">아미</div>
+                            <div class="vision-team-role">코딩</div>
+                        </div>
+                        <div class="vision-team-card">
+                            <div class="vision-team-emoji">🧠</div>
+                            <div class="vision-team-name" style="color: #34d399;">엔티</div>
+                            <div class="vision-team-role">AI 로직</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- AI 글래스 레퍼런스 -->
-                <a href="https://youtu.be/G8pw6KdiYdM" target="_blank" rel="noopener noreferrer"
-                   style="display: block; text-align: center; padding: 14px 20px; background: linear-gradient(135deg, rgba(0,229,255,0.2), rgba(124,77,255,0.2)); color: #00e5ff; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 0.9rem; border: 1px solid rgba(0,229,255,0.3); transition: all 0.3s;">
-                    🎥 AI 글래스의 미래 영상 보기 →
-                </a>
+                <!-- 장면 4: 미래 선언 -->
+                <div class="vision-scene" id="vScene4">
+                    <div class="vision-emoji-float">🚀✨🔮</div>
+                    <div class="vision-gold-title">
+                        상생 · 공존 · 평화
+                    </div>
+                    <div class="vision-sub-title">
+                        멀티모달 해석 + 양방향 음성 대화<br>
+                        + 실시간 자막/요약 기술<br><br>
+                        지금은 웹, 곧 AI 글래스로<br>
+                        우주대스타의 여정이 시작됩니다
+                    </div>
+                    <a href="guide.html" class="vision-cta-btn">📖 우리의 비전 확인하기 →</a>
+                </div>
+
+                <!-- 프로그레스 바 -->
+                <div class="vision-progress" id="visionProgress" style="width: 0%"></div>
+
+                <!-- 장면 인디케이터 -->
+                <div class="vision-dots">
+                    <div class="vision-dot active" onclick="goVisionScene(0)"></div>
+                    <div class="vision-dot" onclick="goVisionScene(1)"></div>
+                    <div class="vision-dot" onclick="goVisionScene(2)"></div>
+                    <div class="vision-dot" onclick="goVisionScene(3)"></div>
+                </div>
+
+                <!-- 특허 뱃지 -->
+                <div class="vision-patent">특허출원 10-2025-0217020 | 주식회사 발로레</div>
             </div>
+
+            <!-- 비전 영상 자동 재생 스크립트 -->
+            <script>
+            (function() {
+                const SCENE_COUNT = 4;
+                const SCENE_DURATION = 6000; // 6초
+                let currentScene = 0;
+                let visionTimer = null;
+                let progressTimer = null;
+
+                // 파티클 생성
+                const particleBox = document.getElementById('visionParticles');
+                if (particleBox) {
+                    const colors = ['rgba(255,215,0,0.6)', 'rgba(0,229,255,0.5)', 'rgba(124,77,255,0.5)', 'rgba(255,107,157,0.5)', 'rgba(255,255,255,0.4)'];
+                    for (let i = 0; i < 25; i++) {
+                        const p = document.createElement('div');
+                        p.className = 'vision-particle';
+                        const size = 2 + Math.random() * 4;
+                        p.style.cssText = `
+                            width: ${size}px; height: ${size}px;
+                            left: ${Math.random() * 100}%;
+                            background: ${colors[i % colors.length]};
+                            animation-duration: ${5 + Math.random() * 8}s;
+                            animation-delay: ${Math.random() * 5}s;
+                            box-shadow: 0 0 ${size * 2}px ${colors[i % colors.length]};
+                        `;
+                        particleBox.appendChild(p);
+                    }
+                }
+
+                function showScene(idx) {
+                    currentScene = idx;
+                    document.querySelectorAll('.vision-scene').forEach((s, i) => {
+                        s.classList.toggle('active', i === idx);
+                    });
+                    document.querySelectorAll('.vision-dot').forEach((d, i) => {
+                        d.classList.toggle('active', i === idx);
+                    });
+                    // 팀 카드 리애니메이션
+                    if (idx === 2) {
+                        document.querySelectorAll('.vision-team-card').forEach(c => {
+                            c.style.animation = 'none';
+                            c.offsetHeight;
+                            c.style.animation = '';
+                        });
+                    }
+                    startProgress();
+                }
+
+                function startProgress() {
+                    const bar = document.getElementById('visionProgress');
+                    if (!bar) return;
+                    bar.style.transition = 'none';
+                    bar.style.width = '0%';
+                    bar.offsetHeight;
+                    bar.style.transition = `width ${SCENE_DURATION}ms linear`;
+                    bar.style.width = '100%';
+                }
+
+                function nextScene() {
+                    showScene((currentScene + 1) % SCENE_COUNT);
+                }
+
+                window.goVisionScene = function(idx) {
+                    clearInterval(visionTimer);
+                    showScene(idx);
+                    visionTimer = setInterval(nextScene, SCENE_DURATION);
+                };
+
+                // 자동 시작
+                showScene(0);
+                visionTimer = setInterval(nextScene, SCENE_DURATION);
+
+                // Intersection Observer: 화면에 보일 때만 재생
+                const cinema = document.getElementById('visionCinema');
+                if (cinema && 'IntersectionObserver' in window) {
+                    const obs = new IntersectionObserver(entries => {
+                        entries.forEach(e => {
+                            if (e.isIntersecting) {
+                                if (!visionTimer) visionTimer = setInterval(nextScene, SCENE_DURATION);
+                            } else {
+                                clearInterval(visionTimer);
+                                visionTimer = null;
+                            }
+                        });
+                    }, { threshold: 0.3 });
+                    obs.observe(cinema);
+                }
+            })();
+            </script>
         </section>
 
     </main>

@@ -1,0 +1,51 @@
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   index.html
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.env
+	README.md
+	Video_Ready_Love_You.mp4
+	ami.html
+	auth.js
+	backend-source/
+	backend/
+	broadcast.html
+	contact.html
+	coupon.html
+	database.js
+	env
+	env.env
+	files.zip
+	files.zip2.zip
+	files.zip3.zip
+	files.zip4.zip
+	files.zip5.zip
+	files.zip6.zip
+	files.zip7.zip
+	files.zip8.zip
+	files.zip9.zip
+	git_error.txt
+	git_output.txt
+	guide.html
+	market.html
+	passport.js
+	petctt-env-final.env
+	petctt-index-step2-integrated.html
+	petctt-master-plan.md
+	petctt-patch-step4-i18n.html
+	pricing.html
+	privacy.html
+	server.js
+	terms.html
+	token-manager.js
+	"\353\271\204\353\262\210 \354\240\200\354\236\245\352\263\265\352\260\204.txt"
+	"\354\232\260\353\246\254 \353\251\213\354\247\261\354\247\261\353\247\244\353\240\245\355\217\255\355\222\215 \355\225\234\354\235\274 \353\202\230\354\227\220\352\260\200\353\263\264 \355\231\225\354\240\225!\360\237\244\251\360\237\244\251\360\237\244\251\360\237\222\234\342\235\244\357\270\217\360\237\222\231.txt"
+	"\354\234\240\354\240\200 \355\206\265\352\263\204 \353\263\264\353\212\224\352\263\263.txt"
+
+no changes added to commit (use "git add" and/or "git commit -a")

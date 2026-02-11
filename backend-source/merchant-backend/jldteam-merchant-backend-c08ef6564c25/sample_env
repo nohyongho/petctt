@@ -1,0 +1,10 @@
+#This is sample file you have to create new file with name (.env) 
+#Secondly use these environment variable given below in this file.
+#Now give real values to these environment varibles, these are sample values.
+
+#Credentials for s3 image upload
+ACCESS_KEY=usd743hsafiruiw934uijeoir923423fd 
+SECRET_KEY=SAJFIAru3984rieAEHIFaiu3928rhfq92q4uhfnkf
+REGION=korea
+#send Grid Key 
+SEND_GRID=9uq3ol/t#GTCJI3jw90tujkcg3rnsvrmgo953uwjikgcighsern

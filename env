@@ -1,0 +1,45 @@
+# ===========================================
+# PetCTT Backend - Environment Variables
+# ===========================================
+
+# Server
+PORT=5000
+NODE_ENV=development
+
+# MySQL Database
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=petctt_user
+DB_PASSWORD=Petctt2026Zeus
+DB_NAME=petctt
+
+# JWT
+JWT_SECRET=ZeusAmiPetCTT-very-long-secret-keep-private
+JWT_EXPIRES_IN=7d
+
+# Google AI (Gemini)
+GEMINI_API_KEY=AIzaSyDthsgk_0xYT5cTFa0YY2mvLmMIe9LLqKw
+
+# ===== OAuth Social Login =====
+
+# Google OAuth
+GOOGLE_CLIENT_ID=673992676128-4fdiskraccdo2i0veqm59tvnjasnc1ot.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=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
+GOOGLE_CALLBACK_URL=http://localhost:5000/api/auth/google/callback
+
+# Kakao OAuth (REST API 키 필요! JavaScript 키 아님!)
+KAKAO_CLIENT_ID=83d9c34ecc23c2afbe38942083db7338
+KAKAO_CLIENT_SECRET=
+KAKAO_CALLBACK_URL=http://localhost:5000/api/auth/kakao/callback
+
+# Naver OAuth
+NAVER_CLIENT_ID=Yj5T9606wVLFNlOPBBtR
+NAVER_CLIENT_SECRET=_gtsmmB03e
+NAVER_CALLBACK_URL=http://localhost:5000/api/auth/naver/callback
+
+# Frontend URL (로컬 테스트용)
+FRONTEND_URL=http://localhost:5000
+CLIENT_URL=http://localhost:5000
+
+# Session
+SESSION_SECRET=petctt-session-secret-change-in-production

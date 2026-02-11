@@ -1,0 +1,284 @@
+{
+  "info": {
+    "name": "PetCTT MVP API",
+    "description": "쿠폰톡톡 x 구름장터 MVP 테스트 컬렉션",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "petctt-team"
+  },
+  "item": [
+    {
+      "name": "0. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "1.1 회원가입",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@petctt.com\",\n  \"password\": \"test1234\",\n  \"full_name\": \"테스트유저\",\n  \"contact_no\": \"010-1234-5678\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.2 로그인",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"auth_token\", jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@petctt.com\",\n  \"password\": \"test1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1.3 프로필 조회",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "profile"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Coupon",
+      "item": [
+        {
+          "name": "2.1 주변 쿠폰 조회",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/coupon/nearby?lat=37.5012345&lng=127.0398765&radius=5000",
+              "host": ["{{base_url}}"],
+              "path": ["api", "coupon", "nearby"],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "37.5012345"
+                },
+                {
+                  "key": "lng",
+                  "value": "127.0398765"
+                },
+                {
+                  "key": "radius",
+                  "value": "5000"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2.2 쿠폰 발행 (관리자)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"outlet_id\": 1,\n  \"coupon_name\": \"아메리카노 50% 할인\",\n  \"coupon_type\": \"radius_based\",\n  \"total_coupons\": 100,\n  \"percent_off\": 50,\n  \"radius_meters\": 1000,\n  \"valid_from\": \"2026-02-04T00:00:00Z\",\n  \"valid_till\": \"2026-02-28T23:59:59Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/coupon/issue",
+              "host": ["{{base_url}}"],
+              "path": ["api", "coupon", "issue"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Game Reward",
+      "item": [
+        {
+          "name": "3.1 쿠폰 획득 (게임)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"coupon_id\": 1,\n  \"game_session_id\": \"session_abc123\",\n  \"location\": {\n    \"latitude\": 37.5012345,\n    \"longitude\": 127.0398765\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/game/reward/claim",
+              "host": ["{{base_url}}"],
+              "path": ["api", "game", "reward", "claim"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Wallet",
+      "item": [
+        {
+          "name": "4.1 내 쿠폰 목록",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/wallet/coupons?status=COLLECTED",
+              "host": ["{{base_url}}"],
+              "path": ["api", "wallet", "coupons"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "COLLECTED",
+                  "description": "COLLECTED | REDEEMED | HIDDEN"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Coupon Usage",
+      "item": [
+        {
+          "name": "5.1 쿠폰 사용",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auth_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"collected_coupon_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/coupon/redeem",
+              "host": ["{{base_url}}"],
+              "path": ["api", "coupon", "redeem"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5.2 LP URL 리다이렉트",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/coupon/redirect/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "coupon", "redirect", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3080",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

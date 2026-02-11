@@ -1,0 +1,571 @@
+<!-- ============================================
+     PetCTT Step 4: i18n 다국어 시스템 패치
+     Languages: KO, EN, JA, ZH, ES
+     Insert BEFORE </body> tag
+     ============================================ -->
+
+<!-- i18n Language Selector Dropdown -->
+<style>
+/* Language Dropdown Overlay */
+.lang-dropdown {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 99999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.lang-dropdown.active {
+  display: flex;
+  opacity: 1;
+}
+.lang-dropdown-panel {
+  background: linear-gradient(145deg, #141828, #1a2035);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  border-radius: 24px;
+  padding: 32px;
+  width: 340px;
+  max-width: 90vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(0,229,255,0.05);
+  transform: scale(0.9) translateY(20px);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.lang-dropdown.active .lang-dropdown-panel {
+  transform: scale(1) translateY(0);
+}
+.lang-dropdown-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #00e5ff, #7c4dff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+}
+.lang-dropdown-subtitle {
+  text-align: center;
+  color: #8892b0;
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+.lang-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.25s;
+  border: 1px solid transparent;
+  margin-bottom: 8px;
+  position: relative;
+}
+.lang-option:hover {
+  background: rgba(0, 229, 255, 0.06);
+  border-color: rgba(0, 229, 255, 0.12);
+}
+.lang-option.selected {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: rgba(0, 229, 255, 0.3);
+}
+.lang-option.selected::after {
+  content: '✓';
+  position: absolute;
+  right: 18px;
+  color: #00e5ff;
+  font-weight: 800;
+  font-size: 16px;
+}
+.lang-flag {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+.lang-info { flex: 1; }
+.lang-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e0e0e0;
+}
+.lang-native {
+  font-size: 12px;
+  color: #8892b0;
+  margin-top: 1px;
+}
+.lang-close-btn {
+  display: block;
+  margin: 16px auto 0;
+  padding: 10px 32px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  color: #8892b0;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: inherit;
+}
+.lang-close-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #e0e0e0;
+}
+
+/* Updated lang-btn style for multi-language */
+.lang-btn .lang-current-flag { margin-right: 2px; }
+</style>
+
+<!-- Language Selector Modal -->
+<div class="lang-dropdown" id="langDropdown" onclick="if(event.target===this)closeLangDropdown()">
+  <div class="lang-dropdown-panel">
+    <div class="lang-dropdown-title">🌐 언어 선택</div>
+    <div class="lang-dropdown-subtitle">Select Language</div>
+
+    <div class="lang-option" data-lang="ko" onclick="selectLanguage('ko')">
+      <span class="lang-flag">🇰🇷</span>
+      <div class="lang-info">
+        <div class="lang-name">한국어</div>
+        <div class="lang-native">Korean</div>
+      </div>
+    </div>
+
+    <div class="lang-option" data-lang="en" onclick="selectLanguage('en')">
+      <span class="lang-flag">🇺🇸</span>
+      <div class="lang-info">
+        <div class="lang-name">English</div>
+        <div class="lang-native">영어</div>
+      </div>
+    </div>
+
+    <div class="lang-option" data-lang="ja" onclick="selectLanguage('ja')">
+      <span class="lang-flag">🇯🇵</span>
+      <div class="lang-info">
+        <div class="lang-name">日本語</div>
+        <div class="lang-native">Japanese · 일본어</div>
+      </div>
+    </div>
+
+    <div class="lang-option" data-lang="zh" onclick="selectLanguage('zh')">
+      <span class="lang-flag">🇨🇳</span>
+      <div class="lang-info">
+        <div class="lang-name">中文</div>
+        <div class="lang-native">Chinese · 중국어</div>
+      </div>
+    </div>
+
+    <div class="lang-option" data-lang="es" onclick="selectLanguage('es')">
+      <span class="lang-flag">🇪🇸</span>
+      <div class="lang-info">
+        <div class="lang-name">Español</div>
+        <div class="lang-native">Spanish · 스페인어</div>
+      </div>
+    </div>
+
+    <button class="lang-close-btn" onclick="closeLangDropdown()">닫기 · Close</button>
+  </div>
+</div>
+
+<script>
+// ============================================
+// PetCTT i18n Multi-Language System
+// ============================================
+
+const LANG_FLAGS = { ko: '🇰🇷', en: '🇺🇸', ja: '🇯🇵', zh: '🇨🇳', es: '🇪🇸' };
+const LANG_CODES = { ko: 'KO', en: 'EN', ja: 'JA', zh: 'ZH', es: 'ES' };
+
+// Extended translations (override existing)
+const i18n = {
+  ko: {
+    logo: 'PetCTT',
+    shop: '🛒 쇼핑',
+    statusReady: 'LIVE 준비',
+    statusLive: 'LIVE 중',
+    tabLive: '🎙️ LIVE',
+    tabHealth: '❤️ 건강',
+    tabLocate: '🗺️ 찾기',
+    tabShop: '🛒 쇼핑',
+    tabSettings: '📡 설정',
+    animalSelect: '🐾 통역할 동물을 선택하세요',
+    animalName: '강아지',
+    btnAnimalSelect: '동물선택',
+    btnSettings: '설정',
+    btnStart: '동물대화 시작',
+    btnStop: '중지',
+    guardian: '보호자',
+    pet: '강아지',
+    translating: '통역 중...',
+    listening: '듣는 중...',
+    speaking: '말하는 중...',
+    healthTitle: 'AI 기반 생체 분석',
+    pulseMode: '펄스센서 (30초)',
+    bioMode: '생체스캔 (AI)',
+    bioCam: '카메라를 통한 실시간 생체분석',
+    cameraSwitchGuardian: '보호자',
+    heartRate: '심박수',
+    respiration: '호흡',
+    temperature: '체온',
+    stress: '스트레스',
+    measuring: '측정 중...',
+    analyzing: '분석 중...',
+    detecting: '감지 중...',
+    calculating: '계산 중...',
+    processing: '처리 중...',
+    mapTitle: 'GPS 실시간 위치 추적',
+    trackingStart: '위치 추적 시작',
+    trackingStop: '추적 중지',
+    locationHistory: '위치 히스토리',
+    saveLocation: '위치 저장',
+    clearHistory: '기록 삭제',
+    shopTitle: '펫 쇼핑몰',
+    shopDesc: '반려동물을 위한 최고의 쇼핑몰을 만나보세요!',
+    broadcastStation: 'PetCTT 방송국',
+    liveAudition: '라이브 오디션',
+    comingSoon: '준비 중...',
+    comingSoonDesc: '더 나은 서비스를 위해 열심히 개발하고 있어요!',
+    emailCopy: '이메일 복사',
+    copied: '복사되었습니다!',
+    footer: '반려동물 통역 + 위치 추적',
+    guide: '📖 사용설명서',
+    privacy: '개인정보처리방침',
+    terms: '이용약관',
+    contact: '문의하기',
+    langChanged: '🇰🇷 한국어로 변경되었습니다',
+  },
+  en: {
+    logo: 'PetCTT',
+    shop: '🛒 Shop',
+    statusReady: 'LIVE Ready',
+    statusLive: 'LIVE On',
+    tabLive: '🎙️ LIVE',
+    tabHealth: '❤️ Health',
+    tabLocate: '🗺️ Find',
+    tabShop: '🛒 Shop',
+    tabSettings: '📡 Settings',
+    animalSelect: '🐾 Select Animal to Translate',
+    animalName: 'Dog',
+    btnAnimalSelect: 'Select Animal',
+    btnSettings: 'Settings',
+    btnStart: 'Start Pet Talk',
+    btnStop: 'Stop',
+    guardian: 'Guardian',
+    pet: 'Dog',
+    translating: 'Translating...',
+    listening: 'Listening...',
+    speaking: 'Speaking...',
+    healthTitle: 'AI-based Bio Analysis',
+    pulseMode: 'Pulse Sensor (30s)',
+    bioMode: 'Bio Scan (AI)',
+    bioCam: 'Real-time Bio Analysis via Camera',
+    cameraSwitchGuardian: 'Guardian',
+    heartRate: 'Heart Rate',
+    respiration: 'Respiration',
+    temperature: 'Temperature',
+    stress: 'Stress',
+    measuring: 'Measuring...',
+    analyzing: 'Analyzing...',
+    detecting: 'Detecting...',
+    calculating: 'Calculating...',
+    processing: 'Processing...',
+    mapTitle: 'GPS Real-time Location Tracking',
+    trackingStart: 'Start Tracking',
+    trackingStop: 'Stop Tracking',
+    locationHistory: 'Location History',
+    saveLocation: 'Save Location',
+    clearHistory: 'Clear History',
+    shopTitle: 'Pet Shopping Mall',
+    shopDesc: 'Meet the best shopping mall for your pets!',
+    broadcastStation: 'PetCTT Broadcasting',
+    liveAudition: 'LIVE Audition',
+    comingSoon: 'Coming Soon...',
+    comingSoonDesc: 'We are working hard to bring you a better service!',
+    emailCopy: 'Copy Email',
+    copied: 'Copied!',
+    footer: 'Pet Translation + GPS Tracking',
+    guide: '📖 Guide',
+    privacy: 'Privacy Policy',
+    terms: 'Terms of Service',
+    contact: 'Contact Us',
+    langChanged: '🇺🇸 Changed to English',
+  },
+  ja: {
+    logo: 'PetCTT',
+    shop: '🛒 ショッピング',
+    statusReady: 'LIVE 準備',
+    statusLive: 'LIVE 配信中',
+    tabLive: '🎙️ LIVE',
+    tabHealth: '❤️ 健康',
+    tabLocate: '🗺️ 探す',
+    tabShop: '🛒 ショップ',
+    tabSettings: '📡 設定',
+    animalSelect: '🐾 通訳する動物を選んでください',
+    animalName: '犬',
+    btnAnimalSelect: '動物選択',
+    btnSettings: '設定',
+    btnStart: 'ペットトーク開始',
+    btnStop: '停止',
+    guardian: '保護者',
+    pet: '犬',
+    translating: '通訳中...',
+    listening: '聴取中...',
+    speaking: '話し中...',
+    healthTitle: 'AIベース生体分析',
+    pulseMode: 'パルスセンサー (30秒)',
+    bioMode: '生体スキャン (AI)',
+    bioCam: 'カメラによるリアルタイム生体分析',
+    cameraSwitchGuardian: '保護者',
+    heartRate: '心拍数',
+    respiration: '呼吸',
+    temperature: '体温',
+    stress: 'ストレス',
+    measuring: '測定中...',
+    analyzing: '分析中...',
+    detecting: '検出中...',
+    calculating: '計算中...',
+    processing: '処理中...',
+    mapTitle: 'GPSリアルタイム位置追跡',
+    trackingStart: '追跡開始',
+    trackingStop: '追跡停止',
+    locationHistory: '位置履歴',
+    saveLocation: '位置を保存',
+    clearHistory: '履歴削除',
+    shopTitle: 'ペットショッピングモール',
+    shopDesc: 'ペットのための最高のショッピングモールに出会いましょう！',
+    broadcastStation: 'PetCTT放送局',
+    liveAudition: 'LIVEオーディション',
+    comingSoon: '準備中...',
+    comingSoonDesc: 'より良いサービスのために頑張って開発しています！',
+    emailCopy: 'メールをコピー',
+    copied: 'コピーしました！',
+    footer: 'ペット通訳 + 位置追跡',
+    guide: '📖 ガイド',
+    privacy: 'プライバシーポリシー',
+    terms: '利用規約',
+    contact: 'お問い合わせ',
+    langChanged: '🇯🇵 日本語に変更しました',
+  },
+  zh: {
+    logo: 'PetCTT',
+    shop: '🛒 购物',
+    statusReady: 'LIVE 准备',
+    statusLive: 'LIVE 直播中',
+    tabLive: '🎙️ LIVE',
+    tabHealth: '❤️ 健康',
+    tabLocate: '🗺️ 查找',
+    tabShop: '🛒 购物',
+    tabSettings: '📡 设置',
+    animalSelect: '🐾 请选择要翻译的动物',
+    animalName: '狗狗',
+    btnAnimalSelect: '选择动物',
+    btnSettings: '设置',
+    btnStart: '开始宠物对话',
+    btnStop: '停止',
+    guardian: '主人',
+    pet: '狗狗',
+    translating: '翻译中...',
+    listening: '聆听中...',
+    speaking: '说话中...',
+    healthTitle: 'AI生物分析',
+    pulseMode: '脉搏传感器 (30秒)',
+    bioMode: '生物扫描 (AI)',
+    bioCam: '通过摄像头进行实时生物分析',
+    cameraSwitchGuardian: '主人',
+    heartRate: '心率',
+    respiration: '呼吸',
+    temperature: '体温',
+    stress: '压力',
+    measuring: '测量中...',
+    analyzing: '分析中...',
+    detecting: '检测中...',
+    calculating: '计算中...',
+    processing: '处理中...',
+    mapTitle: 'GPS实时位置追踪',
+    trackingStart: '开始追踪',
+    trackingStop: '停止追踪',
+    locationHistory: '位置历史',
+    saveLocation: '保存位置',
+    clearHistory: '清除记录',
+    shopTitle: '宠物商城',
+    shopDesc: '为您的宠物提供最好的购物体验！',
+    broadcastStation: 'PetCTT直播台',
+    liveAudition: 'LIVE选秀',
+    comingSoon: '即将推出...',
+    comingSoonDesc: '我们正在努力开发更好的服务！',
+    emailCopy: '复制邮箱',
+    copied: '已复制！',
+    footer: '宠物翻译 + 位置追踪',
+    guide: '📖 指南',
+    privacy: '隐私政策',
+    terms: '服务条款',
+    contact: '联系我们',
+    langChanged: '🇨🇳 已切换为中文',
+  },
+  es: {
+    logo: 'PetCTT',
+    shop: '🛒 Tienda',
+    statusReady: 'LIVE Listo',
+    statusLive: 'LIVE En vivo',
+    tabLive: '🎙️ LIVE',
+    tabHealth: '❤️ Salud',
+    tabLocate: '🗺️ Buscar',
+    tabShop: '🛒 Tienda',
+    tabSettings: '📡 Ajustes',
+    animalSelect: '🐾 Selecciona el animal a traducir',
+    animalName: 'Perro',
+    btnAnimalSelect: 'Seleccionar',
+    btnSettings: 'Ajustes',
+    btnStart: 'Iniciar charla',
+    btnStop: 'Detener',
+    guardian: 'Dueño',
+    pet: 'Perro',
+    translating: 'Traduciendo...',
+    listening: 'Escuchando...',
+    speaking: 'Hablando...',
+    healthTitle: 'Análisis Bio con IA',
+    pulseMode: 'Sensor de pulso (30s)',
+    bioMode: 'Bio Scan (IA)',
+    bioCam: 'Análisis bio en tiempo real por cámara',
+    cameraSwitchGuardian: 'Dueño',
+    heartRate: 'Frecuencia cardíaca',
+    respiration: 'Respiración',
+    temperature: 'Temperatura',
+    stress: 'Estrés',
+    measuring: 'Midiendo...',
+    analyzing: 'Analizando...',
+    detecting: 'Detectando...',
+    calculating: 'Calculando...',
+    processing: 'Procesando...',
+    mapTitle: 'Rastreo GPS en tiempo real',
+    trackingStart: 'Iniciar rastreo',
+    trackingStop: 'Detener rastreo',
+    locationHistory: 'Historial de ubicación',
+    saveLocation: 'Guardar ubicación',
+    clearHistory: 'Borrar historial',
+    shopTitle: 'Centro Comercial de Mascotas',
+    shopDesc: '¡Descubre la mejor tienda para tus mascotas!',
+    broadcastStation: 'PetCTT Transmisión',
+    liveAudition: 'Audición LIVE',
+    comingSoon: 'Próximamente...',
+    comingSoonDesc: '¡Estamos trabajando para ofrecerte un mejor servicio!',
+    emailCopy: 'Copiar email',
+    copied: '¡Copiado!',
+    footer: 'Traducción de mascotas + GPS',
+    guide: '📖 Guía',
+    privacy: 'Privacidad',
+    terms: 'Términos',
+    contact: 'Contacto',
+    langChanged: '🇪🇸 Cambiado a español',
+  }
+};
+
+// Override existing translations with extended i18n
+if (typeof translations !== 'undefined') {
+  Object.keys(i18n).forEach(lang => {
+    translations[lang] = i18n[lang];
+  });
+}
+
+// Override toggleLanguage to open dropdown
+window._originalToggleLanguage = window.toggleLanguage;
+window.toggleLanguage = function() {
+  openLangDropdown();
+};
+
+function openLangDropdown() {
+  const dd = document.getElementById('langDropdown');
+  dd.classList.add('active');
+  // Mark current selection
+  dd.querySelectorAll('.lang-option').forEach(opt => {
+    opt.classList.toggle('selected', opt.dataset.lang === currentLanguage);
+  });
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLangDropdown() {
+  const dd = document.getElementById('langDropdown');
+  dd.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function selectLanguage(lang) {
+  currentLanguage = lang;
+  
+  // Update button
+  const langBtn = document.getElementById('langBtn');
+  if (langBtn) {
+    langBtn.innerHTML = LANG_FLAGS[lang] + ' ' + LANG_CODES[lang];
+  }
+  
+  // Update HTML lang attribute
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
+  
+  // Update UI
+  updateUILanguage();
+  
+  // Update footer links
+  updateFooterLanguage();
+  
+  // Update Coming Soon modal text
+  updateComingSoonLanguage();
+  
+  // Save preference
+  try { localStorage.setItem('petctt-lang', lang); } catch(e) {}
+  
+  // Close dropdown
+  closeLangDropdown();
+  
+  // Toast
+  const t = i18n[lang];
+  if (typeof showToast === 'function') {
+    showToast(t.langChanged, 'success');
+  }
+}
+
+function updateFooterLanguage() {
+  const t = i18n[currentLanguage];
+  if (!t) return;
+  
+  // Footer links
+  const footerLinks = document.querySelectorAll('footer a, .footer-links a, [href="guide.html"], [href="privacy.html"], [href="terms.html"], [href="contact.html"]');
+  footerLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    if (href === 'guide.html') link.textContent = t.guide;
+    else if (href === 'privacy.html') link.textContent = t.privacy;
+    else if (href === 'terms.html') link.textContent = t.terms;
+    else if (href === 'contact.html') link.textContent = t.contact;
+  });
+}
+
+function updateComingSoonLanguage() {
+  const t = i18n[currentLanguage];
+  if (!t) return;
+  
+  // Update Coming Soon modal if it exists
+  const csTitle = document.querySelector('#comingSoonModal .coming-soon-title');
+  if (csTitle) csTitle.textContent = t.comingSoon;
+  
+  const csDesc = document.querySelector('#comingSoonModal .coming-soon-desc');
+  if (csDesc) csDesc.textContent = t.comingSoonDesc;
+  
+  const csEmail = document.querySelector('#comingSoonModal .email-copy-text');
+  if (csEmail) csEmail.textContent = t.emailCopy;
+}
+
+// Keyboard shortcut: ESC to close
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeLangDropdown();
+});
+
+// Auto-restore saved language preference
+(function() {
+  try {
+    const saved = localStorage.getItem('petctt-lang');
+    if (saved && i18n[saved] && saved !== 'ko') {
+      setTimeout(() => selectLanguage(saved), 500);
+    }
+  } catch(e) {}
+})();
+</script>

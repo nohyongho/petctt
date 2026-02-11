@@ -1,0 +1,8 @@
+.env
+env/
+*.env
+*.zip
+*_output.txt
+*_error.txt
+node_modules/
+.DS_Store

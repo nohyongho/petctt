@@ -337,13 +337,13 @@ body {
       <span class="contact-icon">📧</span>
       <h3>이메일 문의</h3>
       <p>일반 문의 및 비즈니스 제안</p>
-      <span class="contact-value"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5724222727382523172732233423237934383a">[email&#160;protected]</a></span>
+      <span class="contact-value">support@petctt.com</span>
     </div>
     <div class="contact-card" onclick="copyEmail()">
       <span class="contact-icon">🤝</span>
       <h3>제휴 문의</h3>
       <p>비즈니스 파트너십 및 협력</p>
-      <span class="contact-value"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="86e4effcc6f6e3f2e5f2f2a8e5e9eb">[email&#160;protected]</a></span>
+      <span class="contact-value">biz@petctt.com</span>
     </div>
     <div class="contact-card">
       <span class="contact-icon">🕐</span>
@@ -416,7 +416,7 @@ body {
       </div>
       <div class="info-item">
         <div class="label">이메일</div>
-        <div class="value"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="43303633332c3137033326372037376d202c2e">[email&#160;protected]</a></div>
+        <div class="value">support@petctt.com</div>
       </div>
       <div class="info-item">
         <div class="label">특허출원</div>
@@ -430,23 +430,14 @@ body {
   </div>
 
   <div class="footer">
-  © 2026 <a href="index.html">PetCTT Pro</a> - 반려동물 통역 + 위치 추적 | 주식회사 발로레<br>
-  <a href="guide.html" style="margin: 0 6px;">📖 사용설명서</a> ·
-  <a href="broadcast.html" style="margin: 0 6px;">📡 방송국</a> ·
-  <a href="market.html" style="margin: 0 6px;">☁️ 구름장터</a> ·
-  <a href="coupon.html" style="margin: 0 6px;">🎮 쿠폰톡톡</a> ·
-  <a href="ami.html" style="margin: 0 6px;">🐾 아미</a> ·
-  <a href="pricing.html" style="margin: 0 6px;">💎 요금제</a><br>
-  <a href="privacy.html" style="margin: 0 6px;">개인정보처리방침</a> ·
-  <a href="terms.html" style="margin: 0 6px;">이용약관</a> ·
-  <a href="contact.html" style="margin: 0 6px;">문의하기</a>
-</div>
+    © 2026 <a href="index.html">PetCTT Pro</a> - 반려동물 통역 + 위치 추적 | 주식회사 발로레
+  </div>
 </div>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -462,4 +453,23 @@ function copyEmail() {
     });
   } else {
     const ta = document.createElement('textarea');
-    ta.value
+    ta.value = email;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('📋 이메일 주소가 복사되었습니다!');
+  }
+}
+
+function handleSubmit(e) {
+  e.preventDefault();
+  showToast('✅ 문의가 접수되었습니다! 빠른 시일 내에 답변드리겠습니다.');
+  setTimeout(() => {
+    document.getElementById('contactForm').reset();
+  }, 1000);
+}
+</script>
+
+</body>
+</html>

@@ -1,6 +1,0 @@
-/* ===== 젬 스튜디오 요소 숨김 ===== */
-
-/* 메인 상단 탭 네비게이션의 젬 스튜디오 버튼만 숨김 */
-.tab-nav a.tab-btn[href="http://localhost:3000"] {
-    display: none !important;
-}

@@ -1,0 +1,32 @@
+{
+  "name": "petctt-backend",
+  "version": "1.0.0",
+  "description": "PetCTT - Pet Communication & Tracking Technology Backend",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "db:migrate": "mysql -u petctt_user -p petctt < database/schema.sql",
+    "db:test": "node server/db-test.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-rate-limit": "^7.4.0",
+    "express-session": "^1.19.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.11.0",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-kakao": "^1.0.1",
+    "passport-naver-v2": "^2.0.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "author": "PetCTT Team - 주식회사 발로레",
+  "license": "PROPRIETARY"
+}

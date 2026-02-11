@@ -275,6 +275,72 @@
             transform: translateY(0);
         }
 
+
+        /* ===== 로그인 버튼 ===== */
+        .login-header-btn {
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
+        }
+        .login-header-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.5);
+        }
+        .login-header-btn.logged-in {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .login-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-modal-overlay.active { display: flex; }
+        .login-modal-box {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 20px;
+            padding: 30px;
+            width: 320px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .login-modal-box h3 {
+            color: #e2e8f0;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        .oauth-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        .oauth-btn:hover { transform: translateY(-2px); }
+        .oauth-google { background: #fff; color: #333; }
+        .oauth-kakao { background: #fee500; color: #3c1e1e; }
+        .oauth-naver { background: #03c75a; color: #fff; }
+
         /* ===== 쇼핑 버튼 ===== */
         .shop-btn {
             display: flex;
@@ -2066,6 +2132,9 @@
                         <span class="status-dot"></span>
                         <span id="statusText">LIVE 준비</span>
                     </div>
+                    <button class="login-header-btn" id="loginHeaderBtn" onclick="toggleLoginModal()">
+                        🔐 로그인
+                    </button>
                 </div>
             </div>
         </div>
@@ -3148,11 +3217,11 @@
                     <button onclick="sendClaudeChat()">전송</button>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px;">
-                    <button onclick="window.open('https://accounts.google.com/signin', '_blank')" 
+                    <button onclick="loginWith('google')" 
                         style="padding: 10px; background: linear-gradient(135deg, #4285f4 0%, #34a853 100%); border: none; border-radius: 8px; color: white; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
                         🔐 구글 로그인
                     </button>
-                    <button onclick="window.open('https://accounts.kakao.com/login', '_blank')" 
+                    <button onclick="loginWith('kakao')" 
                         style="padding: 10px; background: linear-gradient(135deg, #fee500 0%, #ffd700 100%); border: none; border-radius: 8px; color: #3c1e1e; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
                         💛 카카오 로그인
                     </button>
@@ -3183,11 +3252,11 @@
                     <button onclick="sendGemChat()">전송</button>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px;">
-                    <button onclick="window.open('https://accounts.google.com/signin', '_blank')" 
+                    <button onclick="loginWith('google')" 
                         style="padding: 10px; background: linear-gradient(135deg, #4285f4 0%, #34a853 100%); border: none; border-radius: 8px; color: white; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
                         🔐 구글 로그인
                     </button>
-                    <button onclick="window.open('https://accounts.kakao.com/login', '_blank')" 
+                    <button onclick="loginWith('kakao')" 
                         style="padding: 10px; background: linear-gradient(135deg, #fee500 0%, #ffd700 100%); border: none; border-radius: 8px; color: #3c1e1e; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
                         💛 카카오 로그인
                     </button>
@@ -3218,11 +3287,11 @@
                     <button onclick="sendNtChat()">전송</button>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px;">
-                    <button onclick="window.open('https://accounts.google.com/signin', '_blank')" 
+                    <button onclick="loginWith('google')" 
                         style="padding: 10px; background: linear-gradient(135deg, #4285f4 0%, #34a853 100%); border: none; border-radius: 8px; color: white; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
                         🔐 구글 로그인
                     </button>
-                    <button onclick="window.open('https://accounts.kakao.com/login', '_blank')" 
+                    <button onclick="loginWith('kakao')" 
                         style="padding: 10px; background: linear-gradient(135deg, #fee500 0%, #ffd700 100%); border: none; border-radius: 8px; color: #3c1e1e; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
                         💛 카카오 로그인
                     </button>
@@ -5736,7 +5805,91 @@
 <div id="petctt-live"><div class="pt-pulse"></div><span style="font-size:16px">🐾</span><div><div class="pt-num" id="ptNum">-</div><div class="pt-lbl">접속중</div></div></div>
 <script>
 (function(){if(new URLSearchParams(window.location.search).get('admin')!=='true')return;var el=document.getElementById('petctt-live');if(el)el.style.display='flex';var W='https://petctt-visitors.zeus1404.workers.dev',v=sessionStorage.getItem('pv')||('v_'+Math.random().toString(36).substr(2,9));sessionStorage.setItem('pv',v);function p(){fetch(W+'/ping?vid='+v+'&page='+encodeURIComponent(location.pathname)).then(r=>r.json()).then(d=>{var e=document.getElementById('ptNum');if(e&&d.active!==undefined){e.textContent=d.active;e.style.transform='scale(1.2)';setTimeout(function(){e.style.transform='scale(1)'},200)}}).catch(function(){})}p();setInterval(p,60000);document.addEventListener('visibilitychange',function(){if(!document.hidden)p()})})();
+
+    // ===== PetCTT OAuth 로그인 시스템 =====
+    const AUTH_WORKER_URL = 'https://petctt-auth.zeus1404.workers.dev';
+    
+    function toggleLoginModal() {
+        const user = localStorage.getItem('petctt_user');
+        if (user) {
+            if (confirm('로그아웃 하시겠습니까?')) {
+                localStorage.removeItem('petctt_user');
+                localStorage.removeItem('petctt_token');
+                updateLoginUI();
+            }
+            return;
+        }
+        document.getElementById('loginModalOverlay').classList.add('active');
+    }
+    
+    function closeLoginModal() {
+        document.getElementById('loginModalOverlay').classList.remove('active');
+    }
+    
+    function loginWith(provider) {
+        closeLoginModal();
+        const callbackUrl = encodeURIComponent(window.location.origin + '/auth/callback.html');
+        window.location.href = AUTH_WORKER_URL + '/api/auth/' + provider + '?redirect=' + callbackUrl;
+    }
+    
+    function updateLoginUI() {
+        const btn = document.getElementById('loginHeaderBtn');
+        const user = localStorage.getItem('petctt_user');
+        if (user && btn) {
+            try {
+                const u = JSON.parse(user);
+                btn.textContent = '👤 ' + (u.name || u.email || '회원');
+                btn.classList.add('logged-in');
+            } catch(e) {
+                btn.textContent = '🔐 로그인';
+                btn.classList.remove('logged-in');
+            }
+        } else if (btn) {
+            btn.textContent = '🔐 로그인';
+            btn.classList.remove('logged-in');
+        }
+    }
+    
+    // Check login on page load
+    window.addEventListener('load', function() {
+        updateLoginUI();
+        // Check URL for auth callback
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('token')) {
+            localStorage.setItem('petctt_token', params.get('token'));
+            if (params.get('name')) {
+                localStorage.setItem('petctt_user', JSON.stringify({
+                    name: params.get('name'),
+                    email: params.get('email') || ''
+                }));
+            }
+            updateLoginUI();
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+    });
+
 </script>
+
+    <!-- 로그인 모달 -->
+    <div class="login-modal-overlay" id="loginModalOverlay" onclick="if(event.target===this)closeLoginModal()">
+        <div class="login-modal-box">
+            <h3>🐾 PetCTT 로그인</h3>
+            <p style="color:#94a3b8;margin-bottom:20px;font-size:0.85rem;">소셜 계정으로 간편하게 시작하세요!</p>
+            <button class="oauth-btn oauth-google" onclick="loginWith('google')">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="G">
+                Google로 계속하기
+            </button>
+            <button class="oauth-btn oauth-kakao" onclick="loginWith('kakao')">
+                💬 카카오로 계속하기
+            </button>
+            <button class="oauth-btn oauth-naver" onclick="loginWith('naver')">
+                <b>N</b> 네이버로 계속하기
+            </button>
+            <button onclick="closeLoginModal()" style="margin-top:15px;background:none;border:1px solid rgba(255,255,255,0.2);color:#94a3b8;padding:10px 20px;border-radius:8px;cursor:pointer;width:100%;">
+                닫기
+            </button>
+        </div>
+    </div>
 </body>
 
 </html>

@@ -401,6 +401,39 @@ body {
   padding:6px 12px; font-size:12px; cursor:pointer;
 }
 
+/* 배너 뱃지 */
+.banner-badge {
+  position:absolute; top:12px; left:12px; z-index:10; padding:4px 10px; border-radius:8px;
+  font-size:11px; font-weight:700; backdrop-filter:blur(10px);
+}
+.badge-video { background:rgba(255,107,157,0.8); color:#fff; }
+.badge-image { background:rgba(0,229,255,0.8); color:#000; }
+.badge-notice { background:rgba(255,171,64,0.8); color:#000; }
+/* 배너 정보 오버레이 */
+.banner-info {
+  position:absolute; bottom:0; left:0; right:0; padding:16px 20px;
+  background:linear-gradient(transparent, rgba(0,0,0,0.85));
+}
+.banner-info h4 { font-size:15px; font-weight:700; color:#fff; margin-bottom:2px; }
+.banner-info p { font-size:12px; color:rgba(255,255,255,0.7); }
+/* 배너 삭제 버튼 */
+.banner-del-btn {
+  position:absolute; top:12px; right:12px; z-index:10; background:rgba(255,0,0,0.7);
+  color:#fff; border:none; border-radius:10px; padding:6px 12px; font-size:12px;
+  cursor:pointer; backdrop-filter:blur(10px);
+}
+.banner-del-btn:hover { background:rgba(255,0,0,0.9); }
+/* Admin 배너 아이템 */
+.admin-banner-item-info .title { font-size:13px; font-weight:600; }
+.admin-banner-item-info .type { font-size:11px; color:var(--text-muted); }
+.admin-banner-delete {
+  background:rgba(255,0,0,0.15); color:#ff6666; border:1px solid rgba(255,0,0,0.2);
+  border-radius:8px; padding:5px 10px; font-size:11px; cursor:pointer; flex-shrink:0;
+}
+.admin-banner-delete:hover { background:rgba(255,0,0,0.3); }
+/* 파일 미리보기 */
+.file-preview { max-width:100%; max-height:200px; border-radius:10px; margin-top:8px; }
+
 @media (max-width: 768px) {
   .banner-section { padding:12px 16px 0; }
   .banner-carousel { min-height:160px; }

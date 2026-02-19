@@ -4281,20 +4281,43 @@
         }
 
         // ===== 통역 함수 =====
+        // ===== Gemini AI 동물 통역 =====
+        async function callGeminiAI(prompt) {
+            try {
+                var res = await fetch('/api/animal-talk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: prompt, provider: 'gemini', animal: selectedAnimal })
+                });
+                if (!res.ok) throw new Error('API 오류');
+                var data = await res.json();
+                return data.reply || null;
+            } catch(e) {
+                console.warn('Gemini 호출 실패, 기본 통역 사용:', e);
+                return null;
+            }
+        }
+
         function translateToAnimal(text) {
             for (var keyword in HUMAN_KEYWORDS) {
                 if (text.includes(keyword)) {
                     return HUMAN_KEYWORDS[keyword].responses[selectedAnimal];
                 }
             }
-
             var defaultResponses = {
                 dog: '멍! 꼬리 흔들~ (알겠어요!)',
                 cat: '냐옹~ (알았다 냥)',
                 chick: '삐약! (네!)'
             };
+            return defaultResponses[selectedAnimal] || '...(동물소리)';
+        }
 
-            return defaultResponses[selectedAnimal];
+        async function translateToAnimalAI(text) {
+            var animal = ANIMALS[selectedAnimal];
+            var prompt = animal.name + '에게 말합니다: "' + text + '". ' + animal.name + '처럼 귀엽게 짧게 반응해주세요. 한국어로.';
+            var aiReply = await callGeminiAI(prompt);
+            if (aiReply) return aiReply;
+            return translateToAnimal(text);
         }
 
         // ===== TTS 음성 출력 =====

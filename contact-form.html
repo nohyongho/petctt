@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>문의하기 & 댓글 - PetCTT</title>
+    <style>
+          body { font-family: 'Noto Sans KR', sans-serif; background: #0a0e1a; color: #e0e0e0; margin: 0; padding: 20px; }
+          .container { max-width: 700px; margin: 0 auto; }
+          h2 { color: #00e5ff; text-align: center; margin-bottom: 24px; }
+          .form-group { margin-bottom: 16px; }
+          label { display: block; margin-bottom: 6px; color: #8892b0; font-size: 14px; }
+          input, textarea { width: 100%; padding: 12px; background: #141828; border: 1px solid #2a3a5c; border-radius: 8px; color: #e0e0e0; font-size: 15px; box-sizing: border-box; }
+          input:focus, textarea:focus { outline: none; border-color: #00e5ff; }
+          textarea { resize: vertical; min-height: 130px; }
+          button[type=submit] { width: 100%; padding: 13px; background: #00e5ff; color: #0a0e1a; font-weight: 700; font-size: 16px; border: none; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+          button[type=submit]:hover { background: #00bcd4; }
+          button[type=submit]:disabled { opacity: 0.5; cursor: not-allowed; }
+          .success-msg { background: #0d3b2e; border: 1px solid #00e676; color: #00e676; padding: 18px; border-radius: 8px; text-align: center; font-size: 16px; margin-top: 10px; }
+          .error-msg { background: #3b0d0d; border: 1px solid #ff5252; color: #ff5252; padding: 12px; border-radius: 8px; text-align: center; font-size: 14px; margin-top: 8px; }
+          #disqus_thread { margin-top: 48px; }
+          .section-divider { border: none; border-top: 1px solid #2a3a5c; margin: 48px 0; }
+          h3 { color: #00e5ff; margin-bottom: 16px; }
+        </style>
+  </head>
+  <body>
+      <div class="container">
+            <h2>✉️ 문의하기</h2>
+          <form id="contact-form">
+                <div class="form-group">
+                        <label for="name">이름</label>label>
+                        <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required>
+                </div>div>
+                <div class="form-group">
+                        <label for="email">이메일</label>label>
+                        <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" required>
+                </div>div>
+                <div class="form-group">
+                        <label for="message">문의 내용</label>label>
+                        <textarea id="message" name="message" placeholder="문의 내용을 자세히 적어주세요" required></textarea>
+                </div>div>
+                <button type="submit" id="submit-btn">문의 보내기 🐾</button>button>
+                <div id="form-result"></div>div>
+          </form>form>
+      
+          <hr class="section-divider">
+      
+          <h3>💬 댓글</h3>
+          <div id="disqus_thread"></div>div>
+          <noscript>댓글을 보려면 JavaScript를 활성화해 주세요.</noscript>
+      </div>div>
+  
+    <script>
+          // Formspree 폼 처리
+          const form = document.getElementById('contact-form');
+          const btn = document.getElementById('submit-btn');
+          const result = document.getElementById('form-result');
+
+          form.addEventListener('submit', async function(e) {
+                  e.preventDefault();
+                  btn.disabled = true;
+                  btn.textContent = '전송 중...';
+                  result.innerHTML = '';
+
+                  const data = {
+                            name: document.getElementById('name').value,
+                            email: document.getElementById('email').value,
+                            message: document.getElementById('message').value
+                  };
+
+                  try {
+                            const res = await fetch('https://formspree.io/f/xzdavwyr', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                                        body: JSON.stringify(data)
+                            });
+                            if (res.ok) {
+                                        result.innerHTML = '<div class="success-msg">✅ 문의가 접수되었습니다! 빠르게 답변드릴게요 🐾</div>';
+                                        form.reset();
+                            } else {
+                                        result.innerHTML = '<div class="error-msg">❌ 전송 실패. 잠시 후 다시 시도해주세요.</div>';
+                            }
+                  } catch(err) {
+                            result.innerHTML = '<div class="error-msg">❌ 네트워크 오류. 잠시 후 다시 시도해주세요.</div>';
+                  }
+                  btn.disabled = false;
+                  btn.textContent = '문의 보내기 🐾';
+          });
+
+          // Disqus 댓글
+          var disqus_config = function () {
+                  this.page.url = window.location.href;
+                  this.page.identifier = window.location.pathname;
+          };
+          (function() {
+                  var d = document, s = d.createElement('script');
+                  s.src = 'https://petctt.disqus.com/embed.js';
+                  s.setAttribute('data-timestamp', +new Date());
+                  (d.head || d.body).appendChild(s);
+          })();
+    </script>
+  </body>
+</html>html>
+    </script></noscript></h3></h2>
+  </body>
+    </style></title>
+  </head>

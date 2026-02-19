@@ -4284,7 +4284,7 @@
         // ===== Gemini AI 동물 통역 =====
         async function callGeminiAI(prompt) {
             try {
-                var res = await fetch('/api/animal-talk', {
+                var res = await fetch('https://petctt-auth.zeus1404.workers.dev/api/animal-talk', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: prompt, provider: 'gemini', animal: selectedAnimal })

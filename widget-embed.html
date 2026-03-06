@@ -1,0 +1,117 @@
+<!-- 🐾 PetCTT 실시간 접속자 위젯 -->
+<!-- 이 코드를 petctt.com의 모든 페이지 </body> 바로 위에 삽입 -->
+<style>
+  #petctt-live-visitors {
+    position: fixed;
+    bottom: 80px;
+    left: 16px;
+    z-index: 9999;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    animation: petctt-slide-in 0.5s ease-out;
+  }
+  #petctt-live-visitors:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(0, 200, 150, 0.2);
+  }
+  @keyframes petctt-slide-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .petctt-pulse {
+    width: 8px;
+    height: 8px;
+    background: #00ff88;
+    border-radius: 50%;
+    animation: petctt-pulse-anim 1.5s ease-in-out infinite;
+  }
+  @keyframes petctt-pulse-anim {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
+    50% { opacity: 0.8; box-shadow: 0 0 0 6px rgba(0, 255, 136, 0); }
+  }
+  .petctt-count {
+    color: #00ff88;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .petctt-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 11px;
+    line-height: 1.2;
+  }
+  .petctt-emoji {
+    font-size: 16px;
+  }
+</style>
+
+<div id="petctt-live-visitors" title="실시간 접속자">
+  <div class="petctt-pulse"></div>
+  <span class="petctt-emoji">🐾</span>
+  <div>
+    <div class="petctt-count" id="petctt-visitor-num">-</div>
+    <div class="petctt-label">접속중</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // ⚠️ 배포 후 실제 Worker URL로 변경하세요
+  const WORKER_URL = 'https://petctt-visitors.zeus1404.workers.dev';
+  const PING_INTERVAL = 60000; // 60초마다 핑
+  
+  // 세션 ID 생성/복원
+  let vid = sessionStorage.getItem('petctt_vid');
+  if (!vid) {
+    vid = 'v_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+    sessionStorage.setItem('petctt_vid', vid);
+  }
+  
+  const page = window.location.pathname;
+  
+  // 서버에 핑 보내기
+  async function sendPing() {
+    try {
+      const res = await fetch(`${WORKER_URL}/ping?vid=${vid}&page=${encodeURIComponent(page)}`);
+      const data = await res.json();
+      if (data.active !== undefined) {
+        updateDisplay(data.active);
+      }
+    } catch (e) {
+      console.log('[PetCTT] Visitor ping failed:', e.message);
+    }
+  }
+  
+  // 접속자 수 업데이트
+  function updateDisplay(count) {
+    const el = document.getElementById('petctt-visitor-num');
+    if (el) {
+      el.textContent = count;
+      // 숫자 변경 애니메이션
+      el.style.transform = 'scale(1.2)';
+      setTimeout(() => { el.style.transform = 'scale(1)'; }, 200);
+    }
+  }
+  
+  // 초기 핑 + 주기적 핑
+  sendPing();
+  setInterval(sendPing, PING_INTERVAL);
+  
+  // 페이지 나갈 때도 처리
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') {
+      sendPing();
+    }
+  });
+})();
+</script>

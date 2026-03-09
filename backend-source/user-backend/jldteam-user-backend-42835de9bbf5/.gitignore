@@ -1,9 +1,0 @@
-node_modules
-.env
-/node_modules
-/api/dist
-/api/public/others
-/api/public/user-images
-/api/public/coin-images
-/.idea
-/.vscode

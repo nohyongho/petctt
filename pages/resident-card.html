@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>PetCTT - 펫 주민등록증</title>
+    <link rel="stylesheet" href="../public/css/app.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--primary-light); }
+        .form-input {
+            width: 100%; padding: 12px 14px; background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border); border-radius: var(--radius-sm);
+            color: var(--text); font-size: 0.9rem; font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        .form-input:focus { outline: none; border-color: var(--primary); }
+        .form-input::placeholder { color: var(--text-muted); }
+        textarea.form-input { min-height: 80px; resize: vertical; }
+        .photo-upload {
+            width: 120px; height: 120px; border-radius: 16px;
+            background: rgba(0,0,0,0.3); border: 2px dashed var(--border);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s; margin: 0 auto 16px;
+        }
+        .photo-upload:hover { border-color: var(--primary); }
+        .photo-upload .icon { font-size: 2rem; margin-bottom: 4px; }
+        .photo-upload .label { font-size: 0.7rem; color: var(--text-muted); }
+        .bio-upload-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+        .bio-upload {
+            padding: 16px 8px; background: rgba(0,0,0,0.2); border: 1px dashed var(--border);
+            border-radius: var(--radius-sm); text-align: center; cursor: pointer;
+            transition: all 0.3s;
+        }
+        .bio-upload:hover { border-color: var(--primary); }
+        .bio-upload .icon { font-size: 1.6rem; display: block; margin-bottom: 4px; }
+        .bio-upload .label { font-size: 0.7rem; color: var(--text-muted); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .preview-section { display: none; }
+        .preview-section.active { display: block; }
+        .step-indicator { display: flex; justify-content: center; gap: 8px; margin-bottom: 24px; }
+        .step-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: rgba(255,255,255,0.15); transition: all 0.3s;
+        }
+        .step-dot.active { background: var(--primary); width: 28px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="../index.html" class="logo" style="text-decoration:none;">
+                    <span class="logo-icon">🐾</span>
+                    <span class="logo-text">PetCTT</span>
+                </a>
+                <span style="color: var(--primary-light); font-weight: 700; font-size: 0.9rem;">📋 주민등록증</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 24px; padding-bottom: 80px;">
+        <div class="step-indicator">
+            <div class="step-dot active" id="dot1"></div>
+            <div class="step-dot" id="dot2"></div>
+            <div class="step-dot" id="dot3"></div>
+        </div>
+
+        <!-- Step 1: 기본 정보 -->
+        <div id="step1" class="preview-section active">
+            <h2 style="text-align:center; margin-bottom: 8px;">🐾 펫 주민등록증 발급</h2>
+            <p class="section-desc">우리 아이의 세상에 하나뿐인 신분증을 만들어보세요!</p>
+
+            <div class="photo-upload" onclick="document.getElementById('photoInput').click()">
+                <div class="icon" id="photoPreview">📸</div>
+                <div class="label">정면 사진</div>
+            </div>
+            <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="previewPhoto(this)">
+
+            <div class="form-group">
+                <label class="form-label">🐾 이름</label>
+                <input class="form-input" id="petName" placeholder="반려동물 이름">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">🎂 생년월일</label>
+                    <input class="form-input" id="petBirth" type="date">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">🐕 품종</label>
+                    <input class="form-input" id="petBreed" placeholder="포메라니안">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">⚧ 성별</label>
+                    <select class="form-input" id="petGender">
+                        <option value="">선택</option>
+                        <option value="male">수컷 ♂</option>
+                        <option value="female">암컷 ♀</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">⚖️ 체중 (kg)</label>
+                    <input class="form-input" id="petWeight" type="number" step="0.1" placeholder="3.5">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">🏠 주소</label>
+                <input class="form-input" id="petAddress" placeholder="서울시 강남구">
+            </div>
+            <div class="form-group">
+                <label class="form-label">📞 보호자 전화번호</label>
+                <input class="form-input" id="petPhone" type="tel" placeholder="010-1234-5678">
+            </div>
+
+            <button class="btn-primary" style="width:100%; margin-top:12px;" onclick="goStep(2)">다음: 생체 정보 →</button>
+        </div>
+
+        <!-- Step 2: 생체 + 부가 정보 -->
+        <div id="step2" class="preview-section">
+            <h2 style="text-align:center; margin-bottom: 8px;">🔬 생체 & 부가 정보</h2>
+            <p class="section-desc">코끝과 발바닥으로 세상에 하나뿐인 ID를 만듭니다</p>
+
+            <div class="bio-upload-row">
+                <div class="bio-upload" onclick="document.getElementById('noseInput').click()">
+                    <span class="icon">👃</span>
+                    <span class="label">코끝 중앙</span>
+                </div>
+                <div class="bio-upload" onclick="document.getElementById('pawInput').click()">
+                    <span class="icon">🐾</span>
+                    <span class="label">앞양발 지문</span>
+                </div>
+                <div class="bio-upload" onclick="document.getElementById('videoInput').click()">
+                    <span class="icon">📹</span>
+                    <span class="label">영상코너</span>
+                </div>
+            </div>
+            <input type="file" id="noseInput" accept="image/*" style="display:none">
+            <input type="file" id="pawInput" accept="image/*" style="display:none">
+            <input type="file" id="videoInput" accept="video/*" style="display:none">
+
+            <div class="form-group">
+                <label class="form-label">⚠️ 특이사항</label>
+                <textarea class="form-input" id="petNotes" placeholder="알레르기, 습관, 성격 등"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">💍 결혼유무</label>
+                    <select class="form-input" id="petMarriage">
+                        <option value="single">미혼</option>
+                        <option value="married">기혼</option>
+                        <option value="looking">만남 희망</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">💼 직업</label>
+                    <input class="form-input" id="petJob" placeholder="집지킴이">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">🎯 전문분야</label>
+                <input class="form-input" id="petSpecialty" placeholder="애교, 산책, 공가져오기">
+            </div>
+            <div class="form-group">
+                <label class="form-label">⚡ 주의 이력</label>
+                <input class="form-input" id="petCaution" placeholder="없음">
+            </div>
+            <div class="form-group">
+                <label class="form-label">✨ 매력포인트</label>
+                <textarea class="form-input" id="petCharm" placeholder="눈웃음, 꼬리흔들기, 배까기"></textarea>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-top:12px;">
+                <button class="btn-ghost" style="flex:1;" onclick="goStep(1)">← 이전</button>
+                <button class="btn-primary" style="flex:2;" onclick="generateCard()">📋 주민등록증 발급!</button>
+            </div>
+        </div>
+
+        <!-- Step 3: 발급 완료 카드 -->
+        <div id="step3" class="preview-section">
+            <h2 style="text-align:center; margin-bottom: 16px;">🎉 발급 완료!</h2>
+            <div class="id-card-preview">
+                <div class="id-card" id="generatedCard"></div>
+            </div>
+            <div style="display:flex; gap:12px; margin-top:20px;">
+                <button class="btn-ghost" style="flex:1;" onclick="goStep(1)">다시 만들기</button>
+                <button class="btn-primary" style="flex:1;" onclick="saveCard()">💾 저장하기</button>
+            </div>
+            <div style="text-align:center; margin-top:16px;">
+                <a href="../index.html" class="btn-outline">🏠 홈으로</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function goStep(n) {
+            document.querySelectorAll('.preview-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active'));
+            document.getElementById('step' + n).classList.add('active');
+            document.getElementById('dot' + n).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function previewPhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('photoPreview').innerHTML =
+                        '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function generateCard() {
+            const name = document.getElementById('petName').value || '이름없음';
+            const birth = document.getElementById('petBirth').value || '미입력';
+            const breed = document.getElementById('petBreed').value || '믹스';
+            const address = document.getElementById('petAddress').value || '미입력';
+            const phone = document.getElementById('petPhone').value || '미입력';
+            const gender = document.getElementById('petGender').value;
+            const weight = document.getElementById('petWeight').value;
+            const notes = document.getElementById('petNotes').value || '없음';
+            const charm = document.getElementById('petCharm').value || '매력덩어리';
+            const marriage = document.getElementById('petMarriage').value;
+            const job = document.getElementById('petJob').value || '집사 돌보기';
+            const specialty = document.getElementById('petSpecialty').value || '만능';
+            const caution = document.getElementById('petCaution').value || '없음';
+
+            const genderIcon = gender === 'male' ? '♂' : gender === 'female' ? '♀' : '';
+            const marriageText = marriage === 'single' ? '미혼' : marriage === 'married' ? '기혼' : '만남희망';
+            const cardNum = 'PETCTT-' + String(Date.now()).slice(-6);
+
+            const cardData = { name, birth, breed, address, phone, gender: genderIcon, weight, notes, charm, marriage: marriageText, job, specialty, caution, cardNum };
+            localStorage.setItem('petctt_resident_card', JSON.stringify(cardData));
+
+            document.getElementById('generatedCard').innerHTML = `
+                <div class="id-card-header">
+                    <span>🐾 PetCTT 주민등록증</span>
+                    <span class="id-number">${cardNum}</span>
+                </div>
+                <div class="id-card-body">
+                    <div class="id-photo">🐶</div>
+                    <div class="id-info">
+                        <div class="id-row"><span class="id-label">이름</span><span>${name} ${genderIcon}</span></div>
+                        <div class="id-row"><span class="id-label">생년월일</span><span>${birth}</span></div>
+                        <div class="id-row"><span class="id-label">품종</span><span>${breed}</span></div>
+                        <div class="id-row"><span class="id-label">주소</span><span>${address}</span></div>
+                        <div class="id-row"><span class="id-label">전화</span><span>${phone}</span></div>
+                        <div class="id-row"><span class="id-label">체중</span><span>${weight ? weight + 'kg' : '미입력'}</span></div>
+                    </div>
+                </div>
+                <div class="id-card-footer">
+                    <div class="id-biometric">
+                        <div class="bio-item"><span>👃</span><span>코끝</span></div>
+                        <div class="bio-item"><span>🐾</span><span>앞양발</span></div>
+                        <div class="bio-item"><span>📹</span><span>영상</span></div>
+                    </div>
+                </div>
+                <div class="id-card-extra">
+                    직업: ${job} · 전문: ${specialty} · ${marriageText}<br>
+                    매력: ${charm} · 주의: ${caution}<br>
+                    특이사항: ${notes}
+                </div>
+            `;
+            goStep(3);
+        }
+
+        function saveCard() {
+            alert('💾 주민등록증이 저장되었습니다!\n(향후 Supabase DB에 영구 저장 예정)');
+        }
+    </script>
+</body>
+</html>

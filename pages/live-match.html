@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>PetCTT - 라이브 소개팅</title>
+    <link rel="stylesheet" href="../public/css/app.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        .swipe-area {
+            position: relative; min-height: 420px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px;
+        }
+        .profile-card {
+            width: 100%; max-width: 360px;
+            background: var(--bg-card); border: 1px solid rgba(236,72,153,0.25);
+            border-radius: var(--radius); overflow: hidden;
+            transition: transform 0.4s, opacity 0.4s;
+        }
+        .profile-card.swiped-left { transform: translateX(-120%) rotate(-15deg); opacity: 0; }
+        .profile-card.swiped-right { transform: translateX(120%) rotate(15deg); opacity: 0; }
+        .profile-photo {
+            height: 240px; display: flex; align-items: center; justify-content: center;
+            font-size: 6rem; background: linear-gradient(135deg, rgba(236,72,153,0.1), rgba(99,102,241,0.1));
+        }
+        .profile-body { padding: 20px; }
+        .profile-name { font-size: 1.3rem; font-weight: 900; margin-bottom: 4px; }
+        .profile-meta { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; }
+        .profile-intro {
+            font-size: 0.9rem; color: var(--text); line-height: 1.6;
+            padding: 12px; background: rgba(0,0,0,0.2); border-radius: var(--radius-sm);
+            margin-bottom: 12px; font-style: italic;
+        }
+        .profile-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+        .profile-tag {
+            padding: 4px 10px; background: rgba(16,185,129,0.15);
+            border: 1px solid var(--border); border-radius: 12px;
+            font-size: 0.7rem; color: var(--primary-light);
+        }
+        .action-buttons {
+            display: flex; justify-content: center; gap: 16px; margin-bottom: 24px;
+        }
+        .action-btn {
+            width: 60px; height: 60px; border-radius: 50%; border: none;
+            font-size: 1.6rem; cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .action-btn:hover { transform: scale(1.15); }
+        .action-btn.pass { background: rgba(255,255,255,0.1); }
+        .action-btn.super { background: rgba(245,158,11,0.3); border: 2px solid rgba(245,158,11,0.5); }
+        .action-btn.like { background: rgba(236,72,153,0.3); border: 2px solid rgba(236,72,153,0.5); }
+        .match-popup {
+            display: none; position: fixed; inset: 0; z-index: 10000;
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(12px);
+            align-items: center; justify-content: center; flex-direction: column;
+        }
+        .match-popup.active { display: flex; }
+        .match-text { font-size: 2rem; font-weight: 900; color: var(--pink); margin-bottom: 8px; }
+        .match-sub { font-size: 1rem; color: var(--text-muted); margin-bottom: 24px; }
+        .empty-state {
+            text-align: center; padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        .empty-state .icon { font-size: 4rem; margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="../index.html" class="logo" style="text-decoration:none;">
+                    <span class="logo-icon">🐾</span>
+                    <span class="logo-text">PetCTT</span>
+                </a>
+                <span style="color: var(--pink); font-weight: 700; font-size: 0.9rem;">💕 소개팅</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 24px; padding-bottom: 80px;">
+        <h2 style="text-align:center; margin-bottom: 4px;">💕 펫 라이브 소개팅</h2>
+        <p class="section-desc">우리 아이에게 소중한 친구를 찾아주세요!</p>
+
+        <div class="swipe-area" id="swipeArea"></div>
+
+        <div class="action-buttons" id="actionButtons">
+            <button class="action-btn pass" onclick="swipeAction('pass')">👋</button>
+            <button class="action-btn super" onclick="swipeAction('super')">⭐</button>
+            <button class="action-btn like" onclick="swipeAction('like')">❤️</button>
+        </div>
+
+        <div style="text-align:center;">
+            <a href="../index.html" class="btn-outline">🏠 홈으로</a>
+        </div>
+    </main>
+
+    <!-- 매칭 팝업 -->
+    <div class="match-popup" id="matchPopup">
+        <div style="font-size: 5rem; margin-bottom: 16px;">💕</div>
+        <div class="match-text">매칭 성공!</div>
+        <div class="match-sub" id="matchNames"></div>
+        <button class="btn-primary" onclick="closeMatch()" style="margin-top: 12px;">채팅 시작하기 💬</button>
+        <button class="btn-ghost" onclick="closeMatch()" style="margin-top: 8px;">계속 둘러보기</button>
+    </div>
+
+    <script>
+        const DEMO_PROFILES = [
+            { name: '뽀삐', emoji: '🐶', age: 3, gender: '♂', breed: '포메라니안', location: '서울 강남', intro: '산책 좋아하고 사람 잘 따라요! 공원에서 뛰노는 걸 제일 좋아합니다 🌳', tags: ['산책왕', '사교적', '애교쟁이'] },
+            { name: '코코', emoji: '🐩', age: 2, gender: '♀', breed: '토이푸들', location: '경기 분당', intro: '활발하고 귀여운 코코예요~ 간식 앞에서는 못 참아요 ㅎㅎ', tags: ['활발', '간식러버', '미용달인'] },
+            { name: '치즈', emoji: '🐱', age: 4, gender: '♂', breed: '스코티시폴드', location: '서울 마포', intro: '조용하고 점잖은 치즈입니다. 창가에서 낮잠 자는 걸 좋아해요 ☀️', tags: ['점잖음', '낮잠왕', '창가마니아'] },
+            { name: '모카', emoji: '🐕', age: 1, gender: '♀', breed: '시바견', location: '인천', intro: '호기심 많고 탐험가 기질! 새로운 장소 가는 걸 좋아해요 🗺️', tags: ['탐험가', '호기심', '용감'] },
+            { name: '망고', emoji: '🐈', age: 5, gender: '♂', breed: '러시안블루', location: '서울 송파', intro: '은색 털이 자랑! 조용히 곁에 있는 것만으로 행복해요 💎', tags: ['고급미', '조용함', '충직'] },
+        ];
+
+        let currentIndex = 0;
+
+        function renderProfile() {
+            const area = document.getElementById('swipeArea');
+            if (currentIndex >= DEMO_PROFILES.length) {
+                area.innerHTML = '<div class="empty-state"><div class="icon">🐾</div><p>오늘의 프로필을 모두 확인했어요!<br>내일 새로운 친구가 기다릴 거예요 💕</p></div>';
+                document.getElementById('actionButtons').style.display = 'none';
+                return;
+            }
+            const p = DEMO_PROFILES[currentIndex];
+            area.innerHTML = `
+                <div class="profile-card" id="currentCard">
+                    <div class="profile-photo">${p.emoji}</div>
+                    <div class="profile-body">
+                        <div class="profile-name">${p.name} ${p.gender} ${p.age}살</div>
+                        <div class="profile-meta">${p.breed} · ${p.location}</div>
+                        <div class="profile-intro">"${p.intro}"</div>
+                        <div class="profile-tags">
+                            ${p.tags.map(t => '<span class="profile-tag">' + t + '</span>').join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function swipeAction(action) {
+            const card = document.getElementById('currentCard');
+            if (!card) return;
+
+            if (action === 'pass') {
+                card.classList.add('swiped-left');
+            } else {
+                card.classList.add('swiped-right');
+            }
+
+            if (action === 'like' || action === 'super') {
+                if (Math.random() > 0.5) {
+                    setTimeout(() => showMatch(DEMO_PROFILES[currentIndex].name), 500);
+                }
+            }
+
+            setTimeout(() => {
+                currentIndex++;
+                renderProfile();
+            }, 400);
+        }
+
+        function showMatch(name) {
+            document.getElementById('matchNames').textContent = '나의 펫 ❤️ ' + name;
+            document.getElementById('matchPopup').classList.add('active');
+        }
+
+        function closeMatch() {
+            document.getElementById('matchPopup').classList.remove('active');
+        }
+
+        renderProfile();
+    </script>
+</body>
+</html>

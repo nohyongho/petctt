@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>PetCTT - 스마트 AI 글래스</title>
+    <link rel="stylesheet" href="../public/css/app.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        .glasses-hero {
+            text-align: center; padding: 48px 20px;
+            background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(16,185,129,0.05));
+            border: 1px solid rgba(99,102,241,0.2); border-radius: var(--radius);
+            margin-bottom: 32px; position: relative; overflow: hidden;
+        }
+        .glasses-hero::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(99,102,241,0.15) 0%, transparent 60%);
+        }
+        .glasses-hero .icon { font-size: 5rem; position: relative; z-index: 1; }
+        .glasses-hero h1 { font-size: 1.8rem; font-weight: 900; position: relative; z-index: 1; margin: 12px 0 8px; }
+        .glasses-hero p { color: var(--text-muted); font-size: 0.9rem; position: relative; z-index: 1; }
+        .ar-mockup {
+            position: relative; background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(99,102,241,0.3); border-radius: var(--radius);
+            padding: 32px 20px; margin-bottom: 24px; overflow: hidden;
+        }
+        .ar-mockup-bg {
+            position: absolute; inset: 0; opacity: 0.1;
+            background: linear-gradient(45deg, var(--secondary) 25%, transparent 25%, transparent 75%, var(--secondary) 75%);
+            background-size: 20px 20px;
+        }
+        .ar-center { text-align: center; font-size: 5rem; margin-bottom: 16px; position: relative; }
+        .ar-overlay-items {
+            display: flex; flex-direction: column; gap: 8px; position: relative;
+        }
+        .ar-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; background: rgba(0,0,0,0.5); border-radius: var(--radius-sm);
+            border-left: 3px solid var(--primary); backdrop-filter: blur(4px);
+        }
+        .ar-item .label { font-size: 0.8rem; color: var(--text-muted); min-width: 60px; }
+        .ar-item .value { font-size: 0.9rem; font-weight: 600; color: var(--primary-light); }
+        .ar-item .bar {
+            flex: 1; height: 6px; background: rgba(255,255,255,0.1);
+            border-radius: 3px; overflow: hidden;
+        }
+        .ar-item .bar-fill { height: 100%; border-radius: 3px; transition: width 1s; }
+        .use-case {
+            background: var(--bg-card); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius); padding: 20px; margin-bottom: 12px;
+        }
+        .use-case h4 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+        .use-case p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+        .use-case .icon { font-size: 1.6rem; margin-bottom: 8px; display: block; }
+        .spec-table {
+            width: 100%; border-collapse: collapse; margin-bottom: 24px;
+        }
+        .spec-table td {
+            padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.85rem;
+        }
+        .spec-table td:first-child { color: var(--text-muted); width: 40%; }
+        .spec-table td:last-child { color: var(--text); font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="../index.html" class="logo" style="text-decoration:none;">
+                    <span class="logo-icon">🐾</span>
+                    <span class="logo-text">PetCTT</span>
+                </a>
+                <span style="color: var(--secondary); font-weight: 700; font-size: 0.9rem;">🕶️ AI 글래스</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 24px; padding-bottom: 80px;">
+        <div class="glasses-hero">
+            <div class="icon">🕶️</div>
+            <h1>ROUNZ × PetCTT</h1>
+            <p>스마트 글래스로 반려동물을 바라보면<br>모든 정보가 눈앞에 펼쳐집니다</p>
+        </div>
+
+        <!-- AR 시뮬레이션 -->
+        <h3 style="margin-bottom: 12px;">🔮 AR 오버레이 시뮬레이션</h3>
+        <div class="ar-mockup">
+            <div class="ar-mockup-bg"></div>
+            <div class="ar-center">🐶</div>
+            <div class="ar-overlay-items">
+                <div class="ar-item">
+                    <span class="label">🎙️ 통역</span>
+                    <span class="value">"배고파요~ 밥 주세요!"</span>
+                </div>
+                <div class="ar-item">
+                    <span class="label">😊 감정</span>
+                    <span class="value">행복</span>
+                    <div class="bar"><div class="bar-fill" style="width:88%; background: var(--primary);"></div></div>
+                    <span class="value">88%</span>
+                </div>
+                <div class="ar-item">
+                    <span class="label">❤️ 심박</span>
+                    <span class="value">82 bpm</span>
+                    <div class="bar"><div class="bar-fill" style="width:65%; background: var(--danger);"></div></div>
+                    <span class="value">정상</span>
+                </div>
+                <div class="ar-item">
+                    <span class="label">🌡️ 체온</span>
+                    <span class="value">38.2°C</span>
+                    <div class="bar"><div class="bar-fill" style="width:70%; background: var(--accent);"></div></div>
+                    <span class="value">정상</span>
+                </div>
+                <div class="ar-item">
+                    <span class="label">📍 거리</span>
+                    <span class="value">2.3m</span>
+                </div>
+                <div class="ar-item">
+                    <span class="label">📋 ID</span>
+                    <span class="value">PETCTT-382951 뽀삐</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 활용 시나리오 -->
+        <h3 style="margin-bottom: 12px;">💡 활용 시나리오</h3>
+        <div class="use-case">
+            <span class="icon">🏥</span>
+            <h4>동물병원 진료</h4>
+            <p>수의사가 글래스를 쓰면 반려동물의 건강 기록, 백신 이력, 알레르기 정보가 AR로 표시됩니다. 진료 시 두 손이 자유롭습니다.</p>
+        </div>
+        <div class="use-case">
+            <span class="icon">🌳</span>
+            <h4>산책 & 외출</h4>
+            <p>산책 중 다른 반려동물을 보면 자동으로 프로필과 주민등록증 정보 표시. 위험한 동물은 경고 알림.</p>
+        </div>
+        <div class="use-case">
+            <span class="icon">🏠</span>
+            <h4>홈 케어</h4>
+            <p>집에서 반려동물을 바라보기만 해도 실시간 감정 상태와 통역 자막 표시. 이상 징후 자동 감지 알림.</p>
+        </div>
+        <div class="use-case">
+            <span class="icon">🏆</span>
+            <h4>콘테스트 심사</h4>
+            <p>아미 심사위원장이 글래스를 착용하고 참가 펫을 바라보면 프로필, 이전 수상 이력, 투표 현황이 실시간 표시.</p>
+        </div>
+
+        <!-- 스펙 -->
+        <h3 style="margin-bottom: 12px;">📋 연동 스펙</h3>
+        <table class="spec-table">
+            <tr><td>글래스 플랫폼</td><td>ROUNZ AR Smart Glasses</td></tr>
+            <tr><td>연결 방식</td><td>Bluetooth 5.3 + Wi-Fi</td></tr>
+            <tr><td>디스플레이</td><td>AR 오버레이 (반투명)</td></tr>
+            <tr><td>AI 엔진</td><td>Gemini Pro Vision</td></tr>
+            <tr><td>카메라</td><td>12MP + 깊이 센서</td></tr>
+            <tr><td>배터리</td><td>4시간 연속 사용</td></tr>
+            <tr><td>무게</td><td>45g (일반 안경 수준)</td></tr>
+            <tr><td>방수</td><td>IPX4 (생활방수)</td></tr>
+        </table>
+
+        <div style="text-align:center;">
+            <a href="../index.html" class="btn-primary" style="margin-right:8px;">🏠 홈으로</a>
+            <a href="app.html" class="btn-outline">🐾 앱 시작하기</a>
+        </div>
+    </main>
+</body>
+</html>

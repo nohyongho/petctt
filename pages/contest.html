@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>PetCTT - 콘테스트 & 오디션</title>
+    <link rel="stylesheet" href="../public/css/app.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        .contest-hero {
+            text-align: center; padding: 32px 0;
+            background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(236,72,153,0.05));
+            border: 1px solid rgba(245,158,11,0.2); border-radius: var(--radius);
+            margin-bottom: 24px;
+        }
+        .contest-hero .trophy { font-size: 4rem; margin-bottom: 8px; }
+        .contest-tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; }
+        .contest-tab {
+            padding: 10px 16px; background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;
+            color: var(--text-muted); font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; white-space: nowrap; transition: all 0.3s;
+        }
+        .contest-tab.active { background: rgba(245,158,11,0.2); border-color: rgba(245,158,11,0.5); color: var(--accent); }
+        .entry-card {
+            background: var(--bg-card); border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--radius); padding: 16px; margin-bottom: 12px;
+            display: flex; gap: 14px; transition: all 0.3s;
+        }
+        .entry-card:hover { border-color: var(--accent); }
+        .entry-thumb {
+            width: 80px; height: 80px; border-radius: 12px;
+            background: rgba(0,0,0,0.3); display: flex; align-items: center;
+            justify-content: center; font-size: 2.5rem; flex-shrink: 0;
+        }
+        .entry-info { flex: 1; }
+        .entry-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+        .entry-meta { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; }
+        .entry-votes {
+            display: flex; align-items: center; gap: 6px;
+        }
+        .vote-btn {
+            padding: 6px 14px; background: rgba(236,72,153,0.15);
+            border: 1px solid rgba(236,72,153,0.3); border-radius: 14px;
+            color: var(--pink); font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .vote-btn:hover { background: rgba(236,72,153,0.3); }
+        .vote-count { font-size: 0.8rem; color: var(--text-muted); }
+        .winner-badge {
+            display: inline-block; padding: 3px 10px; background: rgba(245,158,11,0.2);
+            border: 1px solid rgba(245,158,11,0.4); border-radius: 10px;
+            font-size: 0.7rem; color: var(--accent); font-weight: 700;
+        }
+        .submit-section {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 24px; margin-top: 24px;
+        }
+        .upload-area {
+            border: 2px dashed var(--border); border-radius: var(--radius-sm);
+            padding: 32px 16px; text-align: center; cursor: pointer;
+            transition: all 0.3s; margin-bottom: 16px;
+        }
+        .upload-area:hover { border-color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="../index.html" class="logo" style="text-decoration:none;">
+                    <span class="logo-icon">🐾</span>
+                    <span class="logo-text">PetCTT</span>
+                </a>
+                <span style="color: var(--accent); font-weight: 700; font-size: 0.9rem;">🏆 콘테스트</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 24px; padding-bottom: 80px;">
+        <!-- 히어로 -->
+        <div class="contest-hero">
+            <div class="trophy">🏆</div>
+            <h2 style="font-size: 1.4rem; margin-bottom: 4px;">이번 주 콘테스트</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem;">매주 주말, 우리 아이를 스타로!</p>
+            <div style="margin-top: 12px;">
+                <span class="winner-badge">🐰 아미 심사위원장 특별상</span>
+            </div>
+        </div>
+
+        <!-- 카테고리 탭 -->
+        <div class="contest-tabs">
+            <button class="contest-tab active" onclick="switchContest('dance')">💃 펫 댄스</button>
+            <button class="contest-tab" onclick="switchContest('fashion')">👗 펫션쇼</button>
+            <button class="contest-tab" onclick="switchContest('beauty')">✂️ 미용</button>
+            <button class="contest-tab" onclick="switchContest('talent')">🎭 예능</button>
+        </div>
+
+        <!-- 엔트리 목록 -->
+        <div id="contestEntries"></div>
+
+        <!-- 참가 신청 -->
+        <div class="submit-section">
+            <h3 style="margin-bottom: 12px; font-size: 1.1rem;">🎬 참가 신청</h3>
+            <div class="upload-area" onclick="document.getElementById('contestVideo').click()">
+                <div style="font-size: 2.5rem; margin-bottom: 8px;">📹</div>
+                <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 4px;">영상 업로드</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">최대 60초 · MP4/MOV</div>
+            </div>
+            <input type="file" id="contestVideo" accept="video/*" style="display:none">
+
+            <div class="form-group" style="margin-bottom:12px;">
+                <input style="width:100%; padding:12px; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:10px; color:var(--text); font-size:0.9rem;" placeholder="제목 (예: 뽀삐의 귀여운 댄스)">
+            </div>
+            <button class="btn-primary" style="width:100%;" onclick="submitEntry()">🎬 참가 신청하기</button>
+        </div>
+
+        <div style="text-align:center; margin-top:24px;">
+            <a href="../index.html" class="btn-outline">🏠 홈으로</a>
+        </div>
+    </main>
+
+    <script>
+        const DEMO_ENTRIES = {
+            dance: [
+                { name: '뽀삐', emoji: '🐶', title: '뽀삐의 신나는 댄스타임!', breed: '포메라니안', votes: 234, winner: true },
+                { name: '코코', emoji: '🐩', title: '코코의 회전 댄스', breed: '토이푸들', votes: 189, winner: false },
+                { name: '망고', emoji: '🐈', title: '망고의 우아한 스텝', breed: '러시안블루', votes: 156, winner: false },
+            ],
+            fashion: [
+                { name: '치즈', emoji: '🐱', title: '치즈의 겨울 패션', breed: '스코티시폴드', votes: 312, winner: true },
+                { name: '모카', emoji: '🐕', title: '모카의 봄 코디', breed: '시바견', votes: 201, winner: false },
+            ],
+            beauty: [
+                { name: '루루', emoji: '🐩', title: '루루의 프리미엄 그루밍', breed: '비숑프리제', votes: 278, winner: true },
+                { name: '하늘', emoji: '🐶', title: '하늘이의 리본 아트', breed: '말티즈', votes: 199, winner: false },
+            ],
+            talent: [
+                { name: '뽀삐', emoji: '🐶', title: '뽀삐의 하이파이브 묘기', breed: '포메라니안', votes: 456, winner: true },
+                { name: '치즈', emoji: '🐱', title: '치즈의 상자 숨바꼭질', breed: '스코티시폴드', votes: 234, winner: false },
+            ]
+        };
+
+        let currentCategory = 'dance';
+
+        function switchContest(category) {
+            currentCategory = category;
+            document.querySelectorAll('.contest-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderEntries();
+        }
+
+        function renderEntries() {
+            const entries = DEMO_ENTRIES[currentCategory] || [];
+            const html = entries.map((e, i) => `
+                <div class="entry-card">
+                    <div class="entry-thumb">${e.emoji}</div>
+                    <div class="entry-info">
+                        <div class="entry-name">
+                            ${e.winner ? '<span class="winner-badge">🏆 1위</span> ' : ''}
+                            ${e.title}
+                        </div>
+                        <div class="entry-meta">${e.name} · ${e.breed}</div>
+                        <div class="entry-votes">
+                            <button class="vote-btn" onclick="vote(${i})">❤️ 투표</button>
+                            <span class="vote-count" id="votes-${i}">${e.votes}표</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('contestEntries').innerHTML = html;
+        }
+
+        function vote(idx) {
+            const entries = DEMO_ENTRIES[currentCategory];
+            entries[idx].votes++;
+            document.getElementById('votes-' + idx).textContent = entries[idx].votes + '표';
+        }
+
+        function submitEntry() {
+            alert('🎬 참가 신청 완료!\n아미 심사위원장이 검토 후 등록해드려요 🐰');
+        }
+
+        renderEntries();
+    </script>
+</body>
+</html>

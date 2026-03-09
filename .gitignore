@@ -1,8 +1,49 @@
+# Environment & Secrets
 .env
-env/
+.env.*
 *.env
-*.zip
+env
+env/
+비번*
+클키*
+*비번*
+*시크릿*
+*secret*
+*credential*
+
+# Archive (이전 버전 로컬 보관)
+archive/
+
+# Build & Dependencies
+node_modules/
+.wrangler/
+.next/
+dist/
+build/
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs & Temp
+*.log
 *_output.txt
 *_error.txt
-node_modules/
-.DS_Store
+git_error.txt
+git_output.txt
+
+# Large files
+*.zip
+*.mp4
+*.mp3
+
+# Screenshots
+*.png
+!public/images/*.png
+
+# Large backup directories
+클airctt-petctt/
+backend-source/
+petctt-main*/

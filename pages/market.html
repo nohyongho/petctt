@@ -275,9 +275,218 @@ body {
   .search-bar { flex-direction: column; }
   .container { padding: 16px; }
 }
+
+/* ========== 배너 섹션 ========== */
+.banner-section { max-width:1100px; margin:0 auto; padding:16px 24px 0; }
+.banner-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.banner-title { font-size:18px; font-weight:800; background:var(--gradient1); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.admin-upload-btn {
+  padding:8px 16px; border-radius:12px; border:1px solid rgba(255,107,157,0.4);
+  background:rgba(255,107,157,0.1); color:var(--accent2); font-size:13px; font-weight:700;
+  cursor:pointer; transition:all 0.3s; font-family:inherit;
+}
+.admin-upload-btn:hover { background:rgba(255,107,157,0.2); box-shadow:0 4px 15px rgba(255,107,157,0.2); }
+.banner-carousel {
+  position:relative; border-radius:16px; overflow:hidden;
+  background:var(--bg-card); border:1px solid rgba(255,255,255,0.06);
+  min-height:200px;
+}
+.banner-carousel video, .banner-carousel img.banner-media {
+  width:100%; aspect-ratio:16/9; object-fit:cover; display:block;
+}
+.banner-slide { display:none; position:relative; }
+.banner-slide.active { display:block; }
+.banner-overlay {
+  position:absolute; bottom:0; left:0; right:0; padding:16px 20px;
+  background:linear-gradient(transparent, rgba(0,0,0,0.85));
+}
+.banner-overlay h3 { font-size:16px; font-weight:700; color:#fff; margin-bottom:4px; }
+.banner-overlay p { font-size:12px; color:rgba(255,255,255,0.7); }
+.banner-notice {
+  display:flex; align-items:center; justify-content:center; min-height:200px;
+  background:linear-gradient(135deg, var(--bg-card), var(--bg-card2));
+  text-align:center; padding:40px 20px;
+}
+.banner-notice h3 { font-size:20px; margin-bottom:8px; }
+.banner-notice p { color:var(--text-muted); font-size:14px; }
+.banner-empty {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  min-height:200px; color:var(--text-muted); gap:8px; font-size:14px;
+}
+.banner-empty span:first-child { font-size:40px; }
+.banner-dots { display:flex; justify-content:center; gap:6px; margin-top:10px; }
+.banner-dot {
+  width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.2);
+  cursor:pointer; transition:all 0.3s;
+}
+.banner-dot.active { background:var(--accent); width:20px; border-radius:4px; }
+.banner-nav {
+  position:absolute; top:50%; transform:translateY(-50%); background:rgba(0,0,0,0.5);
+  color:#fff; border:none; width:36px; height:36px; border-radius:50%;
+  cursor:pointer; font-size:16px; z-index:10; display:flex; align-items:center; justify-content:center;
+}
+.banner-nav.prev { left:10px; }
+.banner-nav.next { right:10px; }
+.banner-nav:hover { background:rgba(0,0,0,0.7); }
+.banner-delete-btn {
+  position:absolute; top:10px; right:10px; background:rgba(255,0,0,0.7);
+  color:#fff; border:none; border-radius:50%; width:30px; height:30px;
+  cursor:pointer; font-size:14px; z-index:10; display:none;
+}
+.banner-slide:hover .banner-delete-btn { display:flex; align-items:center; justify-content:center; }
+
+/* ========== 업로드 모달 ========== */
+.upload-modal {
+  position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.8);
+  z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px;
+}
+.upload-modal-content {
+  background:var(--bg-card); border:1px solid rgba(255,255,255,0.1);
+  border-radius:20px; padding:24px; width:100%; max-width:500px; max-height:90vh; overflow-y:auto;
+}
+.upload-modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.upload-modal-header h3 { font-size:18px; font-weight:700; }
+.upload-close-btn {
+  background:none; border:none; color:var(--text-muted); font-size:22px; cursor:pointer;
+}
+.upload-type-selector { display:flex; gap:8px; margin-bottom:12px; }
+.upload-type-btn {
+  flex:1; padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.1);
+  background:var(--bg-card2); color:var(--text-muted); font-size:13px; font-weight:600;
+  cursor:pointer; transition:all 0.3s; font-family:inherit;
+}
+.upload-type-btn.active { background:rgba(0,229,255,0.15); color:var(--accent); border-color:rgba(0,229,255,0.3); }
+.upload-input {
+  width:100%; padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,0.1);
+  background:var(--bg-card2); color:var(--text); font-size:14px; margin-bottom:10px; font-family:inherit;
+}
+.upload-input:focus { outline:none; border-color:rgba(0,229,255,0.3); }
+.upload-textarea {
+  width:100%; padding:12px 16px; border-radius:10px; border:1px solid rgba(255,255,255,0.1);
+  background:var(--bg-card2); color:var(--text); font-size:14px; margin-bottom:10px;
+  resize:vertical; font-family:inherit;
+}
+.upload-textarea:focus { outline:none; border-color:rgba(0,229,255,0.3); }
+.upload-dropzone {
+  border:2px dashed rgba(255,255,255,0.15); border-radius:14px; padding:30px 20px;
+  text-align:center; cursor:pointer; transition:all 0.3s; margin-bottom:12px;
+}
+.upload-dropzone:hover { border-color:rgba(0,229,255,0.4); background:rgba(0,229,255,0.03); }
+.dropzone-icon { font-size:36px; display:block; margin-bottom:8px; }
+.dropzone-text { display:block; font-size:14px; font-weight:600; color:var(--text); margin-bottom:4px; }
+.dropzone-hint { display:block; font-size:11px; color:var(--text-muted); }
+.upload-progress-bar {
+  width:100%; height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden; margin-bottom:8px;
+}
+.progress-fill { height:100%; background:var(--gradient1); border-radius:3px; width:0%; transition:width 0.3s; }
+#progressText { font-size:12px; color:var(--accent); }
+.submit-upload-btn {
+  width:100%; padding:14px; border-radius:12px; border:none;
+  background:var(--gradient2); color:#fff; font-size:15px; font-weight:700;
+  cursor:pointer; transition:all 0.3s; font-family:inherit;
+}
+.submit-upload-btn:disabled { opacity:0.4; cursor:not-allowed; }
+.submit-upload-btn:not(:disabled):hover { box-shadow:0 4px 20px rgba(255,107,157,0.3); transform:translateY(-1px); }
+.admin-banner-list { margin-top:16px; }
+.admin-banner-item {
+  display:flex; align-items:center; gap:12px; padding:10px; border-radius:10px;
+  background:var(--bg-card2); margin-bottom:8px;
+}
+.admin-banner-item img, .admin-banner-item video { width:60px; height:40px; object-fit:cover; border-radius:6px; }
+.admin-banner-item .info { flex:1; }
+.admin-banner-item .info span { display:block; font-size:12px; color:var(--text-muted); }
+.admin-banner-item .info strong { font-size:13px; }
+.admin-banner-item .del-btn {
+  background:rgba(255,0,0,0.2); color:#ff4444; border:none; border-radius:8px;
+  padding:6px 12px; font-size:12px; cursor:pointer;
+}
+
+/* 배너 뱃지 */
+.banner-badge {
+  position:absolute; top:12px; left:12px; z-index:10; padding:4px 10px; border-radius:8px;
+  font-size:11px; font-weight:700; backdrop-filter:blur(10px);
+}
+.badge-video { background:rgba(255,107,157,0.8); color:#fff; }
+.badge-image { background:rgba(0,229,255,0.8); color:#000; }
+.badge-notice { background:rgba(255,171,64,0.8); color:#000; }
+/* 배너 정보 오버레이 */
+.banner-info {
+  position:absolute; bottom:0; left:0; right:0; padding:16px 20px;
+  background:linear-gradient(transparent, rgba(0,0,0,0.85));
+}
+.banner-info h4 { font-size:15px; font-weight:700; color:#fff; margin-bottom:2px; }
+.banner-info p { font-size:12px; color:rgba(255,255,255,0.7); }
+/* 배너 삭제 버튼 */
+.banner-del-btn {
+  position:absolute; top:12px; right:12px; z-index:10; background:rgba(255,0,0,0.7);
+  color:#fff; border:none; border-radius:10px; padding:6px 12px; font-size:12px;
+  cursor:pointer; backdrop-filter:blur(10px);
+}
+.banner-del-btn:hover { background:rgba(255,0,0,0.9); }
+/* Admin 배너 아이템 */
+.admin-banner-item-info .title { font-size:13px; font-weight:600; }
+.admin-banner-item-info .type { font-size:11px; color:var(--text-muted); }
+.admin-banner-delete {
+  background:rgba(255,0,0,0.15); color:#ff6666; border:1px solid rgba(255,0,0,0.2);
+  border-radius:8px; padding:5px 10px; font-size:11px; cursor:pointer; flex-shrink:0;
+}
+.admin-banner-delete:hover { background:rgba(255,0,0,0.3); }
+/* 파일 미리보기 */
+.file-preview { max-width:100%; max-height:200px; border-radius:10px; margin-top:8px; }
+
+@media (max-width: 768px) {
+  .banner-section { padding:12px 16px 0; }
+  .banner-carousel { min-height:160px; }
+}
 </style>
 </head>
 <body>
+
+<!-- 🎬 메인 배너 (Supabase 영구저장 - 모든 사용자 표시) -->
+<div id="bannerSection" class="banner-section">
+  <div class="banner-header">
+    <h2 class="banner-title">📺 실시간 소식</h2>
+    <button id="adminUploadBtn" class="admin-upload-btn" style="display:none;" onclick="openUploadModal()">➕ 업로드</button>
+  </div>
+  <div id="bannerCarousel" class="banner-carousel">
+    <div class="banner-empty"><span>📺</span><span>소식을 불러오는 중...</span></div>
+  </div>
+  <div id="bannerDots" class="banner-dots"></div>
+</div>
+
+<!-- 업로드 모달 (admin only) -->
+<div id="uploadModal" class="upload-modal" style="display:none;">
+  <div class="upload-modal-content">
+    <div class="upload-modal-header">
+      <h3>📤 배너 업로드</h3>
+      <button onclick="closeUploadModal()" class="upload-close-btn">✕</button>
+    </div>
+    <div class="upload-form">
+      <div class="upload-type-selector">
+        <button class="upload-type-btn active" data-type="video" onclick="selectUploadType('video')">🎬 영상</button>
+        <button class="upload-type-btn" data-type="image" onclick="selectUploadType('image')">🖼️ 이미지</button>
+        <button class="upload-type-btn" data-type="notice" onclick="selectUploadType('notice')">📢 공지</button>
+      </div>
+      <input type="text" id="uploadTitle" class="upload-input" placeholder="제목 (선택)">
+      <textarea id="uploadDesc" class="upload-textarea" placeholder="설명 (선택)" rows="2"></textarea>
+      <div id="fileUploadArea" class="upload-dropzone" onclick="document.getElementById('fileInput').click()">
+        <input type="file" id="fileInput" accept="video/*,image/*" style="display:none;" onchange="handleFileSelect(event)">
+        <div id="dropzoneContent">
+          <span class="dropzone-icon">📁</span>
+          <span class="dropzone-text">터치하여 파일 선택</span>
+          <span class="dropzone-hint">영상 MP4/WebM (200MB) | 이미지 JPG/PNG/GIF</span>
+        </div>
+        <div id="uploadProgress" style="display:none;">
+          <div class="upload-progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+          <span id="progressText">업로드 중... 0%</span>
+        </div>
+        <div id="filePreviewArea" style="display:none;"></div>
+      </div>
+      <button id="submitUploadBtn" class="submit-upload-btn" onclick="submitUpload()" disabled>🚀 게시하기</button>
+    </div>
+    <div id="adminBannerList" class="admin-banner-list"></div>
+  </div>
+</div>
 
 <!-- Top Bar -->
 <div class="top-bar">
@@ -611,6 +820,360 @@ function showToast(msg) {
 document.getElementById('searchInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') showToast('🔍 검색 기능은 서비스 오픈 후 이용 가능합니다!');
 });
+
+// ============================================================
+// 🎬 구름장터 메인 배너 시스템 (Supabase 영구저장)
+// - 모든 사용자: 배너 보기
+// - zeus1404@gmail.com 로그인: 업로드/삭제 가능
+// ============================================================
+
+const SUPABASE_URL = 'https://nlsiwrwiyozpiofrmzxa.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sc2l3cndpeW96cGlvZnJtenhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNTc4NzcsImV4cCI6MjA3NjczMzg3N30.hurd7QNUJ-JVppETyDnCwU97F1Z3jkWszYRM9NhSUAg';
+const ADMIN_EMAIL = 'zeus1404@gmail.com';
+
+let bannerData = [];
+let currentBanner = 0;
+let bannerTimer = null;
+let uploadType = 'video';
+let selectedFile = null;
+let isAdmin = false;
+
+// ===== 배너 로드 (모든 사용자) =====
+async function loadBanners() {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/market_banners?is_active=eq.true&order=sort_order.asc,created_at.desc`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    );
+    if (!res.ok) throw new Error('배너 로드 실패');
+    bannerData = await res.json();
+    renderBanners();
+    startAutoSlide();
+  } catch (e) {
+    console.error('배너 로드:', e);
+    document.getElementById('bannerCarousel').innerHTML =
+      '<div class="banner-empty"><span>📺</span><span>소식이 없습니다</span></div>';
+  }
+}
+
+// ===== 배너 렌더링 =====
+function renderBanners() {
+  const carousel = document.getElementById('bannerCarousel');
+  const dots = document.getElementById('bannerDots');
+
+  if (!bannerData.length) {
+    carousel.innerHTML = '<div class="banner-empty"><span>📺</span><span>아직 등록된 소식이 없습니다</span></div>';
+    dots.innerHTML = '';
+    return;
+  }
+
+  // 현재 배너 표시
+  const b = bannerData[currentBanner];
+  let mediaHtml = '';
+  let badgeHtml = '';
+
+  if (b.type === 'video' && b.file_url) {
+    mediaHtml = `<video src="${b.file_url}" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:cover;"></video>`;
+    badgeHtml = '<span class="banner-badge badge-video">🎬 VIDEO</span>';
+  } else if (b.type === 'image' && b.file_url) {
+    mediaHtml = `<img src="${b.file_url}" alt="${b.title||''}" style="width:100%;height:100%;object-fit:cover;">`;
+    badgeHtml = '<span class="banner-badge badge-image">🖼️ IMAGE</span>';
+  } else if (b.type === 'notice') {
+    mediaHtml = `<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#16213e);padding:24px;text-align:center;">
+      <span style="font-size:48px;margin-bottom:12px;">📢</span>
+      <h3 style="font-size:20px;font-weight:800;color:#fff;margin-bottom:8px;">${b.title||'공지사항'}</h3>
+      <p style="font-size:14px;color:rgba(255,255,255,0.7);max-width:400px;">${b.description||''}</p>
+    </div>`;
+    badgeHtml = '<span class="banner-badge badge-notice">📢 공지</span>';
+  } else if (b.youtube_url) {
+    const vid = extractYoutubeId(b.youtube_url);
+    mediaHtml = `<iframe src="https://www.youtube.com/embed/${vid}?autoplay=1&mute=1&loop=1" style="width:100%;height:100%;border:none;" allow="autoplay"></iframe>`;
+    badgeHtml = '<span class="banner-badge badge-video">▶️ YouTube</span>';
+  }
+
+  const infoHtml = (b.title || b.description) && b.type !== 'notice'
+    ? `<div class="banner-info"><h4>${b.title||''}</h4><p>${b.description||''}</p></div>` : '';
+
+  const delHtml = isAdmin
+    ? `<button class="banner-del-btn" style="display:block;" onclick="deleteBanner('${b.id}')">🗑️ 삭제</button>` : '';
+
+  // 네비게이션 화살표
+  const navHtml = bannerData.length > 1
+    ? `<button class="banner-nav prev" onclick="slideBanner(-1)">‹</button><button class="banner-nav next" onclick="slideBanner(1)">›</button>` : '';
+
+  carousel.innerHTML = badgeHtml + delHtml + mediaHtml + infoHtml + navHtml;
+
+  // 인디케이터 dots
+  if (bannerData.length > 1) {
+    dots.innerHTML = bannerData.map((_, i) =>
+      `<div class="banner-dot${i===currentBanner?' active':''}" onclick="goToBanner(${i})"></div>`
+    ).join('');
+  } else {
+    dots.innerHTML = '';
+  }
+}
+
+function slideBanner(dir) {
+  if (!bannerData.length) return;
+  currentBanner = (currentBanner + dir + bannerData.length) % bannerData.length;
+  renderBanners();
+  resetAutoSlide();
+}
+
+function goToBanner(i) {
+  currentBanner = i;
+  renderBanners();
+  resetAutoSlide();
+}
+
+function startAutoSlide() {
+  if (bannerData.length <= 1) return;
+  bannerTimer = setInterval(() => {
+    currentBanner = (currentBanner + 1) % bannerData.length;
+    renderBanners();
+  }, 6000);
+}
+
+function resetAutoSlide() {
+  clearInterval(bannerTimer);
+  startAutoSlide();
+}
+
+function extractYoutubeId(url) {
+  const m = url.match(/(?:youtu\.be\/|v=|embed\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : '';
+}
+
+// ===== Admin 체크 =====
+function checkAdmin() {
+  try {
+    const u = localStorage.getItem('petctt_user');
+    if (u) {
+      const user = JSON.parse(u);
+      if (user.email === ADMIN_EMAIL) {
+        isAdmin = true;
+        document.getElementById('adminUploadBtn').style.display = 'block';
+        return;
+      }
+    }
+  } catch(e) {}
+  isAdmin = false;
+  document.getElementById('adminUploadBtn').style.display = 'none';
+}
+
+// ===== 업로드 모달 =====
+function openUploadModal() {
+  document.getElementById('uploadModal').style.display = 'flex';
+  loadAdminBannerList();
+}
+
+function closeUploadModal() {
+  document.getElementById('uploadModal').style.display = 'none';
+  resetUploadForm();
+}
+
+function selectUploadType(type) {
+  uploadType = type;
+  document.querySelectorAll('.upload-type-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.type === type);
+  });
+  const fileArea = document.getElementById('fileUploadArea');
+  if (type === 'notice') {
+    fileArea.style.display = 'none';
+  } else {
+    fileArea.style.display = 'block';
+    document.getElementById('fileInput').accept = type === 'video' ? 'video/*' : 'image/*';
+  }
+  checkSubmitReady();
+}
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 200 * 1024 * 1024) { alert('200MB 초과!'); return; }
+  selectedFile = file;
+
+  const preview = document.getElementById('filePreviewArea');
+  const dropContent = document.getElementById('dropzoneContent');
+  dropContent.style.display = 'none';
+  preview.style.display = 'block';
+
+  if (file.type.startsWith('video/')) {
+    preview.innerHTML = `<video src="${URL.createObjectURL(file)}" class="file-preview" controls muted></video><br><span style="font-size:12px;color:var(--accent2);">✅ ${file.name} (${(file.size/1024/1024).toFixed(1)}MB)</span>`;
+  } else {
+    preview.innerHTML = `<img src="${URL.createObjectURL(file)}" class="file-preview"><br><span style="font-size:12px;color:var(--accent2);">✅ ${file.name} (${(file.size/1024/1024).toFixed(1)}MB)</span>`;
+  }
+  checkSubmitReady();
+}
+
+function checkSubmitReady() {
+  const btn = document.getElementById('submitUploadBtn');
+  if (uploadType === 'notice') {
+    btn.disabled = !document.getElementById('uploadTitle').value.trim();
+  } else {
+    btn.disabled = !selectedFile;
+  }
+}
+
+// 제목/설명 입력 시 버튼 활성화 체크
+document.addEventListener('DOMContentLoaded', () => {
+  ['uploadTitle','uploadDesc'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', checkSubmitReady);
+  });
+});
+
+function resetUploadForm() {
+  selectedFile = null;
+  document.getElementById('uploadTitle').value = '';
+  document.getElementById('uploadDesc').value = '';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('dropzoneContent').style.display = '';
+  document.getElementById('filePreviewArea').style.display = 'none';
+  document.getElementById('filePreviewArea').innerHTML = '';
+  document.getElementById('uploadProgress').style.display = 'none';
+  document.getElementById('submitUploadBtn').disabled = true;
+}
+
+// ===== 파일 업로드 → Supabase Storage → DB 저장 =====
+async function submitUpload() {
+  const btn = document.getElementById('submitUploadBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ 업로드 중...';
+
+  const title = document.getElementById('uploadTitle').value.trim();
+  const desc = document.getElementById('uploadDesc').value.trim();
+
+  let fileUrl = null;
+
+  try {
+    // 파일 업로드 (영상/이미지)
+    if (selectedFile && uploadType !== 'notice') {
+      const ext = selectedFile.name.split('.').pop().toLowerCase();
+      const ts = Date.now();
+      const rand = Math.random().toString(36).substring(2,8);
+      const filePath = `${uploadType}s/${ts}_${rand}.${ext}`;
+
+      // 프로그레스 표시
+      document.getElementById('uploadProgress').style.display = 'block';
+      document.getElementById('progressFill').style.width = '30%';
+      document.getElementById('progressText').textContent = '파일 업로드 중...';
+
+      const upRes = await fetch(
+        `${SUPABASE_URL}/storage/v1/object/market-banners/${filePath}`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'apikey': SUPABASE_KEY,
+            'Content-Type': selectedFile.type,
+            'x-upsert': 'true',
+          },
+          body: selectedFile,
+        }
+      );
+
+      if (!upRes.ok) throw new Error('파일 업로드 실패: ' + await upRes.text());
+      fileUrl = `${SUPABASE_URL}/storage/v1/object/public/market-banners/${filePath}`;
+
+      document.getElementById('progressFill').style.width = '70%';
+      document.getElementById('progressText').textContent = 'DB 저장 중...';
+    }
+
+    // DB에 배너 레코드 삽입
+    const record = {
+      type: uploadType,
+      title: title || null,
+      description: desc || null,
+      file_url: fileUrl,
+      is_active: true,
+      sort_order: 0,
+      created_by: ADMIN_EMAIL,
+    };
+
+    const dbRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/market_banners`,
+      {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation',
+        },
+        body: JSON.stringify(record),
+      }
+    );
+
+    if (!dbRes.ok) throw new Error('DB 저장 실패: ' + await dbRes.text());
+
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('progressText').textContent = '✅ 완료!';
+
+    showToast('✅ 배너가 게시되었습니다! 모든 사용자에게 표시됩니다.');
+    resetUploadForm();
+    btn.textContent = '🚀 게시하기';
+
+    // 배너 새로고침
+    await loadBanners();
+    loadAdminBannerList();
+
+  } catch (e) {
+    console.error('업로드 오류:', e);
+    alert('업로드 실패: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = '🚀 게시하기';
+  }
+}
+
+// ===== Admin 배너 목록 (삭제 가능) =====
+async function loadAdminBannerList() {
+  if (!isAdmin) return;
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/market_banners?order=created_at.desc&limit=20`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    );
+    const items = await res.json();
+    const list = document.getElementById('adminBannerList');
+    if (!items.length) { list.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:12px;">등록된 배너 없음</p>'; return; }
+
+    list.innerHTML = '<h4 style="font-size:14px;font-weight:700;margin-bottom:8px;">📋 등록된 배너</h4>' +
+      items.map(b => {
+        const thumb = b.type === 'video' && b.file_url
+          ? `<video src="${b.file_url}" muted style="width:80px;height:45px;object-fit:cover;border-radius:8px;"></video>`
+          : b.type === 'image' && b.file_url
+          ? `<img src="${b.file_url}" style="width:80px;height:45px;object-fit:cover;border-radius:8px;">`
+          : '<div style="width:80px;height:45px;background:rgba(255,171,64,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;">📢</div>';
+        const status = b.is_active ? '🟢' : '🔴';
+        return `<div class="admin-banner-item">
+          ${thumb}
+          <div class="admin-banner-item-info">
+            <div class="title">${status} ${b.title || b.type.toUpperCase()}</div>
+            <div class="type">${b.type} · ${new Date(b.created_at).toLocaleDateString()}</div>
+          </div>
+          <button class="admin-banner-delete" onclick="deleteBanner('${b.id}')">삭제</button>
+        </div>`;
+      }).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function deleteBanner(id) {
+  if (!confirm('이 배너를 삭제하시겠습니까?')) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/market_banners?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    showToast('🗑️ 삭제되었습니다');
+    await loadBanners();
+    loadAdminBannerList();
+  } catch(e) { alert('삭제 실패'); }
+}
+
+// ===== 초기화 =====
+checkAdmin();
+loadBanners();
 </script>
 
 </body>

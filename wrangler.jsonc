@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "petctt-visitors",
+  "main": "src/index.js",
+  "compatibility_date": "2024-12-01",
+  "kv_namespaces": [
+    {
+      "binding": "VISITORS",
+      "id": "8768dc606a7842ebae9f7d59b84d2a2b"
+    }
+  ]
+}

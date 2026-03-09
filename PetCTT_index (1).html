@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0b1220" />
+  <title>PetCTT - 동물대화 + 건강체크 v2.0</title>
+
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2307469428004843" crossorigin="anonymous"></script>
+
+  <!-- Google Analytics (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R4DBR11KDR"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-R4DBR11KDR');
+  </script>
+
+  <!-- Supabase Auth SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --bg: #0b1220;
+      --card: #0f1b33;
+      --text: #e8f0ff;
+      --muted: #9fb3d9;
+      --primary: #37d67a;
+      --danger: #ff5a5f;
+      --warn: #ffbd2e;
+      --line: rgba(255,255,255,.10);
+      --shadow: 0 14px 40px rgba(0,0,0,.35);
+      --radius: 18px;
+      --mono: 'Courier New', monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    html, body { width: 100%; height: 100%; }
+    
+    body {
+      background: radial-gradient(1200px 700px at 20% -10%, rgba(55,214,122,.18), transparent 55%),
+                  radial-gradient(900px 600px at 110% 10%, rgba(74,144,226,.18), transparent 50%),
+                  radial-gradient(900px 700px at 30% 120%, rgba(255,189,46,.10), transparent 55%),
+                  var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(0,0,0,.3);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      box-shadow: 0 0 0 3px rgba(159,179,217,.2);
+    }
+
+    .status-dot.active {
+      background: var(--primary);
+      box-shadow: 0 0 0 3px rgba(55,214,122,.3);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Tabs */
+    .tab-nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      padding: 12px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255,255,255,.08);
+      border-color: rgba(55,214,122,.3);
+    }
+
+    .tab-btn.active {
+      background: rgba(55,214,122,.16);
+      border-color: rgba(55,214,122,.4);
+      color: var(--text);
+    }
+
+    /* Card */
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .card-header {
+      padding: 16px;
+      background: rgba(0,0,0,.15);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-body {
+      padding: 16px;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 12px 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      min-height: 44px;
+    }
+
+    .btn:hover {
+      background: rgba(255,255,255,.08);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn.primary {
+      background: rgba(55,214,122,.18);
+      border-color: rgba(55,214,122,.4);
+    }
+
+    .btn.primary:hover:not(:disabled) {
+      background: rgba(55,214,122,.25);
+    }
+
+    .btn.danger {
+      background: rgba(255,90,95,.14);
+      border-color: rgba(255,90,95,.4);
+    }
+
+    .btn.danger:hover:not(:disabled) {
+      background: rgba(255,90,95,.22);
+    }
+
+    .btn.ghost {
+      background: transparent;
+      border: 1px solid var(--line);
+      width: auto;
+      padding: 10px 14px;
+    }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .btn-group.full {
+      grid-template-columns: 1fr;
+    }
+
+    /* Selection */
+    .selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 8px;
+      background: rgba(0,0,0,.15);
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .chip {
+      padding: 8px 14px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .chip:hover {
+      background: rgba(255,255,255,.08);
+    }
+
+    .chip.active {
+      background: rgba(55,214,122,.16);
+      border-color: rgba(55,214,122,.4);
+      color: var(--primary);
+    }
+
+    /* Meter */
+    .meter {
+      height: 14px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, rgba(55,214,122,.8), rgba(255,189,46,.8));
+      width: 0%;
+      transition: width 0.1s ease-out;
+    }
+
+    /* Stats Grid */
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .stat-box {
+      padding: 12px;
+      background: rgba(0,0,0,.15);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 16px;
+      font-weight: 800;
+      font-family: var(--mono);
+      color: var(--text);
+    }
+
+    /* Log */
+    .log {
+      background: rgba(0,0,0,.2);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .log-header {
+      padding: 10px 14px;
+      background: rgba(0,0,0,.3);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .log-body {
+      max-height: 280px;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .log-item {
+      padding: 10px;
+      margin-bottom: 8px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .log-item-time {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-family: var(--mono);
+    }
+
+    .log-item-text {
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    /* Hidden sections */
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    /* Info Box */
+    .info-box {
+      padding: 12px;
+      margin: 12px 0;
+      background: rgba(255,189,46,.1);
+      border: 1px solid rgba(255,189,46,.3);
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .info-box.success {
+      background: rgba(55,214,122,.1);
+      border-color: rgba(55,214,122,.3);
+    }
+
+    .info-box.error {
+      background: rgba(255,90,95,.1);
+      border-color: rgba(255,90,95,.3);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal {
+      background: rgba(15,27,51,.98);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,.6);
+    }
+
+    .modal-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--line);
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .modal-body {
+      padding: 16px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .modal-footer {
+      padding: 16px;
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,.1);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,.2);
+    }
+
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Utility */
+    .text-center { text-align: center; }
+    .mb-8 { margin-bottom: 8px; }
+    .mb-12 { margin-bottom: 12px; }
+    .mb-16 { margin-bottom: 16px; }
+    .mt-8 { margin-top: 8px; }
+
+    /* Login UI */
+    .auth-section {
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .auth-section.logged-in {
+      background: rgba(55,214,122,.08);
+      border-color: rgba(55,214,122,.3);
+    }
+    .auth-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .auth-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .auth-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      flex: 1;
+      min-width: 100px;
+    }
+    .auth-btn.google {
+      background: #fff;
+      color: #333;
+    }
+    .auth-btn.google:hover { background: #f5f5f5; }
+    .auth-btn.kakao {
+      background: #FEE500;
+      color: #000;
+    }
+    .auth-btn.kakao:hover { background: #e6cf00; }
+    .auth-btn.naver {
+      background: #03C75A;
+      color: #fff;
+    }
+    .auth-btn.naver:hover { background: #02b351; }
+    .auth-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(55,214,122,.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .user-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .logout-btn {
+      padding: 8px 14px;
+      background: rgba(255,90,95,.15);
+      border: 1px solid rgba(255,90,95,.3);
+      border-radius: 8px;
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover {
+      background: rgba(255,90,95,.25);
+    }
+
+    /* Ad Placeholder */
+    .ad-placeholder {
+      background: rgba(255,255,255,.03);
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin: 16px 0;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 40px;
+      padding: 24px 0;
+      border-top: 1px solid var(--line);
+      text-align: center;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      margin-bottom: 12px;
+    }
+    .footer-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover {
+      color: var(--primary);
+    }
+    .footer-copy {
+      font-size: 11px;
+      color: var(--muted);
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 로그인 섹션 -->
+    <div class="auth-section" id="authSection">
+      <div id="authLoggedOut">
+        <div class="auth-title">🔐 로그인</div>
+        <div class="auth-buttons">
+          <button class="auth-btn google" onclick="loginWithGoogle()">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Google
+          </button>
+          <button class="auth-btn kakao" onclick="loginWithKakao()" disabled title="준비중">
+            💬 카카오
+          </button>
+          <button class="auth-btn naver" onclick="loginWithNaver()" disabled title="준비중">
+            N 네이버
+          </button>
+        </div>
+        <p style="font-size:11px; color:var(--muted); margin-top:10px; text-align:center;">
+          ※ 카카오/네이버 로그인은 준비 중입니다
+        </p>
+      </div>
+      <div id="authLoggedIn" style="display:none;">
+        <div class="user-info">
+          <div class="user-profile">
+            <div class="user-avatar" id="userAvatar">👤</div>
+            <div>
+              <div class="user-name"><span id="userName">사용자</span>님 환영합니다! 👋</div>
+            </div>
+          </div>
+          <button class="logout-btn" onclick="logout()">로그아웃</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <span>🐾</span> PetCTT
+      </div>
+      <div class="status-badge">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">준비됨</span>
+      </div>
+    </div>
+
+    <!-- 🔥 투자자용 핵심 콘텐츠: AI 에이전트 설명 -->
+    <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, rgba(55,214,122,.12), rgba(74,144,226,.12));">
+      <div class="card-header" style="background: rgba(55,214,122,.15);">
+        <div class="card-title">🤖 AI 에이전트 기반 반려동물 행동 해석</div>
+      </div>
+      <div class="card-body">
+        <div style="font-size: 14px; line-height: 1.7; color: var(--text);">
+          <p style="margin-bottom: 12px;">
+            <strong>🎯 핵심 기술:</strong> 반려동물의 음성·행동 패턴을 AI가 실시간 분석하여 
+            <span style="color: var(--primary); font-weight: 700;">의도와 감정을 해석</span>합니다.
+          </p>
+          <div style="display: grid; gap: 10px; margin: 16px 0;">
+            <div style="padding: 12px; background: rgba(0,0,0,.2); border-radius: 10px; border-left: 3px solid var(--primary);">
+              <strong>⚡ 토큰 절약 구조</strong><br>
+              <span style="font-size: 13px; color: var(--muted);">로컬 판단 우선 → 필요 시에만 AI 호출 (비용 90% 절감)</span>
+            </div>
+            <div style="padding: 12px; background: rgba(0,0,0,.2); border-radius: 10px; border-left: 3px solid var(--warn);">
+              <strong>🆓 Free → Pro 체험 구조</strong><br>
+              <span style="font-size: 13px; color: var(--muted);">무료 체험 후 프리미엄 구독 (구독 전환율 최적화)</span>
+            </div>
+            <div style="padding: 12px; background: rgba(0,0,0,.2); border-radius: 10px; border-left: 3px solid #6366f1;">
+              <strong>🔒 특허 출원 완료</strong><br>
+              <span style="font-size: 13px; color: var(--muted);">동물 음성 해석 기술 특허 출원 (2026.01)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AdSense Placeholder : Top (상단 히어로 바로 아래) -->
+    <div class="adsense adsense-top" style="background: rgba(255,255,255,.03); border: 1px dashed var(--line); border-radius: 12px; padding: 20px; text-align: center; color: var(--muted); font-size: 12px; margin-bottom: 16px;">
+      <!-- Google AdSense code here -->
+      📢 광고 영역 (AdSense 승인 후 활성화)
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="live">🐶 동물대화</button>
+      <button class="tab-btn" data-tab="health">❤️ 건강체크</button>
+      <button class="tab-btn" data-tab="records">📒 기록</button>
+    </div>
+
+    <!-- Section: LIVE TALK -->
+    <section id="live" class="section active">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🎙️ LIVE 동물대화</div>
+          <span style="font-size:12px; color:var(--muted);" id="animalSelected">강아지</span>
+        </div>
+        <div class="card-body">
+          <!-- Animal Selector -->
+          <div class="selector" id="animalSelector">
+            <div class="chip active" data-animal="dog">🐶 강아지</div>
+            <div class="chip" data-animal="cat">🐱 고양이</div>
+            <div class="chip" data-animal="bird">🐤 병아리</div>
+            <div class="chip" data-animal="rabbit">🐰 토끼</div>
+          </div>
+
+          <!-- Controls -->
+          <div class="btn-group">
+            <button class="btn primary" id="btnLiveStart">🎙️ 시작</button>
+            <button class="btn danger" id="btnLiveStop" disabled>⏹️ 중지</button>
+          </div>
+
+          <!-- Audio Level -->
+          <div class="mb-12">
+            <div style="font-size:12px; font-weight:700; margin-bottom:6px; color:var(--muted);">🎚️ 음성 레벨</div>
+            <div class="meter">
+              <div class="meter-fill" id="liveMeterFill"></div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="stats">
+            <div class="stat-box">
+              <div class="stat-label">상태</div>
+              <div class="stat-value" id="liveState">IDLE</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">무음(%)</div>
+              <div class="stat-value" id="liveSilence">0%</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">음성 시간</div>
+              <div class="stat-value" id="liveTime">0.0s</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">최대 레벨</div>
+              <div class="stat-value" id="liveMax">0.000</div>
+            </div>
+          </div>
+
+          <!-- Log -->
+          <div class="log">
+            <div class="log-header">
+              <span>대화 로그</span>
+              <button class="btn ghost" id="btnClearLive" style="font-size:11px;">🧹 비우기</button>
+            </div>
+            <div class="log-body" id="liveLogBody"></div>
+          </div>
+
+          <div class="info-box">
+            💡 <b>"시작" 버튼을 누르면 마이크 권한을 요청합니다.</b> 허용 버튼을 눌러주세요. (필수)
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AdSense Placeholder : Mid (콘텐츠 중간) -->
+    <div class="adsense adsense-mid" style="background: rgba(255,255,255,.03); border: 1px dashed var(--line); border-radius: 12px; padding: 20px; text-align: center; color: var(--muted); font-size: 12px; margin: 16px 0;">
+      <!-- Google AdSense code here -->
+      📢 광고 영역 (AdSense 승인 후 활성화)
+    </div>
+
+    <!-- Section: HEALTH CHECK -->
+    <section id="health" class="section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">❤️ 건강체크 (30초)</div>
+          <span style="font-size:12px; color:var(--muted);">30초 측정</span>
+        </div>
+        <div class="card-body">
+          <div style="font-size:13px; color:var(--muted); line-height:1.5; margin-bottom:12px;">
+            마이크로 음성/호흡 신호를 측정합니다.
+          </div>
+
+          <!-- Audio Level -->
+          <div class="mb-12">
+            <div style="font-size:12px; font-weight:700; margin-bottom:6px; color:var(--muted);">🎚️ 음성 레벨</div>
+            <div class="meter">
+              <div class="meter-fill" id="healthMeterFill"></div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="stats">
+            <div class="stat-box">
+              <div class="stat-label">상태</div>
+              <div class="stat-value" id="healthState">대기</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">남은 시간</div>
+              <div class="stat-value" id="healthTime">30s</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">평균 레벨</div>
+              <div class="stat-value" id="healthAvg">0.000</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">피크 횟수</div>
+              <div class="stat-value" id="healthPeaks">0</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">무음 비율</div>
+              <div class="stat-value" id="healthSilence">0%</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">신호 강도</div>
+              <div class="stat-value" id="healthStrength">낮음</div>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="btn-group">
+            <button class="btn primary" id="btnHealthStart">🩺 시작</button>
+            <button class="btn danger" id="btnHealthStop" disabled>⏹️ 중지</button>
+          </div>
+
+          <!-- Result -->
+          <div class="log">
+            <div class="log-header">
+              <span>결과</span>
+              <button class="btn ghost" id="btnSaveHealth" style="font-size:11px;" disabled>💾 저장</button>
+            </div>
+            <div class="log-body" id="healthResultBody">
+              <div style="color:var(--muted); font-size:13px;">측정 완료 후 결과가 표시됩니다.</div>
+            </div>
+          </div>
+
+          <div class="info-box">
+            ⚠️ 측정 중에는 최대한 조용한 환경을 유지해주세요.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section: RECORDS -->
+    <section id="records" class="section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📒 기록</div>
+          <span style="font-size:12px; color:var(--muted);" id="recordCount">0개</span>
+        </div>
+        <div class="card-body">
+          <!-- Export Buttons -->
+          <div class="btn-group">
+            <button class="btn" id="btnExportJSON">⬇️ JSON</button>
+            <button class="btn" id="btnExportCSV">⬇️ CSV</button>
+          </div>
+
+          <!-- Records List -->
+          <div class="log">
+            <div class="log-header">
+              <span>저장된 기록</span>
+              <button class="btn danger" id="btnDeleteAll" style="font-size:11px;">🗑️ 전체삭제</button>
+            </div>
+            <div class="log-body" id="recordsList">
+              <div style="color:var(--muted); font-size:13px;">아직 저장된 기록이 없습니다.</div>
+            </div>
+          </div>
+
+          <div class="info-box">
+            📍 기록은 브라우저 로컬스토리지에 저장됩니다.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div>© 2026 PetCTT v2.0</div>
+      <div style="margin-top:8px; font-size:11px; opacity:0.7;">
+        단일 HTML 애플리케이션 · 로컬 스토리지 사용
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <div class="modal-header" id="modalTitle">확인</div>
+      <div class="modal-body" id="modalBody">내용</div>
+      <div class="modal-footer">
+        <button class="btn ghost" id="modalBtnCancel">취소</button>
+        <button class="btn primary" id="modalBtnOk">확인</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // ===== UTILITIES =====
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+  
+  const now = () => new Date();
+  const fmtTime = (dt = now()) => dt.toLocaleTimeString('ko-KR', { hour12: false });
+  const fmtDatetime = (dt = now()) => dt.toLocaleString('ko-KR');
+
+  // Audio Beep
+  async function beep(freq = 880, dur = 0.05) {
+    try {
+      const ac = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.15, ac.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.start(ac.currentTime);
+      osc.stop(ac.currentTime + dur);
+    } catch (e) {}
+  }
+
+  // Modal
+  function showModal(title, body, okText = '확인', cancelText = '취소') {
+    return new Promise((resolve) => {
+      $('#modalTitle').textContent = title;
+      $('#modalBody').innerHTML = body;
+      $('#modalBtnOk').textContent = okText;
+      $('#modalBtnCancel').textContent = cancelText;
+      $('#modalBackdrop').classList.add('show');
+
+      const cleanup = () => {
+        $('#modalBackdrop').classList.remove('show');
+        $('#modalBtnOk').onclick = null;
+        $('#modalBtnCancel').onclick = null;
+      };
+
+      $('#modalBtnOk').onclick = () => { cleanup(); resolve(true); };
+      $('#modalBtnCancel').onclick = () => { cleanup(); resolve(false); };
+    });
+  }
+
+  // ===== STATE =====
+  const state = {
+    animal: 'dog',
+    isLiveActive: false,
+    isHealthActive: false,
+    mediaStream: null,
+    audioContext: null,
+    analyser: null,
+    animationId: null,
+
+    liveStats: {
+      silenceCount: 0,
+      totalCount: 0,
+      voiceTime: 0,
+      maxLevel: 0,
+      startTime: 0
+    },
+
+    healthStats: {
+      startTime: 0,
+      duration: 30,
+      samples: [],
+      peakCount: 0,
+      silenceCount: 0,
+      currentResult: null
+    }
+  };
+
+  // ===== LOG =====
+  function addLiveLog(actor, message) {
+    const item = document.createElement('div');
+    item.className = 'log-item fade-in';
+    item.innerHTML = `
+      <div class="log-item-time">${fmtTime()} · ${actor}</div>
+      <div class="log-item-text">${escapeHtml(message)}</div>
+    `;
+    const body = $('#liveLogBody');
+    body.insertBefore(item, body.firstChild);
+    
+    // Keep max 50 items
+    while (body.children.length > 50) {
+      body.removeChild(body.lastChild);
+    }
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // ===== AUDIO =====
+  async function initAudio() {
+    if (state.mediaStream) return;
+    try {
+      // 마이크 권한 요청 전 알림
+      await showModal(
+        '🎤 마이크 권한 필요',
+        '다음 화면에서 <b>"허용" 버튼을 눌러주세요.</b><br><br>' +
+        '• Chrome/Edge: 주소창 왼쪽 자물쇠 → 마이크 허용<br>' +
+        '• Firefox: 마이크 허용 팝업에서 "허용" 선택<br>' +
+        '• Safari: 설정 → 마이크 허용<br><br>' +
+        '<span style="font-size:11px; color:var(--muted);">권한을 거부하면 기능이 작동하지 않습니다.</span>',
+        '확인'
+      );
+
+      state.mediaStream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: false
+        } 
+      });
+      
+      const ac = state.audioContext || new (window.AudioContext || window.webkitAudioContext)();
+      state.audioContext = ac;
+
+      if (ac.state === 'suspended') {
+        await ac.resume();
+      }
+
+      const source = ac.createMediaStreamSource(state.mediaStream);
+      const analyser = ac.createAnalyser();
+      analyser.fftSize = 2048;
+      source.connect(analyser);
+      state.analyser = analyser;
+      
+      // 성공 피드백
+      addLiveLog('✓ 시스템', '마이크 권한이 허용되었습니다!');
+      beep(880, 0.06);
+    } catch (err) {
+      console.error('Audio init failed:', err);
+      if (err.name === 'NotAllowedError') {
+        await showModal(
+          '❌ 마이크 권한 거부됨',
+          '<b>마이크 권한을 허용해주세요:</b><br><br>' +
+          '<u>Chrome/Edge:</u><br>' +
+          '1. 주소창 왼쪽 자물쇠 🔒 클릭<br>' +
+          '2. "마이크" → "허용" 선택<br>' +
+          '3. 새로고침 (F5)<br><br>' +
+          '<u>Firefox:</u><br>' +
+          '설정 → 개인정보 → 권한 → 마이크 허용<br><br>' +
+          '<u>Safari:</u><br>' +
+          '설정 → 마이크 허용'
+        );
+      } else if (err.name === 'NotFoundError') {
+        await showModal(
+          '⚠️ 마이크 없음',
+          '연결된 마이크를 찾을 수 없습니다.<br><br>' +
+          '• 마이크가 연결되어 있는지 확인<br>' +
+          '• 다른 앱에서 마이크를 사용 중이 아닌지 확인<br>' +
+          '• 장치 관리자에서 마이크 활성화 확인'
+        );
+      } else {
+        await showModal(
+          '⚠️ 오류',
+          `기술적 오류: ${err.message || err.name}`
+        );
+      }
+      throw err;
+    }
+  }
+
+  function releaseAudio() {
+    if (state.animationId) {
+      cancelAnimationFrame(state.animationId);
+      state.animationId = null;
+    }
+    if (state.mediaStream) {
+      state.mediaStream.getTracks().forEach(track => track.stop());
+      state.mediaStream = null;
+    }
+    state.analyser = null;
+  }
+
+  function getRMS() {
+    if (!state.analyser) return 0;
+    const data = new Uint8Array(state.analyser.fftSize);
+    state.analyser.getByteTimeDomainData(data);
+    let sum = 0;
+    for (let i = 0; i < data.length; i++) {
+      const norm = (data[i] - 128) / 128;
+      sum += norm * norm;
+    }
+    return Math.sqrt(sum / data.length);
+  }
+
+  // ===== UI: TABS =====
+  $$('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const tabId = btn.dataset.tab;
+      $$('.section').forEach(sec => sec.classList.remove('active'));
+      $(`#${tabId}`).classList.add('active');
+      
+      if (tabId === 'records') {
+        renderRecords();
+      }
+    });
+  });
+
+  // ===== UI: ANIMALS =====
+  $('#animalSelector').addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    
+    $$('#animalSelector .chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    state.animal = chip.dataset.animal;
+    $('#animalSelected').textContent = chip.textContent.trim();
+    beep(660, 0.04);
+  });
+
+  // ===== LIVE MODE =====
+  function setLiveStatus(active) {
+    state.isLiveActive = active;
+    $('#btnLiveStart').disabled = active;
+    $('#btnLiveStop').disabled = !active;
+    $('#liveState').textContent = active ? 'LIVE' : 'IDLE';
+    const dot = $('#statusDot');
+    if (active) {
+      dot.classList.add('active');
+      $('#statusText').textContent = 'LIVE';
+    } else {
+      dot.classList.remove('active');
+      $('#statusText').textContent = '준비됨';
+    }
+  }
+
+  function liveUpdate() {
+    const rms = getRMS();
+    const level = Math.min(1, rms * 5);
+    $('#liveMeterFill').style.width = (level * 100) + '%';
+
+    // Detect voice
+    const threshold = 0.04;
+    if (rms < threshold) {
+      state.liveStats.silenceCount++;
+    }
+    state.liveStats.totalCount++;
+
+    // Max level
+    if (rms > state.liveStats.maxLevel) {
+      state.liveStats.maxLevel = rms;
+      $('#liveMax').textContent = rms.toFixed(3);
+    }
+
+    // Time calculation
+    const elapsed = (Date.now() - state.liveStats.startTime) / 1000;
+    state.liveStats.voiceTime = Math.max(0, elapsed - (state.liveStats.silenceCount / 60));
+    $('#liveTime').textContent = state.liveStats.voiceTime.toFixed(1) + 's';
+
+    // Silence ratio
+    const silenceRatio = state.liveStats.totalCount > 0 
+      ? Math.round((state.liveStats.silenceCount / state.liveStats.totalCount) * 100)
+      : 0;
+    $('#liveSilence').textContent = silenceRatio + '%';
+
+    // Random translation events
+    if (rms > 0.08 && Math.random() < 0.02) {
+      const phrases = {
+        dog: ['간식 줄래?', '놀아줘!', '산책 가자!', '좋은데?', '뭐해?'],
+        cat: ['건드리지 마', '밥은?', '창밖이다', '시끄러워', '어디 갔어?'],
+        bird: ['짹짹!', '배고파!', '여기 있어!', '노래해!', '밖이 어때?'],
+        rabbit: ['깡총!', '먹고 싶어', '졸려…', '뭐야?', '흙흙']
+      };
+      const pool = phrases[state.animal] || phrases.dog;
+      const msg = pool[Math.floor(Math.random() * pool.length)];
+      addLiveLog('🐾 통역', msg);
+      beep(920, 0.03);
+    }
+
+    if (state.isLiveActive) {
+      state.animationId = requestAnimationFrame(liveUpdate);
+    }
+  }
+
+  $('#btnLiveStart').addEventListener('click', async () => {
+    if (state.isHealthActive) {
+      await showModal('알림', '건강체크 중에는 LIVE를 시작할 수 없어요.');
+      return;
+    }
+
+    try {
+      await initAudio();
+      state.liveStats = { silenceCount: 0, totalCount: 0, voiceTime: 0, maxLevel: 0, startTime: Date.now() };
+      setLiveStatus(true);
+      addLiveLog('시스템', 'LIVE 시작 - 음성 감지 중...');
+      beep(760, 0.05);
+      liveUpdate();
+    } catch (err) {
+      await showModal('오류', err.message || '알 수 없는 오류가 발생했습니다.');
+    }
+  });
+
+  $('#btnLiveStop').addEventListener('click', async () => {
+    setLiveStatus(false);
+    releaseAudio();
+    $('#liveMeterFill').style.width = '0%';
+    addLiveLog('시스템', 'LIVE 중지');
+    beep(440, 0.05);
+  });
+
+  $('#btnClearLive').addEventListener('click', async () => {
+    $('#liveLogBody').innerHTML = '';
+    addLiveLog('시스템', '로그 초기화됨');
+    beep(520, 0.04);
+  });
+
+  // ===== HEALTH MODE =====
+  function setHealthStatus(active) {
+    state.isHealthActive = active;
+    $('#btnHealthStart').disabled = active;
+    $('#btnHealthStop').disabled = !active;
+    $('#btnSaveHealth').disabled = true;
+    const dot = $('#statusDot');
+    if (active) {
+      dot.classList.add('active');
+      $('#statusText').textContent = '건강체크 중';
+    }
+  }
+
+  function healthUpdate() {
+    const rms = getRMS();
+    const level = Math.min(1, rms * 5);
+    $('#healthMeterFill').style.width = (level * 100) + '%';
+
+    const elapsed = (Date.now() - state.healthStats.startTime) / 1000;
+    const remaining = Math.max(0, state.healthStats.duration - elapsed);
+    
+    state.healthStats.samples.push(rms);
+    
+    if (rms < 0.04) {
+      state.healthStats.silenceCount++;
+    }
+
+    // Detect peaks
+    if (rms > 0.10 && state.healthStats.samples.length > 1) {
+      const prev = state.healthStats.samples[state.healthStats.samples.length - 2];
+      if (rms > prev) {
+        state.healthStats.peakCount++;
+      }
+    }
+
+    // Update UI
+    $('#healthTime').textContent = Math.ceil(remaining) + 's';
+    $('#healthState').textContent = '측정 중';
+
+    const avgLevel = state.healthStats.samples.length > 0
+      ? state.healthStats.samples.reduce((a, b) => a + b, 0) / state.healthStats.samples.length
+      : 0;
+    $('#healthAvg').textContent = avgLevel.toFixed(3);
+    $('#healthPeaks').textContent = String(state.healthStats.peakCount);
+
+    const silenceRatio = Math.round((state.healthStats.silenceCount / state.healthStats.samples.length) * 100);
+    $('#healthSilence').textContent = silenceRatio + '%';
+
+    // Signal strength
+    let strength = '낮음';
+    if (avgLevel > 0.05) strength = '중간';
+    if (avgLevel > 0.10) strength = '높음';
+    $('#healthStrength').textContent = strength;
+
+    if (elapsed < state.healthStats.duration) {
+      state.animationId = requestAnimationFrame(healthUpdate);
+    } else {
+      finishHealth();
+    }
+  }
+
+  function finishHealth() {
+    const avgLevel = state.healthStats.samples.length > 0
+      ? state.healthStats.samples.reduce((a, b) => a + b, 0) / state.healthStats.samples.length
+      : 0;
+    const silenceRatio = state.healthStats.samples.length > 0
+      ? state.healthStats.silenceCount / state.healthStats.samples.length
+      : 0;
+
+    // Simple scoring
+    let score = 100;
+    score -= silenceRatio * 40;
+    score -= Math.max(0, avgLevel - 0.12) * 100;
+    score = Math.max(0, Math.min(100, score));
+
+    let status = '좋음';
+    if (score < 70) status = '보통';
+    if (score < 40) status = '주의';
+
+    const result = {
+      timestamp: fmtDatetime(),
+      duration: state.healthStats.duration,
+      avgLevel: avgLevel,
+      silenceRatio: silenceRatio,
+      peakCount: state.healthStats.peakCount,
+      score: Math.round(score),
+      status: status,
+      animal: state.animal
+    };
+
+    state.healthStats.currentResult = result;
+    
+    setHealthStatus(false);
+    releaseAudio();
+    $('#healthMeterFill').style.width = '0%';
+    $('#healthState').textContent = '완료';
+
+    // Show result
+    $('#healthResultBody').innerHTML = `
+      <div style="line-height: 1.8;">
+        <div><strong>✓ 측정 완료</strong></div>
+        <div style="margin-top: 12px; font-size: 12px;">
+          <div>평균 레벨: <span style="font-family:var(--mono)">${avgLevel.toFixed(3)}</span></div>
+          <div>무음 비율: <span style="font-family:var(--mono)">${Math.round(silenceRatio * 100)}%</span></div>
+          <div>피크 감지: <span style="font-family:var(--mono)">${state.healthStats.peakCount}</span></div>
+          <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line);">
+            <strong>평가: ${status}</strong> (점수: ${Math.round(score)}/100)
+          </div>
+        </div>
+      </div>
+    `;
+
+    $('#btnSaveHealth').disabled = false;
+    beep(980, 0.06);
+  }
+
+  $('#btnHealthStart').addEventListener('click', async () => {
+    if (state.isLiveActive) {
+      const ok = await showModal(
+        '확인',
+        'LIVE를 중지하고 건강체크를 시작할까요?',
+        '확인',
+        '취소'
+      );
+      if (!ok) return;
+      
+      setLiveStatus(false);
+      releaseAudio();
+      $('#liveMeterFill').style.width = '0%';
+    }
+
+    try {
+      await initAudio();
+      state.healthStats = {
+        startTime: Date.now(),
+        duration: 30,
+        samples: [],
+        peakCount: 0,
+        silenceCount: 0,
+        currentResult: null
+      };
+      setHealthStatus(true);
+      $('#healthTime').textContent = '30s';
+      $('#healthState').textContent = '측정 중';
+      beep(760, 0.05);
+      healthUpdate();
+    } catch (err) {
+      await showModal('오류', err.message);
+    }
+  });
+
+  $('#btnHealthStop').addEventListener('click', () => {
+    setHealthStatus(false);
+    releaseAudio();
+    $('#healthMeterFill').style.width = '0%';
+    $('#healthState').textContent = '중지됨';
+    beep(440, 0.05);
+  });
+
+  $('#btnSaveHealth').addEventListener('click', () => {
+    if (!state.healthStats.currentResult) return;
+    saveRecord(state.healthStats.currentResult);
+    $('#btnSaveHealth').disabled = true;
+    beep(980, 0.04);
+    addLiveLog('시스템', '건강체크 결과가 저장되었습니다.');
+  });
+
+  // ===== RECORDS =====
+  const STORAGE_KEY = 'petctt_records_v2';
+
+  function loadRecords() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  function saveRecord(record) {
+    const records = loadRecords();
+    records.unshift(record);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records.slice(0, 100))); // Keep max 100
+  }
+
+  function renderRecords() {
+    const records = loadRecords();
+    const container = $('#recordsList');
+    $('#recordCount').textContent = records.length + '개';
+
+    if (records.length === 0) {
+      container.innerHTML = '<div style="color:var(--muted); font-size:13px;">저장된 기록이 없습니다.</div>';
+      return;
+    }
+
+    container.innerHTML = records.map((rec, idx) => `
+      <div class="log-item">
+        <div class="log-item-time">${rec.timestamp} · ${rec.animal}</div>
+        <div class="log-item-text">
+          평가: <strong>${rec.status}</strong> | 점수: ${rec.score}/100 | 평균: ${rec.avgLevel.toFixed(3)}
+        </div>
+        <div style="display:flex; gap:6px; margin-top:8px;">
+          <button class="btn ghost" onclick="copyRecord(${idx})" style="font-size:11px; padding:6px 10px;">📋 복사</button>
+          <button class="btn danger" onclick="deleteRecord(${idx})" style="font-size:11px; padding:6px 10px;">🗑️삭제</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  window.copyRecord = async (idx) => {
+    const records = loadRecords();
+    const rec = records[idx];
+    if (!rec) return;
+    await navigator.clipboard.writeText(JSON.stringify(rec, null, 2));
+    beep(920, 0.04);
+  };
+
+  window.deleteRecord = (idx) => {
+    const records = loadRecords();
+    records.splice(idx, 1);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+    renderRecords();
+    beep(440, 0.04);
+  };
+
+  $('#btnDeleteAll').addEventListener('click', async () => {
+    const ok = await showModal('확인', '저장된 모든 기록을 삭제할까요?', '삭제', '취소');
+    if (ok) {
+      localStorage.removeItem(STORAGE_KEY);
+      renderRecords();
+      beep(440, 0.05);
+    }
+  });
+
+  // Export
+  function downloadFile(filename, data, type) {
+    const blob = new Blob([data], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  $('#btnExportJSON').addEventListener('click', () => {
+    const records = loadRecords();
+    downloadFile('petctt_records.json', JSON.stringify(records, null, 2), 'application/json');
+    beep(920, 0.04);
+  });
+
+  $('#btnExportCSV').addEventListener('click', () => {
+    const records = loadRecords();
+    if (records.length === 0) {
+      showModal('알림', '내보낼 기록이 없습니다.');
+      return;
+    }
+
+    const headers = ['timestamp', 'animal', 'duration', 'avgLevel', 'silenceRatio', 'peakCount', 'score', 'status'];
+    const csv = [
+      headers.join(','),
+      ...records.map(r => headers.map(h => {
+        const v = r[h];
+        if (typeof v === 'string') return `"${v.replace(/"/g, '""')}"`;
+        return v;
+      }).join(','))
+    ].join('\n');
+    
+    downloadFile('petctt_records.csv', csv, 'text/csv;charset=utf-8');
+    beep(920, 0.04);
+  });
+
+  // Initial
+  renderRecords();
+  addLiveLog('시스템', '✓ PetCTT v2.0 준비 완료');
+})();
+
+// ============================================
+// Supabase Auth (로그인 MVP)
+// ============================================
+(function initAuth() {
+  // ⚠️ Supabase 프로젝트 설정 (승인 후 실제 값으로 교체)
+  const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
+  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+  
+  // Supabase 클라이언트 초기화
+  let supabase = null;
+  try {
+    if (window.supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_ID.supabase.co') {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+  } catch (e) {
+    console.log('Supabase not configured yet');
+  }
+
+  // UI 업데이트 함수
+  function updateAuthUI(user) {
+    const loggedOut = document.getElementById('authLoggedOut');
+    const loggedIn = document.getElementById('authLoggedIn');
+    const authSection = document.getElementById('authSection');
+    const userName = document.getElementById('userName');
+    const userAvatar = document.getElementById('userAvatar');
+
+    if (user) {
+      loggedOut.style.display = 'none';
+      loggedIn.style.display = 'block';
+      authSection.classList.add('logged-in');
+      userName.textContent = user.user_metadata?.full_name || user.email?.split('@')[0] || '사용자';
+      if (user.user_metadata?.avatar_url) {
+        userAvatar.innerHTML = `<img src="${user.user_metadata.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+      }
+    } else {
+      loggedOut.style.display = 'block';
+      loggedIn.style.display = 'none';
+      authSection.classList.remove('logged-in');
+      userAvatar.innerHTML = '👤';
+    }
+  }
+
+  // 세션 체크 (페이지 로드 시)
+  async function checkSession() {
+    if (!supabase) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    updateAuthUI(session?.user || null);
+  }
+
+  // Google 로그인
+  window.loginWithGoogle = async function() {
+    if (!supabase) {
+      alert('Supabase 설정이 필요합니다.\n\n관리자에게 문의해주세요.');
+      return;
+    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/PetCTT_index.html'
+      }
+    });
+    if (error) alert('로그인 오류: ' + error.message);
+  };
+
+  // 카카오 로그인 (준비중)
+  window.loginWithKakao = function() {
+    alert('카카오 로그인은 준비 중입니다.\n곧 지원될 예정이에요!');
+  };
+
+  // 네이버 로그인 (준비중)
+  window.loginWithNaver = function() {
+    alert('네이버 로그인은 준비 중입니다.\n곧 지원될 예정이에요!');
+  };
+
+  // 로그아웃
+  window.logout = async function() {
+    if (!supabase) {
+      updateAuthUI(null);
+      return;
+    }
+    await supabase.auth.signOut();
+    updateAuthUI(null);
+  };
+
+  // Auth 상태 변경 리스너
+  if (supabase) {
+    supabase.auth.onAuthStateChange((event, session) => {
+      updateAuthUI(session?.user || null);
+    });
+  }
+
+  // 초기 세션 체크
+  checkSession();
+})();
+</script>
+
+  <!-- Footer -->
+  <footer class="footer" style="max-width:520px; margin:0 auto; padding: 24px 16px;">
+    <div class="footer-links">
+      <a href="privacy.html">개인정보처리방침</a>
+      <a href="terms.html">이용약관</a>
+      <a href="contact.html">문의하기</a>
+    </div>
+    <div class="footer-copy">
+      © 2026 PetCTT. All rights reserved.
+    </div>
+  </footer>
+
+</body>
+</html>

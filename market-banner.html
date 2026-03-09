@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>구름장터 - PetCTT</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-primary: #0a0e17;
+    --bg-card: #111827;
+    --bg-card-hover: #1a2332;
+    --accent-blue: #00d4ff;
+    --accent-purple: #a855f7;
+    --accent-pink: #f472b6;
+    --accent-green: #10b981;
+    --accent-orange: #f59e0b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --border-color: rgba(100, 116, 139, 0.2);
+    --glass-bg: rgba(17, 24, 39, 0.85);
+    --glass-border: rgba(0, 212, 255, 0.15);
+    --gradient-main: linear-gradient(135deg, #00d4ff 0%, #a855f7 50%, #f472b6 100%);
+    --shadow-glow: 0 0 30px rgba(0, 212, 255, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* === 배경 애니메이션 === */
+  .bg-particles {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .bg-particles::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(ellipse at 30% 20%, rgba(0,212,255,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(168,85,247,0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(244,114,182,0.03) 0%, transparent 60%);
+    animation: bgFloat 20s ease-in-out infinite;
+  }
+  @keyframes bgFloat {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(-2%, 1%) rotate(1deg); }
+    66% { transform: translate(1%, -1%) rotate(-0.5deg); }
+  }
+
+  /* === 컨테이너 === */
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+
+  /* === 헤더 === */
+  .market-header {
+    text-align: center;
+    padding: 30px 0 20px;
+  }
+  .market-header h1 {
+    font-family: 'Black Han Sans', sans-serif;
+    font-size: 2.2rem;
+    background: var(--gradient-main);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -1px;
+    margin-bottom: 6px;
+  }
+  .market-header p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 300;
+  }
+
+  /* === 로그인 바 === */
+  .auth-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    margin-bottom: 10px;
+  }
+  .auth-bar .user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+  .auth-bar .user-info img {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-blue);
+  }
+  .auth-bar .user-info .admin-badge {
+    background: var(--gradient-main);
+    color: #fff;
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  /* === 버튼 공통 === */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .btn-google {
+    background: #fff;
+    color: #333;
+  }
+  .btn-google:hover { background: #f1f1f1; transform: translateY(-1px); }
+  .btn-kakao {
+    background: #FEE500;
+    color: #3C1E1E;
+  }
+  .btn-kakao:hover { background: #fdd800; transform: translateY(-1px); }
+  .btn-naver {
+    background: #03C75A;
+    color: #fff;
+  }
+  .btn-naver:hover { background: #02b351; transform: translateY(-1px); }
+  .btn-logout {
+    background: rgba(100,116,139,0.2);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+  }
+  .btn-logout:hover { background: rgba(239,68,68,0.2); color: #f87171; }
+  .btn-primary {
+    background: var(--gradient-main);
+    color: #fff;
+    font-weight: 700;
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    border-radius: 6px;
+  }
+  .btn-danger {
+    background: rgba(239,68,68,0.15);
+    color: #f87171;
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+  .btn-danger:hover { background: rgba(239,68,68,0.3); }
+
+  /* === 로그인 패널 === */
+  .login-panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    margin-bottom: 20px;
+  }
+  .login-panel h3 {
+    font-size: 1rem;
+    margin-bottom: 6px;
+    color: var(--accent-blue);
+  }
+  .login-panel p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .login-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* === 관리자 업로드 패널 === */
+  .admin-panel {
+    background: var(--glass-bg);
+    border: 1px solid rgba(168,85,247,0.3);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(12px);
+    display: none;
+  }
+  .admin-panel.show { display: block; animation: slideDown 0.4s ease; }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .admin-panel h3 {
+    font-size: 1rem;
+    color: var(--accent-purple);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .upload-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .upload-tab {
+    flex: 1;
+    padding: 10px;
+    background: rgba(100,116,139,0.1);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .upload-tab.active {
+    background: rgba(0,212,255,0.1);
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+  }
+  .upload-tab:hover:not(.active) {
+    background: rgba(100,116,139,0.2);
+  }
+
+  .upload-form { display: none; }
+  .upload-form.active { display: block; }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .form-group input[type="text"],
+  .form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(15,23,42,0.8);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: border-color 0.3s;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+  }
+  .form-group textarea { resize: vertical; min-height: 70px; }
+
+  /* 파일 업로드 영역 */
+  .file-drop-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 30px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .file-drop-zone:hover,
+  .file-drop-zone.dragover {
+    border-color: var(--accent-blue);
+    background: rgba(0,212,255,0.05);
+  }
+  .file-drop-zone i {
+    font-size: 2rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .file-drop-zone p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .file-drop-zone .file-name {
+    color: var(--accent-green);
+    font-weight: 600;
+    margin-top: 6px;
+    font-size: 0.82rem;
+  }
+  .file-drop-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  /* 진행바 */
+  .progress-bar-wrap {
+    display: none;
+    margin-top: 10px;
+  }
+  .progress-bar-wrap.show { display: block; }
+  .progress-bar {
+    height: 4px;
+    background: rgba(100,116,139,0.2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-bar .fill {
+    height: 100%;
+    background: var(--gradient-main);
+    width: 0%;
+    transition: width 0.3s;
+    border-radius: 4px;
+  }
+
+  /* === 배너 디스플레이 영역 === */
+  .banner-section {
+    margin-bottom: 24px;
+  }
+  .banner-section h2 {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .banner-section h2 .icon-wrap {
+    width: 28px; height: 28px;
+    background: var(--gradient-main);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+  }
+
+  /* 배너 카드 */
+  .banner-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .banner-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .banner-card:hover {
+    border-color: var(--glass-border);
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+  }
+
+  .banner-card .media-wrap {
+    position: relative;
+    width: 100%;
+    background: #000;
+  }
+  .banner-card video,
+  .banner-card img.banner-img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+    display: block;
+  }
+  .banner-card .youtube-embed {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+  }
+  .banner-card .youtube-embed iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: none;
+  }
+
+  .banner-card .card-body {
+    padding: 14px 18px;
+  }
+  .banner-card .card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .banner-card .card-desc {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .banner-card .card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+  }
+  .banner-card .card-date {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+  .banner-card .card-type {
+    font-size: 0.65rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .type-video { background: rgba(0,212,255,0.15); color: var(--accent-blue); }
+  .type-image { background: rgba(16,185,129,0.15); color: var(--accent-green); }
+  .type-notice { background: rgba(245,158,11,0.15); color: var(--accent-orange); }
+
+  /* 관리자 삭제 버튼 */
+  .banner-card .admin-actions {
+    position: absolute;
+    top: 10px; right: 10px;
+    z-index: 5;
+    display: none;
+  }
+  .banner-card .admin-actions.show { display: flex; gap: 6px; }
+
+  /* 공지 스타일 */
+  .notice-card {
+    background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(168,85,247,0.05) 100%);
+    border-color: rgba(245,158,11,0.2);
+  }
+  .notice-card .notice-icon {
+    font-size: 1.5rem;
+    margin-right: 10px;
+  }
+  .notice-card .card-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  /* 빈 상태 */
+  .empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state i {
+    font-size: 3rem;
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+  .empty-state p {
+    font-size: 0.9rem;
+  }
+
+  /* 로딩 */
+  .loading-spinner {
+    text-align: center;
+    padding: 30px;
+  }
+  .loading-spinner .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border-color);
+    border-top-color: var(--accent-blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 10px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* 토스트 메시지 */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--bg-card);
+    border: 1px solid var(--accent-green);
+    color: var(--text-primary);
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    z-index: 9999;
+    transition: transform 0.4s ease;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { border-color: #ef4444; }
+
+  /* 반응형 */
+  @media (max-width: 600px) {
+    .market-header h1 { font-size: 1.7rem; }
+    .login-buttons { flex-direction: column; }
+    .upload-tabs { flex-direction: column; }
+    .auth-bar { flex-wrap: wrap; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-particles"></div>
+
+<div class="container">
+  <!-- 헤더 -->
+  <header class="market-header">
+    <h1>☁️ 구름장터</h1>
+    <p>PetCTT 공식 영상 · 안내 · 소식</p>
+  </header>
+
+  <!-- 인증 바 -->
+  <div class="auth-bar" id="authBar">
+    <!-- 비로그인 상태 -->
+    <div id="loginBtns">
+      <button class="btn btn-google" onclick="loginWith('google')">
+        <i class="fab fa-google"></i> Google
+      </button>
+      <button class="btn btn-kakao" onclick="loginWith('kakao')">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3C6.5 3 2 6.58 2 11c0 2.84 1.87 5.34 4.7 6.77-.15.55-.98 3.56-1.01 3.79 0 0-.02.16.08.22.1.06.22.01.22.01.29-.04 3.37-2.21 3.9-2.58.68.1 1.39.15 2.11.15 5.5 0 10-3.58 10-8S17.5 3 12 3z' fill='%233C1E1E'/%3E%3C/svg%3E" width="16" height="16" alt="K" style="vertical-align:middle"> 카카오
+      </button>
+    </div>
+    <!-- 로그인 상태 -->
+    <div id="userInfo" style="display:none">
+      <div class="user-info">
+        <img id="userAvatar" src="" alt="user" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22%3E%3Ccircle cx=%2220%22 cy=%2220%22 r=%2220%22 fill=%22%23334155%22/%3E%3Ctext x=%2220%22 y=%2226%22 text-anchor=%22middle%22 fill=%22%2394a3b8%22 font-size=%2216%22%3E😊%3C/text%3E%3C/svg%3E'">
+        <span id="userName"></span>
+        <span id="adminBadge" class="admin-badge" style="display:none">ADMIN</span>
+      </div>
+      <button class="btn btn-logout btn-sm" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> 로그아웃
+      </button>
+    </div>
+  </div>
+
+  <!-- 관리자 업로드 패널 -->
+  <section class="admin-panel" id="adminPanel">
+    <h3><i class="fas fa-cloud-upload-alt"></i> 배너 관리 (관리자 전용)</h3>
+
+    <div class="upload-tabs">
+      <button class="upload-tab active" data-tab="video" onclick="switchTab('video')">
+        <i class="fas fa-video"></i> 영상
+      </button>
+      <button class="upload-tab" data-tab="image" onclick="switchTab('image')">
+        <i class="fas fa-image"></i> 이미지
+      </button>
+      <button class="upload-tab" data-tab="notice" onclick="switchTab('notice')">
+        <i class="fas fa-bullhorn"></i> 안내글
+      </button>
+    </div>
+
+    <!-- 영상 업로드 -->
+    <div class="upload-form active" id="form-video">
+      <div class="form-group">
+        <label>제목</label>
+        <input type="text" id="videoTitle" placeholder="영상 제목을 입력하세요">
+      </div>
+      <div class="form-group">
+        <label>설명 (선택)</label>
+        <textarea id="videoDesc" placeholder="영상에 대한 간단한 설명"></textarea>
+      </div>
+      <div class="form-group">
+        <label>YouTube URL (선택 - 입력 시 파일 업로드 불필요)</label>
+        <input type="text" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=... 또는 https://youtu.be/...">
+      </div>
+      <div class="form-group">
+        <label>또는 영상 파일 업로드 (MP4, WebM - 최대 100MB)</label>
+        <div class="file-drop-zone" id="videoDropZone">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>클릭 또는 드래그하여 영상 업로드</p>
+          <div class="file-name" id="videoFileName"></div>
+          <input type="file" id="videoFile" accept="video/mp4,video/webm,video/quicktime">
+        </div>
+      </div>
+      <div class="progress-bar-wrap" id="videoProgress">
+        <div class="progress-bar"><div class="fill" id="videoProgressFill"></div></div>
+      </div>
+      <button class="btn btn-primary" onclick="uploadBanner('video')" style="margin-top:10px; width:100%">
+        <i class="fas fa-upload"></i> 영상 등록
+      </button>
+    </div>
+
+    <!-- 이미지 업로드 -->
+    <div class="upload-form" id="form-image">
+      <div class="form-group">
+        <label>제목</label>
+        <input type="text" id="imageTitle" placeholder="이미지 제목을 입력하세요">
+      </div>
+      <div class="form-group">
+        <label>설명 (선택)</label>
+        <textarea id="imageDesc" placeholder="이미지에 대한 간단한 설명"></textarea>
+      </div>
+      <div class="form-group">
+        <label>이미지 파일 (JPG, PNG, GIF, WebP - 최대 100MB)</label>
+        <div class="file-drop-zone" id="imageDropZone">
+          <i class="fas fa-image"></i>
+          <p>클릭 또는 드래그하여 이미지 업로드</p>
+          <div class="file-name" id="imageFileName"></div>
+          <input type="file" id="imageFile" accept="image/jpeg,image/png,image/gif,image/webp">
+        </div>
+      </div>
+      <div class="progress-bar-wrap" id="imageProgress">
+        <div class="progress-bar"><div class="fill" id="imageProgressFill"></div></div>
+      </div>
+      <button class="btn btn-primary" onclick="uploadBanner('image')" style="margin-top:10px; width:100%">
+        <i class="fas fa-upload"></i> 이미지 등록
+      </button>
+    </div>
+
+    <!-- 안내글 -->
+    <div class="upload-form" id="form-notice">
+      <div class="form-group">
+        <label>제목</label>
+        <input type="text" id="noticeTitle" placeholder="안내글 제목을 입력하세요">
+      </div>
+      <div class="form-group">
+        <label>내용</label>
+        <textarea id="noticeDesc" placeholder="안내 내용을 입력하세요" style="min-height:120px"></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="uploadBanner('notice')" style="margin-top:10px; width:100%">
+        <i class="fas fa-bullhorn"></i> 안내글 등록
+      </button>
+    </div>
+  </section>
+
+  <!-- 배너 표시 영역 -->
+  <section class="banner-section">
+    <h2>
+      <span class="icon-wrap"><i class="fas fa-fire"></i></span>
+      최신 소식
+    </h2>
+
+    <div id="loadingArea" class="loading-spinner">
+      <div class="spinner"></div>
+      <p style="color:var(--text-muted); font-size:0.8rem">불러오는 중...</p>
+    </div>
+
+    <div class="banner-list" id="bannerList" style="display:none"></div>
+
+    <div class="empty-state" id="emptyState" style="display:none">
+      <i class="fas fa-cloud"></i>
+      <p>아직 등록된 소식이 없습니다</p>
+    </div>
+  </section>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ==========================================
+  // Supabase 초기화
+  // ==========================================
+  const SUPABASE_URL = 'https://nlsiwrwiyozpiofrmzxa.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sc2l3cndpeW96cGlvZnJtenhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNTc4NzcsImV4cCI6MjA3NjczMzg3N30.hurd7QNUJ-JVppETyDnCwU97F1Z3jkWszYRM9NhSUAg';
+  const ADMIN_EMAIL = 'zeus1404@gmail.com';
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let currentUser = null;
+  let isAdmin = false;
+
+  // ==========================================
+  // 인증
+  // ==========================================
+  async function initAuth() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      setUser(session.user);
+    }
+
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        setUser(session.user);
+      } else {
+        clearUser();
+      }
+    });
+  }
+
+  function setUser(user) {
+    currentUser = user;
+    isAdmin = user.email === ADMIN_EMAIL;
+
+    document.getElementById('loginBtns').style.display = 'none';
+    document.getElementById('userInfo').style.display = 'flex';
+
+    const avatar = user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+    document.getElementById('userAvatar').src = avatar || '';
+    document.getElementById('userName').textContent = user.user_metadata?.full_name || user.user_metadata?.name || user.email;
+
+    if (isAdmin) {
+      document.getElementById('adminBadge').style.display = 'inline';
+      document.getElementById('adminPanel').classList.add('show');
+    }
+
+    loadBanners();
+  }
+
+  function clearUser() {
+    currentUser = null;
+    isAdmin = false;
+    document.getElementById('loginBtns').style.display = 'flex';
+    document.getElementById('userInfo').style.display = 'none';
+    document.getElementById('adminBadge').style.display = 'none';
+    document.getElementById('adminPanel').classList.remove('show');
+    loadBanners();
+  }
+
+  async function loginWith(provider) {
+    const redirectUrl = window.location.href.split('?')[0];
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: provider,
+      options: {
+        redirectTo: redirectUrl
+      }
+    });
+    if (error) {
+      showToast('로그인 실패: ' + error.message, true);
+    }
+  }
+
+  async function logout() {
+    await supabase.auth.signOut();
+    clearUser();
+    showToast('로그아웃되었습니다');
+  }
+
+  // ==========================================
+  // 탭 전환
+  // ==========================================
+  function switchTab(tab) {
+    document.querySelectorAll('.upload-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.upload-form').forEach(f => f.classList.remove('active'));
+    document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+    document.getElementById(`form-${tab}`).classList.add('active');
+  }
+
+  // ==========================================
+  // 파일 드래그 앤 드롭
+  // ==========================================
+  ['videoDropZone', 'imageDropZone'].forEach(id => {
+    const zone = document.getElementById(id);
+    if (!zone) return;
+    const input = zone.querySelector('input[type="file"]');
+    const nameEl = zone.querySelector('.file-name');
+
+    input.addEventListener('change', () => {
+      if (input.files[0]) {
+        nameEl.textContent = '📁 ' + input.files[0].name;
+      }
+    });
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', () => { zone.classList.remove('dragover'); });
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('dragover');
+      if (e.dataTransfer.files[0]) {
+        input.files = e.dataTransfer.files;
+        nameEl.textContent = '📁 ' + e.dataTransfer.files[0].name;
+      }
+    });
+  });
+
+  // ==========================================
+  // YouTube URL 파싱
+  // ==========================================
+  function parseYouTubeId(url) {
+    if (!url) return null;
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+      /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/
+    ];
+    for (const p of patterns) {
+      const m = url.match(p);
+      if (m) return m[1];
+    }
+    return null;
+  }
+
+  // ==========================================
+  // 배너 업로드
+  // ==========================================
+  async function uploadBanner(type) {
+    if (!isAdmin) {
+      showToast('관리자만 업로드할 수 있습니다', true);
+      return;
+    }
+
+    let title, description, file_url = null, youtube_url = null;
+
+    if (type === 'video') {
+      title = document.getElementById('videoTitle').value.trim();
+      description = document.getElementById('videoDesc').value.trim();
+      const ytUrl = document.getElementById('youtubeUrl').value.trim();
+      const fileInput = document.getElementById('videoFile');
+
+      if (!title) { showToast('제목을 입력해주세요', true); return; }
+
+      if (ytUrl) {
+        const ytId = parseYouTubeId(ytUrl);
+        if (!ytId) { showToast('올바른 YouTube URL을 입력해주세요', true); return; }
+        youtube_url = ytUrl;
+      } else if (fileInput.files[0]) {
+        file_url = await uploadFile(fileInput.files[0], 'video');
+        if (!file_url) return;
+      } else {
+        showToast('YouTube URL 또는 영상 파일을 선택해주세요', true);
+        return;
+      }
+    } else if (type === 'image') {
+      title = document.getElementById('imageTitle').value.trim();
+      description = document.getElementById('imageDesc').value.trim();
+      const fileInput = document.getElementById('imageFile');
+
+      if (!title) { showToast('제목을 입력해주세요', true); return; }
+      if (!fileInput.files[0]) { showToast('이미지 파일을 선택해주세요', true); return; }
+
+      file_url = await uploadFile(fileInput.files[0], 'image');
+      if (!file_url) return;
+    } else if (type === 'notice') {
+      title = document.getElementById('noticeTitle').value.trim();
+      description = document.getElementById('noticeDesc').value.trim();
+
+      if (!title) { showToast('제목을 입력해주세요', true); return; }
+      if (!description) { showToast('안내 내용을 입력해주세요', true); return; }
+    }
+
+    const { error } = await supabase.from('market_banners').insert({
+      type,
+      title,
+      description: description || null,
+      file_url,
+      youtube_url,
+      created_by: ADMIN_EMAIL
+    });
+
+    if (error) {
+      showToast('등록 실패: ' + error.message, true);
+      return;
+    }
+
+    showToast('✅ 등록 완료!');
+    clearForms();
+    loadBanners();
+  }
+
+  async function uploadFile(file, type) {
+    const ext = file.name.split('.').pop();
+    const fileName = `${type}_${Date.now()}.${ext}`;
+    const progressId = type + 'Progress';
+    const fillId = type + 'ProgressFill';
+
+    document.getElementById(progressId).classList.add('show');
+    document.getElementById(fillId).style.width = '30%';
+
+    const { data, error } = await supabase.storage
+      .from('market-banners')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (error) {
+      showToast('파일 업로드 실패: ' + error.message, true);
+      document.getElementById(progressId).classList.remove('show');
+      return null;
+    }
+
+    document.getElementById(fillId).style.width = '100%';
+    setTimeout(() => {
+      document.getElementById(progressId).classList.remove('show');
+      document.getElementById(fillId).style.width = '0%';
+    }, 1000);
+
+    const { data: urlData } = supabase.storage
+      .from('market-banners')
+      .getPublicUrl(fileName);
+
+    return urlData.publicUrl;
+  }
+
+  function clearForms() {
+    document.querySelectorAll('.upload-form input[type="text"], .upload-form textarea').forEach(el => el.value = '');
+    document.querySelectorAll('.file-name').forEach(el => el.textContent = '');
+    document.querySelectorAll('input[type="file"]').forEach(el => el.value = '');
+  }
+
+  // ==========================================
+  // 배너 로드 & 표시
+  // ==========================================
+  async function loadBanners() {
+    document.getElementById('loadingArea').style.display = 'block';
+    document.getElementById('bannerList').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'none';
+
+    const { data, error } = await supabase
+      .from('market_banners')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: false });
+
+    document.getElementById('loadingArea').style.display = 'none';
+
+    if (error) {
+      showToast('배너 로드 실패: ' + error.message, true);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      document.getElementById('emptyState').style.display = 'block';
+      return;
+    }
+
+    renderBanners(data);
+  }
+
+  function renderBanners(banners) {
+    const list = document.getElementById('bannerList');
+    list.innerHTML = '';
+    list.style.display = 'flex';
+
+    banners.forEach(b => {
+      const card = document.createElement('div');
+      card.className = `banner-card ${b.type === 'notice' ? 'notice-card' : ''}`;
+
+      let mediaHtml = '';
+
+      if (b.type === 'video') {
+        if (b.youtube_url) {
+          const ytId = parseYouTubeId(b.youtube_url);
+          if (ytId) {
+            mediaHtml = `<div class="media-wrap"><div class="youtube-embed"><iframe src="https://www.youtube.com/embed/${ytId}" allowfullscreen loading="lazy"></iframe></div></div>`;
+          }
+        } else if (b.file_url) {
+          mediaHtml = `<div class="media-wrap"><video controls preload="metadata" playsinline><source src="${b.file_url}" type="video/mp4"></video></div>`;
+        }
+      } else if (b.type === 'image' && b.file_url) {
+        mediaHtml = `<div class="media-wrap"><img class="banner-img" src="${b.file_url}" alt="${b.title || ''}" loading="lazy"></div>`;
+      }
+
+      const typeLabel = { video: '영상', image: '이미지', notice: '공지' }[b.type];
+      const typeClass = `type-${b.type}`;
+      const dateStr = new Date(b.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' });
+
+      let bodyHtml = '';
+      if (b.type === 'notice') {
+        bodyHtml = `<div class="card-body"><span class="notice-icon">📢</span><div><div class="card-title">${escHtml(b.title || '')}</div><div class="card-desc">${escHtml(b.description || '').replace(/\n/g, '<br>')}</div></div></div>`;
+      } else {
+        bodyHtml = `<div class="card-body"><div class="card-title">${escHtml(b.title || '')}</div>${b.description ? `<div class="card-desc">${escHtml(b.description).replace(/\n/g, '<br>')}</div>` : ''}</div>`;
+      }
+
+      card.innerHTML = `
+        <div class="admin-actions ${isAdmin ? 'show' : ''}" >
+          <button class="btn btn-danger btn-sm" onclick="deleteBanner('${b.id}')">
+            <i class="fas fa-trash"></i> 삭제
+          </button>
+        </div>
+        ${mediaHtml}
+        ${bodyHtml}
+        <div class="card-body" style="padding-top:0">
+          <div class="card-meta">
+            <span class="card-date">${dateStr}</span>
+            <span class="card-type ${typeClass}">${typeLabel}</span>
+          </div>
+        </div>
+      `;
+
+      list.appendChild(card);
+    });
+  }
+
+  async function deleteBanner(id) {
+    if (!confirm('이 배너를 삭제하시겠습니까?')) return;
+
+    const { error } = await supabase
+      .from('market_banners')
+      .update({ is_active: false })
+      .eq('id', id);
+
+    if (error) {
+      showToast('삭제 실패: ' + error.message, true);
+      return;
+    }
+    showToast('삭제 완료');
+    loadBanners();
+  }
+
+  function escHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // ==========================================
+  // 토스트
+  // ==========================================
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast show ${isError ? 'error' : ''}`;
+    setTimeout(() => { t.className = 'toast'; }, 3000);
+  }
+
+  // ==========================================
+  // 초기화
+  // ==========================================
+  initAuth();
+  loadBanners();
+</script>
+
+</body>
+</html>

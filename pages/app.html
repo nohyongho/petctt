@@ -1395,6 +1395,54 @@
 
 <body>
     <!-- ===== 아미 AR 오버레이 시스템 ===== -->
+
+        <!-- PetCTT Auth + Login Gate -->
+        <script src="../public/js/auth-core.js"></script>
+        <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                            const token = localStorage.getItem('petctt_token');
+                            if (!token) {
+                                            document.body.innerHTML = '';
+                                            const gate = document.createElement('div');
+                                            gate.id = 'login-gate';
+                                            gate.style.cssText = 'position:fixed;inset:0;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;color:#fff;font-family:Noto Sans KR,sans-serif;';
+                                            gate.innerHTML = '<img src="../public/images/petctt-logo.png" alt="PetCTT" style="width:120px;margin-bottom:24px;border-radius:50%;">' +
+                                                                '<h2 style="margin:0 0 8px;font-size:1.5rem;">PetCTT Pro</h2>' +
+                            '<p style="margin:0 0 24px;color:#aaa;font-size:0.95rem;" data-i18n="login_required">Login required to use this feature</p>' +
+                                                                '<button onclick="if(window.PetAuth)PetAuth.login()" style="padding:12px 32px;background:#ff6b35;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;font-weight:600;">Google Login</button>';
+                                            document.body.appendChild(gate);
+                                            return;
+            }
+                            try {
+                                            const payload = JSON.parse(atob(token.split('.')[1]));
+                                            if (payload.exp * 1000 < Date.now()) {
+                                                                localStorage.removeItem('petctt_token');
+                                                                location.reload();
+                                                                return;
+                                            }
+                                            const badge = document.createElement('div');
+                                            badge.id = 'usage-badge';
+                                            badge.style.cssText = 'position:fixed;top:12px;right:12px;background:rgba(0,0,0,0.85);color:#fff;padding:8px 14px;border-radius:20px;font-size:0.8rem;z-index:9999;backdrop-filter:blur(8px);display:flex;align-items:center;gap:8px;';
+                                            badge.innerHTML = '<span style="width:8px;height:8px;background:#4ade80;border-radius:50;display:inline-block;"></span>' +
+                                                                '<span id="usage-count">Loading...</span>';
+                                            document.body.appendChild(badge);
+                                            fetch('https://petctt-auth.zeus1404.workers.dev/api/usage/today', {
+                                                                headers: { 'Authorization': 'Bearer ' + token }
+                                            }).then(r => r.json()).then(d => {
+                            const el = document.getElementById('usage-count');
+                                                                if (el && d.remaining !== undefined) el.textContent = d.remaining + ' calls left today';
+                                                                else if (el) el.textContent = 'Pro';
+                                            }).catch(() => {
+                                                                const el = document.getElementById('usage-count');
+                                                                if (el) el.textContent = 'Connected';
+                                            });
+                            } catch(e) {
+                                            localStorage.removeItem('petctt_token');
+                                            location.reload();
+                            }
+                });
+        </script>
+        </script>
     <div id="ami-ar-layer">
         <div id="ami-character">🐰</div>
         <div id="ami-welcome-text"></div>

@@ -4,11 +4,13 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
         <title>My Page - PetCTT</title>
+      <!-- 캐시 무효화 -->
       <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
       <style>
                 * { margin: 0; padding: 0; box-sizing: border-box; }
+
                 body {
                               font-family: 'Noto Sans KR', sans-serif;
                               background: #0a0a0a;
@@ -16,6 +18,7 @@
                               min-height: 100vh;
                               padding-bottom: env(safe-area-inset-bottom);
                 }
+
                 .top-bar {
                               display: flex;
                               align-items: center;
@@ -38,10 +41,7 @@
                               align-items: center;
                               gap: 4px;
                 }
-                .top-bar h1 {
-                              font-size: 1.1rem;
-                              font-weight: 600;
-                }
+                .top-bar h1 { font-size: 1.1rem; font-weight: 600; }
                 .top-bar .logout-btn {
                               background: none;
                               border: 1px solid rgba(255,255,255,0.15);
@@ -51,11 +51,10 @@
                               font-size: 0.8rem;
                               cursor: pointer;
                 }
-                .container {
-                              max-width: 480px;
-                              margin: 0 auto;
-                              padding: 20px 16px;
-                }
+
+                .container { max-width: 480px; margin: 0 auto; padding: 20px 16px; }
+
+                /* 프로필 카드 */
                 .profile-card {
                               background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
                               border-radius: 16px;
@@ -74,16 +73,22 @@
                               height: 56px;
                               border-radius: 50%;
                               border: 2px solid #ff6b35;
+                              object-fit: cover;
                 }
-                .profile-name {
-                              font-size: 1.2rem;
-                              font-weight: 600;
+                .profile-avatar-fallback {
+                              width: 56px;
+                              height: 56px;
+                              border-radius: 50%;
+                              border: 2px solid #ff6b35;
+                              background: linear-gradient(135deg, #ff6b35, #ff8c5a);
+                              display: flex;
+                              align-items: center;
+                              justify-content: center;
+                              font-size: 1.6rem;
                 }
-                .profile-email {
-                              font-size: 0.85rem;
-                              color: #888;
-                              margin-top: 2px;
-                }
+                .profile-name { font-size: 1.2rem; font-weight: 600; }
+                .profile-email { font-size: 0.85rem; color: #888; margin-top: 2px; }
+
                 .plan-badge {
                               display: inline-block;
                               padding: 4px 12px;
@@ -95,6 +100,8 @@
                 .plan-free { background: rgba(255,255,255,0.1); color: #aaa; }
                 .plan-standard { background: rgba(59,130,246,0.2); color: #60a5fa; }
                 .plan-premium { background: rgba(255,107,53,0.2); color: #ff6b35; }
+
+                /* 통계 그리드 */
                 .stat-grid {
                               display: grid;
                               grid-template-columns: 1fr 1fr;
@@ -107,20 +114,11 @@
                               padding: 16px;
                               border: 1px solid rgba(255,255,255,0.06);
                 }
-                .stat-label {
-                              font-size: 0.75rem;
-                              color: #888;
-                              margin-bottom: 6px;
-                }
-                .stat-value {
-                              font-size: 1.4rem;
-                              font-weight: 700;
-                }
-                .stat-sub {
-                              font-size: 0.7rem;
-                              color: #666;
-                              margin-top: 4px;
-                }
+                .stat-label { font-size: 0.75rem; color: #888; margin-bottom: 6px; }
+                .stat-value { font-size: 1.4rem; font-weight: 700; }
+                .stat-sub { font-size: 0.7rem; color: #666; margin-top: 4px; }
+
+                /* 섹션 */
                 .section-title {
                               font-size: 0.9rem;
                               font-weight: 600;
@@ -128,6 +126,8 @@
                               margin: 24px 0 12px;
                               padding-left: 4px;
                 }
+
+                /* 메뉴 리스트 */
                 .menu-list {
                               background: rgba(255,255,255,0.04);
                               border-radius: 12px;
@@ -142,14 +142,12 @@
                               border-bottom: 1px solid rgba(255,255,255,0.04);
                               cursor: pointer;
                               transition: background 0.2s;
+                              text-decoration: none;
+                              color: inherit;
                 }
                 .menu-item:last-child { border-bottom: none; }
                 .menu-item:hover { background: rgba(255,255,255,0.04); }
-                .menu-item .left {
-                              display: flex;
-                              align-items: center;
-                              gap: 12px;
-                }
+                .menu-item .left { display: flex; align-items: center; gap: 12px; }
                 .menu-item .icon {
                               width: 32px;
                               height: 32px;
@@ -162,6 +160,8 @@
                 .menu-item .arrow { color: #555; font-size: 0.9rem; }
                 .menu-item .label { font-size: 0.9rem; }
                 .menu-item .sub-label { font-size: 0.75rem; color: #666; }
+
+                /* 업그레이드 배너 */
                 .upgrade-banner {
                               background: linear-gradient(135deg, #ff6b35 0%, #ff8c5a 100%);
                               border-radius: 12px;
@@ -170,22 +170,13 @@
                               text-align: center;
                               cursor: pointer;
                 }
-                .upgrade-banner h3 {
-                              font-size: 1rem;
-                              margin-bottom: 4px;
-                }
-                .upgrade-banner p {
-                              font-size: 0.8rem;
-                              opacity: 0.9;
-                }
-                .toggle-wrap {
-                              display: flex;
-                              align-items: center;
-                              gap: 8px;
-                }
+                .upgrade-banner h3 { font-size: 1rem; margin-bottom: 4px; }
+                .upgrade-banner p { font-size: 0.8rem; opacity: 0.9; }
+
+                /* 토글 */
+                .toggle-wrap { display: flex; align-items: center; gap: 8px; }
                 .toggle {
-                              width: 44px;
-                              height: 24px;
+                              width: 44px; height: 24px;
                               background: #333;
                               border-radius: 12px;
                               position: relative;
@@ -196,15 +187,15 @@
                 .toggle::after {
                               content: '';
                               position: absolute;
-                              width: 20px;
-                              height: 20px;
+                              width: 20px; height: 20px;
                               background: #fff;
                               border-radius: 50%;
-                              top: 2px;
-                              left: 2px;
+                              top: 2px; left: 2px;
                               transition: transform 0.3s;
                 }
                 .toggle.active::after { transform: translateX(20px); }
+
+                /* 결제 내역 */
                 .payment-item {
                               display: flex;
                               justify-content: space-between;
@@ -215,19 +206,35 @@
                 .payment-item:last-child { border-bottom: none; }
                 .payment-date { font-size: 0.8rem; color: #888; }
                 .payment-amount { font-size: 0.9rem; font-weight: 600; }
-                .payment-status {
-                              font-size: 0.7rem;
-                              padding: 2px 8px;
-                              border-radius: 4px;
-                }
+                .payment-status { font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; }
                 .status-paid { background: rgba(74,222,128,0.15); color: #4ade80; }
                 .status-pending { background: rgba(251,191,36,0.15); color: #fbbf24; }
+
                 .empty-state {
                               text-align: center;
                               padding: 32px;
                               color: #666;
                               font-size: 0.85rem;
                 }
+
+                /* 사용량 프로그레스바 */
+                .usage-bar-wrap { margin-top: 8px; }
+                .usage-bar {
+                              height: 4px;
+                              background: rgba(255,255,255,0.08);
+                              border-radius: 2px;
+                              overflow: hidden;
+                }
+                .usage-bar-fill {
+                              height: 100%;
+                              border-radius: 2px;
+                              transition: width 0.6s ease;
+                }
+                .usage-bar-fill.green { background: #4ade80; }
+                .usage-bar-fill.yellow { background: #fbbf24; }
+                .usage-bar-fill.red { background: #ef4444; }
+
+                /* 로딩 */
                 #loading-screen {
                               position: fixed;
                               inset: 0;
@@ -236,99 +243,395 @@
                               align-items: center;
                               justify-content: center;
                               z-index: 9999;
+                              transition: opacity 0.3s;
                 }
                 .spinner {
-                              width: 40px;
-                              height: 40px;
+                              width: 40px; height: 40px;
                               border: 3px solid rgba(255,107,53,0.2);
                               border-top-color: #ff6b35;
                               border-radius: 50%;
                               animation: spin 0.8s linear infinite;
                 }
                 @keyframes spin { to { transform: rotate(360deg); } }
+
+                /* 언어 선택 */
+                .lang-selector {
+                              display: flex;
+                              gap: 6px;
+                              margin-top: 4px;
+                }
+                .lang-btn {
+                              padding: 3px 8px;
+                              border-radius: 4px;
+                              font-size: 0.7rem;
+                              border: 1px solid rgba(255,255,255,0.1);
+                              background: none;
+                              color: #888;
+                              cursor: pointer;
+                }
+                .lang-btn.active {
+                              background: rgba(255,107,53,0.2);
+                              color: #ff6b35;
+                              border-color: rgba(255,107,53,0.3);
+                }
+
+                /* 앱 버전 */
+                .app-version {
+                              text-align: center;
+                              padding: 32px 0 16px;
+                              color: #444;
+                              font-size: 0.75rem;
+                }
             </style>
   </head>
   <body>
-        <div id="loading-screen"><div class="spinner"></div>div></div>div>
 
-        <div class="top-bar">
-                  <button class="back-btn" onclick="history.back()">← <span data-i18n="back">Back</span>span></button>button>
-                  <h1 data-i18n="my_page">My Page</h1>h1>
-                  <button class="logout-btn" onclick="doLogout()" data-i18n="logout">Logout</button>button>
-        </div>div>
+    <div id="loading-screen"><div class="spinner"></div>div></div>div>
 
-        <div class="container">
-                  <div class="profile-card">
-                                <div class="profile-header">
-                                                  <img id="user-avatar" class="profile-avatar" src="" alt="Profile">
-                                                  <div>
-                                                                        <div id="user-name" class="profile-name">-</div>
-                                                                        <div id="user-email" class="profile-email">-</div>
-                                                                        <span id="plan-badge" class="plan-badge plan-free">Free</span>span>
-                                                  </div>
-                                </div>
-                  </div>
+    <!-- 상단 바 -->
+    <div class="top-bar">
+          <button class="back-btn" onclick="history.back()">&#8592; <span data-i18n="back">뒤로</span>span></button>button>
+          <h1 data-i18n="mypage.title">마이페이지</h1>h1>
+          <button class="logout-btn" onclick="doLogout()" data-i18n="nav.logout">로그아웃</button>button>
+    </div>div>
 
-                  <div class="stat-grid">
-                                <div class="stat-card">
-                                                  <div class="stat-label" data-i18n="daily_usage">Daily Usage</div>
-                                                  <div class="stat-value"><span id="daily-used">0</span>span>/<span id="daily-limit">30</span>span></div>
-                                                  <div class="stat-sub" data-i18n="ai_calls">AI calls</div>
-                                </div>
-                                <div class="stat-card">
-                                                  <div class="stat-label" data-i18n="monthly_usage">Monthly Usage</div>
-                                                  <div class="stat-value"><span id="monthly-used">0</span>span>/<span id="monthly-limit">500</span>span></div>
-                                                  <div class="stat-sub" data-i18n="ai_calls">AI calls</div>
-                                </div>
-                                <div class="stat-card">
-                                                  <div class="stat-label" data-i18n="live_time">Live Time</div>
-                                                  <div class="stat-value" id="live-used">0<span style="font-size:0.8rem">min</span>span></div>
-                                                  <div class="stat-sub" data-i18n="today">Today</div>
-                                </div>
-                                <div class="stat-card">
-                                                  <div class="stat-label" data-i18n="next_payment">Next Payment</div>
-                                                  <div class="stat-value" id="next-payment" style="font-size:1rem">-</div>
-                                                  <div class="stat-sub" id="payment-cycle">-</div>
-                                </div>
-                  </div>
+    <div class="container">
 
-                  <div id="upgrade-banner" class="upgrade-banner" onclick="location.href='pricing.html'" style="display:none;">
-                                <h3 data-i18n="upgrade_title">Upgrade to Premium</h3>h3>
-                                <p data-i18n="upgrade_desc">Unlock unlimited AI calls and live sessions</p>p>
-                  </div>
+          <!-- 프로필 카드 -->
+          <div class="profile-card">
+                    <div class="profile-header">
+                                  <div id="avatar-wrap">
+                                                    <div class="profile-avatar-fallback">🐾</div>div>
+                                  </div>div>
+                                  <div>
+                                                    <div id="user-name" class="profile-name">-</div>
+                                                    <div id="user-email" class="profile-email">-</div>
+                                                    <span id="plan-badge" class="plan-badge plan-free">Free</span>span>
+                                  </div>
+                    </div>
+          </div>
 
-                  <div class="section-title" data-i18n="subscription_manage">Subscription</div>
-                  <div class="menu-list">
-                                <div class="menu-item" onclick="location.href='pricing.html'">
-                                                  <div class="left">
-                                                                        <div class="icon" style="background:rgba(59,130,246,0.15);">📋</div>
-                                                                        <div>
-                                                                                                  <div class="label" data-i18n="change_plan">Change Plan</div>
-                                                                                                  <div class="sub-label" id="current-plan-label">Free</div>
-                                                                        </div>
-                                                  </div>
-                                                  <span class="arrow">›</span>span>
-                                </div>
-                                <div class="menu-item" id="auto-renew-item">
-                                                  <div class="left">
-                                                                        <div class="icon" style="background:rgba(74,222,128,0.15);">🔄</div>
-                                                                        <div>
-                                                                                                  <div class="label" data-i18n="auto_renew">Auto Renewal</div>
-                                                                                                  <div class="sub-label" data-i18n="auto_renew_desc">Automatic monthly renewal</div>
-                                                                        </div>
-                                                  </div>
-                                                  <div class="toggle-wrap">
-                                                                        <div id="auto-renew-toggle" class="toggle active" onclick="toggleAutoRenew()"></div>
-                                                  </div>
-                                </div>
-                  </div>
+          <!-- 사용량 통계 -->
+          <div class="stat-grid">
+                    <div class="stat-card">
+                                  <div class="stat-label" data-i18n="mypage.dailyUsed">오늘 사용</div>
+                                  <div class="stat-value"><span id="daily-used">0</span>span>/<span id="daily-limit">30</span>span></div>
+                                  <div class="stat-sub" data-i18n="ai_calls">AI 호출</div>
+                                  <div class="usage-bar-wrap">
+                                                    <div class="usage-bar"><div id="daily-bar" class="usage-bar-fill green" style="width:0%"></div></div>
+                                  </div>
+                    </div>
+                    <div class="stat-card">
+                                  <div class="stat-label" data-i18n="mypage.monthlyUsed">이번달 사용</div>
+                                  <div class="stat-value"><span id="monthly-used">0</span>span>/<span id="monthly-limit">500</span>span></div>
+                                  <div class="stat-sub" data-i18n="ai_calls">AI 호출</div>
+                                  <div class="usage-bar-wrap">
+                                                    <div class="usage-bar"><div id="monthly-bar" class="usage-bar-fill green" style="width:0%"></div></div>
+                                  </div>
+                    </div>
+                    <div class="stat-card">
+                                  <div class="stat-label">LIVE 시간</div>
+                                  <div class="stat-value" id="live-used">0<span style="font-size:0.8rem">분</span>span></div>
+                                  <div class="stat-sub">오늘</div>
+                    </div>
+                    <div class="stat-card">
+                                  <div class="stat-label">다음 결제</div>
+                                  <div class="stat-value" id="next-payment" style="font-size:1rem">-</div>
+                                  <div class="stat-sub" id="payment-cycle">-</div>
+                    </div>
+          </div>
 
-                  <div class="section-title" data-i18n="payment_history">Payment History</div>
-                  <div class="menu-list" style="padding:4px 16px;">
-                                <div id="payment-list">
-                                                  <div class="empty-state" data-i18n="no_payments">No payment history</di
-                                                                        </div>
-                                                  </div>
+          <!-- 업그레이드 배너 (Free일 때만) -->
+          <div id="upgrade-banner" class="upgrade-banner" onclick="location.href='pricing.html'" style="display:none;">
+                    <h3 data-i18n="upgrade_title">프리미엄으로 업그레이드</h3>h3>
+                    <p data-i18n="upgrade_desc">무제한 AI 통역과 LIVE 세션을 즐기세요</p>p>
+          </div>
+
+          <!-- 구독 관리 -->
+          <div class="section-title" data-i18n="subscription_manage">구독 관리</div>
+          <div class="menu-list">
+                    <a class="menu-item" href="pricing.html">
+                                  <div class="left">
+                                                    <div class="icon" style="background:rgba(59,130,246,0.15);">📋</div>
+                                                    <div>
+                                                                          <div class="label" data-i18n="change_plan">요금제 변경</div>
+                                                                          <div class="sub-label" id="current-plan-label">Free</div>
+                                                    </div>
+                                  </div>
+                                  <span class="arrow">&#8250;</span>span>
+                    </a>a>
+                    <div class="menu-item" id="auto-renew-item">
+                                  <div class="left">
+                                                    <div class="icon" style="background:rgba(74,222,128,0.15);">&#128260;</div>
+                                                    <div>
+                                                                          <div class="label" data-i18n="auto_renew">자동 갱신</div>
+                                                                          <div class="sub-label">매월 자동 결제</div>
+                                                    </div>
+                                  </div>
+                                  <div class="toggle-wrap">
+                                                    <div id="auto-renew-toggle" class="toggle active" onclick="toggleAutoRenew()"></div>
+                                  </div>
+                    </div>
+          </div>
+
+          <!-- 결제 내역 -->
+          <div class="section-title" data-i18n="mypage.payment">결제 내역</div>
+          <div class="menu-list" style="padding:4px 16px;">
+                    <div id="payment-list">
+                                  <div class="empty-state" data-i18n="no_payments">결제 내역이 없습니다</div>
+                    </div>
+          </div>
+
+          <!-- 설정 -->
+          <div class="section-title">설정</div>
+          <div class="menu-list">
+                    <div class="menu-item" id="lang-menu-item">
+                                  <div class="left">
+                                                    <div class="icon" style="background:rgba(139,92,246,0.15);">&#127760;</div>
+                                                    <div>
+                                                                          <div class="label">언어 / Language</div>
+                                                                          <div class="lang-selector">
+                                                                                                    <button class="lang-btn active" onclick="changeLang('ko')">한국어</button>button>
+                                                                                                    <button class="lang-btn" onclick="changeLang('en')">EN</button>button>
+                                                                                                    <button class="lang-btn" onclick="changeLang('ja')">日本語</button>button>
+                                                                                                    <button class="lang-btn" onclick="changeLang('id')">ID</button>button>
+                                                                          </div>
+                                                    </div>
+                                  </div>
+                    </div>
+                    <div class="menu-item" onclick="toggleNotification()">
+                                  <div class="left">
+                                                    <div class="icon" style="background:rgba(251,191,36,0.15);">&#128276;</div>
+                                                    <div>
+                                                                          <div class="label">알림 설정</div>
+                                                                          <div class="sub-label">푸시 알림</div>
+                                                    </div>
+                                  </div>
+                                  <div class="toggle-wrap">
+                                                    <div id="noti-toggle" class="toggle" onclick="event.stopPropagation();toggleNotification()"></div>
+                                  </div>
+                    </div>
+          </div>
+
+          <!-- 고객지원 -->
+          <div class="section-title">고객지원</div>
+          <div class="menu-list">
+                    <a class="menu-item" href="guide.html">
+                                  <div class="left">
+                                                    <div class="icon" style="background:rgba(34,211,238,0.15);">&#128218;</div>
+                                                    <div>
+                                                                          <div class="label">이용 가이드</div>
+                                                                          <div class="sub-label">서비스 사용법</div>
+                                                    </div>
+                                  </div>
+                                  <span class="arrow">&#8250;</span>span>
+                    </a>a>
+                    <a class="menu-item" href="contact.html">
+                                  <div class="left">
+                                                    <div class="icon" style="background:rgba(248,113,113,0.15);">&#128172;</div>
+                                                    <div>
+                                                                          <div class="label">문의하기</div>
+                                                                          <div class="sub-label">1:1 고객 상담</div>
+                                                    </div>
+                                  </div>
+                                  <span class="arrow">&#8250;</span>span>
+                    </a>a>
+                    <a class="menu-item" href="terms.html">
+                                  <div class="left">
+                                                    <div class="icon" style="background:rgba(156,163,175,0.15);">&#128196;</div>
+                                                    <div>
+                                                                          <div class="label">이용약관</div>
+                                                    </div>
+                                  </div>
+                                  <span class="arrow">&#8250;</span>span>
+                    </a>a>
+                    <a class="menu-item" href="privacy.html">
+                                  <div class="left">
+                                                    <div class="icon" style="background:rgba(156,163,175,0.15);">&#128274;</div>
+                                                    <div>
+                                                                          <div class="label">개인정보처리방침</div>
+                                                    </div>
+                                  </div>
+                                  <span class="arrow">&#8250;</span>span>
+                    </a>a>
+          </div>
+
+          <div class="app-version">PetCTT v2.3 &middot; &copy; 2026 PetCTT</div>
+    </div>
+
+    <!-- auth-core.js + i18n.js -->
+    <script src="/public/js/auth-core.js"></script>
+    <script src="/public/js/i18n.js"></script>
+
+    <script>
+      (function() {
+            'use strict';
+
+            const PLAN_MAP = {
+                      free:     { name: 'Free',     cls: 'plan-free',     daily: 30,  monthly: 500 },
+                      standard: { name: 'Standard', cls: 'plan-standard', daily: 100, monthly: 3000 },
+                      premium:  { name: 'Premium',  cls: 'plan-premium',  daily: 9999, monthly: 99999 }
+            };
+
+            // --- 로딩 화면 제거 ---
+            function hideLoading() {
+                      const el = document.getElementById('loading-screen');
+                      if (el) {
+                                    el.style.opacity = '0';
+                                    setTimeout(() => el.remove(), 300);
+                      }
+            }
+
+            // --- 사용량 바 색상 ---
+            function barColor(pct) {
+                      if (pct >= 90) return 'red';
+                      if (pct >= 60) return 'yellow';
+                      return 'green';
+            }
+
+            // --- 사용자 정보 렌더링 ---
+            function renderUser(user) {
+                      if (!user) {
+                                    // 비로그인 => 로그인 페이지로 보내거나 모달
+                                    if (typeof PetCTTAuth !== 'undefined') {
+                                                      PetCTTAuth.requireLogin();
+                                    }
+                                    hideLoading();
+                                    return;
+                      }
+
+                      // 아바타
+                      const wrap = document.getElementById('avatar-wrap');
+                      if (user.picture) {
+                                    wrap.innerHTML = '<img class="profile-avatar" src="' + user.picture + '" alt="Profile" onerror="this.parentElement.innerHTML=\'<div class=profile-avatar-fallback>&#128062;</div>\'">';
+                      }
+
+                      // 이름/이메일
+                      document.getElementById('user-name').textContent = user.name || 'User';
+                      document.getElementById('user-email').textContent = user.email || '';
+
+                      // 플랜
+                      const planId = user.plan_id || 'free';
+                      const plan = PLAN_MAP[planId] || PLAN_MAP.free;
+                      const badge = document.getElementById('plan-badge');
+                      badge.textContent = plan.name;
+                      badge.className = 'plan-badge ' + plan.cls;
+                      document.getElementById('current-plan-label').textContent = plan.name;
+
+                      // 사용량 한도
+                      document.getElementById('daily-limit').textContent = plan.daily >= 9999 ? '∞' : plan.daily;
+                      document.getElementById('monthly-limit').textContent = plan.monthly >= 9999 ? '∞' : plan.monthly;
+
+                      // 업그레이드 배너
+                      if (planId === 'free') {
+                                    document.getElementById('upgrade-banner').style.display = 'block';
+                      }
+
+                      // 사용량 데이터 로드
+                      loadUsage();
+
+                      hideLoading();
+            }
+
+            // --- 사용량 로드 (Worker API) ---
+            async function loadUsage() {
+                      try {
+                                    if (typeof PetCTTAuth === 'undefined') return;
+                                    const r = await PetCTTAuth.apiFetch('/api/user/usage');
+                                    if (!r.ok) return;
+                                    const d = await r.json();
+
+                                    const du = d.daily_used || 0;
+                                    const mu = d.monthly_used || 0;
+                                    const dl = parseInt(document.getElementById('daily-limit').textContent) || 30;
+                                    const ml = parseInt(document.getElementById('monthly-limit').textContent) || 500;
+
+                                    document.getElementById('daily-used').textContent = du;
+                                    document.getElementById('monthly-used').textContent = mu;
+
+                                    // 프로그레스바
+                                    const dp = dl >= 9999 ? 5 : Math.min((du / dl) * 100, 100);
+                                    const mp = ml >= 9999 ? 5 : Math.min((mu / ml) * 100, 100);
+                                    const dBar = document.getElementById('daily-bar');
+                                    const mBar = document.getElementById('monthly-bar');
+                                    dBar.style.width = dp + '%';
+                                    dBar.className = 'usage-bar-fill ' + barColor(dp);
+                                    mBar.style.width = mp + '%';
+                                    mBar.className = 'usage-bar-fill ' + barColor(mp);
+
+                                    if (d.live_minutes) {
+                                                      document.getElementById('live-used').innerHTML = d.live_minutes + '<span style="font-size:0.8rem">분</span>';
+                                    }
+                      } catch (e) {
+                                    console.warn('Usage load failed:', e);
+                      }
+            }
+
+            // --- 로그아웃 ---
+            window.doLogout = function() {
+                      if (typeof PetCTTAuth !== 'undefined') {
+                                    PetCTTAuth.logout();
+                      }
+                      location.href = '/';
+            };
+
+            // --- 자동 갱신 토글 ---
+            window.toggleAutoRenew = function() {
+                      const t = document.getElementById('auto-renew-toggle');
+                      t.classList.toggle('active');
+                      // TODO: Worker API 호출
+            };
+
+            // --- 알림 토글 ---
+            window.toggleNotification = function() {
+                      const t = document.getElementById('noti-toggle');
+                      t.classList.toggle('active');
+            };
+
+            // --- 언어 변경 ---
+            window.changeLang = function(lang) {
+                      if (typeof PetCTTI18N !== 'undefined') {
+                                    PetCTTI18N.setLang(lang);
+                      }
+                      // 버튼 active 상태
+                      document.querySelectorAll('.lang-btn').forEach(btn => {
+                                    btn.classList.remove('active');
+                                    if (btn.textContent.toLowerCase().includes(lang === 'ko' ? '한국' : lang)) {
+                                                      btn.classList.add('active');
+                                    }
+                      });
+                      // lang에 맞는 버튼 찾기
+                      const map = { ko: 0, en: 1, ja: 2, id: 3 };
+                      const btns = document.querySelectorAll('.lang-btn');
+                      btns.forEach((b, i) => {
+                                    b.classList.toggle('active', i === map[lang]);
+                      });
+            };
+
+            // --- 초기화 ---
+            if (typeof PetCTTAuth !== 'undefined') {
+                      PetCTTAuth.onChange(renderUser);
+            } else {
+                      // auth-core.js 로드 전이면 대기
+                      window.addEventListener('load', function() {
+                                    if (typeof PetCTTAuth !== 'undefined') {
+                                                      PetCTTAuth.onChange(renderUser);
+                                    } else {
+                                                      hideLoading();
+                                    }
+                      });
+            }
+
+            // 3초 안에 로딩 안 끝나면 강제 제거
+            setTimeout(hideLoading, 3000);
+
+      })();
+    </script>
+  </body>
+</html>html>
+    </script>
+                                                    </div>
+                                  </div>
   </body>
       </style></title>
   </head>

@@ -286,14 +286,14 @@
   </head>
   <body>
 
-    <div id="loading-screen"><div class="spinner"></div>div></div>div>
+    <div id="loading-screen"><div class="spinner"></div></div>
 
     <!-- 상단 바 -->
     <div class="top-bar">
-          <button class="back-btn" onclick="history.back()">&#8592; <span data-i18n="back">뒤로</span>span></button>button>
-          <h1 data-i18n="mypage.title">마이페이지</h1>h1>
-          <button class="logout-btn" onclick="doLogout()" data-i18n="nav.logout">로그아웃</button>button>
-    </div>div>
+          <button class="back-btn" onclick="history.back()">&#8592; <span data-i18n="back">뒤로</span></button>
+          <h1 data-i18n="mypage.title">마이페이지</h1>
+          <button class="logout-btn" onclick="doLogout()" data-i18n="nav.logout">로그아웃</button>
+    </div>
 
     <div class="container">
 
@@ -301,12 +301,12 @@
           <div class="profile-card">
                     <div class="profile-header">
                                   <div id="avatar-wrap">
-                                                    <div class="profile-avatar-fallback">🐾</div>div>
-                                  </div>div>
+                                                    <div class="profile-avatar-fallback">🐾</div>
+                                  </div>
                                   <div>
                                                     <div id="user-name" class="profile-name">-</div>
                                                     <div id="user-email" class="profile-email">-</div>
-                                                    <span id="plan-badge" class="plan-badge plan-free">Free</span>span>
+                                                    <span id="plan-badge" class="plan-badge plan-free">Free</span>
                                   </div>
                     </div>
           </div>
@@ -315,7 +315,7 @@
           <div class="stat-grid">
                     <div class="stat-card">
                                   <div class="stat-label" data-i18n="mypage.dailyUsed">오늘 사용</div>
-                                  <div class="stat-value"><span id="daily-used">0</span>span>/<span id="daily-limit">30</span>span></div>
+                                  <div class="stat-value"><span id="daily-used">0</span>/<span id="daily-limit">30</span></div>
                                   <div class="stat-sub" data-i18n="ai_calls">AI 호출</div>
                                   <div class="usage-bar-wrap">
                                                     <div class="usage-bar"><div id="daily-bar" class="usage-bar-fill green" style="width:0%"></div></div>
@@ -323,7 +323,7 @@
                     </div>
                     <div class="stat-card">
                                   <div class="stat-label" data-i18n="mypage.monthlyUsed">이번달 사용</div>
-                                  <div class="stat-value"><span id="monthly-used">0</span>span>/<span id="monthly-limit">500</span>span></div>
+                                  <div class="stat-value"><span id="monthly-used">0</span>/<span id="monthly-limit">500</span></div>
                                   <div class="stat-sub" data-i18n="ai_calls">AI 호출</div>
                                   <div class="usage-bar-wrap">
                                                     <div class="usage-bar"><div id="monthly-bar" class="usage-bar-fill green" style="width:0%"></div></div>
@@ -331,7 +331,7 @@
                     </div>
                     <div class="stat-card">
                                   <div class="stat-label">LIVE 시간</div>
-                                  <div class="stat-value" id="live-used">0<span style="font-size:0.8rem">분</span>span></div>
+                                  <div class="stat-value" id="live-used">0<span style="font-size:0.8rem">분</span></div>
                                   <div class="stat-sub">오늘</div>
                     </div>
                     <div class="stat-card">
@@ -343,8 +343,8 @@
 
           <!-- 업그레이드 배너 (Free일 때만) -->
           <div id="upgrade-banner" class="upgrade-banner" onclick="location.href='pricing.html'" style="display:none;">
-                    <h3 data-i18n="upgrade_title">프리미엄으로 업그레이드</h3>h3>
-                    <p data-i18n="upgrade_desc">무제한 AI 통역과 LIVE 세션을 즐기세요</p>p>
+                    <h3 data-i18n="upgrade_title">프리미엄으로 업그레이드</h3>
+                    <p data-i18n="upgrade_desc">무제한 AI 통역과 LIVE 세션을 즐기세요</p>
           </div>
 
           <!-- 구독 관리 -->
@@ -358,8 +358,8 @@
                                                                           <div class="sub-label" id="current-plan-label">Free</div>
                                                     </div>
                                   </div>
-                                  <span class="arrow">&#8250;</span>span>
-                    </a>a>
+                                  <span class="arrow">&#8250;</span>
+                    </a>
                     <div class="menu-item" id="auto-renew-item">
                                   <div class="left">
                                                     <div class="icon" style="background:rgba(74,222,128,0.15);">&#128260;</div>
@@ -391,10 +391,10 @@
                                                     <div>
                                                                           <div class="label">언어 / Language</div>
                                                                           <div class="lang-selector">
-                                                                                                    <button class="lang-btn active" onclick="changeLang('ko')">한국어</button>button>
-                                                                                                    <button class="lang-btn" onclick="changeLang('en')">EN</button>button>
-                                                                                                    <button class="lang-btn" onclick="changeLang('ja')">日本語</button>button>
-                                                                                                    <button class="lang-btn" onclick="changeLang('id')">ID</button>button>
+                                                                                                    <button class="lang-btn active" onclick="changeLang('ko')">한국어</button>
+                                                                                                    <button class="lang-btn" onclick="changeLang('en')">EN</button>
+                                                                                                    <button class="lang-btn" onclick="changeLang('ja')">日本語</button>
+                                                                                                    <button class="lang-btn" onclick="changeLang('id')">ID</button>
                                                                           </div>
                                                     </div>
                                   </div>
@@ -424,8 +424,8 @@
                                                                           <div class="sub-label">서비스 사용법</div>
                                                     </div>
                                   </div>
-                                  <span class="arrow">&#8250;</span>span>
-                    </a>a>
+                                  <span class="arrow">&#8250;</span>
+                    </a>
                     <a class="menu-item" href="contact.html">
                                   <div class="left">
                                                     <div class="icon" style="background:rgba(248,113,113,0.15);">&#128172;</div>
@@ -434,8 +434,8 @@
                                                                           <div class="sub-label">1:1 고객 상담</div>
                                                     </div>
                                   </div>
-                                  <span class="arrow">&#8250;</span>span>
-                    </a>a>
+                                  <span class="arrow">&#8250;</span>
+                    </a>
                     <a class="menu-item" href="terms.html">
                                   <div class="left">
                                                     <div class="icon" style="background:rgba(156,163,175,0.15);">&#128196;</div>
@@ -443,8 +443,8 @@
                                                                           <div class="label">이용약관</div>
                                                     </div>
                                   </div>
-                                  <span class="arrow">&#8250;</span>span>
-                    </a>a>
+                                  <span class="arrow">&#8250;</span>
+                    </a>
                     <a class="menu-item" href="privacy.html">
                                   <div class="left">
                                                     <div class="icon" style="background:rgba(156,163,175,0.15);">&#128274;</div>
@@ -452,8 +452,8 @@
                                                                           <div class="label">개인정보처리방침</div>
                                                     </div>
                                   </div>
-                                  <span class="arrow">&#8250;</span>span>
-                    </a>a>
+                                  <span class="arrow">&#8250;</span>
+                    </a>
           </div>
 
           <div class="app-version">PetCTT v2.3 &middot; &copy; 2026 PetCTT</div>
@@ -628,10 +628,4 @@
       })();
     </script>
   </body>
-</html>html>
-    </script>
-                                                    </div>
-                                  </div>
-  </body>
-      </style></title>
-  </head>
+</html>

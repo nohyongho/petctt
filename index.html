@@ -14,6 +14,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
         <link rel="stylesheet" href="public/css/app.css">
+        <script src="public/js/i18n.js"></script>
     </head>
 <body>
         <!-- 3D 배경 캔버스 -->
@@ -36,7 +37,10 @@
                                                         </div>
                                                         <div style="display:flex;align-items:center;gap:12px;position:relative;">
                                                                                 <div id="auth-slot" style="position:relative;"></div>
-                                                                                <a href="pages/app.html" class="header-cta" data-i18n="nav.start">앱 시작하기</a>
+                                                                                
+                            <div data-sub-dropdown style="display:inline-block"></div>
+                            <div data-lang-dropdown style="display:inline-block"></div>
+                            <a href="pages/app.html" class="header-cta" data-i18n="nav.start">앱 시작하기</a>
                                                         </div>
                                     </div>
                     </div>
@@ -46,38 +50,38 @@
                     <!-- ━━━ HERO ━━━ -->
                     <section class="hero-section">
                                     <div class="hero-emoji">🐾</div>
-                                    <h1 class="hero-title" data-i18n="hero.title">반려동물과<br><span class="text-gradient">대화</span>하세요</h1>
-                                    <p class="hero-subtitle" data-i18n="hero.subtitle">AI 통역 · 위치 추적 · 건강 체크 · 주민등록증 · 소개팅 · 콘테스트</p>
+                                    <h1 class="hero-title" data-i18n="hero.title" data-i18n="hero.title">반려동물과 대화하세요</h1>
+                                    <p class="hero-subtitle" data-i18n="hero.subtitle" data-i18n="hero.subtitle">AI 통역 · 위치 추적 · 건강 체크 · 주민등록증 · 소개팅 · 콘테스트</p>
                                     <div class="hero-buttons">
-                                                        <a href="pages/app.html" class="btn-primary btn-lg" data-i18n="hero.cta">🐾 지금 시작하기</a>
-                                                        <a href="#features" class="btn-ghost btn-lg" data-i18n="hero.learnMore">더 알아보기 ↓</a>
+                                                        <a href="pages/app.html" class="btn-primary btn-lg" data-i18n="hero.cta" data-i18n="hero.cta">🐾 지금 시작하기</a>
+                                                        <a href="#features" class="btn-ghost btn-lg" data-i18n="hero.learnMore" data-i18n="hero.learnMore">더 알아보기 ↓</a>
                                     </div>
                                     <div class="hero-stats">
-                                                        <div class="stat-item"><span class="stat-number">12+</span><span class="stat-label">지원 동물</span></div>
-                                                        <div class="stat-item"><span class="stat-number">AI</span><span class="stat-label">양방향 통역</span></div>
-                                                        <div class="stat-item"><span class="stat-number">GPS</span><span class="stat-label">실시간 추적</span></div>
+                                                        <div class="stat-item"><span class="stat-number">12+</span><span class="stat-label" data-i18n="stat.animals">지원 동물</span></div>
+                                                        <div class="stat-item"><span class="stat-number">AI</span><span class="stat-label" data-i18n="stat.ai">양방향 통역</span></div>
+                                                        <div class="stat-item"><span class="stat-number">GPS</span><span class="stat-label" data-i18n="stat.gps">실시간 추적</span></div>
                                     </div>
                     </section>
 
                     <!-- ━━━ 핵심 3기능 ━━━ -->
                     <section id="features" class="section-block">
-                                    <h2 class="section-heading" data-i18n="feat.title">핵심 기능</h2>
+                                    <h2 class="section-heading" data-i18n="feat.title" data-i18n="feat.title">핵심 기능</h2>
                                     <div class="feature-grid">
                                                         <a href="pages/app.html#live" class="feature-card feature-translate">
                                                                                 <div class="feature-icon">🎙️</div>
-                                                                                <h3 data-i18n="feat.talk.title">AI 통역</h3>
+                                                                                <h3 data-i18n="feat.talk.title" data-i18n="feat.talk.title">AI 통역</h3>
                                                                                 <p data-i18n="feat.talk.desc">반려동물의 소리를 AI가 분석하여 실시간 양방향 음성 통역. 감정 분석 그래프와 학습 진도까지.</p>
                                                                                 <div class="feature-tag">카메라 + 음성 AI</div>
                                                         </a>
                                                         <a href="pages/app.html#health" class="feature-card feature-health">
                                                                                 <div class="feature-icon">❤️</div>
-                                                                                <h3 data-i18n="feat.health.title">건강 체크</h3>
+                                                                                <h3 data-i18n="feat.health.title" data-i18n="feat.health.title">건강 체크</h3>
                                                                                 <p data-i18n="feat.health.desc">카메라 기반 AI 생체 스캔으로 심박수, 체온, 스트레스 레벨을 실시간 분석.</p>
                                                                                 <div class="feature-tag">AI 생체 분석</div>
                                                         </a>
                                                         <a href="pages/app.html#locate" class="feature-card feature-locate">
                                                                                 <div class="feature-icon">📍</div>
-                                                                                <h3 data-i18n="feat.gps.title">위치 추적</h3>
+                                                                                <h3 data-i18n="feat.gps.title" data-i18n="feat.gps.title">위치 추적</h3>
                                                                                 <p data-i18n="feat.gps.desc">GPS 기반 실시간 반려동물 위치 추적. 이동 경로, 속도, 히스토리 지도.</p>
                                                                                 <div class="feature-tag">GPS + 지도</div>
                                                         </a>
@@ -86,7 +90,7 @@
 
                     <!-- ━━━ 스마트 AI 글래스 ━━━ -->
                     <section class="section-block">
-                                    <h2 class="section-heading">스마트 AI 글래스</h2>
+                                    <h2 class="section-heading" data-i18n="smart.title">스마트 AI 글래스</h2>
                                     <div class="glasses-card">
                                                         <div class="glasses-visual">
                                                                                 <div class="glasses-emoji">🕶️</div>
@@ -106,7 +110,7 @@
         
                 <!-- ━━━ 펫 주민등록증 ━━━ -->
                 <section class="section-block">
-                            <h2 class="section-heading">펫 주민등록증</h2>
+                            <h2 class="section-heading" data-i18n="idcard.title">펫 주민등록증</h2>
                             <p class="section-desc">반려동물의 공식 신분증. 정면사진, 코끝, 앞양발 지문으로 세상에 하나뿐인 ID를 발급합니다.</p>
                             <div style="text-align:center;margin-top:24px;">
                                             <a href="pages/resident-card.html" class="btn-primary">📋 주민등록증 발급하기</a>
@@ -115,7 +119,7 @@
         
                 <!-- ━━━ 라이브 영상 소개팅 ━━━ -->
                 <section class="section-block">
-                            <h2 class="section-heading">라이브 영상 소개팅</h2>
+                            <h2 class="section-heading" data-i18n="dating.title">라이브 영상 소개팅</h2>
                             <p class="section-desc">우리 아이에게 친구를 만들어주세요! 실시간 영상으로 매칭하고, 채팅하고, 만남을 이어가세요.</p>
                             <div style="text-align:center;margin-top:20px;">
                                             <a href="pages/live-match.html" class="btn-primary">💕 소개팅 시작하기</a>
@@ -124,7 +128,7 @@
         
                 <!-- ━━━ 콘테스트 & 오디션 ━━━ -->
                 <section class="section-block">
-                            <h2 class="section-heading">콘테스트 & 오디션</h2>
+                            <h2 class="section-heading" data-i18n="contest.title">콘테스트 & 오디션</h2>
                             <p class="section-desc">매주 주말 펫 콘테스트! 아미 심사위원장 특별상과 함께 우리 아이를 스타로 만들어보세요.</p>
                             <div style="text-align:center;margin-top:20px;">
                                             <a href="pages/contest.html" class="btn-primary">🏆 콘테스트 참가하기</a>
@@ -133,7 +137,7 @@
         
                 <!-- ━━━ 기술 & 특허 ━━━ -->
                 <section class="section-block">
-                            <h2 class="section-heading">기술 & 특허</h2>
+                            <h2 class="section-heading" data-i18n="tech.title">기술 & 특허</h2>
                             <div class="tech-grid">
                                             <div class="tech-card"><div class="tech-icon">🧠</div><h4>AI 양방향 통역 특허</h4><p>Gemini AI 기반 동물 소리 분석 + 자연어 변환 + 음성 합성의 완전 양방향 통역 시스템</p></div>
                                             <div class="tech-card"><div class="tech-icon">📸</div><h4>비전 AI 생체 분석</h4><p>카메라 영상만으로 심박수, 호흡수, 스트레스 레벨, 감정 상태를 실시간 추정</p></div>
@@ -144,7 +148,7 @@
         
                 <!-- ━━━ 제휴 & 문의 ━━━ -->
                 <section class="section-block">
-                            <h2 class="section-heading">제휴 & 문의</h2>
+                            <h2 class="section-heading" data-i18n="partner.title">제휴 & 문의</h2>
                             <div style="text-align:center;margin-top:24px;">
                                             <a href="pages/contact.html" class="btn-outline">📩 제휴 문의하기</a>
                             </div>
@@ -161,7 +165,7 @@
                                 <a href="pages/privacy.html">개인정보</a>
                                 <a href="pages/terms.html">이용약관</a>
                 </div>
-                <p class="footer-copy" data-i18n="footer.copy">© 2026 PetCTT - 반려동물 AI 통역 · 위치 추적 · 건강 체크 · 주민등록증 · 소개팅 · 콘테스트</p>
+                <p class="footer-copy" data-i18n="footer.copy" data-i18n="footer.copy">© 2026 PetCTT - 반려동물 AI 통역 · 위치 추적 · 건강 체크 · 주민등록증 · 소개팅 · 콘테스트</p>
                 <p class="footer-tagline">반려동물과 사람을 연결하는 참여형 플랫폼 🐾</p>
     </footer>
 
@@ -206,5 +210,3 @@
                 document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', e => { e.preventDefault(); const t=document.querySelector(a.getAttribute('href')); if(t) t.scrollIntoView({behavior:'smooth'}); }); });
         </script>
 </body>
-</html>
-        </script>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+h<!DOCTYPE html>
 <html lang="ko">
   <head>
     <meta charset="UTF-8">
@@ -86,58 +86,58 @@
   </head>
   <body class="scan-page">
     <div class="scan-header">
-      <a href="../index.html" class="scan-back">&larr; 홈</a>a>
-      <span class="scan-title-bar">🔍 AI 펫 스캔</span>span>
-      <span class="scan-uses" id="usesLeft">오늘 3/3 남음</span>span>
-    </div>div>
+      <a href="../index.html" class="scan-back">&larr; 홈</a>
+      <span class="scan-title-bar">🔍 AI 펫 스캔</span>
+      <span class="scan-uses" id="usesLeft">오늘 3/3 남음</span>
+    </div>
     <div class="camera-wrap" id="cameraWrap">
-      <div class="scanning-line"></div>div>
+      <div class="scanning-line"></div>
       <div class="camera-placeholder" id="cameraPlaceholder">
-        <div class="cam-icon">📷</div>div>
+        <div class="cam-icon">📷</div>
         <p>카메라를 켜서 반려동물을 비춰보세요</p>
       <p style="font-size:0.75rem;color:rgba(148,163,184,0.5);">동물이면 품종 분석, 사람이면 동물상 테스트!</p>
-      </div>div>
-    <video id="cameraVideo" autoplay playsinline style="display:none;"></video>video>
-    <canvas id="captureCanvas" style="display:none;"></canvas>canvas>
+      </div>
+    <video id="cameraVideo" autoplay playsinline style="display:none;"></video>
+    <canvas id="captureCanvas" style="display:none;"></canvas>
     <div class="sniff-bubble-container" id="sniffBubbleContainer" style="display:none;">
     <div class="sniff-bubble" id="sniffBubble">
-    <span class="ami-avatar">🐰 아미</span>span>
-    <span id="sniffText"></span>span>
-    </div>div>
-    </div>div>
+    <span class="ami-avatar">🐰 아미</span>
+    <span id="sniffText"></span>
+    </div>
+    </div>
     <div class="scan-overlay hidden" id="scanOverlay">
-    <div class="profile-card-overlay" id="profileCard"></div>div>
-    </div>div>
-    </div>div>
+    <div class="profile-card-overlay" id="profileCard"></div>
+    </div>
+    </div>
   <div class="scan-controls">
-  <button class="scan-btn scan-btn-secondary" id="btnCamera" onclick="toggleCamera()">📷 카메라 켜기</button>button>
-  <button class="scan-btn scan-btn-primary" id="btnScan" onclick="startScan()" disabled>🔍 스캔하기</button>button>
-  </div>div>
+  <button class="scan-btn scan-btn-secondary" id="btnCamera" onclick="toggleCamera()">📷 카메라 켜기</button>
+  <button class="scan-btn scan-btn-primary" id="btnScan" onclick="startScan()" disabled>🔍 스캔하기</button>
+  </div>
   <div class="limit-banner" id="limitBanner">
   <p>🔒 오늘의 무료 스캔을 모두 사용했어요</p>
   <small>내일 다시 3회 충전됩니다! 💜</small>
-  </div>div>
+  </div>
   <div class="sub-banner" id="subBanner">
   <p>🐰 아미랑 더 이야기하고 싶으면 PRO 구독해줘!</p>
-  <button onclick="alert('PRO 구독 페이지 준비 중!')">💎 PRO 구독하기</button>button>
-  </div>div>
+  <button onclick="alert('PRO 구독 페이지 준비 중!')">💎 PRO 구독하기</button>
+  </div>
   <div class="chat-section" id="chatSection" style="display:none;">
-  <div class="chat-title">🐰 아미에게 더 물어보기</div>div>
+  <div class="chat-title">🐰 아미에게 더 물어보기</div>
   <div class="quick-questions" id="quickQuestions">
-  <button class="quick-q" onclick="askQuick('이 아이 건강 상태는 어때?')">🏥 건강 상태는?</button>button>
-  <button class="quick-q" onclick="askQuick('바람둥이인가요?')">💕 바람둥이?</button>button>
-  <button class="quick-q" onclick="askQuick('좋아하는 음식은?')">🍖 좋아하는 음식?</button>button>
-  <button class="quick-q" onclick="askQuick('산책은 얼마나?')">🏃 산책 시간?</button>button>
-  <button class="quick-q" onclick="askQuick('지금 기분이 어때?')">😊 지금 기분?</button>button>
-  <button class="quick-q" onclick="askQuick('오늘 운세 알려줘!')">🔮 오늘 운세</button>button>
-  </div>div>
-  <div class="chat-messages" id="chatMessages"></div>div>
+  <button class="quick-q" onclick="askQuick('이 아이 건강 상태는 어때?')">🏥 건강 상태는?</button>
+  <button class="quick-q" onclick="askQuick('바람둥이인가요?')">💕 바람둥이?</button>
+  <button class="quick-q" onclick="askQuick('좋아하는 음식은?')">🍖 좋아하는 음식?</button>
+  <button class="quick-q" onclick="askQuick('산책은 얼마나?')">🏃 산책 시간?</button>
+  <button class="quick-q" onclick="askQuick('지금 기분이 어때?')">😊 지금 기분?</button>
+  <button class="quick-q" onclick="askQuick('오늘 운세 알려줘!')">🔮 오늘 운세</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
   <div class="chat-input-wrap">
   <input type="text" class="chat-input" id="chatInput" placeholder="아미에게 질문하세요..." onkeydown="if(event.key==='Enter')sendChat()">
-  <button class="chat-send" id="btnSend" onclick="sendChat()">전송</button>button>
-  </div>div>
-  </div>div>
-  <div class="toast" id="toast"></div>div>
+  <button class="chat-send" id="btnSend" onclick="sendChat()">전송</button>
+  </div>
+  </div>
+  <div class="toast" id="toast"></div>
   <script>
     var DAILY_LIMIT=3,GEMINI_MODEL='gemini-2.0-flash',GEMINI_KEY='';
     var stream=null,cameraOn=false,lastAnalysis=null,lastImageBase64=null,chatHistory=[],sniffTimer=null;

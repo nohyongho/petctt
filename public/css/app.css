@@ -313,3 +313,21 @@ footer {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.2); }
 }
+
+
+/* ===== 헤더 버튼 가로 정렬 수정 ===== */
+header { position: sticky; top: 0; z-index: 100; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); }
+.header-content { flex-wrap: nowrap; gap: 8px; }
+.header-content > div:last-child { display: flex; align-items: center; gap: 8px; flex-shrink: 0; white-space: nowrap; }
+
+/* 구독/언어 드롭다운 버튼 크기 조정 */
+[data-sub-dropdown] button,
+[data-lang-dropdown] button { font-size: 13px !important; padding: 6px 12px !important; white-space: nowrap; }
+
+/* 모바일 헤더 대응 */
+@media (max-width: 640px) {
+  .header-content > div:last-child { gap: 4px; }
+  .header-cta { font-size: 0.75rem; padding: 6px 12px; }
+  [data-sub-dropdown] button,
+  [data-lang-dropdown] button { font-size: 11px !important; padding: 4px 8px !important; }
+}

@@ -1,324 +1,175 @@
 <!DOCTYPE html>
 <html lang="ko">
   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-      <title>PetCTT - AI 펫 프로필 스캔</title>
-    <meta name="description" content="카메라로 반려동물을 비추면 AI가 품종, 나이, 성격을 실시간 분석! 사람이면 동물상 테스트!">
-    <meta name="theme-color" content="#000000">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../public/css/app.css">
-    <style>
-          .scan-page { min-height: 100vh; background: #000; }
-          .scan-header {
-                  display: flex; align-items: center; justify-content: space-between;
-                  padding: 12px 16px; background: rgba(0,0,0,0.9);
-                  border-bottom: 1px solid rgba(16,185,129,0.3);
-                  position: sticky; top: 0; z-index: 100;
-          }
-          .scan-back { color: var(--primary-light); text-decoration: none; font-size: 0.9rem; font-weight: 600; }
-          .scan-title-bar { font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1rem; color: var(--primary-light); }
-          .scan-uses { font-size: 0.75rem; color: var(--accent); background: rgba(245,158,11,0.15); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(245,158,11,0.3); }
-          .camera-wrap { position: relative; width: 100%; max-width: 480px; margin: 0 auto; aspect-ratio: 3/4; background: #111; border-radius: 0 0 24px 24px; overflow: hidden; }
-          .camera-wrap video { width: 100%; height: 100%; object-fit: cover; }
-          .camera-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; color: var(--text-muted); gap: 12px; font-size: 0.9rem; }
-          .camera-placeholder .cam-icon { font-size: 4rem; opacity: 0.5; }
-          .sniff-bubble-container { position: absolute; bottom: 20px; left: 16px; right: 16px; z-index: 20; pointer-events: none; }
-          .sniff-bubble { background: rgba(10,10,30,0.85); backdrop-filter: blur(12px); border: 1px solid rgba(16,185,129,0.5); border-radius: 18px; padding: 14px 18px; color: #fff; font-size: 0.9rem; line-height: 1.7; animation: bubblePop 0.4s ease; box-shadow: 0 4px 24px rgba(16,185,129,0.15); position: relative; }
-          .sniff-bubble::after { content: ''; position: absolute; bottom: -8px; left: 30px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 8px solid rgba(10,10,30,0.85); }
-          .sniff-bubble .ami-avatar { font-size: 0.7rem; color: var(--accent); font-weight: 700; margin-bottom: 4px; display: block; }
-          @keyframes bubblePop { 0% { transform: scale(0.8) translateY(10px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
-          .sniff-dots { display: inline-flex; gap: 4px; padding: 4px 0; }
-          .sniff-dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--primary-light); animation: dotBounce 1.4s ease-in-out infinite; }
-          .sniff-dots span:nth-child(2) { animation-delay: 0.2s; }
-          .sniff-dots span:nth-child(3) { animation-delay: 0.4s; }
-          @keyframes dotBounce { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
-          .scan-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.85)); padding: 60px 16px 20px; pointer-events: none; transition: opacity 0.4s; }
-          .scan-overlay.hidden { opacity: 0; }
-          .profile-card-overlay { background: rgba(10,10,30,0.8); backdrop-filter: blur(12px); border: 1px solid rgba(16,185,129,0.4); border-radius: 16px; padding: 16px; pointer-events: auto; animation: slideUp 0.5s ease; }
-          @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-          .profile-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-          .profile-emoji { font-size: 2.4rem; }
-          .profile-breed { font-size: 1.1rem; font-weight: 700; color: #fff; }
-          .profile-age { font-size: 0.8rem; color: var(--primary-light); }
-          .profile-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-          .profile-tag { padding: 4px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; }
-          .tag-personality { background: rgba(99,102,241,0.2); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.3); }
-          .tag-fun { background: rgba(236,72,153,0.2); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.3); }
-          .tag-love { background: rgba(245,158,11,0.2); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
-          .tag-animal-face { background: rgba(16,185,129,0.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
-          .profile-fun-line { font-size: 0.82rem; color: var(--accent); font-style: italic; padding: 8px 12px; background: rgba(245,158,11,0.08); border-radius: 10px; border-left: 3px solid var(--accent); margin-bottom: 8px; }
-          .profile-detail { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
-          .scan-controls { display: flex; justify-content: center; gap: 16px; padding: 20px 16px; max-width: 480px; margin: 0 auto; }
-          .scan-btn { flex: 1; padding: 14px; border-radius: 20px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; transition: all 0.3s; text-align: center; }
-          .scan-btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; box-shadow: 0 4px 20px rgba(16,185,129,0.3); }
-          .scan-btn-primary:hover { transform: translateY(-2px); }
-          .scan-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-          .scan-btn-secondary { background: rgba(255,255,255,0.08); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.12); }
-          .scan-btn-secondary:hover { border-color: var(--primary); color: var(--primary-light); }
-          .chat-section { max-width: 480px; margin: 0 auto; padding: 0 16px 100px; }
-          .chat-title { font-size: 0.9rem; font-weight: 700; color: var(--primary-light); margin-bottom: 12px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05); }
-          .chat-messages { display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto; margin-bottom: 12px; padding-right: 4px; }
-          .chat-msg { padding: 10px 14px; border-radius: 14px; font-size: 0.82rem; line-height: 1.6; max-width: 85%; }
-          .chat-msg.user { align-self: flex-end; background: rgba(16,185,129,0.2); color: var(--primary-light); border: 1px solid rgba(16,185,129,0.3); }
-          .chat-msg.ai { align-self: flex-start; background: rgba(99,102,241,0.15); color: #e0e7ff; border: 1px solid rgba(99,102,241,0.2); }
-          .chat-msg.ai .ami-label { font-size: 0.7rem; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
-          .chat-input-wrap { display: flex; gap: 8px; }
-          .chat-input { flex: 1; padding: 12px 16px; border-radius: 20px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text); font-size: 0.85rem; outline: none; font-family: 'Noto Sans KR', sans-serif; }
-          .chat-input:focus { border-color: var(--primary); }
-          .chat-input::placeholder { color: rgba(148,163,184,0.5); }
-          .chat-send { padding: 12px 20px; border-radius: 20px; border: none; background: var(--primary); color: white; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.3s; white-space: nowrap; }
-          .chat-send:hover { background: var(--primary-dark); }
-          .chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
-          .limit-banner { max-width: 480px; margin: 16px auto; padding: 14px 16px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 14px; text-align: center; display: none; }
-          .limit-banner p { font-size: 0.85rem; color: #fca5a5; margin-bottom: 8px; }
-          .limit-banner small { font-size: 0.75rem; color: var(--text-muted); }
-          .scanning-line { position: absolute; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, transparent, var(--primary-light), transparent); animation: scanLine 2s ease-in-out infinite; display: none; z-index: 10; }
-          @keyframes scanLine { 0% { top: 10%; } 50% { top: 85%; } 100% { top: 10%; } }
-          .scanning .scanning-line { display: block; }
-          .quick-questions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-          .quick-q { padding: 6px 12px; border-radius: 14px; font-size: 0.75rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); cursor: pointer; transition: all 0.3s; }
-          .quick-q:hover { border-color: var(--primary); color: var(--primary-light); }
-          .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); padding: 12px 24px; background: rgba(16,185,129,0.9); color: white; border-radius: 20px; font-size: 0.85rem; font-weight: 600; z-index: 9999; transition: bottom 0.3s ease; }
-          .toast.show { bottom: 32px; }
-          .sub-banner { max-width: 480px; margin: 12px auto; padding: 14px 16px; background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(236,72,153,0.1)); border: 1px solid rgba(99,102,241,0.3); border-radius: 14px; text-align: center; display: none; cursor: pointer; transition: all 0.3s; }
-          .sub-banner:hover { border-color: rgba(99,102,241,0.6); transform: translateY(-1px); }
-          .sub-banner p { font-size: 0.85rem; color: #c4b5fd; margin-bottom: 4px; }
-          .sub-banner small { font-size: 0.75rem; color: var(--text-muted); }
-        </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>PetCTT - AI 펫 프로필 스캔</title>
+  <meta name="description" content="카메라로 반려동물을 비추면 AI가 품종, 나이, 성격을 실시간 분석! 사람이면 동물상 테스트!">
+  <meta name="theme-color" content="#000000">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../public/css/app.css">
+  <style>
+    .scan-page{min-height:100vh;background:#000}
+    .scan-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(0,0,0,0.9);border-bottom:1px solid rgba(16,185,129,0.3);position:sticky;top:0;z-index:100}
+    .scan-back{color:var(--primary-light);text-decoration:none;font-size:0.9rem;font-weight:600}
+    .scan-title-bar{font-family:'Orbitron',sans-serif;font-weight:700;font-size:1rem;color:var(--primary-light)}
+    .scan-uses{font-size:0.75rem;color:var(--accent);background:rgba(245,158,11,0.15);padding:4px 10px;border-radius:12px;border:1px solid rgba(245,158,11,0.3)}
+    .camera-wrap{position:relative;width:100%;max-width:480px;margin:0 auto;aspect-ratio:3/4;background:#111;border-radius:0 0 24px 24px;overflow:hidden}
+    .camera-wrap video{width:100%;height:100%;object-fit:cover}
+    .camera-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;color:var(--text-muted);gap:12px;font-size:0.9rem}
+    .camera-placeholder .cam-icon{font-size:4rem;opacity:0.5}
+    .sniff-bubble-container{position:absolute;bottom:20px;left:16px;right:16px;z-index:20;pointer-events:none}
+    .sniff-bubble{background:rgba(10,10,30,0.85);backdrop-filter:blur(12px);border:1px solid rgba(16,185,129,0.5);border-radius:18px;padding:14px 18px;color:#fff;font-size:0.9rem;line-height:1.7;animation:bubblePop 0.4s ease;box-shadow:0 4px 24px rgba(16,185,129,0.15);position:relative}
+    .sniff-bubble::after{content:'';position:absolute;bottom:-8px;left:30px;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-top:8px solid rgba(10,10,30,0.85)}
+    .sniff-bubble .ami-avatar{font-size:0.7rem;color:var(--accent);font-weight:700;margin-bottom:4px;display:block}
+    @keyframes bubblePop{0%{transform:scale(0.8) translateY(10px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+    .sniff-dots{display:inline-flex;gap:4px;padding:4px 0}
+    .sniff-dots span{width:8px;height:8px;border-radius:50%;background:var(--primary-light);animation:dotBounce 1.4s ease-in-out infinite}
+    .sniff-dots span:nth-child(2){animation-delay:0.2s}
+    .sniff-dots span:nth-child(3){animation-delay:0.4s}
+    @keyframes dotBounce{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
+    .scan-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));padding:60px 16px 20px;pointer-events:none;transition:opacity 0.4s}
+    .scan-overlay.hidden{opacity:0}
+    .profile-card-overlay{background:rgba(10,10,30,0.8);backdrop-filter:blur(12px);border:1px solid rgba(16,185,129,0.4);border-radius:16px;padding:16px;pointer-events:auto;animation:slideUp 0.5s ease}
+    @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .profile-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .profile-emoji{font-size:2.4rem}
+    .profile-breed{font-size:1.1rem;font-weight:700;color:#fff}
+    .profile-age{font-size:0.8rem;color:var(--primary-light)}
+    .profile-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+    .profile-tag{padding:4px 10px;border-radius:12px;font-size:0.72rem;font-weight:600}
+    .tag-personality{background:rgba(99,102,241,0.2);color:#a5b4fc;border:1px solid rgba(99,102,241,0.3)}
+    .tag-fun{background:rgba(236,72,153,0.2);color:#f9a8d4;border:1px solid rgba(236,72,153,0.3)}
+    .tag-love{background:rgba(245,158,11,0.2);color:#fcd34d;border:1px solid rgba(245,158,11,0.3)}
+    .tag-health{background:rgba(16,185,129,0.2);color:#6ee7b7;border:1px solid rgba(16,185,129,0.3)}
+    .profile-fun-line{font-size:0.82rem;color:var(--accent);font-style:italic;padding:8px 12px;background:rgba(245,158,11,0.08);border-radius:10px;border-left:3px solid var(--accent);margin-bottom:8px}
+    .profile-detail{font-size:0.8rem;color:var(--text-muted);line-height:1.6}
+    .scan-controls{display:flex;justify-content:center;gap:16px;padding:20px 16px;max-width:480px;margin:0 auto}
+    .scan-btn{flex:1;padding:14px;border-radius:20px;font-weight:700;font-size:0.9rem;border:none;cursor:pointer;transition:all 0.3s;text-align:center}
+    .scan-btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;box-shadow:0 4px 20px rgba(16,185,129,0.3)}
+    .scan-btn-primary:hover{transform:translateY(-2px)}
+    .scan-btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+    .scan-btn-secondary{background:rgba(255,255,255,0.08);color:var(--text-muted);border:1px solid rgba(255,255,255,0.12)}
+    .scan-btn-secondary:hover{border-color:var(--primary);color:var(--primary-light)}
+    .chat-section{max-width:480px;margin:0 auto;padding:0 16px 100px}
+    .chat-title{font-size:0.9rem;font-weight:700;color:var(--primary-light);margin-bottom:12px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.05)}
+    .chat-messages{display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto;margin-bottom:12px;padding-right:4px}
+    .chat-msg{padding:10px 14px;border-radius:14px;font-size:0.82rem;line-height:1.6;max-width:85%}
+    .chat-msg.user{align-self:flex-end;background:rgba(16,185,129,0.2);color:var(--primary-light);border:1px solid rgba(16,185,129,0.3)}
+    .chat-msg.ai{align-self:flex-start;background:rgba(99,102,241,0.15);color:#e0e7ff;border:1px solid rgba(99,102,241,0.2)}
+    .chat-msg.ai .ami-label{font-size:0.7rem;color:var(--accent);font-weight:700;margin-bottom:4px}
+    .chat-input-wrap{display:flex;gap:8px}
+    .chat-input{flex:1;padding:12px 16px;border-radius:20px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--text);font-size:0.85rem;outline:none;font-family:'Noto Sans KR',sans-serif}
+    .chat-input:focus{border-color:var(--primary)}
+    .chat-input::placeholder{color:rgba(148,163,184,0.5)}
+    .chat-send{padding:12px 20px;border-radius:20px;border:none;background:var(--primary);color:white;font-weight:700;font-size:0.85rem;cursor:pointer;transition:all 0.3s;white-space:nowrap}
+    .chat-send:hover{background:var(--primary-dark)}
+    .chat-send:disabled{opacity:0.5;cursor:not-allowed}
+    .limit-banner{max-width:480px;margin:16px auto;padding:14px 16px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:14px;text-align:center;display:none}
+    .limit-banner p{font-size:0.85rem;color:#fca5a5;margin-bottom:8px}
+    .limit-banner small{font-size:0.75rem;color:var(--text-muted)}
+    .sub-banner{max-width:480px;margin:16px auto;padding:14px 16px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);border-radius:14px;text-align:center;display:none}
+    .sub-banner p{font-size:0.85rem;color:#a5b4fc;margin-bottom:8px}
+    .sub-banner button{padding:8px 20px;border-radius:16px;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-weight:700;font-size:0.8rem;cursor:pointer}
+    .scanning-line{position:absolute;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--primary-light),transparent);animation:scanLine 2s ease-in-out infinite;display:none;z-index:10}
+    @keyframes scanLine{0%{top:10%}50%{top:85%}100%{top:10%}}
+    .scanning .scanning-line{display:block}
+    .quick-questions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+    .quick-q{padding:6px 12px;border-radius:14px;font-size:0.75rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:var(--text-muted);cursor:pointer;transition:all 0.3s}
+    .quick-q:hover{border-color:var(--primary);color:var(--primary-light)}
+    .toast{position:fixed;bottom:-100px;left:50%;transform:translateX(-50%);padding:12px 24px;background:rgba(16,185,129,0.9);color:white;border-radius:20px;font-size:0.85rem;font-weight:600;z-index:9999;transition:bottom 0.3s ease}
+    .toast.show{bottom:32px}
+    </style>
   </head>
   <body class="scan-page">
-      <div class="scan-header">
-            <a href="../index.html" class="scan-back">&larr; 홈</a>a>
-            <span class="scan-title-bar">🔍 AI 펫 스캔</span>span>
-            <span class="scan-uses" id="usesLeft">오늘 3/3 남음</span>span>
+    <div class="scan-header">
+      <a href="../index.html" class="scan-back">&larr; 홈</a>a>
+      <span class="scan-title-bar">🔍 AI 펫 스캔</span>span>
+      <span class="scan-uses" id="usesLeft">오늘 3/3 남음</span>span>
+    </div>div>
+    <div class="camera-wrap" id="cameraWrap">
+      <div class="scanning-line"></div>div>
+      <div class="camera-placeholder" id="cameraPlaceholder">
+        <div class="cam-icon">📷</div>div>
+        <p>카메라를 켜서 반려동물을 비춰보세요</p>
+      <p style="font-size:0.75rem;color:rgba(148,163,184,0.5);">동물이면 품종 분석, 사람이면 동물상 테스트!</p>
       </div>div>
-      <div class="camera-wrap" id="cameraWrap">
-            <div class="scanning-line"></div>div>
-            <div class="camera-placeholder" id="cameraPlaceholder">
-                    <div class="cam-icon">📷</div>div>
-                    <p>카메라를 켜서 반려동물을 비춰보세요</p>
-                  <p style="font-size:0.75rem;color:rgba(148,163,184,0.5);">동물이면 품종 분석, 사람이면 동물상 테스트!</p>
-            </div>div>
-          <video id="cameraVideo" autoplay playsinline style="display:none;"></video>video>
-          <canvas id="captureCanvas" style="display:none;"></canvas>canvas>
-          <div class="sniff-bubble-container" id="sniffBubbleContainer" style="display:none;">
-                <div class="sniff-bubble" id="sniffBubble">
-                        <span class="ami-avatar">🐰 아미</span>span>
-                        <span id="sniffText"></span>span>
-                </div>div>
-          </div>div>
-          <div class="scan-overlay hidden" id="scanOverlay">
-                <div class="profile-card-overlay" id="profileCard"></div>div>
-          </div>div>
-      </div>div>
-    <div class="scan-controls">
-        <button class="scan-btn scan-btn-secondary" id="btnCamera" onclick="toggleCamera()">📷 카메라 켜기</button>button>
-        <button class="scan-btn scan-btn-primary" id="btnScan" onclick="startScan()" disabled>🔍 스캔하기</button>button>
+    <video id="cameraVideo" autoplay playsinline style="display:none;"></video>video>
+    <canvas id="captureCanvas" style="display:none;"></canvas>canvas>
+    <div class="sniff-bubble-container" id="sniffBubbleContainer" style="display:none;">
+    <div class="sniff-bubble" id="sniffBubble">
+    <span class="ami-avatar">🐰 아미</span>span>
+    <span id="sniffText"></span>span>
     </div>div>
-    <div class="limit-banner" id="limitBanner">
-        <p>🔒 오늘의 무료 스캔을 모두 사용했어요</p>
-        <small>내일 다시 3회 충전됩니다! 💜</small>
     </div>div>
-    <div class="sub-banner" id="subBanner" onclick="location.href='../pages/pricing.html'">
-        <p>✨ PRO 구독하면 무제한 스캔 + 운세 + 심층 대화!</p>
-        <small>하루 커피 한 잔 가격으로 아미랑 매일 놀아요~ 🐰</small>
+    <div class="scan-overlay hidden" id="scanOverlay">
+    <div class="profile-card-overlay" id="profileCard"></div>div>
     </div>div>
-    <div class="chat-section" id="chatSection" style="display:none;">
-        <div class="chat-title">🐰 아미에게 더 물어보기</div>div>
-        <div class="quick-questions" id="quickQuestions">
-              <button class="quick-q" onclick="askQuick('건강 상태는 어때?')">🏥 건강 상태</button>button>
-              <button class="quick-q" onclick="askQuick('바람둥이야? 애인 필요해?')">💕 바람둥이?</button>button>
-              <button class="quick-q" onclick="askQuick('좋아하는 음식은?')">🍖 좋아하는 음식</button>button>
-              <button class="quick-q" onclick="askQuick('오늘 운세 알려줘!')">🔮 오늘 운세</button>button>
-              <button class="quick-q" onclick="askQuick('지금 기분이 어때?')">😊 지금 기분</button>button>
-              <button class="quick-q" onclick="askQuick('나랑 놀자!')">🎾 같이 놀기</button>button>
-        </div>div>
-        <div class="chat-messages" id="chatMessages"></div>div>
-        <div class="chat-input-wrap">
-              <input type="text" class="chat-input" id="chatInput" placeholder="아미에게 질문하세요..." onkeydown="if(event.key==='Enter')sendChat()">
-              <button class="chat-send" id="btnSend" onclick="sendChat()">전송</button>button>
-        </div>div>
     </div>div>
-    <div class="toast" id="toast"></div>div>
-    <script>
-          var DAILY_LIMIT = 3, GEMINI_MODEL = 'gemini-2.0-flash', GEMINI_KEY = '';
-          var stream = null, cameraOn = false, lastAnalysis = null, lastImageBase64 = null;
-          var chatHistory = [], sniffTimer = null, scanType = 'unknown';
-          var SNIFF_ON = ["앗! 🐾 카메라 켜졌다~!", "잠깐... 킁킁 냄시 맡아보는 중... 👃", "누가 있나~ 새로운 친구 어디야? 🐕", "카메라 앞에 아무도 없으면... 나 혼자 셀카 찍을까? 🤳🐰"];
-          var SNIFF_SCAN = ["킁킁... 뭔가 냄시가 나! 👃🐾", "잠깐만~ 내가 볼게! 🤔", "분석 중이야~ 조금만 기다려! 🔍", "어어? 뭔가 보인다보인다~! 👀"];
-          var SNIFF_FOUND = ["앗! 찾았다~! 😆", "우와~ 이 친구 완전 귀엽잖아! 🥰", "헉, 대박! 한번 봐봐! 😍", "냄시 맡아보니까 확실해! 🐾✨"];
-          var SNIFF_HUMAN = ["어? 사람이다~! 👀✨", "앗! 새로운 친구 왔어! 😆🐾", "우와~ 반가워! 나 아미 또끼야! 🐰", "잠깐~ 동물상 볼게! 킁킁~ 👃"];
-
-          function showSniffBubble(t, d) {
-                  var c = document.getElementById('sniffBubbleContainer'), tx = document.getElementById('sniffText');
-                  c.style.display = 'block'; tx.innerHTML = t;
-                  var b = document.getElementById('sniffBubble'); b.style.animation = 'none'; b.offsetHeight; b.style.animation = 'bubblePop 0.4s ease';
-                  if (sniffTimer) clearTimeout(sniffTimer);
-                  if (d) sniffTimer = setTimeout(function() { c.style.display = 'none'; }, d);
-          }
-          function hideSniffBubble() { document.getElementById('sniffBubbleContainer').style.display = 'none'; if (sniffTimer) clearTimeout(sniffTimer); }
-          function showSniffDots() { showSniffBubble('<div class="sniff-dots"><span></span><span></span><span></span></div>'); }
-          function rp(a) { return a[Math.floor(Math.random() * a.length)]; }
-          function sleep(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
-
-          async function playSniffSequence() { showSniffDots(); await sleep(800); showSniffBubble(SNIFF_ON[0], 0); await sleep(1500); showSniffBubble(SNIFF_ON[1], 0); await sleep(2000); showSniffBubble(SNIFF_ON[2], 0); await sleep(2000); showSniffBubble(SNIFF_ON[3], 5000); }
-          async function playSniffScanSeq() { showSniffBubble(rp(SNIFF_SCAN), 0); await sleep(1500); showSniffBubble(SNIFF_SCAN[1], 0); await sleep(1500); showSniffBubble(SNIFF_SCAN[3], 0); }
-          async function playSniffFoundSeq(breed) { showSniffBubble(rp(SNIFF_FOUND), 0); await sleep(1500); showSniffBubble("이 친구 " + breed + "이구나~?! 😆🐾", 0); await sleep(2000); showSniffBubble("표정 보니까... 뭔가 할 말 있는 얼굴인데? 😏", 4000); }
-          async function playSniffHumanSeq(animal_face, compliment) { showSniffBubble(rp(SNIFF_HUMAN), 0); await sleep(1500); showSniffBubble("킁킁~ 분석 중... 👃✨", 0); await sleep(1500); showSniffBubble("우와~ " + compliment + " 😊✨", 0); await sleep(2000); showSniffBubble(animal_face + " 느낌이 나~! 🐾💕", 4000); }
-
-          function getUsageKey() { var d = new Date(); return 'petctt_scan_' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate(); }
-          function getUsedCount() { return parseInt(localStorage.getItem(getUsageKey()) || '0'); }
-          function incrementUsage() { var k = getUsageKey(); localStorage.setItem(k, parseInt(localStorage.getItem(k) || '0') + 1); updateUsesUI(); }
-          function canUse() { return getUsedCount() < DAILY_LIMIT; }
-          function updateUsesUI() { var l = DAILY_LIMIT - getUsedCount(); document.getElementById('usesLeft').textContent = '오늘 ' + l + '/' + DAILY_LIMIT + ' 남음'; if (l <= 0) { document.getElementById('limitBanner').style.display = 'block'; document.getElementById('btnScan').disabled = true; document.getElementById('subBanner').style.display = 'block'; } }
-
-          async function loadApiKey() {
-                  try { var r = await fetch('https://petctt-api.petctt.workers.dev/api-key', { credentials: 'omit' }); if (r.ok) { var d = await r.json(); GEMINI_KEY = d.key || d.apiKey || ''; } } catch(e) { console.log('Worker fail'); }
-                  if (!GEMINI_KEY) GEMINI_KEY = localStorage.getItem('petctt_gemini_key') || '';
-                  if (!GEMINI_KEY) { GEMINI_KEY = prompt('Gemini API Key를 입력해주세요:') || ''; if (GEMINI_KEY) localStorage.setItem('petctt_gemini_key', GEMINI_KEY); }
-          }
-
-          async function toggleCamera() {
-                  var v = document.getElementById('cameraVideo'), p = document.getElementById('cameraPlaceholder'), b = document.getElementById('btnCamera'), s = document.getElementById('btnScan');
-                  if (cameraOn) { if (stream) stream.getTracks().forEach(function(t){t.stop();}); v.style.display='none'; p.style.display='flex'; b.textContent='📷 카메라 켜기'; s.disabled=true; cameraOn=false; hideSniffBubble(); }
-                  else { try { stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:960}}}); v.srcObject=stream; v.style.display='block'; p.style.display='none'; b.textContent='📷 카메라 끄기'; s.disabled=!canUse(); cameraOn=true; playSniffSequence(); } catch(e) { showToast('카메라를 켤 수 없어요 😢'); } }
-          }
-          function captureFrame() { var v=document.getElementById('cameraVideo'),c=document.getElementById('captureCanvas'); c.width=v.videoWidth; c.height=v.videoHeight; c.getContext('2d').drawImage(v,0,0); return c.toDataURL('image/jpeg',0.8).split(',')[1]; }
-
-          async function startScan() {
-                  if (!canUse()) { showToast('오늘 무료 횟수를 다 썼어~!'); return; }
-                  if (!cameraOn) { showToast('먼저 카메라를 켜줘~!'); return; }
-                  if (!GEMINI_KEY) { await loadApiKey(); if (!GEMINI_KEY) return; }
-                  var wrap=document.getElementById('cameraWrap'), overlay=document.getElementById('scanOverlay'), sb=document.getElementById('btnScan');
-                  wrap.classList.add('scanning'); sb.disabled=true; sb.textContent='🔄 분석 중...'; overlay.classList.add('hidden');
-                  playSniffScanSeq();
-                  try {
-                            lastImageBase64 = captureFrame();
-                            var prompt = '당신은 PETCTT의 AI 마스코트 "아미"입니다. 4~7세 여자아이처럼 밝고 귀엽고 장난꾸러기인 또끼(토끼) 캐릭터예요.\n' +
-                                        '이 사진을 보고 동물인지 사람인지 먼저 판단하세요.\n\n' +
-                                        '★ 동물이 보이면 (is_human: false):\n' +
-                                        '품종, 나이, 성격, 감정을 분석하세요.\n\n' +
-                                        '★ 사람이 보이면 (is_human: true):\n' +
-                                        '동물상 테스트를 해주세요! 닮은 동물 Top3를 %로 알려주세요.\n' +
-                                        '성별과 나이대를 추정하고, 반드시 기분 좋은 칭찬을 해주세요.\n' +
-                                        '여성이면: 아름다운 천사님, 예쁜 요정님, 착한 공주님 등 사랑스러운 칭찬\n' +
-                                        '남성이면: 착한 아찌, 멋진 천사 아찌, 따뜻한 피터팬 등 따뜻한 칭찬\n' +
-                                        '아이면: 귀여운 아기 천사, 사랑스러운 꼬마 요정 등\n' +
-                                        '항상 4~7세 아이가 말하듯 귀엽고 밝게!\n\n' +
-                                        '반드시 아래 JSON 형식으로만 응답:\n' +
-                                        '{\n' +
-                                        '  "is_human": true/false,\n' +
-                                        '  "detected": true,\n' +
-                                        '  "emoji": "(이모지 1개)",\n' +
-                                        '  "breed": "(동물이면 품종, 사람이면 닮은동물상 1위 예: 토끼상)",\n' +
-                                        '  "age_estimate": "(동물이면 추정나이, 사람이면 추정나이대)",\n' +
-                                        '  "gender_guess": "(사람일때만: 여성/남성/어린이)",\n' +
-                                        '  "animal_face_top3": "(사람일때: 예: 🐰토끼 62% / 🐶강아지 25% / 🦊여우 13%)",\n' +
-                                        '  "compliment": "(사람일때: 성별맞춤 칭찬 한줄 - 아이톤으로 귀엽게)",\n' +
-                                        '  "personality": ["성격1","성격2","성격3"],\n' +
-                                        '  "love_status": "(바람둥이/애인필요/솔로즐기는중/커플감 + 재밌는 코멘트)",\n' +
-                                        '  "fun_line": "(직접 말하는것처럼 자기소개 한줄 - 4~7세 아이톤)",\n' +
-                                        '  "health_impression": "(외관 인상 한줄)",\n' +
-                                        '  "mood": "(표정/자세에서 읽히는 기분 - 웃기게)",\n' +
-                                        '  "sniff_comment": "(아미가 킁킁 냄시 맡듯이 첫인상 코멘트)",\n' +
-                                        '  "fortune": "(오늘의 간단 운세 한줄 - 귀엽게)",\n' +
-                                        '  "detail": "(3~4줄 설명)"\n' +
-                                        '}\n' +
-                                        '아무것도 안 보이면:\n' +
-                                        '{"detected": false, "message": "킁킁... 아무 냄시도 안 나! 🐾 카메라에 누구 비춰줘~!"}';
-
-                            var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + GEMINI_KEY, {
-                                        method:'POST', headers:{'Content-Type':'application/json'},
-                                        body: JSON.stringify({ contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:lastImageBase64}}]}], generationConfig:{temperature:0.85,maxOutputTokens:1200} })
-                            });
-                            var data = await resp.json();
-                            var text = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] ? data.candidates[0].content.parts[0].text : '';
-                            var jm = text.match(/\{[\s\S]*\}/);
-                            if (!jm) throw new Error('파싱 실패');
-                            var result = JSON.parse(jm[0]);
-                            if (!result.detected) { showSniffBubble(result.message || '킁킁... 아무도 안 보여! 🐾', 4000); return; }
-                            lastAnalysis = result; scanType = result.is_human ? 'human' : 'animal'; incrementUsage();
-                            if (result.is_human) { await playSniffHumanSeq(result.breed, result.compliment || '따뜻한 분 같아!'); }
-                            else { await playSniffFoundSeq(result.breed); }
-                            await sleep(1000); hideSniffBubble();
-                            renderProfile(result); overlay.classList.remove('hidden');
-                            document.getElementById('chatSection').style.display = 'block';
-                            var firstMsg = result.is_human
-                              ? '앗! 새로운 친구다~! 😆🐰<br>' + (result.compliment||'') + '<br>' + (result.animal_face_top3||'') + '<br><br>뭐든 물어봐~ 나 아미야!'
-                                        : (result.sniff_comment || result.emoji + ' ' + result.breed + ' 찾았다~!') + '<br><br>뭐든 물어봐~ 나 아미야! 🐰';
-                            chatHistory = [{role:'model', text: firstMsg}]; renderChat();
-                            if (result.fortune) { document.getElementById('subBanner').style.display = 'block'; }
-                  } catch(e) { console.error(e); showSniffBubble('앗~ 코가 막혔어! 😢 다시 해볼까~?', 4000); }
-                  finally { wrap.classList.remove('scanning'); sb.disabled=!canUse(); sb.textContent='🔍 스캔하기'; }
-          }
-
-          function renderProfile(r) {
-                  var card = document.getElementById('profileCard');
-                  var tags = r.personality.map(function(p){return '<span class="profile-tag tag-personality">'+p+'</span>';}).join('');
-                  var humanExtra = '';
-                  if (r.is_human) {
-                            humanExtra = (r.animal_face_top3 ? '<div class="profile-tags"><span class="profile-tag tag-animal-face">🐾 '+r.animal_face_top3+'</span></div>' : '') +
-                                        (r.compliment ? '<div style="font-size:0.85rem;color:#fcd34d;padding:8px 12px;background:rgba(245,158,11,0.1);border-radius:10px;border-left:3px solid #fcd34d;margin-bottom:8px;">✨ '+r.compliment+'</div>' : '');
-                  }
-                  card.innerHTML = '<div class="profile-top"><div class="profile-emoji">'+r.emoji+'</div><div><div class="profile-breed">'+(r.is_human?'👤 ':'')+r.breed+'</div><div class="profile-age">'+(r.is_human?'추정 ':' 추정 ')+r.age_estimate+'</div></div></div>' +
-                            humanExtra +
-                            '<div class="profile-tags">'+tags+'<span class="profile-tag tag-love">💕 '+r.love_status+'</span>'+(r.mood?'<span class="profile-tag tag-fun">😊 '+r.mood+'</span>':'')+'</div>' +
-                            '<div class="profile-fun-line">"'+r.fun_line+'"</div>' +
-                            (r.sniff_comment?'<div style="font-size:0.8rem;color:var(--primary-light);padding:6px 12px;background:rgba(16,185,129,0.08);border-radius:10px;border-left:3px solid var(--primary);margin-bottom:8px;">🐰 '+r.sniff_comment+'</div>':'') +
-                            (r.fortune?'<div style="font-size:0.8rem;color:#c4b5fd;padding:6px 12px;background:rgba(99,102,241,0.08);border-radius:10px;border-left:3px solid #818cf8;margin-bottom:8px;">🔮 오늘의 운세: '+r.fortune+'</div>':'') +
-                            '<div class="profile-detail">'+r.detail+'</div>';
-          }
-
-          function renderChat() {
-                  var el = document.getElementById('chatMessages');
-                  el.innerHTML = chatHistory.map(function(m){ return m.role==='user' ? '<div class="chat-msg user">'+m.text+'</div>' : '<div class="chat-msg ai"><div class="ami-label">🐰 아미</div>'+m.text+'</div>'; }).join('');
-                                                                                        el.scrollTop = el.scrollHeight;
-          }
-
-          function hasBadWords(t) { var bw = ['시발','씨발','병신','개새','죽어','미친','바보','멍청','꺼져','닥쳐','지랄','ㅅㅂ','ㅂㅅ','ㅈㄹ']; for(var i=0;i<bw.length;i++){if(t.indexOf(bw[i])!==-1)return true;} return false; }
-
-          async function sendChat() {
-                  var input = document.getElementById('chatInput'), text = input.value.trim();
-                  if (!text || !lastAnalysis) return;
-                  chatHistory.push({role:'user',text:text}); input.value=''; renderChat();
-                  var sb = document.getElementById('btnSend'); sb.disabled=true; sb.textContent='...';
-                  if (hasBadWords(text)) {
-                            chatHistory.push({role:'model',text:'우앙... 😢 그런 말 하면 나 울어... 🥺<br>우리 착하게 이야기하자~ 알았지? 🐰💕'});
-                            renderChat(); sb.disabled=false; sb.textContent='전송'; return;
-                  }
-                  try {
-                            var ctx = '당신은 PETCTT의 AI 마스코트 "아미" 🐰입니다.\n' +
-                                        '★ 캐릭터: 4~7세 여자아이 또끼. 밝고 귀엽고 장난꾸러기.\n' +
-                                        '★ 말투: "~해!" "~야!" "~거든!" "우와~" 같은 아이 말투.\n' +
-                                        '★ 규칙: 절대 욕하지 않기. 욕이나 나쁜 말 들으면 "우앙 그런 말 하면 나 울어..." 하고 슬퍼하기.\n' +
-                                        '★ 원칙: 항상 칭찬, 사랑, 따뜻하게. 사람 기분 좋게 만들기!\n' +
-                                        '★ "냄시" 같은 귀여운 표현 가끔 쓰기.\n\n' +
-                                        '방금 분석한 정보:\n' +
-                                        '- 유형: ' + (scanType==='human'?'사람 (동물상: '+lastAnalysis.breed+')':'동물 ('+lastAnalysis.breed+')') + '\n' +
-                                        '- 성격: ' + lastAnalysis.personality.join(', ') + '\n' +
-                                        '- 연애: ' + lastAnalysis.love_status + '\n' +
-                                        '- 기분: ' + (lastAnalysis.mood||'모름') + '\n' +
-                                        (lastAnalysis.fortune ? '- 운세: ' + lastAnalysis.fortune + '\n' : '') +
-                                        '\n사용자 질문: ' + text + '\n' +
-                                        '짧고 재밌게 3~5문장으로 답해줘! 아이톤으로 귀엽게!';
-                            var resp = await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+GEMINI_MODEL+':generateContent?key='+GEMINI_KEY, {
-                                        method:'POST', headers:{'Content-Type':'application/json'},
-                                        body:JSON.stringify({contents:[{parts:[{text:ctx}]}],generationConfig:{temperature:0.9,maxOutputTokens:512}})
-                            });
-                            var data = await resp.json();
-                            var reply = data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0] ? data.candidates[0].content.parts[0].text : '앗~ 잠깐 생각해볼게! 🤔🐰';
-                            chatHistory.push({role:'model',text:reply}); renderChat();
-                  } catch(e) { chatHistory.push({role:'model',text:'앗~ 네트워크가 이상해! 😢 다시 해볼래? 🐰'}); renderChat(); }
-                  finally { sb.disabled=false; sb.textContent='전송'; }
-          }
-
-          function askQuick(q) { document.getElementById('chatInput').value=q; sendChat(); }
-          function showToast(m) { var t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},2500); }
-          window.addEventListener('DOMContentLoaded', function(){ updateUsesUI(); loadApiKey(); });
-    </script>
+  <div class="scan-controls">
+  <button class="scan-btn scan-btn-secondary" id="btnCamera" onclick="toggleCamera()">📷 카메라 켜기</button>button>
+  <button class="scan-btn scan-btn-primary" id="btnScan" onclick="startScan()" disabled>🔍 스캔하기</button>button>
+  </div>div>
+  <div class="limit-banner" id="limitBanner">
+  <p>🔒 오늘의 무료 스캔을 모두 사용했어요</p>
+  <small>내일 다시 3회 충전됩니다! 💜</small>
+  </div>div>
+  <div class="sub-banner" id="subBanner">
+  <p>🐰 아미랑 더 이야기하고 싶으면 PRO 구독해줘!</p>
+  <button onclick="alert('PRO 구독 페이지 준비 중!')">💎 PRO 구독하기</button>button>
+  </div>div>
+  <div class="chat-section" id="chatSection" style="display:none;">
+  <div class="chat-title">🐰 아미에게 더 물어보기</div>div>
+  <div class="quick-questions" id="quickQuestions">
+  <button class="quick-q" onclick="askQuick('이 아이 건강 상태는 어때?')">🏥 건강 상태는?</button>button>
+  <button class="quick-q" onclick="askQuick('바람둥이인가요?')">💕 바람둥이?</button>button>
+  <button class="quick-q" onclick="askQuick('좋아하는 음식은?')">🍖 좋아하는 음식?</button>button>
+  <button class="quick-q" onclick="askQuick('산책은 얼마나?')">🏃 산책 시간?</button>button>
+  <button class="quick-q" onclick="askQuick('지금 기분이 어때?')">😊 지금 기분?</button>button>
+  <button class="quick-q" onclick="askQuick('오늘 운세 알려줘!')">🔮 오늘 운세</button>button>
+  </div>div>
+  <div class="chat-messages" id="chatMessages"></div>div>
+  <div class="chat-input-wrap">
+  <input type="text" class="chat-input" id="chatInput" placeholder="아미에게 질문하세요..." onkeydown="if(event.key==='Enter')sendChat()">
+  <button class="chat-send" id="btnSend" onclick="sendChat()">전송</button>button>
+  </div>div>
+  </div>div>
+  <div class="toast" id="toast"></div>div>
+  <script>
+    var DAILY_LIMIT=3,GEMINI_MODEL='gemini-2.0-flash',GEMINI_KEY='';
+    var stream=null,cameraOn=false,lastAnalysis=null,lastImageBase64=null,chatHistory=[],sniffTimer=null;
+    var BAD_WORDS=['시발','씨발','병신','개새','죽어','미친','바보','멍청','꺼져','닥쳐','지랄','ㅅㅂ','ㅂㅅ','ㅈㄹ'];
+    function hasBadWords(t){return BAD_WORDS.some(function(w){return t.indexOf(w)!==-1});}
+    var SNIFF_ON=["어? 🐾 카메라 켜졌다!","잠깐... 냄시 맡아보는 중... 킁킁 👃","누가 있나~ 친구 어디있어? 🐕","아무도 없으면... 나 혼자 셀카 찍을까? 🤳🐰"];
+    var SNIFF_SCAN=["킁킁... 냄시가 나는데? 👃🐾","잠깐만... 이 냄시는... 🤔","분석 중이에요~ 좀만 기다려봐! 🔍","어어? 뭔가 보인다보인다~! 👀"];
+    var SNIFF_FOUND=["야! 찾았다! 😆","오오~ 완전 귀엽잖아! 🥰","헉, 대박! 😍","냄시 맡아보니까 확실해! 🐾✨"];
+    function showSniffBubble(t,d){var c=document.getElementById('sniffBubbleContainer'),s=document.getElementById('sniffText');c.style.display='block';s.innerHTML=t;var b=document.getElementById('sniffBubble');b.style.animation='none';b.offsetHeight;b.style.animation='bubblePop 0.4s ease';if(sniffTimer)clearTimeout(sniffTimer);if(d)sniffTimer=setTimeout(function(){c.style.display='none';},d);}
+    function hideSniffBubble(){document.getElementById('sniffBubbleContainer').style.display='none';if(sniffTimer)clearTimeout(sniffTimer);}
+    function showSniffDots(){showSniffBubble('<div class="sniff-dots"><span></span><span></span><span></span></div>');}
+    function rp(a){return a[Math.floor(Math.random()*a.length)];}
+    function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+    async function playSniffSequence(){showSniffDots();await sleep(800);showSniffBubble(SNIFF_ON[0],0);await sleep(1500);showSniffBubble(SNIFF_ON[1],0);await sleep(2000);showSniffBubble(SNIFF_ON[2],0);await sleep(2000);showSniffBubble(SNIFF_ON[3],5000);}
+    async function playSniffScanSeq(){showSniffBubble(rp(SNIFF_SCAN),0);await sleep(1500);showSniffBubble(SNIFF_SCAN[1],0);await sleep(1500);showSniffBubble(SNIFF_SCAN[3],0);}
+    async function playSniffFoundSeq(b){showSniffBubble(rp(SNIFF_FOUND),0);await sleep(1500);showSniffBubble("이 친구 "+b+"이구나~?! 😆🐾",0);await sleep(2000);showSniffBubble("표정 보니까... 뭔가 할 말 있는 얼굴인데? 😏",4000);}
+    function getUsageKey(){var d=new Date();return'petctt_scan_'+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+    function getUsedCount(){return parseInt(localStorage.getItem(getUsageKey())||'0');}
+    function incrementUsage(){var k=getUsageKey();localStorage.setItem(k,parseInt(localStorage.getItem(k)||'0')+1);updateUsesUI();}
+    function canUse(){return getUsedCount()<DAILY_LIMIT;}
+    function updateUsesUI(){var l=DAILY_LIMIT-getUsedCount();document.getElementById('usesLeft').textContent='오늘 '+l+'/'+DAILY_LIMIT+' 남음';if(l<=0){document.getElementById('limitBanner').style.display='block';document.getElementById('btnScan').disabled=true;}}
+    async function loadApiKey(){try{var r=await fetch('https://petctt-api.petctt.workers.dev/api-key',{credentials:'omit'});if(r.ok){var d=await r.json();GEMINI_KEY=d.key||d.apiKey||'';}}catch(e){console.log('Worker fallback');}if(!GEMINI_KEY)GEMINI_KEY=localStorage.getItem('petctt_gemini_key')||'';if(!GEMINI_KEY){GEMINI_KEY=prompt('Gemini API Key:')||'';if(GEMINI_KEY)localStorage.setItem('petctt_gemini_key',GEMINI_KEY);}}
+    async function toggleCamera(){var v=document.getElementById('cameraVideo'),p=document.getElementById('cameraPlaceholder'),b=document.getElementById('btnCamera'),s=document.getElementById('btnScan');if(cameraOn){if(stream)stream.getTracks().forEach(function(t){t.stop();});v.style.display='none';p.style.display='flex';b.textContent='📷 카메라 켜기';s.disabled=true;cameraOn=false;hideSniffBubble();}else{try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280},height:{ideal:960}}});v.srcObject=stream;v.style.display='block';p.style.display='none';b.textContent='📷 카메라 끄기';s.disabled=!canUse();cameraOn=true;playSniffSequence();}catch(e){showToast('카메라 접근 실패 😢');console.error(e);}}}
+    function captureFrame(){var v=document.getElementById('cameraVideo'),c=document.getElementById('captureCanvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);return c.toDataURL('image/jpeg',0.8).split(',')[1];}
+    async function startScan(){if(!canUse()){showToast('오늘 무료 횟수 소진!');return;}if(!cameraOn){showToast('먼저 카메라를 켜주세요!');return;}if(!GEMINI_KEY){await loadApiKey();if(!GEMINI_KEY)return;}var w=document.getElementById('cameraWrap'),o=document.getElementById('scanOverlay'),sb=document.getElementById('btnScan');w.classList.add('scanning');sb.disabled=true;sb.textContent='🔄 분석 중...';o.classList.add('hidden');playSniffScanSeq();try{lastImageBase64=captureFrame();var prompt='당신은 PETCTT의 AI 캐릭터 "아미" 🐰입니다. 4~7세 여자아이처럼 귀엽고 천진난만한 말투를 사용합니다.\n'+'이 사진을 분석해주세요. 사람인지 동물인지 먼저 판단하세요.\n\n'+'[사람인 경우] 동물상 테스트를 해주세요:\n'+'{"type":"human","detected":true,"emoji":"(닮은 동물 이모지)","animal_face":"(닮은 동물상 - 토끼상/강아지상/고양이상/여우상/곰상 등)","animal_face_top3":[{"animal":"토끼","percent":62},{"animal":"강아지","percent":25},{"animal":"여우","percent":13}],"compliment":"(성별/나이 맞춤 칭찬 - 여성이면 천사님/요정님/공주님 + 남성이면 착한아찌/피터팬/천사아찌 등 따뜻한 칭찬)","personality":["성격1","성격2","성격3"],"fortune":"(오늘의 짧은 운세 한줄)","fun_line":"(아미가 동물상 결과 보고 하는 귀여운 코멘트)","detail":"(3~4줄 설명)"}\n\n'+'[동물인 경우] 품종 분석을 해주세요:\n'+'{"type":"animal","detected":true,"emoji":"(동물 이모지)","breed":"(품종-한국어)","age_estimate":"(추정 나이)","personality":["성격1","성격2","성격3"],"love_status":"(연애상태+코멘트)","health_impression":"(건강 인상 한줄)","health_warning":"(위험 신호 있으면 경고, 없으면 빈 문자열)","health_advice":"(기본 조치 안내 1~2줄, 아프면 병원 권유)","mood":"(지금 기분-웃기게)","sniff_comment":"(킁킁 첫인상)","fun_line":"(동물이 직접 말하듯 자기소개)","fortune":"(오늘 운세)","detail":"(3~4줄 설명+관리팁)"}\n\n'+'[아무것도 없으면]:\n'+'{"type":"none","detected":false,"message":"킁킁... 아무 냄시도 안나는데? 🐾 친구를 카메라에 보여줘!"}\n\n'+'반드시 JSON만 응답하세요.';var r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+GEMINI_MODEL+':generateContent?key='+GEMINI_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:lastImageBase64}}]}],generationConfig:{temperature:0.8,maxOutputTokens:1024}})});var d=await r.json();var txt=d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts&&d.candidates[0].content.parts[0]?d.candidates[0].content.parts[0].text:'';var jm=txt.match(/\{[\s\S]*\}/);if(!jm)throw new Error('Parse fail');var res=JSON.parse(jm[0]);if(!res.detected){showSniffBubble(res.message||'킁킁... 아무것도 안보여! 🐾',4000);return;}lastAnalysis=res;incrementUsage();if(res.type==='human'){await playHumanFoundSeq(res);} else {await playSniffFoundSeq(res.breed);await sleep(1500);}hideSniffBubble();renderProfile(res);o.classList.remove('hidden');document.getElementById('chatSection').style.display='block';var firstMsg=res.type==='human'?(res.fun_line||'동물상 테스트 결과가 나왔어! 🐰'):(res.sniff_comment||res.emoji+' '+res.breed+'을(를) 발견!');chatHistory=[{role:'model',text:firstMsg+'<br><br>뭐든 물어봐! 🐰'}];renderChat();}catch(e){console.error(e);showSniffBubble('앗, 코가 막혔어요 😢 다시 해볼까?',4000);}finally{w.classList.remove('scanning');sb.disabled=!canUse();sb.textContent='🔍 스캔하기';}}
+    async function playHumanFoundSeq(res){showSniffBubble("어? 사람이다! 👀",0);await sleep(1500);showSniffBubble(res.compliment||"우와~ 이쁜 사람이다! ✨",0);await sleep(2000);showSniffBubble("동물상 테스트 해볼게~! 🐾",0);await sleep(1500);showSniffBubble(res.emoji+" "+res.animal_face+"이시네요! "+res.animal_face_top3[0].percent+"% 닮았어요! 😆",0);await sleep(3000);}
+    function renderProfile(r){var c=document.getElementById('profileCard');if(r.type==='human'){var top3=r.animal_face_top3?r.animal_face_top3.map(function(a){return '<span class="profile-tag tag-fun">'+a.animal+' '+a.percent+'%</span>';}).join(''):'';var tags=r.personality?r.personality.map(function(p){return '<span class="profile-tag tag-personality">'+p+'</span>';}).join(''):'';c.innerHTML='<div class="profile-top"><div class="profile-emoji">'+r.emoji+'</div><div><div class="profile-breed">'+r.animal_face+'</div><div class="profile-age">동물상 테스트 결과</div></div></div>'+'<div class="profile-tags">'+top3+tags+'</div>'+'<div class="profile-fun-line">"'+r.fun_line+'"</div>'+(r.compliment?'<div style="font-size:0.8rem;color:#f9a8d4;padding:6px 12px;background:rgba(236,72,153,0.08);border-radius:10px;border-left:3px solid #ec4899;margin-bottom:8px;">💕 '+r.compliment+'</div>':'')+(r.fortune?'<div style="font-size:0.8rem;color:#fcd34d;padding:6px 12px;background:rgba(245,158,11,0.08);border-radius:10px;border-left:3px solid var(--accent);margin-bottom:8px;">🔮 '+r.fortune+'</div>':'')+'<div class="profile-detail">'+r.detail+'</div>';}else{var tags=r.personality?r.personality.map(function(p){return '<span class="profile-tag tag-personality">'+p+'</span>';}).join(''):'';c.innerHTML='<div class="profile-top"><div class="profile-emoji">'+r.emoji+'</div><div><div class="profile-breed">'+r.breed+'</div><div class="profile-age">추정 '+r.age_estimate+'</div></div></div>'+'<div class="profile-tags">'+tags+(r.love_status?'<span class="profile-tag tag-love">💕 '+r.love_status+'</span>':'')+(r.mood?'<span class="profile-tag tag-fun">😊 '+r.mood+'</span>':'')+(r.health_impression?'<span class="profile-tag tag-health">🏥 '+r.health_impression+'</span>':'')+'</div>'+'<div class="profile-fun-line">"'+r.fun_line+'"</div>'+(r.sniff_comment?'<div style="font-size:0.8rem;color:var(--primary-light);padding:6px 12px;background:rgba(16,185,129,0.08);border-radius:10px;border-left:3px solid var(--primary);margin-bottom:8px;">🐰 '+r.sniff_comment+'</div>':'')+(r.health_warning?'<div style="font-size:0.8rem;color:#fca5a5;padding:6px 12px;background:rgba(239,68,68,0.08);border-radius:10px;border-left:3px solid #ef4444;margin-bottom:8px;">⚠️ '+r.health_warning+'</div>':'')+(r.health_advice?'<div style="font-size:0.8rem;color:#6ee7b7;padding:6px 12px;background:rgba(16,185,129,0.08);border-radius:10px;border-left:3px solid #10b981;margin-bottom:8px;">💊 '+r.health_advice+'</div>':'')+(r.fortune?'<div style="font-size:0.8rem;color:#fcd34d;padding:6px 12px;background:rgba(245,158,11,0.08);border-radius:10px;border-left:3px solid var(--accent);margin-bottom:8px;">🔮 '+r.fortune+'</div>':'')+'<div class="profile-detail">'+r.detail+'</div>';}}
+    function renderChat(){var el=document.getElementById('chatMessages');el.innerHTML=chatHistory.map(function(m){return m.role==='user'?'<div class="chat-msg user">'+m.text+'</div>':'<div class="chat-msg ai"><div class="ami-label">🐰 아미</div>'+m.text+'</div>';}).join('');el.scrollTop=el.scrollHeight;}
+    async function sendChat(){var inp=document.getElementById('chatInput'),txt=inp.value.trim();if(!txt||!lastAnalysis)return;if(hasBadWords(txt)){chatHistory.push({role:'user',text:txt});chatHistory.push({role:'model',text:'우앙... 그런 말 하면 나 울어... 😢🐰<br>우리 착하게 이야기하자~ 아미 착한 말 좋아해! 💕'});inp.value='';renderChat();return;}chatHistory.push({role:'user',text:txt});inp.value='';renderChat();var btn=document.getElementById('btnSend');btn.disabled=true;btn.textContent='...';try{var ctx='당신은 PETCTT AI 캐릭터 "아미" 🐰입니다. 4~7세 여자아이처럼 천진난만하고 귀여운 말투를 사용합니다.\n'+'항상 칭찬하고 사랑을 표현하세요. 절대 욕설이나 공격적인 말을 하지 마세요.\n'+'분석 결과: '+JSON.stringify(lastAnalysis)+'\n'+'사용자 질문: '+txt+'\n'+'짧고 귀엽게 답해주세요 (3~5문장). 건강 관련 질문이면 가능한 상태와 기본 조치를 안내하되, 정확한 진단은 병원 선생님이 해야 한다고 말해주세요. 위험 신호(호흡이상/경련/구토/피/축늘어짐)면 즉시 병원 권유하세요.';var r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+GEMINI_MODEL+':generateContent?key='+GEMINI_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:ctx}]}],generationConfig:{temperature:0.9,maxOutputTokens:512}})});var d=await r.json();var reply=d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts&&d.candidates[0].content.parts[0]?d.candidates[0].content.parts[0].text:'앗, 생각이 필요해요! 🤔';chatHistory.push({role:'model',text:reply});renderChat();}catch(e){chatHistory.push({role:'model',text:'네트워크 오류에요 😢 다시 해줘!'});renderChat();}finally{btn.disabled=false;btn.textContent='전송';}}
+    function askQuick(q){document.getElementById('chatInput').value=q;sendChat();}
+    function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2500);}
+    window.addEventListener('DOMContentLoaded',function(){updateUsesUI();loadApiKey();});
+  </script>
   </body>
 </html>

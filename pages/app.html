@@ -1391,6 +1391,7 @@
             100% { transform: scale(0) rotate(360deg); opacity: 0; }
         }
     </style>
+    <script src="../public/js/i18n.js"></script>
 </head>
 
 <body>
@@ -1464,7 +1465,7 @@
                     </button>
                     <div class="status-badge ready" id="statusBadge">
                         <span class="status-dot"></span>
-                        <span id="statusText">LIVE 준비</span>
+                        <span id="statusText" data-i18n="app.liveReady">LIVE 준비</span>
                     </div>
                 </div>
             </div>
@@ -1489,7 +1490,7 @@
         <section id="live" class="section active">
             <div class="main-card">
                 <!-- 동물 선택 -->
-                <div class="section-title">🐾 통역할 동물을 선택하세요</div>
+                <div class="section-title" data-i18n="app.selectAnimal">🐾 통역할 동물을 선택하세요</div>
                 <div class="animal-selector" style="flex-direction: column; align-items: center; gap: 16px;">
                     <!-- 선택된 동물 큰 얼굴 -->
                     <div id="selectedAnimalFace" style="font-size: 5rem; animation: bounce 2s ease-in-out infinite;">🐶</div>
@@ -1604,14 +1605,14 @@
                                 title="내가 말하면 동물어로 통역">
                                 🎤
                             </button>
-                            <span class="mic-label">내가 말하기<br><small>(→ 동물어)</small></span>
+                            <span class="mic-label" data-i18n="app.humanMic">내가 말하기<br><small>(→ 동물어)</small></span>
                         </div>
                         <div class="mic-group">
                             <button class="mic-btn animal" id="btnAnimalMic" onclick="handleAnimalToHuman()" disabled
                                 title="동물 소리를 사람말로 통역">
                                 🐾
                             </button>
-                            <span class="mic-label">동물 듣기<br><small>(→ 사람말)</small></span>
+                            <span class="mic-label" data-i18n="app.animalMic">동물 듣기<br><small>(→ 사람말)</small></span>
                         </div>
                     </div>
 

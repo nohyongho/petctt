@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
   <head>
-        <meta charset="UTF-8">
+        <meta charset="UTF-8">h
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
         <title>My Page - PetCTT</title>
       <!-- 캐시 무효화 -->
@@ -413,48 +413,44 @@
                     </div>
           </div>
 
-          <!-- 고객지원 -->
-          <div class="section-title">고객지원</div>
-          <div class="menu-list">
-                    <a class="menu-item" href="guide.html">
+          <!-- 📸 반려동물 앨범 -->
+    <div class="section-title">📸 반려동물 앨범</div>
+    <div style="background:rgba(255,255,255,0.05);border-radius:16px;padding:20px;margin-bottom:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="display:flex;gap:8px;">
+          <button onclick="filterAlbum('all',this)" class="album-filter-btn active" style="padding:6px 14px;border-radius:10px;border:1px solid rgba(255,165,0,0.4);background:rgba(255,165,0,0.2);color:#ffa500;font-size:13px;cursor:pointer;">전체</button>
+          <button onclick="filterAlbum('photo',this)" class="album-filter-btn" style="padding:6px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#999;font-size:13px;cursor:pointer;">📷 사진</button>
+          <button onclick="filterAlbum('video',this)" class="album-filter-btn" style="padding:6px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#999;font-size:13px;cursor:pointer;">🎬 영상</button>
+        </div>
+        <button onclick="handleAlbumUpload()" style="padding:8px 16px;background:linear-gradient(135deg,#10b981,#06b6d4);border:none;border-radius:12px;color:white;font-size:13px;font-weight:600;cursor:pointer;">📤 업로드</button>
+      </div>
+      <div id="album-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;"></div>
+      <div id="album-empty" style="text-align:center;padding:40px 20px;color:#666;">
+        <div style="font-size:48px;margin-bottom:12px;">📷</div>
+        <p>아직 업로드한 사진이 없어요</p>
+        <p style="font-size:12px;margin-top:4px;color:#555;">반려동물의 소중한 순간을 기록하세요!</p>
+      </div>
+    </div>
+    <!-- 앨범 라이트박스 -->
+    <div id="album-lightbox" onclick="closeAlbumLB()" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;">
+      <button onclick="closeAlbumLB()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.1);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;">✕</button>
+      <div id="album-lb-content"></div>
+    </div>
 
-                              <!-- 📸 반려동물 앨범 -->
-                              <div class="section-title">📸 반려동물 앨범</div>
-                              <div style="background:rgba(255,255,255,0.05);border-radius:16px;padding:20px;margin-bottom:24px;">
-                                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                                                              <div style="display:flex;gap:8px;">
-                                                                                    <button onclick="filterAlbum('all',this)" class="album-tab-active" style="padding:6px 14px;border-radius:10px;border:1px solid rgba(255,165,0,0.4);background:rgba(255,165,0,0.2);color:#ffa500;font-size:13px;cursor:pointer;">전체</button>button>
-                                                                                    <button onclick="filterAlbum('photo',this)" style="padding:6px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#999;font-size:13px;cursor:pointer;">📷 사진</button>button>
-                                                                                    <button onclick="filterAlbum('video',this)" style="padding:6px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#999;font-size:13px;cursor:pointer;">🎬 영상</button>button>
-                                                              </div>div>
-                                                              <button onclick="document.getElementById('album-file').click()" style="padding:8px 16px;background:linear-gradient(135deg,#10b981,#06b6d4);border:none;border-radius:12px;color:white;font-size:13px;font-weight:600;cursor:pointer;">📤 업로드</button>button>
-                                                              <input type="file" id="album-file" accept="image/*,video/*" multiple onchange="handleAlbumUpload(this.files)" style="display:none">
-                                            </div>div>
-                                            <div id="albumGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;"></div>div>
-                                            <div id="albumEmpty" style="text-align:center;padding:40px 20px;color:#666;">
-                                                              <div style="font-size:48px;margin-bottom:12px;">📷</div>div>
-                                                              <p>아직 업로드한 사진이 없어요</p>
-                                                            <p style="font-size:12px;margin-top:4px;color:#555;">반려동물의 소중한 순간을 기록하세요!</p>
-                                            </div>div>
-                              </div>div>
-                    
-                            <!-- 앨범 라이트박스 -->
-                            <div id="albumLightbox" onclick="closeAlbumLB()" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;">
-                                        <button onclick="closeAlbumLB()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.1);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;">✕</button>button>
-                                        <div id="albumLBContent"></div>div>
-                            </div>div>
-                    
-                    </p>
-                                  <div class="left">
-                                                    <div class="icon" style="background:rgba(34,211,238,0.15);">&#128218;</div>
-                                                    <div>
-                                                                          <div class="label">이용 가이드</div>
-                                                                          <div class="sub-label">서비스 사용법</div>
-                                                    </div>
-                                  </div>
-                                  <span class="arrow">&#8250;</span>
-                    </a>
-                    <a class="menu-item" href="contact.html">
+    <!-- 고객지원 -->
+    <div class="section-title">고객지원</div>
+    <div class="menu-list">
+      <a class="menu-item" href="guide.html">
+        <div class="left">
+          <div class="icon" style="background:rgba(34,211,238,0.15);">&#128218;</div>
+          <div>
+            <div class="label">이용 가이드</div>
+            <div class="sub-label">서비스 사용법</div>
+          </div>
+        </div>
+        <span class="arrow">&#8250;</span>
+      </a>
+      <a class="menu-item" href="contact.html">
                                   <div class="left">
                                                     <div class="icon" style="background:rgba(248,113,113,0.15);">&#128172;</div>
                                                     <div>

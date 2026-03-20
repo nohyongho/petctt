@@ -92,7 +92,26 @@ const PetCTTAuth = (function() {
                                     document.getElementById('auth-chip').onclick = (e) => { e.stopPropagation(); const dd=document.getElementById('auth-dd'); dd.style.display=dd.style.display==='none'?'block':'none'; };
                                     document.addEventListener('click', () => { const dd=document.getElementById('auth-dd'); if(dd) dd.style.display='none'; });
                             } else {
-                                    s.innerHTML = `<button onclick="PetCTTAuth.requireLogin()" style="padding:8px 18px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);border:none;border-radius:20px;color:white;font-size:13px;font-weight:600;cursor:pointer">🔑 로그인</button>`;
+                                                s.innerHTML = '';
+                                                s.style.cssText = 'position:relative;display:inline-block;';
+                                                var lBtn = document.createElement('button');
+                                                lBtn.innerHTML = '🔑 로그인 <span style="font-size:0.7em">▼</span>';
+                                                lBtn.style.cssText = 'padding:8px 18px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);border:none;border-radius:20px;color:white;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;';
+                                                var lMenu = document.createElement('div');
+                                                lMenu.style.cssText = 'display:none;position:absolute;top:110%;right:0;background:rgba(20,20,30,0.95);border:1px solid rgba(139,92,246,0.3);border-radius:12px;overflow:hidden;min-width:200px;z-index:9999;backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,0.5);';
+                                                [{icon:'🔵',label:'Google로 계속하기',provider:'google',bg:'#fff',color:'#1a1a1a'},{icon:'💬',label:'카카오로 계속하기',provider:'kakao',bg:'#FEE500',color:'#1a1a1a'},{icon:'🟢',label:'네이버로 계속하기',provider:'naver',bg:'#03C75A',color:'#fff'}].forEach(function(p){
+                                                                        var item = document.createElement('button');
+                                                                        item.textContent = p.icon + ' ' + p.label;
+                                                                        item.style.cssText = 'display:block;width:100%;padding:12px 16px;border:none;font-size:14px;font-weight:600;cursor:pointer;background:'+p.bg+';color:'+p.color+';border-bottom:1px solid rgba(255,255,255,0.06);';
+                                                                        item.onmouseover = function(){ this.style.opacity='0.85'; };
+                                                                        item.onmouseout = function(){ this.style.opacity='1'; };
+                                                                        item.onclick = function(e){ e.stopPropagation(); PetCTTAuth.login(p.provider); };
+                                                                        lMenu.appendChild(item);
+                                                });
+                                                lBtn.onclick = function(e){ e.stopPropagation(); lMenu.style.display = lMenu.style.display==='none'?'block':'none'; };
+                                                document.addEventListener('click', function(){ lMenu.style.display='none'; });
+                                                s.appendChild(lBtn);
+                                                s.appendChild(lMenu);
                             }
                       }
 

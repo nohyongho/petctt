@@ -417,6 +417,34 @@
           <div class="section-title">고객지원</div>
           <div class="menu-list">
                     <a class="menu-item" href="guide.html">
+
+                              <!-- 📸 반려동물 앨범 -->
+                              <div class="section-title">📸 반려동물 앨범</div>
+                              <div style="background:rgba(255,255,255,0.05);border-radius:16px;padding:20px;margin-bottom:24px;">
+                                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                                                              <div style="display:flex;gap:8px;">
+                                                                                    <button onclick="filterAlbum('all',this)" class="album-tab-active" style="padding:6px 14px;border-radius:10px;border:1px solid rgba(255,165,0,0.4);background:rgba(255,165,0,0.2);color:#ffa500;font-size:13px;cursor:pointer;">전체</button>button>
+                                                                                    <button onclick="filterAlbum('photo',this)" style="padding:6px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#999;font-size:13px;cursor:pointer;">📷 사진</button>button>
+                                                                                    <button onclick="filterAlbum('video',this)" style="padding:6px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#999;font-size:13px;cursor:pointer;">🎬 영상</button>button>
+                                                              </div>div>
+                                                              <button onclick="document.getElementById('album-file').click()" style="padding:8px 16px;background:linear-gradient(135deg,#10b981,#06b6d4);border:none;border-radius:12px;color:white;font-size:13px;font-weight:600;cursor:pointer;">📤 업로드</button>button>
+                                                              <input type="file" id="album-file" accept="image/*,video/*" multiple onchange="handleAlbumUpload(this.files)" style="display:none">
+                                            </div>div>
+                                            <div id="albumGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;"></div>div>
+                                            <div id="albumEmpty" style="text-align:center;padding:40px 20px;color:#666;">
+                                                              <div style="font-size:48px;margin-bottom:12px;">📷</div>div>
+                                                              <p>아직 업로드한 사진이 없어요</p>
+                                                            <p style="font-size:12px;margin-top:4px;color:#555;">반려동물의 소중한 순간을 기록하세요!</p>
+                                            </div>div>
+                              </div>div>
+                    
+                            <!-- 앨범 라이트박스 -->
+                            <div id="albumLightbox" onclick="closeAlbumLB()" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;">
+                                        <button onclick="closeAlbumLB()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.1);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;">✕</button>button>
+                                        <div id="albumLBContent"></div>div>
+                            </div>div>
+                    
+                    </p>
                                   <div class="left">
                                                     <div class="icon" style="background:rgba(34,211,238,0.15);">&#128218;</div>
                                                     <div>
@@ -626,6 +654,73 @@
             setTimeout(hideLoading, 3000);
 
       })();
+
+          // --- 반려동물 앨범 ---
+          const ALBUM_KEY = 'petctt_album';
+          function getAlbum() { return JSON.parse(localStorage.getItem(ALBUM_KEY) || '[]'); }
+          function saveAlbum(arr) { localStorage.setItem(ALBUM_KEY, JSON.stringify(arr)); }
+
+          function handleAlbumUpload() {
+                  const input = document.createElement('input');
+                  input.type = 'file'; input.accept = 'image/*,video/*'; input.multiple = true;
+                  input.onchange = function(e) {
+                            const album = getAlbum();
+                            Array.from(e.target.files).forEach(function(f) {
+                                        const reader = new FileReader();
+                                        reader.onload = function(ev) {
+                                                      album.push({ id: Date.now() + Math.random(), type: f.type.startsWith('video') ? 'video' : 'photo', name: f.name, data: ev.target.result, date: new Date().toISOString() });
+                                                      saveAlbum(album); renderAlbum();
+                                        };
+                                        reader.readAsDataURL(f);
+                            });
+                  };
+                  input.click();
+          }
+
+          function renderAlbum(filter) {
+                  filter = filter || 'all';
+                  const album = getAlbum();
+                  const grid = document.getElementById('album-grid');
+                  const empty = document.getElementById('album-empty');
+                  if (!grid) return;
+                  const items = filter === 'all' ? album : album.filter(function(i) { return i.type === filter; });
+                  if (items.length === 0) { grid.innerHTML = ''; empty.style.display = ''; return; }
+                  empty.style.display = 'none';
+                  grid.innerHTML = items.map(function(it) {
+                            return '<div class="album-item" style="position:relative;border-radius:12px;overflow:hidden;aspect-ratio:1;cursor:pointer;background:#1a1a2e" onclick="openAlbumLB(\'' + it.id + '\')">' +
+                                        (it.type === 'video' ? '<video src="' + it.data + '" style="width:100%;height:100%;object-fit:cover"></video><div style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,.6);color:#fff;padding:2px 8px;border-radius:8px;font-size:12px">🎬 영상</div>' : '<img src="' + it.data + '" style="width:100%;height:100%;object-fit:cover">') +
+                                        '<button onclick="event.stopPropagation();deleteAlbumItem(\'' + it.id + '\')" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px">✕</button></div>';
+                  }).join('');
+          }
+
+          function filterAlbum(type, btn) {
+                  document.querySelectorAll('.album-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+                  btn.classList.add('active');
+                  renderAlbum(type);
+          }
+
+          function deleteAlbumItem(id) {
+                  if (!confirm('이 항목을 삭제할까요?')) return;
+                  const album = getAlbum().filter(function(i) { return String(i.id) !== String(id); });
+                  saveAlbum(album); renderAlbum();
+          }
+
+          function openAlbumLB(id) {
+                  const item = getAlbum().find(function(i) { return String(i.id) === String(id); });
+                  if (!item) return;
+                  const lb = document.getElementById('album-lightbox');
+                  const content = document.getElementById('album-lb-content');
+                  if (item.type === 'video') {
+                            content.innerHTML = '<video src="' + item.data + '" controls autoplay style="max-width:90vw;max-height:80vh;border-radius:12px"></video>';
+                  } else {
+                            content.innerHTML = '<img src="' + item.data + '" style="max-width:90vw;max-height:80vh;border-radius:12px">';
+                  }
+                  lb.style.display = 'flex';
+          }
+          function closeAlbumLB() { document.getElementById('album-lightbox').style.display = 'none'; document.getElementById('album-lb-content').innerHTML = ''; }
+
+          // 앨범 초기 렌더링
+          renderAlbum();
     </script>
   </body>
 </html>

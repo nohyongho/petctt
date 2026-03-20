@@ -282,7 +282,105 @@
                               color: #444;
                               font-size: 0.75rem;
                 }
-            </style>
+            
+        /* 앨범 */
+        .album-wrap {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .album-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .album-filters { display: flex; gap: 8px; }
+        .album-filter-btn {
+            padding: 6px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: transparent;
+            color: #999;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .album-filter-btn.active {
+            border-color: rgba(255,165,0,0.4);
+            background: rgba(255,165,0,0.2);
+            color: #ffa500;
+        }
+        .album-upload-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #10b981, #06b6d4);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .album-upload-btn:active { transform: scale(0.96); }
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .album-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            cursor: pointer;
+            background: #1a1a2e;
+            transition: transform 0.15s;
+        }
+        .album-item:active { transform: scale(0.97); }
+        .album-item img, .album-item video {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .album-item .badge {
+            position: absolute; top: 8px; left: 8px;
+            background: rgba(0,0,0,0.6); color: #fff;
+            padding: 2px 8px; border-radius: 8px; font-size: 11px;
+        }
+        .album-item .del-btn {
+            position: absolute; top: 6px; right: 6px;
+            background: rgba(0,0,0,0.55); color: #fff;
+            border: none; border-radius: 50%;
+            width: 26px; height: 26px;
+            cursor: pointer; font-size: 13px;
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .album-item:hover .del-btn { opacity: 1; }
+        .album-empty {
+            text-align: center; padding: 40px 20px; color: #666;
+        }
+        .album-empty .icon { font-size: 48px; margin-bottom: 12px; }
+        .album-lightbox {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(0,0,0,0.92);
+            display: none; align-items: center; justify-content: center;
+        }
+        .album-lightbox .close-btn {
+            position: absolute; top: 20px; right: 20px;
+            background: rgba(255,255,255,0.1); border: none;
+            color: white; width: 40px; height: 40px;
+            border-radius: 50%; font-size: 20px; cursor: pointer;
+        }
+        .album-lightbox img, .album-lightbox video {
+            max-width: 90vw; max-height: 80vh; border-radius: 12px;
+        }
+        .album-count {
+            font-size: 12px; color: #666; margin-top: 8px; text-align: right;
+        }
+    </style>
   </head>
   <body>
 
@@ -415,25 +513,26 @@
 
           <!-- 📸 반려동물 앨범 -->
     <div class="section-title">📸 반려동물 앨범</div>
-    <div style="background:rgba(255,255,255,0.05);border-radius:16px;padding:20px;margin-bottom:24px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-        <div style="display:flex;gap:8px;">
-          <button onclick="filterAlbum('all',this)" class="album-filter-btn active" style="padding:6px 14px;border-radius:10px;border:1px solid rgba(255,165,0,0.4);background:rgba(255,165,0,0.2);color:#ffa500;font-size:13px;cursor:pointer;">전체</button>
-          <button onclick="filterAlbum('photo',this)" class="album-filter-btn" style="padding:6px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#999;font-size:13px;cursor:pointer;">📷 사진</button>
-          <button onclick="filterAlbum('video',this)" class="album-filter-btn" style="padding:6px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#999;font-size:13px;cursor:pointer;">🎬 영상</button>
+    <div class="album-wrap">
+      <div class="album-toolbar">
+        <div class="album-filters">
+          <button onclick="filterAlbum('all',this)" class="album-filter-btn active">전체</button>
+          <button onclick="filterAlbum('photo',this)" class="album-filter-btn">📷 사진</button>
+          <button onclick="filterAlbum('video',this)" class="album-filter-btn">🎬 영상</button>
         </div>
-        <button onclick="handleAlbumUpload()" style="padding:8px 16px;background:linear-gradient(135deg,#10b981,#06b6d4);border:none;border-radius:12px;color:white;font-size:13px;font-weight:600;cursor:pointer;">📤 업로드</button>
+        <button onclick="handleAlbumUpload()" class="album-upload-btn">📤 업로드</button>
       </div>
-      <div id="album-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;"></div>
-      <div id="album-empty" style="text-align:center;padding:40px 20px;color:#666;">
-        <div style="font-size:48px;margin-bottom:12px;">📷</div>
+      <div id="album-grid" class="album-grid"></div>
+      <div id="album-empty" class="album-empty">
+        <div class="icon">📷</div>
         <p>아직 업로드한 사진이 없어요</p>
         <p style="font-size:12px;margin-top:4px;color:#555;">반려동물의 소중한 순간을 기록하세요!</p>
       </div>
+      <div id="album-count" class="album-count"></div>
     </div>
     <!-- 앨범 라이트박스 -->
-    <div id="album-lightbox" onclick="closeAlbumLB()" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;">
-      <button onclick="closeAlbumLB()" style="position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.1);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:20px;cursor:pointer;">✕</button>
+    <div id="album-lightbox" class="album-lightbox" onclick="closeAlbumLB()">
+      <button class="close-btn" onclick="closeAlbumLB()">✕</button>
       <div id="album-lb-content"></div>
     </div>
 
@@ -652,20 +751,120 @@
       })();
 
           // --- 반려동물 앨범 ---
-          const ALBUM_KEY = 'petctt_album';
-          function getAlbum() { return JSON.parse(localStorage.getItem(ALBUM_KEY) || '[]'); }
-          function saveAlbum(arr) { localStorage.setItem(ALBUM_KEY, JSON.stringify(arr)); }
+    const ALBUM_KEY = 'petctt_album';
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-          function handleAlbumUpload() {
-                  const input = document.createElement('input');
-                  input.type = 'file'; input.accept = 'image/*,video/*'; input.multiple = true;
-                  input.onchange = function(e) {
-                            const album = getAlbum();
-                            Array.from(e.target.files).forEach(function(f) {
-                                        const reader = new FileReader();
-                                        reader.onload = function(ev) {
-                                                      album.push({ id: Date.now() + Math.random(), type: f.type.startsWith('video') ? 'video' : 'photo', name: f.name, data: ev.target.result, date: new Date().toISOString() });
-                                                      saveAlbum(album); renderAlbum();
+    function getAlbum() {
+      try { return JSON.parse(localStorage.getItem(ALBUM_KEY) || '[]'); }
+      catch(e) { return []; }
+    }
+    function saveAlbum(arr) {
+      try { localStorage.setItem(ALBUM_KEY, JSON.stringify(arr)); }
+      catch(e) { alert('저장 공간이 부족합니다. 일부 파일을 삭제해주세요.'); }
+    }
+
+    function handleAlbumUpload() {
+      var input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*,video/*';
+      input.multiple = true;
+      input.onchange = function(e) {
+        var album = getAlbum();
+        var files = Array.from(e.target.files);
+        var processed = 0;
+        files.forEach(function(f) {
+          if (f.size > MAX_FILE_SIZE) {
+            alert(f.name + ' 파일이 5MB를 초과합니다.');
+            processed++;
+            if (processed === files.length) { saveAlbum(album); renderAlbum(); }
+            return;
+          }
+          var reader = new FileReader();
+          reader.onload = function(ev) {
+            album.push({
+              id: Date.now().toString(36) + Math.random().toString(36).substr(2,5),
+              type: f.type.startsWith('video') ? 'video' : 'photo',
+              name: f.name,
+              data: ev.target.result,
+              date: new Date().toISOString()
+            });
+            processed++;
+            if (processed === files.length) { saveAlbum(album); renderAlbum(); }
+          };
+          reader.readAsDataURL(f);
+        });
+      };
+      input.click();
+    }
+
+    function renderAlbum(filter) {
+      filter = filter || 'all';
+      var album = getAlbum();
+      var grid = document.getElementById('album-grid');
+      var empty = document.getElementById('album-empty');
+      var countEl = document.getElementById('album-count');
+      if (!grid) return;
+      var items = filter === 'all' ? album : album.filter(function(i) { return i.type === filter; });
+      if (countEl) {
+        var photos = album.filter(function(i){return i.type==='photo';}).length;
+        var videos = album.filter(function(i){return i.type==='video';}).length;
+        countEl.textContent = album.length > 0 ? '사진 ' + photos + '장 · 영상 ' + videos + '개' : '';
+      }
+      if (items.length === 0) {
+        grid.innerHTML = '';
+        empty.style.display = '';
+        return;
+      }
+      empty.style.display = 'none';
+      grid.innerHTML = items.map(function(it) {
+        var media = it.type === 'video'
+          ? '<video src="' + it.data + '"></video><span class="badge">🎬 영상</span>'
+          : '<img src="' + it.data + '">';
+        return '<div class="album-item" onclick="openAlbumLB(\'' + it.id + '\')">'
+          + media
+          + '<button class="del-btn" onclick="event.stopPropagation();deleteAlbumItem(\'' + it.id + '\')">✕</button>'
+          + '</div>';
+      }).join('');
+    }
+
+    function filterAlbum(type, btn) {
+      document.querySelectorAll('.album-filter-btn').forEach(function(b) {
+        b.classList.remove('active');
+      });
+      if (btn) btn.classList.add('active');
+      renderAlbum(type);
+    }
+
+    function deleteAlbumItem(id) {
+      if (!confirm('이 항목을 삭제할까요?')) return;
+      var album = getAlbum().filter(function(i) { return i.id !== id; });
+      saveAlbum(album);
+      renderAlbum();
+    }
+
+    function openAlbumLB(id) {
+      var item = getAlbum().find(function(i) { return i.id === id; });
+      if (!item) return;
+      var lb = document.getElementById('album-lightbox');
+      var content = document.getElementById('album-lb-content');
+      if (item.type === 'video') {
+        content.innerHTML = '<video src="' + item.data + '" controls autoplay playsinline></video>';
+      } else {
+        content.innerHTML = '<img src="' + item.data + '">';
+      }
+      lb.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeAlbumLB() {
+      var lb = document.getElementById('album-lightbox');
+      lb.style.display = 'none';
+      document.getElementById('album-lb-content').innerHTML = '';
+      document.body.style.overflow = '';
+    }
+
+    // 앨범 초기 렌더링
+    renderAlbum();
                                         };
                                         reader.readAsDataURL(f);
                             });

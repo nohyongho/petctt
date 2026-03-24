@@ -1391,6 +1391,7 @@
             100% { transform: scale(0) rotate(360deg); opacity: 0; }
         }
             @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+        @keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
     </style>
     <script src="../public/js/i18n.js"></script>
 </head>
@@ -4019,10 +4020,13 @@
             mediaRecorder.ondataavailable=function(e){if(e.data.size>0)recordedChunks.push(e.data);};
             mediaRecorder.onstop=function(){
                 var b=new Blob(recordedChunks,{type:'video/webm'});
-                var a=document.createElement('a');a.href=URL.createObjectURL(b);
-                a.download='petctt-video-'+Date.now()+'.webm';a.click();
-                URL.revokeObjectURL(a.href);
-                showToast('🎬 영상+음성 저장 완료!','success');
+                var fileName='petctt-video-'+Date.now()+'.webm';
+                var fileUrl=URL.createObjectURL(b);
+                // 자동 다운로드
+                var a=document.createElement('a');a.href=fileUrl;a.download=fileName;a.click();
+                // 공유 팝업 표시
+                showSharePopup(b, fileName, fileUrl);
+                showToast('🎬 영상 저장 완료! 공유 버튼을 확인하세요','success');
                 if(recAudioCtx){try{recAudioCtx.close();}catch(e){}}
             };
             mediaRecorder.start(100);recSeconds=0;
@@ -4039,6 +4043,61 @@
         function stopRec(){if(mediaRecorder)mediaRecorder.stop();clearInterval(recTimerInterval);document.getElementById('recordingStatus').style.display='none';document.getElementById('btnRecord').innerHTML='🔴';document.getElementById('btnRecord').style.boxShadow='none';}
         function cameraZoomIn(){cameraZoom=Math.min(cameraZoom+0.5,4);var v=document.getElementById('liveVideo');if(v)v.style.transform='scale('+cameraZoom+')';var zl=document.getElementById('zoomLevel'),zt=document.getElementById('zoomText');if(cameraZoom>1){zl.style.display='block';zt.textContent=cameraZoom.toFixed(1)+'x';}else{zl.style.display='none';}showToast('🔍 '+cameraZoom.toFixed(1)+'x','success');}
         function toggleCameraFullscreen(){var vc=document.getElementById('liveVideo').parentElement;if(!document.fullscreenElement){(vc.requestFullscreen||vc.webkitRequestFullscreen||vc.msRequestFullscreen).call(vc);showToast('⛶ 전체화면','success');}else{(document.exitFullscreen||document.webkitExitFullscreen||document.msExitFullscreen).call(document);}}
+
+        // ===== 녹화 영상 공유 팝업 =====
+        var lastRecordedBlob=null, lastRecordedUrl=null;
+        function showSharePopup(blob, fileName, url) {
+            lastRecordedBlob=blob; lastRecordedUrl=url;
+            // 기존 팝업 제거
+            var old=document.getElementById('sharePopup');if(old)old.remove();
+            var popup=document.createElement('div');
+            popup.id='sharePopup';
+            popup.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:99999;background:rgba(20,20,30,0.95);border:1px solid rgba(45,212,191,0.4);border-radius:20px;padding:16px 20px;backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(0,0,0,0.5);min-width:280px;animation:slideUp 0.3s ease;';
+            popup.innerHTML=
+                '<div style="text-align:center;margin-bottom:12px;font-weight:700;font-size:0.9rem;">🎬 영상 공유하기</div>'+
+                '<div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">'+
+                    '<button onclick="shareNative()" style="padding:10px 16px;border-radius:14px;background:linear-gradient(135deg,#2dd4bf,#10b981);border:none;color:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;">📤 공유</button>'+
+                    '<button onclick="copyShareLink()" style="padding:10px 16px;border-radius:14px;background:linear-gradient(135deg,#6366f1,#818cf8);border:none;color:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;">🔗 링크복사</button>'+
+                    '<button onclick="redownload()" style="padding:10px 16px;border-radius:14px;background:linear-gradient(135deg,#f59e0b,#eab308);border:none;color:#fff;font-size:0.8rem;font-weight:600;cursor:pointer;">💾 다시저장</button>'+
+                    '<button onclick="closeSharePopup()" style="padding:10px 16px;border-radius:14px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:0.8rem;cursor:pointer;">✕ 닫기</button>'+
+                '</div>';
+            document.body.appendChild(popup);
+            // 8초 후 자동 닫기
+            setTimeout(function(){closeSharePopup();},8000);
+        }
+        function closeSharePopup(){var p=document.getElementById('sharePopup');if(p)p.remove();}
+        // 네이티브 공유 (카카오톡, 인스타, 메시지 등)
+        function shareNative(){
+            if(!lastRecordedBlob){showToast('공유할 영상이 없습니다','warning');return;}
+            if(navigator.share&&navigator.canShare){
+                var file=new File([lastRecordedBlob],'petctt-video.webm',{type:'video/webm'});
+                var shareData={title:'PetCTT 반려동물 통역 영상',text:'AI 아미가 통역한 우리 아이 영상이에요! 🐾',files:[file]};
+                if(navigator.canShare(shareData)){
+                    navigator.share(shareData).then(function(){showToast('공유 완료!','success');closeSharePopup();}).catch(function(){showToast('공유 취소','warning');});
+                } else {
+                    // 파일 공유 안 되면 텍스트만
+                    navigator.share({title:'PetCTT 반려동물 통역',text:'AI 아미가 통역한 우리 아이 영상! petctt.com 🐾'}).catch(function(){});
+                }
+            } else {
+                showToast('이 브라우저에서는 직접 공유가 안 돼요. 저장 후 갤러리에서 공유해주세요!','warning');
+            }
+        }
+        // 링크 복사 (petctt.com 홍보)
+        function copyShareLink(){
+            var text='🐾 AI 반려동물 통역 PetCTT! 우리 아이랑 대화해보세요 → https://www.petctt.com';
+            navigator.clipboard.writeText(text).then(function(){showToast('📋 링크 복사 완료! 붙여넣기 하세요','success');}).catch(function(){
+                // 폴백
+                var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();
+                showToast('📋 링크 복사 완료!','success');
+            });
+            closeSharePopup();
+        }
+        // 다시 다운로드
+        function redownload(){
+            if(!lastRecordedBlob){showToast('저장할 영상이 없습니다','warning');return;}
+            var a=document.createElement('a');a.href=URL.createObjectURL(lastRecordedBlob);a.download='petctt-video-'+Date.now()+'.webm';a.click();
+            showToast('💾 다시 저장 완료!','success');
+        }
 
         </script>
 </body>

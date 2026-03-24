@@ -1390,6 +1390,7 @@
             50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
             100% { transform: scale(0) rotate(360deg); opacity: 0; }
         }
+            @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
     </style>
     <script src="../public/js/i18n.js"></script>
 </head>
@@ -1551,6 +1552,23 @@
                         <video id="liveVideo"
                             style="display: block; width: 100%; min-height: 250px; border-radius: 12px; background: #000; margin-bottom: 12px; object-fit: cover; position: relative; z-index: 9999;"
                             autoplay playsinline webkit-playsinline muted></video>
+
+                        <!-- 📹 카메라 컨트롤: 녹화/사진/확대/전체화면 -->
+                        <div id="cameraControls" style="display:none; position:absolute; bottom:12px; left:0; right:0; z-index:10001; padding:0 12px;">
+                            <div style="display:flex; justify-content:center; align-items:center; gap:12px;">
+                                <button onclick="capturePhoto()" style="width:44px;height:44px;border-radius:50%;background:rgba(59,130,246,0.85);border:2px solid rgba(255,255,255,0.5);color:#fff;font-size:1.2rem;cursor:pointer;backdrop-filter:blur(4px);" title="사진 촬영">📸</button>
+                                <button id="btnRecord" onclick="toggleRecording()" style="width:56px;height:56px;border-radius:50%;background:rgba(220,38,38,0.85);border:3px solid rgba(255,255,255,0.7);color:#fff;font-size:1.4rem;cursor:pointer;backdrop-filter:blur(4px);" title="녹화">🔴</button>
+                                <button onclick="cameraZoomIn()" style="width:44px;height:44px;border-radius:50%;background:rgba(234,179,8,0.85);border:2px solid rgba(255,255,255,0.5);color:#fff;font-size:1.2rem;cursor:pointer;backdrop-filter:blur(4px);" title="확대">🔍</button>
+                                <button onclick="toggleCameraFullscreen()" style="width:44px;height:44px;border-radius:50%;background:rgba(99,102,241,0.85);border:2px solid rgba(255,255,255,0.5);color:#fff;font-size:1.2rem;cursor:pointer;backdrop-filter:blur(4px);" title="전체화면">⛶</button>
+                            </div>
+                            <div id="recordingStatus" style="display:none;text-align:center;margin-top:6px;">
+                                <span style="color:#ef4444;font-size:0.75rem;font-weight:700;animation:blink 1s infinite;">● REC</span>
+                                <span id="recTimer" style="color:#fff;font-size:0.75rem;margin-left:4px;">00:00</span>
+                            </div>
+                            <div id="zoomLevel" style="display:none;text-align:center;margin-top:4px;">
+                                <span style="color:#facc15;font-size:0.7rem;font-weight:700;" id="zoomText">1.0x</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- 감정분석 그래프 -->
@@ -2640,6 +2658,7 @@
                     startEmotionAnalysis();
 
                     addBubble('system', '🐾 LIVE 모드 시작! 카메라로 감정 분석 중. 마이크 버튼으로 양방향 통역하세요.');
+                    showCameraControls();
                     showToast('👁️ AI눈 활성화 + 감정분석 시작!', 'success');
                 } catch (err) {
                     if (err.message === "NEED_USER_GESTURE") {
@@ -3905,7 +3924,18 @@
         }
 
         console.log('🐰 아미 AR 시스템 로드 완료!');
-    </script>
+    
+        // ===== 카메라 녹화/사진/확대/전체화면 =====
+        var cameraZoom=1,mediaRecorder=null,recordedChunks=[],recTimerInterval=null,recSeconds=0;
+        function showCameraControls(){var e=document.getElementById('cameraControls');if(e)e.style.display='block';}
+        function capturePhoto(){var v=document.getElementById('liveVideo');if(!v||!v.srcObject){showToast('카메라를 먼저 켜주세요','warning');return;}var ca=document.createElement('canvas');ca.width=v.videoWidth||640;ca.height=v.videoHeight||480;ca.getContext('2d').drawImage(v,0,0,ca.width,ca.height);ca.toBlob(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='petctt-photo-'+Date.now()+'.jpg';a.click();URL.revokeObjectURL(a.href);showToast('📸 사진 저장 완료!','success');},'image/jpeg',0.92);}
+        function toggleRecording(){if(mediaRecorder&&mediaRecorder.state==='recording')stopRec();else startRec();}
+        function startRec(){var v=document.getElementById('liveVideo');if(!v||!v.srcObject){showToast('카메라를 먼저 켜주세요','warning');return;}recordedChunks=[];try{mediaRecorder=new MediaRecorder(v.srcObject,{mimeType:'video/webm;codecs=vp9'});}catch(e){try{mediaRecorder=new MediaRecorder(v.srcObject,{mimeType:'video/webm'});}catch(e2){showToast('녹화 미지원','error');return;}}mediaRecorder.ondataavailable=function(e){if(e.data.size>0)recordedChunks.push(e.data);};mediaRecorder.onstop=function(){var b=new Blob(recordedChunks,{type:'video/webm'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='petctt-video-'+Date.now()+'.webm';a.click();URL.revokeObjectURL(a.href);showToast('🎬 영상 저장 완료!','success');};mediaRecorder.start();recSeconds=0;document.getElementById('recordingStatus').style.display='block';document.getElementById('btnRecord').innerHTML='⏹';document.getElementById('btnRecord').style.boxShadow='0 0 20px rgba(220,38,38,0.6)';recTimerInterval=setInterval(function(){recSeconds++;var m=String(Math.floor(recSeconds/60)).padStart(2,'0');var s=String(recSeconds%60).padStart(2,'0');document.getElementById('recTimer').textContent=m+':'+s;},1000);showToast('🔴 녹화 시작!','success');}
+        function stopRec(){if(mediaRecorder)mediaRecorder.stop();clearInterval(recTimerInterval);document.getElementById('recordingStatus').style.display='none';document.getElementById('btnRecord').innerHTML='🔴';document.getElementById('btnRecord').style.boxShadow='none';}
+        function cameraZoomIn(){cameraZoom=Math.min(cameraZoom+0.5,4);var v=document.getElementById('liveVideo');if(v)v.style.transform='scale('+cameraZoom+')';var zl=document.getElementById('zoomLevel'),zt=document.getElementById('zoomText');if(cameraZoom>1){zl.style.display='block';zt.textContent=cameraZoom.toFixed(1)+'x';}else{zl.style.display='none';}showToast('🔍 '+cameraZoom.toFixed(1)+'x','success');}
+        function toggleCameraFullscreen(){var vc=document.getElementById('liveVideo').parentElement;if(!document.fullscreenElement){(vc.requestFullscreen||vc.webkitRequestFullscreen||vc.msRequestFullscreen).call(vc);showToast('⛶ 전체화면','success');}else{(document.exitFullscreen||document.webkitExitFullscreen||document.msExitFullscreen).call(document);}}
+
+        </script>
 </body>
 
 </html>

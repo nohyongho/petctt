@@ -3007,30 +3007,58 @@
             return defaultResponses[selectedAnimal];
         }
 
-        // ===== TTS 음성 출력 =====
+        // ===== TTS 음성 출력 (녹화 시 녹음 가능) =====
         function speakText(text, basePitch) {
-            if (!('speechSynthesis' in window)) {
-                console.warn('TTS not supported');
+            // 녹화 중이면 Google TTS Audio로 재생 (녹음에 잡힘)
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                speakWithAudio(text);
                 return;
             }
-
+            // 일반 모드: 브라우저 TTS
+            if (!('speechSynthesis' in window)) { console.warn('TTS not supported'); return; }
             speechSynthesis.cancel();
-
             var utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'ko-KR';
             utterance.rate = parseFloat(document.getElementById('speechRate').value) || 1;
             utterance.pitch = (parseFloat(document.getElementById('speechPitch').value) || 1) * basePitch;
             utterance.volume = parseFloat(document.getElementById('speechVolume').value) || 1;
-
-            utterance.onstart = function () {
-                liveState.speaking = true;
-            };
-
-            utterance.onend = function () {
-                liveState.speaking = false;
-            };
-
+            utterance.onstart = function () { liveState.speaking = true; };
+            utterance.onend = function () { liveState.speaking = false; };
             speechSynthesis.speak(utterance);
+        }
+
+        // 녹화용: Google TTS → Audio 요소로 재생 (AudioContext 캡처 가능)
+        function speakWithAudio(text) {
+            liveState.speaking = true;
+            // 텍스트를 200자 이내로 자르기 (Google TTS 제한)
+            var t = encodeURIComponent(text.substring(0, 200));
+            var url = 'https://translate.google.com/translate_tts?ie=UTF-8&q=' + t + '&tl=ko&client=tw-ob';
+            var audio = new _origAudio(url);
+            audio.crossOrigin = 'anonymous';
+            // 녹음 스트림에 연결
+            if (recAudioCtx && recDestination) {
+                audio.addEventListener('canplaythrough', function() {
+                    try {
+                        var src = recAudioCtx.createMediaElementSource(audio);
+                        src.connect(recDestination);
+                        src.connect(recAudioCtx.destination);
+                    } catch(e) { console.log('audio source already connected'); }
+                    audio.play();
+                }, {once: true});
+            } else {
+                audio.play();
+            }
+            audio.onended = function() { liveState.speaking = false; };
+            audio.onerror = function() {
+                // Google TTS 실패 시 브라우저 TTS 폴백
+                liveState.speaking = false;
+                if ('speechSynthesis' in window) {
+                    var u = new SpeechSynthesisUtterance(text);
+                    u.lang = 'ko-KR'; u.rate = 1.1; u.pitch = 1.5;
+                    u.onend = function() { liveState.speaking = false; };
+                    speechSynthesis.speak(u);
+                }
+            };
         }
 
         // ===== 동물 선택 =====

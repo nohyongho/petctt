@@ -3940,18 +3940,74 @@
         function showCameraControls(){var e=document.getElementById('cameraControls');if(e)e.style.display='block';}
         function capturePhoto(){var v=document.getElementById('liveVideo');if(!v||!v.srcObject){showToast('카메라를 먼저 켜주세요','warning');return;}var ca=document.createElement('canvas');ca.width=v.videoWidth||640;ca.height=v.videoHeight||480;ca.getContext('2d').drawImage(v,0,0,ca.width,ca.height);ca.toBlob(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='petctt-photo-'+Date.now()+'.jpg';a.click();URL.revokeObjectURL(a.href);showToast('📸 사진 저장 완료!','success');},'image/jpeg',0.92);}
         function toggleRecording(){if(mediaRecorder&&mediaRecorder.state==='recording')stopRec();else startRec();}
-        function startRec(){var v=document.getElementById('liveVideo');if(!v||!v.srcObject){showToast('카메라를 먼저 켜주세요','warning');return;}recordedChunks=[];
-            // 비디오+오디오 합성 스트림 생성
-            var combinedStream=new MediaStream();
-            v.srcObject.getVideoTracks().forEach(function(t){combinedStream.addTrack(t);});
-            // 마이크 오디오 추가
-            navigator.mediaDevices.getUserMedia({audio:true}).then(function(audioStream){
-                audioStream.getAudioTracks().forEach(function(t){combinedStream.addTrack(t);});
-            }).catch(function(){console.log('마이크 없이 녹화');});
-            // 약간 딜레이 후 녹화 시작 (오디오 트랙 대기)
-            setTimeout(function(){
-            var recStream=combinedStream.getAudioTracks().length>0?combinedStream:v.srcObject;
-            try{mediaRecorder=new MediaRecorder(recStream,{mimeType:'video/webm;codecs=vp9'});}catch(e){try{mediaRecorder=new MediaRecorder(recStream,{mimeType:'video/webm'});}catch(e2){showToast('녹화 미지원','error');return;}}mediaRecorder.ondataavailable=function(e){if(e.data.size>0)recordedChunks.push(e.data);};mediaRecorder.onstop=function(){var b=new Blob(recordedChunks,{type:'video/webm'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='petctt-video-'+Date.now()+'.webm';a.click();URL.revokeObjectURL(a.href);showToast('🎬 영상 저장 완료!','success');};mediaRecorder.start();recSeconds=0;document.getElementById('recordingStatus').style.display='block';document.getElementById('btnRecord').innerHTML='⏹';document.getElementById('btnRecord').style.boxShadow='0 0 20px rgba(220,38,38,0.6)';recTimerInterval=setInterval(function(){recSeconds++;var m=String(Math.floor(recSeconds/60)).padStart(2,'0');var s=String(recSeconds%60).padStart(2,'0');document.getElementById('recTimer').textContent=m+':'+s;},1000);showToast('🔴 녹화+녹음 시작!','success');},300);}
+        var recAudioCtx=null,recDestination=null;
+        // 녹화 중 새로 생성되는 Audio도 자동 캡처
+        var _origAudio=window.Audio;
+        window.Audio=function(src){
+            var a=new _origAudio(src);
+            if(recAudioCtx&&recDestination){
+                a.addEventListener('play',function(){
+                    try{var s=recAudioCtx.createMediaElementSource(a);
+                    s.connect(recDestination);s.connect(recAudioCtx.destination);}catch(e){}
+                },{once:true});
+            }
+            return a;
+        };
+        window.Audio.prototype=_origAudio.prototype;
+        function startRec(){
+            var v=document.getElementById('liveVideo');
+            if(!v||!v.srcObject){showToast('카메라를 먼저 켜주세요','warning');return;}
+            recordedChunks=[];
+            // AudioContext로 마이크+앱소리(아미통역) 합성
+            recAudioCtx=new (window.AudioContext||window.webkitAudioContext)();
+            recDestination=recAudioCtx.createMediaStreamDestination();
+            // 1) 앱 내부 소리 캡처 (아미 TTS, 효과음 등)
+            // 모든 <audio> 요소의 출력을 캡처
+            document.querySelectorAll('audio').forEach(function(el){
+                try{var src=recAudioCtx.createMediaElementSource(el);
+                src.connect(recDestination);src.connect(recAudioCtx.destination);}catch(e){}
+            });
+            // Web Speech TTS도 캡처하기 위해 전역 오디오 컨텍스트 저장
+            window._recAudioCtx=recAudioCtx;
+            window._recDestination=recDestination;
+            // 2) 마이크 소리 추가
+            navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false}}).then(function(micStream){
+                var micSource=recAudioCtx.createMediaStreamSource(micStream);
+                micSource.connect(recDestination);
+                doStartRec(v);
+            }).catch(function(){
+                console.log('마이크 없이 녹화');
+                doStartRec(v);
+            });
+        }
+        function doStartRec(v){
+            // 비디오 트랙 + 합성 오디오 트랙 결합
+            var finalStream=new MediaStream();
+            v.srcObject.getVideoTracks().forEach(function(t){finalStream.addTrack(t);});
+            if(recDestination){recDestination.stream.getAudioTracks().forEach(function(t){finalStream.addTrack(t);});}
+            try{mediaRecorder=new MediaRecorder(finalStream,{mimeType:'video/webm;codecs=vp9'});}
+            catch(e){try{mediaRecorder=new MediaRecorder(finalStream,{mimeType:'video/webm'});}
+            catch(e2){showToast('녹화 미지원','error');return;}}
+            mediaRecorder.ondataavailable=function(e){if(e.data.size>0)recordedChunks.push(e.data);};
+            mediaRecorder.onstop=function(){
+                var b=new Blob(recordedChunks,{type:'video/webm'});
+                var a=document.createElement('a');a.href=URL.createObjectURL(b);
+                a.download='petctt-video-'+Date.now()+'.webm';a.click();
+                URL.revokeObjectURL(a.href);
+                showToast('🎬 영상+음성 저장 완료!','success');
+                if(recAudioCtx){try{recAudioCtx.close();}catch(e){}}
+            };
+            mediaRecorder.start(100);recSeconds=0;
+            document.getElementById('recordingStatus').style.display='block';
+            document.getElementById('btnRecord').innerHTML='⏹';
+            document.getElementById('btnRecord').style.boxShadow='0 0 20px rgba(220,38,38,0.6)';
+            recTimerInterval=setInterval(function(){recSeconds++;
+                var m=String(Math.floor(recSeconds/60)).padStart(2,'0');
+                var s=String(recSeconds%60).padStart(2,'0');
+                document.getElementById('recTimer').textContent=m+':'+s;
+            },1000);
+            showToast('🔴 녹화+통역음성 녹음 시작!','success');
+        }
         function stopRec(){if(mediaRecorder)mediaRecorder.stop();clearInterval(recTimerInterval);document.getElementById('recordingStatus').style.display='none';document.getElementById('btnRecord').innerHTML='🔴';document.getElementById('btnRecord').style.boxShadow='none';}
         function cameraZoomIn(){cameraZoom=Math.min(cameraZoom+0.5,4);var v=document.getElementById('liveVideo');if(v)v.style.transform='scale('+cameraZoom+')';var zl=document.getElementById('zoomLevel'),zt=document.getElementById('zoomText');if(cameraZoom>1){zl.style.display='block';zt.textContent=cameraZoom.toFixed(1)+'x';}else{zl.style.display='none';}showToast('🔍 '+cameraZoom.toFixed(1)+'x','success');}
         function toggleCameraFullscreen(){var vc=document.getElementById('liveVideo').parentElement;if(!document.fullscreenElement){(vc.requestFullscreen||vc.webkitRequestFullscreen||vc.msRequestFullscreen).call(vc);showToast('⛶ 전체화면','success');}else{(document.exitFullscreen||document.webkitExitFullscreen||document.msExitFullscreen).call(document);}}

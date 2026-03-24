@@ -143,9 +143,45 @@
             <input type="file" id="pawInput" accept="image/*" style="display:none">
             <input type="file" id="videoInput" accept="video/*" style="display:none">
 
+            <!-- 📋 칩 등록번호 -->
+            <div class="form-group">
+                <label class="form-label">📋 내장칩 등록번호</label>
+                <input class="form-input" id="petChipNo" placeholder="410xxxxxxxxxxxxxxx (15자리)">
+            </div>
+
+            <!-- 🏥 건강 이력 -->
+            <div class="form-group">
+                <label class="form-label">🏥 건강 이력</label>
+                <textarea class="form-input" id="petHealthHistory" placeholder="예: 2024.03 슬개골 수술, 2025.01 피부염 치료"></textarea>
+            </div>
+
+            <!-- 💉 백신 이력 -->
+            <div class="form-group">
+                <label class="form-label">💉 백신 접종 이력</label>
+                <textarea class="form-input" id="petVaccine" placeholder="예: 종합백신 5차 완료, 광견병 2025.06, 켄넬코프 2025.03"></textarea>
+            </div>
+
+            <!-- 🏥 병원 이력 -->
+            <div class="form-group">
+                <label class="form-label">🏥 단골 병원 / 진료 기록</label>
+                <textarea class="form-input" id="petHospital" placeholder="예: 강남동물병원 (02-123-4567), 정기검진 6개월마다"></textarea>
+            </div>
+
+            <!-- 🤧 알레르기 -->
+            <div class="form-group">
+                <label class="form-label">🤧 알레르기 정보</label>
+                <input class="form-input" id="petAllergy" placeholder="예: 닭고기, 집먼지진드기, 특정 항생제">
+            </div>
+
+            <!-- 🐕 행동 특성 -->
+            <div class="form-group">
+                <label class="form-label">🐕 행동 특성</label>
+                <textarea class="form-input" id="petBehavior" placeholder="예: 사회성 좋음, 분리불안 약간, 산책 시 흥분"></textarea>
+            </div>
+
             <div class="form-group">
                 <label class="form-label">⚠️ 특이사항</label>
-                <textarea class="form-input" id="petNotes" placeholder="알레르기, 습관, 성격 등"></textarea>
+                <textarea class="form-input" id="petNotes" placeholder="기타 특이사항"></textarea>
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -230,12 +266,19 @@
             const job = document.getElementById('petJob').value || '집사 돌보기';
             const specialty = document.getElementById('petSpecialty').value || '만능';
             const caution = document.getElementById('petCaution').value || '없음';
+            // 6개 추가 항목
+            const chipNo = document.getElementById('petChipNo').value || '미등록';
+            const healthHistory = document.getElementById('petHealthHistory').value || '기록 없음';
+            const vaccine = document.getElementById('petVaccine').value || '기록 없음';
+            const hospital = document.getElementById('petHospital').value || '기록 없음';
+            const allergy = document.getElementById('petAllergy').value || '없음';
+            const behavior = document.getElementById('petBehavior').value || '기록 없음';
 
             const genderIcon = gender === 'male' ? '♂' : gender === 'female' ? '♀' : '';
             const marriageText = marriage === 'single' ? '미혼' : marriage === 'married' ? '기혼' : '만남희망';
             const cardNum = 'PETCTT-' + String(Date.now()).slice(-6);
 
-            const cardData = { name, birth, breed, address, phone, gender: genderIcon, weight, notes, charm, marriage: marriageText, job, specialty, caution, cardNum };
+            const cardData = { name, birth, breed, address, phone, gender: genderIcon, weight, notes, charm, marriage: marriageText, job, specialty, caution, cardNum, chipNo, healthHistory, vaccine, hospital, allergy, behavior };
             localStorage.setItem('petctt_resident_card', JSON.stringify(cardData));
 
             document.getElementById('generatedCard').innerHTML = `
@@ -252,6 +295,7 @@
                         <div class="id-row"><span class="id-label">주소</span><span>${address}</span></div>
                         <div class="id-row"><span class="id-label">전화</span><span>${phone}</span></div>
                         <div class="id-row"><span class="id-label">체중</span><span>${weight ? weight + 'kg' : '미입력'}</span></div>
+                        <div class="id-row"><span class="id-label">📋 칩번호</span><span style="font-family:monospace;font-size:0.8rem;">${chipNo}</span></div>
                     </div>
                 </div>
                 <div class="id-card-footer">
@@ -261,9 +305,26 @@
                         <div class="bio-item"><span>📹</span><span>영상</span></div>
                     </div>
                 </div>
+                <!-- 의료/행동 이력 섹션 -->
+                <div class="id-card-extra" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
+                    <div style="font-weight:700;font-size:0.8rem;margin-bottom:6px;color:#2dd4bf;">🏥 의료 & 건강 이력</div>
+                    <div style="font-size:0.75rem;line-height:1.6;color:rgba(255,255,255,0.8);">
+                        <div>🏥 건강: ${healthHistory}</div>
+                        <div>💉 백신: ${vaccine}</div>
+                        <div>🏥 병원: ${hospital}</div>
+                        <div>🤧 알레르기: <span style="color:#ff6b6b;font-weight:600;">${allergy}</span></div>
+                    </div>
+                </div>
+                <div class="id-card-extra" style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;">
+                    <div style="font-weight:700;font-size:0.8rem;margin-bottom:6px;color:#818cf8;">🐕 행동 & 성격</div>
+                    <div style="font-size:0.75rem;line-height:1.6;color:rgba(255,255,255,0.8);">
+                        <div>🐕 행동: ${behavior}</div>
+                        <div>⚡ 주의: ${caution}</div>
+                        <div>✨ 매력: ${charm}</div>
+                    </div>
+                </div>
                 <div class="id-card-extra">
                     직업: ${job} · 전문: ${specialty} · ${marriageText}<br>
-                    매력: ${charm} · 주의: ${caution}<br>
                     특이사항: ${notes}
                 </div>
             `;

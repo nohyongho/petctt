@@ -4014,19 +4014,28 @@
             var finalStream=new MediaStream();
             v.srcObject.getVideoTracks().forEach(function(t){finalStream.addTrack(t);});
             if(recDestination){recDestination.stream.getAudioTracks().forEach(function(t){finalStream.addTrack(t);});}
-            try{mediaRecorder=new MediaRecorder(finalStream,{mimeType:'video/webm;codecs=vp9'});}
-            catch(e){try{mediaRecorder=new MediaRecorder(finalStream,{mimeType:'video/webm'});}
+            // MP4 우선 (카카오톡 호환), 안 되면 webm
+            var recMime='video/mp4';
+            if(!MediaRecorder.isTypeSupported('video/mp4')){
+                recMime=MediaRecorder.isTypeSupported('video/webm;codecs=h264')?'video/webm;codecs=h264':
+                        MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm';
+            }
+            try{mediaRecorder=new MediaRecorder(finalStream,{mimeType:recMime});}
+            catch(e){try{mediaRecorder=new MediaRecorder(finalStream);}
             catch(e2){showToast('녹화 미지원','error');return;}}
+            var isMP4=recMime.includes('mp4');
             mediaRecorder.ondataavailable=function(e){if(e.data.size>0)recordedChunks.push(e.data);};
             mediaRecorder.onstop=function(){
-                var b=new Blob(recordedChunks,{type:'video/webm'});
-                var fileName='petctt-video-'+Date.now()+'.webm';
+                var blobType=isMP4?'video/mp4':'video/webm';
+                var ext=isMP4?'.mp4':'.webm';
+                var b=new Blob(recordedChunks,{type:blobType});
+                var fileName='petctt-video-'+Date.now()+ext;
                 var fileUrl=URL.createObjectURL(b);
                 // 자동 다운로드
                 var a=document.createElement('a');a.href=fileUrl;a.download=fileName;a.click();
                 // 공유 팝업 표시
                 showSharePopup(b, fileName, fileUrl);
-                showToast('🎬 영상 저장 완료! 공유 버튼을 확인하세요','success');
+                showToast('🎬 영상 저장 완료!'+(isMP4?' (MP4 카톡공유 가능)':' (갤러리에서 공유)'),'success');
                 if(recAudioCtx){try{recAudioCtx.close();}catch(e){}}
             };
             mediaRecorder.start(100);recSeconds=0;
@@ -4070,7 +4079,8 @@
         function shareNative(){
             if(!lastRecordedBlob){showToast('공유할 영상이 없습니다','warning');return;}
             if(navigator.share&&navigator.canShare){
-                var file=new File([lastRecordedBlob],'petctt-video.webm',{type:'video/webm'});
+                var isMP4=lastRecordedBlob.type.includes('mp4');
+                var file=new File([lastRecordedBlob],isMP4?'petctt-video.mp4':'petctt-video.webm',{type:lastRecordedBlob.type});
                 var shareData={title:'PetCTT 반려동물 통역 영상',text:'AI 아미가 통역한 우리 아이 영상이에요! 🐾',files:[file]};
                 if(navigator.canShare(shareData)){
                     navigator.share(shareData).then(function(){showToast('공유 완료!','success');closeSharePopup();}).catch(function(){showToast('공유 취소','warning');});

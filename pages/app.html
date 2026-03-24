@@ -1553,11 +1553,21 @@
                             style="display: block; width: 100%; min-height: 250px; border-radius: 12px; background: #000; margin-bottom: 12px; object-fit: cover; position: relative; z-index: 9999;"
                             autoplay playsinline webkit-playsinline muted></video>
 
-                        <!-- 📹 카메라 컨트롤: 녹화/사진/확대/전체화면 -->
-                        <div id="cameraControls" style="display:none; position:absolute; bottom:12px; left:0; right:0; z-index:10001; padding:0 12px;">
+                        <!-- 📹 카메라 컨트롤: 말하기/듣기 + 녹화/사진/확대/전체화면 -->
+                        <div id="cameraControls" style="display:none; position:absolute; bottom:12px; left:0; right:0; z-index:10001; padding:0 8px;">
+                            <!-- 상단: 말하기 / 듣기 -->
+                            <div style="display:flex; justify-content:center; align-items:center; gap:16px; margin-bottom:10px;">
+                                <button onclick="handleHumanToAnimal()" style="padding:10px 18px;border-radius:30px;background:linear-gradient(135deg,rgba(59,130,246,0.9),rgba(99,102,241,0.9));border:2px solid rgba(255,255,255,0.4);color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer;backdrop-filter:blur(4px);display:flex;align-items:center;gap:6px;" title="말하기">
+                                    🎤 <span>말하기</span>
+                                </button>
+                                <button onclick="handleAnimalToHuman()" style="padding:10px 18px;border-radius:30px;background:linear-gradient(135deg,rgba(16,185,129,0.9),rgba(45,212,191,0.9));border:2px solid rgba(255,255,255,0.4);color:#fff;font-size:0.85rem;font-weight:700;cursor:pointer;backdrop-filter:blur(4px);display:flex;align-items:center;gap:6px;" title="듣기">
+                                    🐕 <span>듣기</span>
+                                </button>
+                            </div>
+                            <!-- 하단: 사진/녹화/확대/전체화면 -->
                             <div style="display:flex; justify-content:center; align-items:center; gap:12px;">
                                 <button onclick="capturePhoto()" style="width:44px;height:44px;border-radius:50%;background:rgba(59,130,246,0.85);border:2px solid rgba(255,255,255,0.5);color:#fff;font-size:1.2rem;cursor:pointer;backdrop-filter:blur(4px);" title="사진 촬영">📸</button>
-                                <button id="btnRecord" onclick="toggleRecording()" style="width:56px;height:56px;border-radius:50%;background:rgba(220,38,38,0.85);border:3px solid rgba(255,255,255,0.7);color:#fff;font-size:1.4rem;cursor:pointer;backdrop-filter:blur(4px);" title="녹화">🔴</button>
+                                <button id="btnRecord" onclick="toggleRecording()" style="width:56px;height:56px;border-radius:50%;background:rgba(220,38,38,0.85);border:3px solid rgba(255,255,255,0.7);color:#fff;font-size:1.4rem;cursor:pointer;backdrop-filter:blur(4px);" title="녹화+녹음">🔴</button>
                                 <button onclick="cameraZoomIn()" style="width:44px;height:44px;border-radius:50%;background:rgba(234,179,8,0.85);border:2px solid rgba(255,255,255,0.5);color:#fff;font-size:1.2rem;cursor:pointer;backdrop-filter:blur(4px);" title="확대">🔍</button>
                                 <button onclick="toggleCameraFullscreen()" style="width:44px;height:44px;border-radius:50%;background:rgba(99,102,241,0.85);border:2px solid rgba(255,255,255,0.5);color:#fff;font-size:1.2rem;cursor:pointer;backdrop-filter:blur(4px);" title="전체화면">⛶</button>
                             </div>
@@ -3930,7 +3940,18 @@
         function showCameraControls(){var e=document.getElementById('cameraControls');if(e)e.style.display='block';}
         function capturePhoto(){var v=document.getElementById('liveVideo');if(!v||!v.srcObject){showToast('카메라를 먼저 켜주세요','warning');return;}var ca=document.createElement('canvas');ca.width=v.videoWidth||640;ca.height=v.videoHeight||480;ca.getContext('2d').drawImage(v,0,0,ca.width,ca.height);ca.toBlob(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='petctt-photo-'+Date.now()+'.jpg';a.click();URL.revokeObjectURL(a.href);showToast('📸 사진 저장 완료!','success');},'image/jpeg',0.92);}
         function toggleRecording(){if(mediaRecorder&&mediaRecorder.state==='recording')stopRec();else startRec();}
-        function startRec(){var v=document.getElementById('liveVideo');if(!v||!v.srcObject){showToast('카메라를 먼저 켜주세요','warning');return;}recordedChunks=[];try{mediaRecorder=new MediaRecorder(v.srcObject,{mimeType:'video/webm;codecs=vp9'});}catch(e){try{mediaRecorder=new MediaRecorder(v.srcObject,{mimeType:'video/webm'});}catch(e2){showToast('녹화 미지원','error');return;}}mediaRecorder.ondataavailable=function(e){if(e.data.size>0)recordedChunks.push(e.data);};mediaRecorder.onstop=function(){var b=new Blob(recordedChunks,{type:'video/webm'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='petctt-video-'+Date.now()+'.webm';a.click();URL.revokeObjectURL(a.href);showToast('🎬 영상 저장 완료!','success');};mediaRecorder.start();recSeconds=0;document.getElementById('recordingStatus').style.display='block';document.getElementById('btnRecord').innerHTML='⏹';document.getElementById('btnRecord').style.boxShadow='0 0 20px rgba(220,38,38,0.6)';recTimerInterval=setInterval(function(){recSeconds++;var m=String(Math.floor(recSeconds/60)).padStart(2,'0');var s=String(recSeconds%60).padStart(2,'0');document.getElementById('recTimer').textContent=m+':'+s;},1000);showToast('🔴 녹화 시작!','success');}
+        function startRec(){var v=document.getElementById('liveVideo');if(!v||!v.srcObject){showToast('카메라를 먼저 켜주세요','warning');return;}recordedChunks=[];
+            // 비디오+오디오 합성 스트림 생성
+            var combinedStream=new MediaStream();
+            v.srcObject.getVideoTracks().forEach(function(t){combinedStream.addTrack(t);});
+            // 마이크 오디오 추가
+            navigator.mediaDevices.getUserMedia({audio:true}).then(function(audioStream){
+                audioStream.getAudioTracks().forEach(function(t){combinedStream.addTrack(t);});
+            }).catch(function(){console.log('마이크 없이 녹화');});
+            // 약간 딜레이 후 녹화 시작 (오디오 트랙 대기)
+            setTimeout(function(){
+            var recStream=combinedStream.getAudioTracks().length>0?combinedStream:v.srcObject;
+            try{mediaRecorder=new MediaRecorder(recStream,{mimeType:'video/webm;codecs=vp9'});}catch(e){try{mediaRecorder=new MediaRecorder(recStream,{mimeType:'video/webm'});}catch(e2){showToast('녹화 미지원','error');return;}}mediaRecorder.ondataavailable=function(e){if(e.data.size>0)recordedChunks.push(e.data);};mediaRecorder.onstop=function(){var b=new Blob(recordedChunks,{type:'video/webm'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='petctt-video-'+Date.now()+'.webm';a.click();URL.revokeObjectURL(a.href);showToast('🎬 영상 저장 완료!','success');};mediaRecorder.start();recSeconds=0;document.getElementById('recordingStatus').style.display='block';document.getElementById('btnRecord').innerHTML='⏹';document.getElementById('btnRecord').style.boxShadow='0 0 20px rgba(220,38,38,0.6)';recTimerInterval=setInterval(function(){recSeconds++;var m=String(Math.floor(recSeconds/60)).padStart(2,'0');var s=String(recSeconds%60).padStart(2,'0');document.getElementById('recTimer').textContent=m+':'+s;},1000);showToast('🔴 녹화+녹음 시작!','success');},300);}
         function stopRec(){if(mediaRecorder)mediaRecorder.stop();clearInterval(recTimerInterval);document.getElementById('recordingStatus').style.display='none';document.getElementById('btnRecord').innerHTML='🔴';document.getElementById('btnRecord').style.boxShadow='none';}
         function cameraZoomIn(){cameraZoom=Math.min(cameraZoom+0.5,4);var v=document.getElementById('liveVideo');if(v)v.style.transform='scale('+cameraZoom+')';var zl=document.getElementById('zoomLevel'),zt=document.getElementById('zoomText');if(cameraZoom>1){zl.style.display='block';zt.textContent=cameraZoom.toFixed(1)+'x';}else{zl.style.display='none';}showToast('🔍 '+cameraZoom.toFixed(1)+'x','success');}
         function toggleCameraFullscreen(){var vc=document.getElementById('liveVideo').parentElement;if(!document.fullscreenElement){(vc.requestFullscreen||vc.webkitRequestFullscreen||vc.msRequestFullscreen).call(vc);showToast('⛶ 전체화면','success');}else{(document.exitFullscreen||document.webkitExitFullscreen||document.msExitFullscreen).call(document);}}

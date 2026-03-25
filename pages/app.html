@@ -4114,10 +4114,14 @@
         
         // 아미 TTS를 녹음에 캡처하기 위한 래퍼
         var _originalSpeakText = typeof speakText === 'function' ? speakText : null;
-        function speakTextWithCapture(text, lang) {
+        function speakTextWithCapture(text, pitchOrLang) {
+            // pitchOrLang: 숫자(pitch)이면 한국어, 문자열이면 언어코드
+            var ttsLang = 'ko'; // PetCTT 기본 한국어
+            var pitch = 1.0;
+            if (typeof pitchOrLang === 'number') { pitch = pitchOrLang; ttsLang = 'ko'; }
+            else if (typeof pitchOrLang === 'string' && pitchOrLang.includes('en')) { ttsLang = 'en'; }
             if (mediaRecorder && mediaRecorder.state === 'recording' && window._recAudioCtx && window._recDestination) {
                 // 녹화 중: Google TTS로 Audio 재생 → AudioContext 캡처 가능
-                var ttsLang = (lang === 'ko' || !lang) ? 'ko' : 'en';
                 var ttsUrl = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=' + ttsLang + '&q=' + encodeURIComponent(text.substring(0, 200));
                 var audio = new Audio(ttsUrl);
                 audio.crossOrigin = 'anonymous';
@@ -4130,13 +4134,13 @@
                 }).catch(function() {
                     // Google TTS 실패 시 기본 SpeechSynthesis 사용
                     var u = new SpeechSynthesisUtterance(text);
-                    u.lang = ttsLang === 'ko' ? 'ko-KR' : 'en-US';
+                    u.lang = (ttsLang === 'en') ? 'en-US' : 'ko-KR'; u.pitch = pitch;
                     speechSynthesis.speak(u);
                 });
             } else {
                 // 녹화 안 할 때: 기본 SpeechSynthesis
                 var u = new SpeechSynthesisUtterance(text);
-                u.lang = (!lang || lang === 'ko') ? 'ko-KR' : 'en-US';
+                u.lang = (ttsLang === 'en') ? 'en-US' : 'ko-KR'; u.pitch = pitch;
                 speechSynthesis.speak(u);
             }
         }

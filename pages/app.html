@@ -1570,6 +1570,7 @@
                                 <button onclick="capturePhoto()" style="width:44px;height:44px;border-radius:50%;background:rgba(59,130,246,0.85);border:2px solid rgba(255,255,255,0.5);color:#fff;font-size:1.2rem;cursor:pointer;backdrop-filter:blur(4px);" title="사진 촬영">📸</button>
                                 <button id="btnRecord" onclick="toggleRecording()" style="width:56px;height:56px;border-radius:50%;background:rgba(220,38,38,0.85);border:3px solid rgba(255,255,255,0.7);color:#fff;font-size:1.4rem;cursor:pointer;backdrop-filter:blur(4px);" title="녹화+녹음">🔴</button>
                                 <button onclick="cameraZoomIn()" style="width:44px;height:44px;border-radius:50%;background:rgba(234,179,8,0.85);border:2px solid rgba(255,255,255,0.5);color:#fff;font-size:1.2rem;cursor:pointer;backdrop-filter:blur(4px);" title="확대">🔍</button>
+                                <button onclick="cameraZoomOut()" style="width:44px;height:44px;border-radius:50%;background:rgba(107,114,128,0.85);border:2px solid rgba(255,255,255,0.5);color:#fff;font-size:1.2rem;cursor:pointer;backdrop-filter:blur(4px);" title="축소">🔎</button>
                                 <button onclick="toggleCameraFullscreen()" style="width:44px;height:44px;border-radius:50%;background:rgba(99,102,241,0.85);border:2px solid rgba(255,255,255,0.5);color:#fff;font-size:1.2rem;cursor:pointer;backdrop-filter:blur(4px);" title="전체화면">⛶</button>
                             </div>
                             <div id="recordingStatus" style="display:none;text-align:center;margin-top:6px;">
@@ -2931,7 +2932,7 @@
                 setTimeout(function () {
                     var animal = ANIMALS[selectedAnimal];
                     addBubbleWithPlay('animal', animal.icon + ' ' + animal.name + ': ' + animalResponse, animalResponse);
-                    speakText(animalResponse, animal.pitch);
+                    speakTextWithCapture(animalResponse, animal.pitch);
                     updateLearning();
                 }, 500);
             }
@@ -2978,7 +2979,7 @@
 
             setTimeout(function () {
                 addBubbleWithPlay('translation', '🗣️ 통역: "' + humanTranslation + '"', humanTranslation);
-                speakText(humanTranslation, 1.0);
+                speakTextWithCapture(humanTranslation, 1.0);
                 updateLearning();
             }, 600);
 
@@ -3120,7 +3121,7 @@
 
         function playSound(text) {
             var animal = ANIMALS[selectedAnimal];
-            speakText(text, animal.pitch);
+            speakTextWithCapture(text, animal.pitch);
         }
 
         // ===== 학습 업데이트 =====
@@ -4050,6 +4051,7 @@
             showToast('🔴 녹화+통역음성 녹음 시작!','success');
         }
         function stopRec(){if(mediaRecorder)mediaRecorder.stop();clearInterval(recTimerInterval);document.getElementById('recordingStatus').style.display='none';document.getElementById('btnRecord').innerHTML='🔴';document.getElementById('btnRecord').style.boxShadow='none';}
+        function cameraZoomOut(){cameraZoom=Math.max(cameraZoom-0.5,1);var v=document.getElementById('liveVideo');if(v)v.style.transform=cameraZoom>1?'scale('+cameraZoom+')':'scale(1)';var zl=document.getElementById('zoomLevel'),zt=document.getElementById('zoomText');if(cameraZoom>1){zl.style.display='block';zt.textContent=cameraZoom.toFixed(1)+'x';}else{zl.style.display='none';}showToast('🔎 '+cameraZoom.toFixed(1)+'x','success');}
         function cameraZoomIn(){cameraZoom=Math.min(cameraZoom+0.5,4);var v=document.getElementById('liveVideo');if(v)v.style.transform='scale('+cameraZoom+')';var zl=document.getElementById('zoomLevel'),zt=document.getElementById('zoomText');if(cameraZoom>1){zl.style.display='block';zt.textContent=cameraZoom.toFixed(1)+'x';}else{zl.style.display='none';}showToast('🔍 '+cameraZoom.toFixed(1)+'x','success');}
         function toggleCameraFullscreen(){var vc=document.getElementById('liveVideo').parentElement;if(!document.fullscreenElement){(vc.requestFullscreen||vc.webkitRequestFullscreen||vc.msRequestFullscreen).call(vc);showToast('⛶ 전체화면','success');}else{(document.exitFullscreen||document.webkitExitFullscreen||document.msExitFullscreen).call(document);}}
 
@@ -4109,6 +4111,35 @@
             showToast('💾 다시 저장 완료!','success');
         }
 
+        
+        // 아미 TTS를 녹음에 캡처하기 위한 래퍼
+        var _originalSpeakText = typeof speakText === 'function' ? speakText : null;
+        function speakTextWithCapture(text, lang) {
+            if (mediaRecorder && mediaRecorder.state === 'recording' && window._recAudioCtx && window._recDestination) {
+                // 녹화 중: Google TTS로 Audio 재생 → AudioContext 캡처 가능
+                var ttsLang = (lang === 'ko' || !lang) ? 'ko' : 'en';
+                var ttsUrl = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=' + ttsLang + '&q=' + encodeURIComponent(text.substring(0, 200));
+                var audio = new Audio(ttsUrl);
+                audio.crossOrigin = 'anonymous';
+                audio.play().then(function() {
+                    try {
+                        var src = window._recAudioCtx.createMediaElementSource(audio);
+                        src.connect(window._recDestination);
+                        src.connect(window._recAudioCtx.destination);
+                    } catch(e) { console.log('TTS캡처 실패:', e); }
+                }).catch(function() {
+                    // Google TTS 실패 시 기본 SpeechSynthesis 사용
+                    var u = new SpeechSynthesisUtterance(text);
+                    u.lang = ttsLang === 'ko' ? 'ko-KR' : 'en-US';
+                    speechSynthesis.speak(u);
+                });
+            } else {
+                // 녹화 안 할 때: 기본 SpeechSynthesis
+                var u = new SpeechSynthesisUtterance(text);
+                u.lang = (!lang || lang === 'ko') ? 'ko-KR' : 'en-US';
+                speechSynthesis.speak(u);
+            }
+        }
         </script>
 </body>
 

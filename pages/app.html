@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>PetCTT Pro - 반려동물 양방향 통역 + 위치 추적h</title>
+    <title>PetCTT Pro - 반려동물 양방향 통역 + h위치 추적h</title>
 
     <!-- 캐시 무효화 (강제 새로고침용) -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
@@ -2377,7 +2377,7 @@
                 </div>
             `).reverse().join('');
             }
-            document.getElementById('locationHistory').innerHTML = html;
+            var _lhEl = document.getElementById('locationHistory'); if (_lhEl) _lhEl.innerHTML = html;
         }
 
         function exportLocationData() {
@@ -3134,8 +3134,8 @@
         }
 
         function updateLearningUI() {
-            document.getElementById('learningPercent').textContent = learningData.accuracy.toFixed(1) + '%';
-            document.getElementById('learningProgress').style.width = learningData.accuracy + '%';
+            var _lpEl = document.getElementById('learningPercent'); if (_lpEl) _lpEl.textContent = learningData.accuracy.toFixed(1) + '%';
+            var _lprEl = document.getElementById('learningProgress'); if (_lprEl) _lprEl.style.width = learningData.accuracy + '%';
         }
 
         // 토스트 함수

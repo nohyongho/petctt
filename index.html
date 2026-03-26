@@ -256,6 +256,24 @@ function clearAuth() {
     renderAuth();
 }
 
+function toggleLoginMenu() {
+    var d = document.getElementById('loginDropdown');
+    if (d) d.style.display = d.style.display === 'none' ? 'block' : 'none';
+}
+function closeLoginMenu() {
+    var d = document.getElementById('loginDropdown');
+    if (d) d.style.display = 'none';
+}
+// 다른 곳 클릭하면 닫기
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#auth-slot')) closeLoginMenu();
+});
+function loginWithGoogle() {
+    window.location.href = 'https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(window.location.origin);
+}
+function loginWithNaver() {
+    window.location.href = 'https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/authorize?provider=naver&redirect_to=' + encodeURIComponent(window.location.origin);
+}
 function loginWithKakao() {
     Kakao.Auth.login({
         success: function(authObj) {
@@ -292,7 +310,13 @@ function renderAuth() {
             '<button onclick="clearAuth()" style="padding:6px 12px;background:rgba(239,68,68,0.8);color:#fff;border:none;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;">로그아웃</button>' +
             '</div>';
     } else {
-        slot.innerHTML = '<button onclick="loginWithKakao()" style="padding:8px 18px;background:#FEE500;color:#000;border:none;border-radius:20px;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;"><span>💬</span> 카카오 로그인</button>';
+        slot.innerHTML = '<div style="position:relative;display:inline-block;">' +
+            '<button id="loginToggleBtn" onclick="toggleLoginMenu()" style="padding:8px 18px;background:linear-gradient(135deg,#FEE500,#03C75A);color:#000;border:none;border-radius:20px;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">🔐 로그인</button>' +
+            '<div id="loginDropdown" style="display:none;position:absolute;top:42px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:8px;z-index:9999;min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">' +
+                '<button onclick="loginWithKakao();closeLoginMenu()" style="width:100%;padding:10px 16px;background:#FEE500;color:#000;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;margin-bottom:6px;display:flex;align-items:center;gap:8px;">💬 카카오 로그인</button>' +
+                '<button onclick="loginWithGoogle();closeLoginMenu()" style="width:100%;padding:10px 16px;background:#fff;color:#333;border:1px solid #ddd;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;margin-bottom:6px;display:flex;align-items:center;gap:8px;">G 구글 로그인</button>' +
+                '<button onclick="loginWithNaver();closeLoginMenu()" style="width:100%;padding:10px 16px;background:#03C75A;color:#fff;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;">N 네이버 로그인</button>' +
+            '</div></div>';
     }
 }
 

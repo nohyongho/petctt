@@ -1,374 +1,456 @@
 <!DOCTYPE html>
 <html lang="ko">
-      <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-              <title>PetCTT - 반려동물 AI 플랫폼</title>
-          <meta name="description" content="반려동물 AI 통역, 위치 추적, 건강 체크를 기반으로 주민등록증 발급, 라이브 소개팅, 콘테스트, 스마트 AI 글래스 확장까지 가능한 참여형 반려동물 플랫폼">
-          <meta name="theme-color" content="#000000">
-          <meta name="apple-mobile-web-app-capable" content="yes">
-          <link rel="manifest" href="manifest.webmanifest">
-          <link rel="preconnect" href="https://fonts.googleapis.com">
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-          <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-          <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-          <link rel="stylesheet" href="public/css/app.css">h
-          <script src="public/js/i18n.js"></script>
-      </head>
-<body>
-      <!-- 3D 배경 캔버스 -->
-      <div id="canvas-container"></div>
+          <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+                        <title>PetCTT - 반려동물 AI 플랫폼</title>
+                  <meta name="description" content="반려동물 AI 통역, 위치 추적, 건강 체크를 기반으로 주민등록증 발급, 라이브 소개팅, 콘테스트, 스마트 AI 글래스 확장까지 가능한 참여형 반려동물 플랫폼">
+                  <meta name="theme-color" content="#000000">
+                  <meta name="apple-mobile-web-app-capable" content="yes">
+                  <link rel="manifest" href="manifest.webmanifest">
+                  <link rel="preconnect" href="https://fonts.googleapis.com">
+                  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+                  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+                  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+                  <link rel="stylesheet" href="public/css/app.css">
+                  <script src="public/js/i18n.js"></script>
+          </head>
+    <body>
 
-      <!-- 아미 웰컴 -->
-      <div id="ami-overlay" style="display:none">
-              <div id="ami-welcome-text"></div>
-              <div id="ami-particles"></div>
-      </div>
-      <button id="ami-led-btn" onclick="activateAmi()" title="아미 호출">🐰</button>
+              <!-- 3D 배경 캔버스 -->
+              <div id="canvas-container"></div>div>
 
-      <!-- 헤더 -->
-      <header>
-              <div class="container">
-                        <div class="header-content">
-                                    <div class="logo">
-                                                  <span class="logo-icon">🐾</span>
-                                                  <span class="logo-text">PetCTT</span>
-                                    </div>
-                                    <div style="display:flex;align-items:center;gap:12px;position:relative;">
-                                                  <div id="auth-slot" style="position:relative;"></div>
-                                                  <div data-sub-dropdown style="display:inline-block"></div>
-                                                  <div id="google_translate_element" style="display:inline-block;"></div>
-                                                  <a href="pages/mypage.html" class="header-cta">📋 마이페이지</a>
-                                    </div>
-                        </div>
-              </div>
-      </header>
+              <!-- 아미 웰컴 -->
+              <div id="ami-overlay" style="display:none">
+                                  <div id="ami-welcome-text"></div>div>
+                                  <div id="ami-particles"></div>div>
+              </div>div>
+              <button id="ami-led-btn" onclick="activateAmi()" title="아미 호출">🐰</button>button>
 
-      <main class="container">
-              <!-- ━━━ HERO ━━━ -->
-              <section class="hero-section">
-                        <div class="hero-emoji">🐾</div>
-                        <h1 class="hero-title" data-i18n="hero.title">반려동물과 대화하세요</h1>
-                        <p class="hero-subtitle" data-i18n="hero.subtitle">AI가 반려동물의 마음을 통역합니다</p>
-                        <div class="hero-buttons">
-                                    <a href="pages/app.html" class="btn-primary btn-lg" data-i18n="hero.cta">🐾 지금 시작하기</a>
-                                    <a href="#features" class="btn-ghost btn-lg" data-i18n="hero.learnMore" style="font-size:0.9rem;">더 알아보기 ↓</a>
-                                    <a href="https://www.airctt.com/consumer" target="_blank" class="btn-coupon btn-lg" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,#f59e0b,#f97316);font-size:0.85rem;color:#fff;border-radius:50px;font-weight:600;font-size:1rem;text-decoration:none;box-shadow:0 4px 15px rgba(249,115,22,0.4);transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(249,115,22,0.5)';" onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 15px rgba(249,115,22,0.4)';">🎫 쿠폰 찾기</a>
-                                    <a href="https://www.airctt.com/merchant" target="_blank" class="btn-merchant btn-lg" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,#6366f1,#8b5cf6);font-size:0.85rem;color:#fff;border-radius:50px;font-weight:600;font-size:1rem;text-decoration:none;box-shadow:0 4px 15px rgba(99,102,241,0.4);transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(99,102,241,0.5)';" onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 15px rgba(99,102,241,0.4)';">🏪 매장입점</a>
-                        </div>
-                        <div class="hero-stats">
-                                    <div class="stat-item"><span class="stat-number">12+</span><span class="stat-label" data-i18n="stat.animals">지원 동물</span></div>
-                                    <div class="stat-item"><span class="stat-number">AI</span><span class="stat-label" data-i18n="stat.ai">양방향 통역</span></div>
-                                    <div class="stat-item"><span class="stat-number">GPS</span><span class="stat-label" data-i18n="stat.gps">실시간 추적</span></div>
-                        </div>
-              </section>
+              <!-- 헤더 -->
+              <header>
+                          <div class="container">
+                                        <div class="header-content">
+                                                        <div class="logo">
+                                                                          <span class="logo-icon">🐾</span>span>
+                                                                          <span class="logo-text">PetCTT</span>span>
+                                                        </div>div>
+                                                        <div style="display:flex;align-items:center;gap:12px;position:relative;">
+                                                                          <div id="auth-slot" style="position:relative;"></div>div>
+                                                                          <div data-sub-dropdown style="display:inline-block"></div>div>
+                                                                          <div id="google_translate_element" style="display:inline-block;"></div>div>
+                                                                          <a href="pages/mypage.html" class="header-cta">📋 마이페이지</a>a>
+                                                        </div>div>
+                                        </div>div>
+                          </div>div>
+              </header>
 
-              <!-- ━━━ 핵심 3기능 ━━━ -->
-                                                                                   <section id="features" class="section-block">
-                                                                                             <h2 class="section-heading" data-i18n="feat.title">핵심 기능</h2>
-                                                                                             <div class="feature-grid">
-                                                                                                         <a href="pages/app.html#live" class="feature-card feature-translate">
-                                                                                                                       <div class="feature-icon">🎙️</div>
-                                                                                                                       <h3 data-i18n="feat.talk.title">AI 통역</h3>
-                                                                                                                       <p data-i18n="feat.talk.desc">반려동물의 소리를 AI가 분석하여 실시간 양방향 음성 통역. 감정 분석 그래프와 학습 진도까지.</p>
-                                                                                                                       <div class="feature-tag" data-i18n="feat.talk.tag">카메라 + 음성 AI</div>
-                                                                                                             </a>
-                                                                                                         <a href="pages/app.html#health" class="feature-card feature-health">
-                                                                                                                       <div class="feature-icon">❤️</div>
-                                                                                                                       <h3 data-i18n="feat.health.title">건강 체크</h3>
-                                                                                                                       <p data-i18n="feat.health.desc">카메라 기반 AI 생체 스캔으로 심박수, 체온, 스트레스 레벨을 실시간 분석.</p>
-                                                                                                                       <div class="feature-tag" data-i18n="feat.health.tag">AI 생체 분석</div>
-                                                                                                             </a>
-                                                                                                         <a href="pages/app.html#locate" class="feature-card feature-locate">
-                                                                                                                       <div class="feature-icon">📍</div>
-                                                                                                                       <h3 data-i18n="feat.gps.title">위치 추적</h3>
-                                                                                                                       <p data-i18n="feat.gps.desc">GPS 기반 실시간 반려동물 위치 추적. 이동 경로, 속도, 히스토리 지도.</p>
-                                                                                                                       <div class="feature-tag" data-i18n="feat.gps.tag">GPS + 지도</div>
-                                                                                                             </a>
-                                                                                                 </div>
-                                                                                   </section>
+              <main class="container">
 
-                <!-- ━━━ AI 펫 프로필 스캔 ━━━ -->
-                <section class="section-block">
-                            <h2 class="section-heading">🔍 AI 펫 프로필 스캔</h2>
-                            <p class="section-desc">카메라로 반려동물을 비추면 AI가 품종·나이·성격을 즉시 분석합니다.</p>
-                            <div style="text-align:center;margin-top:24px;">
-                                          <a href="pages/pet-scan.html" class="btn-primary">📷 펫 스캔 시작하기</a>
-                            </div>
-                            <div style="text-align:center;margin-top:12px;">
-                                          <span style="font-size:0.75rem;color:#94a3b8;">무료 1일 3회 · Gemini AI 기반</span>
-                            </div>
-                </section>
+                        <!-- ━━━ HERO ━━━ -->
+                        <section class="hero-section">
+                                    <div class="hero-emoji">🐾</div>div>
+                                    <h1 class="hero-title" data-i18n="hero.title">반려동물과 대화하세요</h1>h1>
+                                    <p class="hero-subtitle" data-i18n="hero.subtitle">AI가 반려동물의 마음을 통역합니다</p>p>
+                                    <div class="hero-buttons">
+                                                  <a href="pages/app.html" class="btn-primary btn-lg" data-i18n="hero.cta">🐾 지금 시작하기</a>a>
+                                                  <a href="#features" class="btn-ghost btn-lg" data-i18n="hero.learnMore" style="font-size:0.9rem;">더 알아보기 ↓</a>a>
+                                                  <a href="https://www.airctt.com/consumer" target="_blank" class="btn-coupon btn-lg" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,#f59e0b,#f97316);font-size:0.85rem;color:#fff;border-radius:50px;font-weight:600;font-size:1rem;text-decoration:none;box-shadow:0 4px 15px rgba(249,115,22,0.4);transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(249,115,22,0.5)';" onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 15px rgba(249,115,22,0.4)';">🎫 쿠폰 찾기</a>a>
+                                                  <a href="https://www.airctt.com/merchant" target="_blank" class="btn-merchant btn-lg" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,#6366f1,#8b5cf6);font-size:0.85rem;color:#fff;border-radius:50px;font-weight:600;font-size:1rem;text-decoration:none;box-shadow:0 4px 15px rgba(99,102,241,0.4);transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(99,102,241,0.5)';" onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 15px rgba(99,102,241,0.4)';">🏪 매장입점</a>a>
+                                    </div>div>
+                                    <div class="hero-stats">
+                                                  <div class="stat-item"><span class="stat-number">12+</span>span><span class="stat-label" data-i18n="stat.animals">지원 동물</span>span></div>div>
+                                                  <div class="stat-item"><span class="stat-number">AI</span>span><span class="stat-label" data-i18n="stat.ai">양방향 통역</span>span></div>div>
+                                                  <div class="stat-item"><span class="stat-number">GPS</span>span><span class="stat-label" data-i18n="stat.gps">실시간 추적</span>span></div>div>
+                                    </div>div>
+                        </section>section>
 
-              <div style="text-align:center;margin:32px 0 16px;"><button onclick="var el=document.getElementById('extra-features');if(el.style.opacity==='0.6'){el.style.opacity='1';this.textContent='▲ 접기';}else{el.style.opacity='0.6';this.textContent='▼ 더 많은 기능 보기';}" style="padding:10px 24px;background:rgba(255,255,255,0.1);color:#aaa;border:1px solid #333;border-radius:20px;font-size:0.85rem;cursor:pointer;">▼ 더 많은 기능 보기</button></div>
-<!-- ━━━ 스마트 AI 글래스 (숨김처리) ━━━ -->
-<div id="extra-features" style="opacity:0.6;">
-              <section class="section-block">
-                        <h2 class="section-heading" data-i18n="smart.title">스마트 AI 글래스</h2>
-                        <div class="glasses-card">
-                                    <div class="glasses-visual">
-                                                  <div class="glasses-emoji">🕶️</div>
-                                                  <div class="glasses-overlay">
-                                                                  <div class="overlay-item" data-i18n="smart.overlay1">🐶 감정: 행복 92%</div>
-                                                                  <div class="overlay-item" data-i18n="smart.overlay2">❤️ 심박: 80bpm</div>
-                                                                  <div class="overlay-item" data-i18n="smart.overlay3">📍 거리: 3m</div>
-                                                  </div>
-                                    </div>
-                                    <div class="glasses-info">
-                                                  <h3>ROUNZ × PetCTT</h3>
-                                              <p data-i18n="smart.desc">스마트 글래스를 쓰면 반려동물을 바라보는 것만으로 실시간 통역, 건강 상태, 감정이 AR로 표시됩니다.</p>
-                                              <a href="pages/glasses.html" class="btn-outline" data-i18n="smart.more">자세히 보기 →</a>
-                                    </div>
-                        </div>
-              </section>
-      
-          <!-- ━━━ 펫 주민등록증 ━━━ -->
-          <section class="section-block">
-                <h2 class="section-heading" data-i18n="idcard.title">펫 주민등록증</h2>
-                <p class="section-desc" data-i18n="idcard.desc">반려동물의 공식 신분증. 정면사진, 코끝, 앞양발 지문으로 세상에 하나뿐인 ID를 발급합니다.</p>
-                <div style="text-align:center;margin-top:24px;">
-                        <a href="pages/resident-card.html" class="btn-primary" data-i18n="idcard.cta">📋 주민등록증 발급하기</a>
-                </div>
-          </section>
-      
-          <!-- ━━━ 라이브 영상 소개팅 ━━━ -->
-          <section class="section-block">
-                <h2 class="section-heading" data-i18n="dating.title">라이브 영상 소개팅</h2>
-                <p class="section-desc" data-i18n="dating.desc">우리 아이에게 친구를 만들어주세요! 실시간 영상으로 매칭하고, 채팅하고, 만남을 이어가세요.</p>
-                <div style="text-align:center;margin-top:20px;">
-                        <a href="pages/live-match.html" class="btn-primary" data-i18n="dating.cta">💕 소개팅 시작하기</a>
-                </div>
-          </section>
-</div><!-- /extra-features -->
-      
-          <!-- ━━━ 콘테스트 & 오디션 ━━━ -->
-          <section class="section-block">
-                <h2 class="section-heading" data-i18n="contest.title">콘테스트 & 오디션</h2>
-                <p class="section-desc" data-i18n="contest.desc">매주 주말 펫 콘테스트! 아미 심사위원장 특별상과 함께 우리 아이를 스타로 만들어보세요.</p>
-                <div style="text-align:center;margin-top:20px;">
-                        <a href="pages/contest.html" class="btn-primary" data-i18n="contest.cta">🏆 콘테스트 참가하기</a>
-                </div>
-          </section>
-      
-          <!-- ━━━ 기술 & 특허 ━━━ -->
-          <section class="section-block">
-                <h2 class="section-heading" data-i18n="tech.title">기술 & 특허</h2>
-                <div class="tech-grid">
-                        <div class="tech-card"><div class="tech-icon">🧠</div><h4 data-i18n="tech.ai.title">AI 양방향 통역 특허</h4><p data-i18n="tech.ai.desc">Gemini AI 기반 동물 소리 분석 + 자연어 변환 + 음성 합성의 완전 양방향 통역 시스템</p></div>
-                        <div class="tech-card"><div class="tech-icon">📸</div><h4 data-i18n="tech.vision.title">비전 AI 생체 분석</h4><p data-i18n="tech.vision.desc">카메라 영상만으로 심박수, 호흡수, 스트레스 레벨, 감정 상태를 실시간 추정</p></div>
-                        <div class="tech-card"><div class="tech-icon">🕶️</div><h4 data-i18n="tech.glass.title">스마트글라스 확장</h4><p data-i18n="tech.glass.desc">ROUNZ AR 글래스와 연동하여 반려동물을 바라보면 통역/건강 정보가 AR 오버레이</p></div>
-                        <div class="tech-card"><div class="tech-icon">👃</div><h4 data-i18n="tech.bio.title">생체 인식 ID</h4><p data-i18n="tech.bio.desc">코끝 무늬 + 앞양발 지문의 고유 패턴으로 세계 유일한 펫 신분증 발급</p></div>
-                </div>
-          </section>
-      
-          <!-- ━━━ 제휴 & 문의 ━━━ -->
-          <section class="section-block">
-                <h2 class="section-heading" data-i18n="partner.title">제휴 & 문의</h2>
-                <div style="text-align:center;margin-top:24px;">
-                        <a href="pages/contact.html" class="btn-outline" data-i18n="partner.cta">📩 제휴 문의하기</a>
-                </div>
-          </section>
-      </main>
+                        <!-- ━━━ 핵심 3기능 ━━━ -->
+                        <section id="features" class="section-block">
+                                    <h2 class="section-heading" data-i18n="feat.title">핵심 기능</h2>h2>
+                                    <div class="feature-grid">
+                                                  <a href="pages/app.html#live" class="feature-card feature-translate">
+                                                                  <div class="feature-icon">🎙️</div>div>
+                                                                  <h3 data-i18n="feat.talk.title">AI 통역</h3>h3>
+                                                                  <p data-i18n="feat.talk.desc">반려동물의 소리를 AI가 분석하여 실시간 양방향 음성 통역. 감정 분석 그래프와 학습 진도까지.</p>p>
+                                                                  <div class="feature-tag" data-i18n="feat.talk.tag">카메라 + 음성 AI</div>div>
+                                                  </a>a>
+                                                  <a href="pages/app.html#health" class="feature-card feature-health">
+                                                                  <div class="feature-icon">❤️</div>div>
+                                                                  <h3 data-i18n="feat.health.title">건강 체크</h3>h3>
+                                                                  <p data-i18n="feat.health.desc">카메라 기반 AI 생체 스캔으로 심박수, 체온, 스트레스 레벨을 실시간 분석.</p>p>
+                                                                  <div class="feature-tag" data-i18n="feat.health.tag">AI 생체 분석</div>div>
+                                                  </a>a>
+                                                  <a href="pages/app.html#locate" class="feature-card feature-locate">
+                                                                  <div class="feature-icon">📍</div>div>
+                                                                  <h3 data-i18n="feat.gps.title">위치 추적</h3>h3>
+                                                                  <p data-i18n="feat.gps.desc">GPS 기반 실시간 반려동물 위치 추적. 이동 경로, 속도, 히스토리 지도.</p>p>
+                                                                  <div class="feature-tag" data-i18n="feat.gps.tag">GPS + 지도</div>div>
+                                                  </a>a>
+                                    </div>div>
+                        </section>section>
 
-  <!-- 푸터 -->
-  <footer>
-          <div class="footer-links">
-                    <a href="pages/market.html" data-i18n="footer.market">구름장터</a>
-                    <a href="pages/coupon.html" data-i18n="footer.coupon">쿠폰톡톡</a>
-                    <a href="pages/guide.html" data-i18n="footer.guide">이용가이드</a>
-                    <a href="pages/pricing.html" data-i18n="footer.pricing">요금제</a>
-                    <a href="pages/privacy.html" data-i18n="footer.privacy">개인정보</a>
-                    <a href="pages/terms.html" data-i18n="footer.terms">이용약관</a>
-          </div>
-          <p class="footer-copy" data-i18n="footer.copy">© 2026 PetCTT — 반려동물 AI 플랫폼</p>
-          <p class="footer-tagline" data-i18n="footer.tagline">반려동물과 사람을 연결하는 참여형 플랫폼 🐾</p>
-  </footer>
+                        <!-- ━━━ AI 펫 프로필 스캔 ━━━ -->
+                        <section class="section-block">
+                                    <h2 class="section-heading">🔍 AI 펫 프로필 스캔</h2>h2>
+                                    <p class="section-desc">카메라로 반려동물을 비추면 AI가 품종·나이·성격을 즉시 분석합니다.</p>p>
+                                    <div style="text-align:center;margin-top:24px;">
+                                                  <a href="pages/pet-scan.html" class="btn-primary">📷 펫 스캔 시작하기</a>a>
+                                    </div>div>
+                                    <div style="text-align:center;margin-top:12px;">
+                                                  <span style="font-size:0.75rem;color:#94a3b8;">무료 1일 3회 · Gemini AI 기반</span>span>
+                                    </div>div>
+                        </section>section>
 
-      <!-- 토스트 -->
-      <div class="toast" id="toast"></div>
+                        <div style="text-align:center;margin:32px 0 16px;"><button onclick="var el=document.getElementById('extra-features');if(el.style.opacity==='0.6'){el.style.opacity='1';this.textContent='▲ 접기';}else{el.style.opacity='0.6';this.textContent='▼ 더 많은 기능 보기';}" style="padding:10px 24px;background:rgba(255,255,255,0.1);color:#aaa;border:1px solid #333;border-radius:20px;font-size:0.85rem;cursor:pointer;">▼ 더 많은 기능 보기</button>button></div>div>
 
-      <!-- 인증 모듈 -->
-      <script src="public/js/auth-core.js"></script>
+                        <!-- ━━━ 스마트 AI 글래스 (숨김처리) ━━━ -->
+                        <div id="extra-features" style="opacity:0.6;">
+                                  <section class="section-block">
+                                              <h2 class="section-heading" data-i18n="smart.title">스마트 AI 글래스</h2>h2>
+                                              <div class="glasses-card">
+                                                            <div class="glasses-visual">
+                                                                            <div class="glasses-emoji">🕶️</div>div>
+                                                                            <div class="glasses-overlay">
+                                                                                              <div class="overlay-item" data-i18n="smart.overlay1">🐶 감정: 행복 92%</div>div>
+                                                                                              <div class="overlay-item" data-i18n="smart.overlay2">❤️ 심박: 80bpm</div>div>
+                                                                                              <div class="overlay-item" data-i18n="smart.overlay3">📍 거리: 3m</div>div>
+                                                                            </div>div>
+                                                            </div>div>
+                                                            <div class="glasses-info">
+                                                                            <h3>ROUNZ × PetCTT</h3>
+                                                                      <p data-i18n="smart.desc">스마트 글래스를 쓰면 반려동물을 바라보는 것만으로 실시간 통역, 건강 상태, 감정이 AR로 표시됩니다.</p>p>
+                                                                      <a href="pages/glasses.html" class="btn-outline" data-i18n="smart.more">자세히 보기 →</a>a>
+                                                            </div>div>
+                                              </div>div>
+                                  </section>section>
+                        
+                            <!-- ━━━ 펫 주민등록증 ━━━ -->
+                            <section class="section-block">
+                                  <h2 class="section-heading" data-i18n="idcard.title">펫 주민등록증</h2>
+                                  <p class="section-desc" data-i18n="idcard.desc">반려동물의 공식 신분증. 정면사진, 코끝, 앞양발 지문으로 세상에 하나뿐인 ID를 발급합니다.</p>p>
+                                  <div style="text-align:center;margin-top:24px;">
+                                          <a href="pages/resident-card.html" class="btn-primary" data-i18n="idcard.cta">📋 주민등록증 발급하기</a>a>
+                                  </div>div>
+                            </section>section>
+                        
+                            <!-- ━━━ 라이브 영상 소개팅 ━━━ -->
+                            <section class="section-block">
+                                  <h2 class="section-heading" data-i18n="dating.title">라이브 영상 소개팅</h2>
+                                  <p class="section-desc" data-i18n="dating.desc">우리 아이에게 친구를 만들어주세요! 실시간 영상으로 매칭하고, 채팅하고, 만남을 이어가세요.</p>p>
+                                  <div style="text-align:center;margin-top:20px;">
+                                          <a href="pages/live-match.html" class="btn-primary" data-i18n="dating.cta">💕 소개팅 시작하기</a>a>
+                                  </div>div>
+                            </section>section>
+                        </div>div><!-- /extra-features -->
+              
+                  <!-- ━━━ 콘테스트 & 오디션 ━━━ -->
+                  <section class="section-block">
+                        <h2 class="section-heading" data-i18n="contest.title">콘테스트 & 오디션</h2>
+                        <p class="section-desc" data-i18n="contest.desc">매주 주말 펫 콘테스트! 아미 심사위원장 특별상과 함께 우리 아이를 스타로 만들어보세요.</p>p>
+                        <div style="text-align:center;margin-top:20px;">
+                                <a href="pages/contest.html" class="btn-primary" data-i18n="contest.cta">🏆 콘테스트 참가하기</a>a>
+                        </div>div>
+                  </section>section>
+              
+                  <!-- ━━━ 기술 & 특허 ━━━ -->
+                  <section class="section-block">
+                        <h2 class="section-heading" data-i18n="tech.title">기술 & 특허</h2>
+                        <div class="tech-grid">
+                                <div class="tech-card"><div class="tech-icon">🧠</div>div><h4 data-i18n="tech.ai.title">AI 양방향 통역 특허</h4><p data-i18n="tech.ai.desc">Gemini AI 기반 동물 소리 분석 + 자연어 변환 + 음성 합성의 완전 양방향 통역 시스템</p>p></div>div>
+                                <div class="tech-card"><div class="tech-icon">📸</div>div><h4 data-i18n="tech.vision.title">비전 AI 생체 분석</h4><p data-i18n="tech.vision.desc">카메라 영상만으로 심박수, 호흡수, 스트레스 레벨, 감정 상태를 실시간 추정</p>p></div>div>
+                                <div class="tech-card"><div class="tech-icon">🕶️</div>div><h4 data-i18n="tech.glass.title">스마트글라스 확장</h4><p data-i18n="tech.glass.desc">ROUNZ AR 글래스와 연동하여 반려동물을 바라보면 통역/건강 정보가 AR 오버레이</p>p></div>div>
+                                <div class="tech-card"><div class="tech-icon">👃</div>div><h4 data-i18n="tech.bio.title">생체 인식 ID</h4><p data-i18n="tech.bio.desc">코끝 무늬 + 앞양발 지문의 고유 패턴으로 세계 유일한 펫 신분증 발급</p>p></div>div>
+                        </div>div>
+                  </section>section>
+              
+                  <!-- ━━━ 제휴 & 문의 ━━━ -->
+                  <section class="section-block">
+                        <h2 class="section-heading" data-i18n="partner.title">제휴 & 문의</h2>
+                        <div style="text-align:center;margin-top:24px;">
+                                <a href="pages/contact.html" class="btn-outline" data-i18n="partner.cta">📩 제휴 문의하기</a>a>
+                        </div>div>
+                  </section>section>
+              
+              </main>main>
+    
+        <!-- 푸터 -->
+        <footer>
+                    <div class="footer-links">
+                                  <a href="pages/market.html" data-i18n="footer.market">구름장터</a>a>
+                                  <a href="pages/coupon.html" data-i18n="footer.coupon">쿠폰톡톡</a>a>
+                                  <a href="pages/guide.html" data-i18n="footer.guide">이용가이드</a>a>
+                                  <a href="pages/pricing.html" data-i18n="footer.pricing">요금제</a>a>
+                                  <a href="pages/privacy.html" data-i18n="footer.privacy">개인정보</a>a>
+                                  <a href="pages/terms.html" data-i18n="footer.terms">이용약관</a>a>
+                    </div>div>
+                    <p class="footer-copy" data-i18n="footer.copy">© 2026 PetCTT — 반려동물 AI 플랫폼</p>p>
+                    <p class="footer-tagline" data-i18n="footer.tagline">반려동물과 사람을 연결하는 참여형 플랫폼 🐾</p>p>
+        </footer>
 
-      <script>
-              // ========== 3D 배경 (밤하늘 별) ==========
-              (function init3D() {
-                        const container = document.getElementById('canvas-container');
-                        if (!container || !window.THREE) return;
-                        const scene = new THREE.Scene();
-                        const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 1000);
-                        camera.position.z = 1;
-                        const renderer = new THREE.WebGLRenderer({ alpha: true });
-                        renderer.setSize(window.innerWidth, window.innerHeight);
-                        renderer.setClearColor(0x000000, 1);
-                        container.appendChild(renderer.domElement);
-                        const geo = new THREE.BufferGeometry();
-                        const n = 1500, pos = new Float32Array(n*3);
-                        for (let i=0;i<n*3;i++) pos[i]=(Math.random()-0.5)*600;
-                        geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
-                        const mat = new THREE.PointsMaterial({color:0xffffff,size:0.7,transparent:true,opacity:0.8});
-                        const stars = new THREE.Points(geo, mat);
-                        scene.add(stars);
-                        (function animate(){ requestAnimationFrame(animate); stars.rotation.x+=0.0002; stars.rotation.y+=0.0003; renderer.render(scene,camera); })();
-                                   window.addEventListener('resize', () => { camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth,window.innerHeight); });
-              })();
+              <!-- 토스트 -->
+              <div class="toast" id="toast"></div>div>
 
-              // ========== 아미 웰컴 ==========
-              function activateAmi() {
-                        const o = document.getElementById('ami-overlay'), t = document.getElementById('ami-welcome-text');
-                        o.style.display='flex'; t.innerHTML='🐰 안녕! 나는 아미야~<br>PetCTT에 온 걸 환영해! 💜';
-                        setTimeout(()=>o.style.display='none', 3000);
-                            }
-              // ========== 토스트 ==========
-              function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
-              // ========== 스무스 스크롤 ==========
-              document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', e => { e.preventDefault(); const t=document.querySelector(a.getAttribute('href')); if(t) t.scrollIntoView({behavior:'smooth'}); }); });
-      </script>
+              <!-- 인증 모듈 -->
+              <script src="public/js/auth-core.js"></script>
 
-<!-- 통합 로그인/로그아웃 시스템 -->
-<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"></script>
-<script>
-// 카카오 SDK 초기화
-if (!Kakao.isInitialized()) Kakao.init('fa5158f6f9735b0f0d0bd39a7158393b');
+              <script>
+                        // ========== 3D 배경 (밤하늘 별) ==========
+                        (function init3D() {
+                                    const container = document.getElementById('canvas-container');
+                                    if (!container || !window.THREE) return;
+                                    const scene = new THREE.Scene();
+                                    const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 1000);
+                                    camera.position.z = 1;
+                                    const renderer = new THREE.WebGLRenderer({ alpha: true });
+                                    renderer.setSize(window.innerWidth, window.innerHeight);
+                                    renderer.setClearColor(0x000000, 1);
+                                    container.appendChild(renderer.domElement);
+                                    const geo = new THREE.BufferGeometry();
+                                    const n = 1500, pos = new Float32Array(n*3);
+                                    for (let i=0;i<n*3;i++) pos[i]=(Math.random()-0.5)*600;
+                                    geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+                                    const mat = new THREE.PointsMaterial({color:0xffffff,size:0.7,transparent:true,opacity:0.8});
+                                    const stars = new THREE.Points(geo, mat);
+                                    scene.add(stars);
+                                    (function animate(){
+                                                  requestAnimationFrame(animate);
+                                                  stars.rotation.x+=0.0002;
+                                                  stars.rotation.y+=0.0003;
+                                                  renderer.render(scene,camera);
+                                    })();
+                                    window.addEventListener('resize', () => {
+                                                  camera.aspect=window.innerWidth/window.innerHeight;
+                                                  camera.updateProjectionMatrix();
+                                                  renderer.setSize(window.innerWidth,window.innerHeight);
+                                    });
+                        })();
 
-const AUTH_KEY = 'petctt_unified_auth';
+                        // ========== 아미 웰컴 ==========
+                        function activateAmi() {
+                                    const o = document.getElementById('ami-overlay'), t = document.getElementById('ami-welcome-text');
+                                    o.style.display='flex';
+                                    t.innerHTML='🐰 안녕! 나는 아미야~<br>PetCTT에 온 걸 환영해! 💜';
+                                    setTimeout(()=>o.style.display='none', 3000);
+                        }
 
-function getAuth() {
-    try { return JSON.parse(localStorage.getItem(AUTH_KEY)) || null; } catch { return null; }
-}
+                        // ========== 토스트 ==========
+                        function showToast(msg) {
+                                    const t=document.getElementById('toast');
+                                    t.textContent=msg;
+                                    t.classList.add('show');
+                                    setTimeout(()=>t.classList.remove('show'),2500);
+                        }
 
-function setAuth(user) {
-    localStorage.setItem(AUTH_KEY, JSON.stringify(user));
-    // airctt consumer/merchant 세션도 동기화
-    localStorage.setItem('airctt_consumer_session', JSON.stringify({
-        access_token: user.token || '',
-        refresh_token: '',
-        user: user
-    }));
-    localStorage.setItem('airctt_consumer_user', JSON.stringify(user));
-    renderAuth();
-}
+                        // ========== 스무스 스크롤 ==========
+                        document.querySelectorAll('a[href^="#"]').forEach(a => {
+                                    a.addEventListener('click', e => {
+                                                  e.preventDefault();
+                                                  const t=document.querySelector(a.getAttribute('href'));
+                                                  if(t) t.scrollIntoView({behavior:'smooth'});
+                                    });
+                        });
+              </script>
 
-function clearAuth() {
-    localStorage.removeItem(AUTH_KEY);
-    localStorage.removeItem('airctt_consumer_session');
-    localStorage.removeItem('airctt_consumer_user');
-    // 카카오 로그아웃
-    try { Kakao.Auth.logout(); } catch(e) {}
-    renderAuth();
-}
+              <!-- 통합 로그인/로그아웃 시스템 -->
+              <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"></script>
+              <script>
+                        // 카카오 SDK 초기화
+                        if (!Kakao.isInitialized()) Kakao.init('fa5158f6f9735b0f0d0bd39a7158393b');
 
-function toggleLoginMenu() {
-    var d = document.getElementById('loginDropdown');
-    if (d) d.style.display = d.style.display === 'none' ? 'block' : 'none';
-}
-function closeLoginMenu() {
-    var d = document.getElementById('loginDropdown');
-    if (d) d.style.display = 'none';
-}
-// 다른 곳 클릭하면 닫기
-document.addEventListener('click', function(e) {
-    if (!e.target.closest('#auth-slot')) closeLoginMenu();
-});
-function loginWithGoogle() {
-    window.location.href = 'https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(window.location.origin);
-}
-function loginWithNaver() {
-    window.location.href = 'https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/authorize?provider=naver&redirect_to=' + encodeURIComponent(window.location.origin);
-}
-function loginWithKakao() {
-    Kakao.Auth.login({
-        success: function(authObj) {
-            Kakao.API.request({
-                url: '/v2/user/me',
-                success: function(res) {
-                    setAuth({
-                        id: String(res.id),
-                        email: res.kakao_account?.email || 'user@kakao.com',
-                        name: res.properties?.nickname || '카카오사용자',
-                        avatar: res.properties?.profile_image || '',
-                        provider: 'kakao',
-                        token: authObj.access_token
-                    });
-                    showToast ? showToast('로그인 성공! 환영합니다 🎉', 'success') : alert('로그인 성공!');
-                },
-                fail: function() {
-                    setAuth({ id: 'kakao', email: 'user@kakao.com', name: '카카오사용자', avatar: '', provider: 'kakao', token: authObj.access_token });
-                }
-            });
-        },
-        fail: function(err) { console.error('Kakao login error:', err); }
-    });
-}
+                        const AUTH_KEY = 'petctt_unified_auth';
 
-function renderAuth() {
-    var slot = document.getElementById('auth-slot');
-    if (!slot) return;
-    var user = getAuth();
-    if (user) {
-        slot.innerHTML = '<div style="display:flex;align-items:center;gap:8px;">' +
-            (user.avatar ? '<img src="' + user.avatar + '" style="width:28px;height:28px;border-radius:50%;border:2px solid #2dd4bf;">' : '<span style="font-size:1.2rem;">👤</span>') +
-            '<span style="font-size:0.85rem;font-weight:600;color:#fff;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + user.name + '</span>' +
-            '<button onclick="clearAuth()" style="padding:6px 12px;background:rgba(239,68,68,0.8);color:#fff;border:none;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;">로그아웃</button>' +
-            '</div>';
-    } else {
-        slot.innerHTML = '<div style="position:relative;display:inline-block;">' +
-            '<button id="loginToggleBtn" onclick="toggleLoginMenu()" style="padding:8px 18px;background:linear-gradient(135deg,#FEE500,#03C75A);color:#000;border:none;border-radius:20px;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">🔐 로그인</button>' +
-            '<div id="loginDropdown" style="display:none;position:absolute;top:42px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:8px;z-index:9999;min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">' +
-                '<button onclick="loginWithKakao();closeLoginMenu()" style="width:100%;padding:10px 16px;background:#FEE500;color:#000;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;margin-bottom:6px;display:flex;align-items:center;gap:8px;">💬 카카오 로그인</button>' +
-                '<button onclick="loginWithGoogle();closeLoginMenu()" style="width:100%;padding:10px 16px;background:#fff;color:#333;border:1px solid #ddd;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;margin-bottom:6px;display:flex;align-items:center;gap:8px;">G 구글 로그인</button>' +
-                '<button onclick="loginWithNaver();closeLoginMenu()" style="width:100%;padding:10px 16px;background:#03C75A;color:#fff;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;">N 네이버 로그인</button>' +
-            '</div></div>';
-    }
-}
+                        function getAuth() {
+                                    try { return JSON.parse(localStorage.getItem(AUTH_KEY)) || null; } catch { return null; }
+                        }
 
-// 페이지 로드 시 렌더링
-document.addEventListener('DOMContentLoaded', renderAuth);
+                        function setAuth(user) {
+                                    localStorage.setItem(AUTH_KEY, JSON.stringify(user));
+                                    // airctt consumer/merchant 세션도 동기화
+                                    localStorage.setItem('airctt_consumer_session', JSON.stringify({
+                                                  access_token: user.token || '',
+                                                  refresh_token: '',
+                                                  user: user
+                                    }));
+                                    localStorage.setItem('airctt_consumer_user', JSON.stringify(user));
+                                    renderAuth();
+                        }
 
-// 쿠폰찾기/매장입점 클릭 시 토큰 전달
-document.addEventListener('click', function(e) {
-    var link = e.target.closest('a[href*="airctt.com"]');
-    if (link && getAuth()) {
-        e.preventDefault();
-        var user = getAuth();
-        var url = new URL(link.href);
-        url.searchParams.set('auth_token', user.token || '');
-        url.searchParams.set('auth_name', user.name || '');
-        url.searchParams.set('auth_provider', user.provider || '');
-        window.open(url.toString(), '_blank');
-    }
-});
-</script>
+                        function clearAuth() {
+                                    localStorage.removeItem(AUTH_KEY);
+                                    localStorage.removeItem('airctt_consumer_session');
+                                    localStorage.removeItem('airctt_consumer_user');
+                                    // 카카오 로그아웃
+                                    try { Kakao.Auth.logout(); } catch(e) {}
+                                    renderAuth();
+                        }
 
-<!-- Google Translate 전체 페이지 번역 -->
-<script>
-function googleTranslateElementInit() {
-    new google.translate.TranslateElement({
-        pageLanguage: 'ko',
-        includedLanguages: 'ko,en,ja,zh-CN,zh-TW,es,fr,de,pt,vi,th,id,ar,hi,ru',
-        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-        autoDisplay: false
-    }, 'google_translate_element');
-}
-</script>
-<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-<style>
-/* Google Translate 위젯 스타일 커스텀 */
-.goog-te-gadget { font-size: 0 !important; }
-.goog-te-gadget .goog-te-combo {
-    padding: 6px 10px; border-radius: 16px; border: 1px solid #444;
-    background: rgba(30,30,50,0.8); color: #fff; font-size: 0.75rem;
-    font-weight: 600; cursor: pointer; outline: none;
-}
-.goog-te-banner-frame { display: none !important; }
-body { top: 0 !important; }
-.skiptranslate { display: none !important; }
-</style>
-</body>
-</html>
-      </script>
-  </footer></h3>
-      </header>
-</body></title>
-      </head>
+                        function toggleLoginMenu() {
+                                    var d = document.getElementById('loginDropdown');
+                                    if (d) d.style.display = d.style.display === 'none' ? 'block' : 'none';
+                        }
+
+                        function closeLoginMenu() {
+                                    var d = document.getElementById('loginDropdown');
+                                    if (d) d.style.display = 'none';
+                        }
+
+                        // 다른 곳 클릭하면 닫기
+                        document.addEventListener('click', function(e) {
+                                    if (!e.target.closest('#auth-slot')) closeLoginMenu();
+                        });
+
+                        function loginWithGoogle() {
+                                    window.location.href = 'https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(window.location.origin);
+                        }
+
+                        function loginWithNaver() {
+                                    window.location.href = 'https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/authorize?provider=naver&redirect_to=' + encodeURIComponent(window.location.origin);
+                        }
+
+                        // [FIX] 카카오 로그인: Kakao SDK v2.7.x에서는 Kakao.Auth.login() 삭제됨
+                        // Kakao.Auth.authorize()로 변경 + 콜백에서 사용자 정보 처리
+                        function loginWithKakao() {
+                                    Kakao.Auth.authorize({
+                                                  redirectUri: window.location.origin + '/pages/kakao-callback.html'
+                                    });
+                        }
+
+                        // [FIX] OAuth 콜백 핸들러: URL hash에서 access_token 파싱하여 세션 저장
+                        function handleOAuthCallback() {
+                                    var hash = window.location.hash;
+                                    if (!hash || hash.indexOf('access_token') === -1) return;
+
+                                    // URL hash 파싱
+                                    var params = {};
+                                    hash.substring(1).split('&').forEach(function(part) {
+                                                  var kv = part.split('=');
+                                                  if (kv.length === 2) params[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1]);
+                                    });
+
+                                    if (!params.access_token) return;
+
+                                    // Supabase access_token으로 사용자 정보 가져오기
+                                    fetch('https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/user', {
+                                                  headers: {
+                                                                  'Authorization': 'Bearer ' + params.access_token,
+                                                                  'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sc2l3cndpeW96cGlvZnJtenhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3MjA2MDYsImV4cCI6MjA1ODI5NjYwNn0.JBJptWTzDV_bHB4M6MFsMjrJzwNqEXKxeI4nY_2OjeI'
+                                                  }
+                                    })
+                                    .then(function(res) { return res.json(); })
+                                    .then(function(userData) {
+                                                  if (userData && userData.id) {
+                                                                  var meta = userData.user_metadata || {};
+                                                                  setAuth({
+                                                                                    id: userData.id,
+                                                                                    email: userData.email || meta.email || '',
+                                                                                    name: meta.full_name || meta.name || userData.email || '사용자',
+                                                                                    avatar: meta.avatar_url || meta.picture || '',
+                                                                                    provider: (userData.app_metadata && userData.app_metadata.provider) || 'oauth',
+                                                                                    token: params.access_token
+                                                                  });
+                                                                  showToast('로그인 성공! 환영합니다 🎉');
+                                                  }
+                                                  // URL에서 hash 제거
+                                                  history.replaceState(null, '', window.location.pathname);
+                                    })
+                                    .catch(function(err) {
+                                                  console.error('OAuth callback error:', err);
+                                                  // 토큰이 있으면 기본 정보로 저장
+                                                  setAuth({
+                                                                  id: 'oauth_user',
+                                                                  email: '',
+                                                                  name: '사용자',
+                                                                  avatar: '',
+                                                                  provider: 'oauth',
+                                                                  token: params.access_token
+                                                  });
+                                                  showToast('로그인 성공! 🎉');
+                                                  history.replaceState(null, '', window.location.pathname);
+                                    });
+                        }
+
+                        function renderAuth() {
+                                    var slot = document.getElementById('auth-slot');
+                                    if (!slot) return;
+                                    var user = getAuth();
+                                    if (user) {
+                                                  slot.innerHTML = '<div style="display:flex;align-items:center;gap:8px;">'
+                                                    + (user.avatar ? '<img src="' + user.avatar + '" style="width:28px;height:28px;border-radius:50%;border:2px solid #2dd4bf;">' : '<span style="font-size:1.2rem;">👤</span>')
+                                                    + '<span style="font-size:0.85rem;font-weight:600;color:#fff;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + user.name + '</span>'
+                                                    + '<button onclick="clearAuth()" style="padding:6px 12px;background:rgba(239,68,68,0.8);color:#fff;border:none;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;">로그아웃</button>'
+                                                    + '</div>';
+                                    } else {
+                                                  slot.innerHTML = '<div style="position:relative;display:inline-block;">'
+                                                    + '<button id="loginToggleBtn" onclick="toggleLoginMenu()" style="padding:8px 18px;background:linear-gradient(135deg,#FEE500,#03C75A);color:#000;border:none;border-radius:20px;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">🔐 로그인</button>'
+                                                    + '<div id="loginDropdown" style="display:none;position:absolute;top:42px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:8px;z-index:9999;min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">'
+                                                    + '<button onclick="loginWithKakao();closeLoginMenu()" style="width:100%;padding:10px 16px;background:#FEE500;color:#000;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;margin-bottom:6px;display:flex;align-items:center;gap:8px;">💬 카카오 로그인</button>'
+                                                    + '<button onclick="loginWithGoogle();closeLoginMenu()" style="width:100%;padding:10px 16px;background:#fff;color:#333;border:1px solid #ddd;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;margin-bottom:6px;display:flex;align-items:center;gap:8px;">G 구글 로그인</button>'
+                                                    + '<button onclick="loginWithNaver();closeLoginMenu()" style="width:100%;padding:10px 16px;background:#03C75A;color:#fff;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;">N 네이버 로그인</button>'
+                                                    + '</div></div>';
+                                    }
+                        }
+
+                        // 페이지 로드 시 OAuth 콜백 처리 + 렌더링
+                        document.addEventListener('DOMContentLoaded', function() {
+                                    handleOAuthCallback();
+                                    renderAuth();
+                        });
+
+                        // 쿠폰찾기/매장입점 클릭 시 토큰 전달
+                        document.addEventListener('click', function(e) {
+                                    var link = e.target.closest('a[href*="airctt.com"]');
+                                    if (link && getAuth()) {
+                                                  e.preventDefault();
+                                                  var user = getAuth();
+                                                  var url = new URL(link.href);
+                                                  url.searchParams.set('auth_token', user.token || '');
+                                                  url.searchParams.set('auth_name', user.name || '');
+                                                  url.searchParams.set('auth_provider', user.provider || '');
+                                                  window.open(url.toString(), '_blank');
+                                    }
+                        });
+              </script>
+
+              <!-- Google Translate 전체 페이지 번역 -->
+              <script>
+                        function googleTranslateElementInit() {
+                                    new google.translate.TranslateElement({
+                                                  pageLanguage: 'ko',
+                                                  includedLanguages: 'ko,en,ja,zh-CN,zh-TW,es,fr,de,pt,vi,th,id,ar,hi,ru',
+                                                  layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                                                  autoDisplay: false
+                                    }, 'google_translate_element');
+                        }
+              </script>
+              <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+              <style>
+                        /* Google Translate 위젯 스타일 커스텀 */
+                        .goog-te-gadget { font-size: 0 !important; }
+                        .goog-te-gadget .goog-te-combo {
+                                    padding: 6px 10px;
+                                    border-radius: 16px;
+                                    border: 1px solid #444;
+                                    background: rgba(30,30,50,0.8);
+                                    color: #fff;
+                                    font-size: 0.75rem;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    outline: none;
+                        }
+                        .goog-te-banner-frame { display: none !important; }
+                        body { top: 0 !important; }
+                        .skiptranslate { display: none !important; }
+                        </style>
+
+    </body>
+</html>html>
+              </style>
+              </script>
+              </script>
+        </footer></h3>
+              </header>
+    </body></title>
+          </head>

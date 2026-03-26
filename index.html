@@ -38,7 +38,7 @@
                                     <div style="display:flex;align-items:center;gap:12px;position:relative;">
                                                   <div id="auth-slot" style="position:relative;"></div>
                                                   <div data-sub-dropdown style="display:inline-block"></div>
-                                                  <div data-lang-dropdown style="display:inline-block"></div>
+                                                  <div id="google_translate_element" style="display:inline-block;"></div>
                                                   <a href="pages/mypage.html" class="header-cta">📋 마이페이지</a>
                                     </div>
                         </div>
@@ -340,6 +340,31 @@ document.addEventListener('click', function(e) {
     }
 });
 </script>
+
+<!-- Google Translate 전체 페이지 번역 -->
+<script>
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+        pageLanguage: 'ko',
+        includedLanguages: 'ko,en,ja,zh-CN,zh-TW,es,fr,de,pt,vi,th,id,ar,hi,ru',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false
+    }, 'google_translate_element');
+}
+</script>
+<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<style>
+/* Google Translate 위젯 스타일 커스텀 */
+.goog-te-gadget { font-size: 0 !important; }
+.goog-te-gadget .goog-te-combo {
+    padding: 6px 10px; border-radius: 16px; border: 1px solid #444;
+    background: rgba(30,30,50,0.8); color: #fff; font-size: 0.75rem;
+    font-weight: 600; cursor: pointer; outline: none;
+}
+.goog-te-banner-frame { display: none !important; }
+body { top: 0 !important; }
+.skiptranslate { display: none !important; }
+</style>
 </body>
 </html>
       </script>

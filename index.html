@@ -222,6 +222,97 @@
               // ========== 스무스 스크롤 ==========
               document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', e => { e.preventDefault(); const t=document.querySelector(a.getAttribute('href')); if(t) t.scrollIntoView({behavior:'smooth'}); }); });
       </script>
+
+<!-- 통합 로그인/로그아웃 시스템 -->
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.4/kakao.min.js"></script>
+<script>
+// 카카오 SDK 초기화
+if (!Kakao.isInitialized()) Kakao.init('fa5158f6f9735b0f0d0bd39a7158393b');
+
+const AUTH_KEY = 'petctt_unified_auth';
+
+function getAuth() {
+    try { return JSON.parse(localStorage.getItem(AUTH_KEY)) || null; } catch { return null; }
+}
+
+function setAuth(user) {
+    localStorage.setItem(AUTH_KEY, JSON.stringify(user));
+    // airctt consumer/merchant 세션도 동기화
+    localStorage.setItem('airctt_consumer_session', JSON.stringify({
+        access_token: user.token || '',
+        refresh_token: '',
+        user: user
+    }));
+    localStorage.setItem('airctt_consumer_user', JSON.stringify(user));
+    renderAuth();
+}
+
+function clearAuth() {
+    localStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem('airctt_consumer_session');
+    localStorage.removeItem('airctt_consumer_user');
+    // 카카오 로그아웃
+    try { Kakao.Auth.logout(); } catch(e) {}
+    renderAuth();
+}
+
+function loginWithKakao() {
+    Kakao.Auth.login({
+        success: function(authObj) {
+            Kakao.API.request({
+                url: '/v2/user/me',
+                success: function(res) {
+                    setAuth({
+                        id: String(res.id),
+                        email: res.kakao_account?.email || 'user@kakao.com',
+                        name: res.properties?.nickname || '카카오사용자',
+                        avatar: res.properties?.profile_image || '',
+                        provider: 'kakao',
+                        token: authObj.access_token
+                    });
+                    showToast ? showToast('로그인 성공! 환영합니다 🎉', 'success') : alert('로그인 성공!');
+                },
+                fail: function() {
+                    setAuth({ id: 'kakao', email: 'user@kakao.com', name: '카카오사용자', avatar: '', provider: 'kakao', token: authObj.access_token });
+                }
+            });
+        },
+        fail: function(err) { console.error('Kakao login error:', err); }
+    });
+}
+
+function renderAuth() {
+    var slot = document.getElementById('auth-slot');
+    if (!slot) return;
+    var user = getAuth();
+    if (user) {
+        slot.innerHTML = '<div style="display:flex;align-items:center;gap:8px;">' +
+            (user.avatar ? '<img src="' + user.avatar + '" style="width:28px;height:28px;border-radius:50%;border:2px solid #2dd4bf;">' : '<span style="font-size:1.2rem;">👤</span>') +
+            '<span style="font-size:0.85rem;font-weight:600;color:#fff;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + user.name + '</span>' +
+            '<button onclick="clearAuth()" style="padding:6px 12px;background:rgba(239,68,68,0.8);color:#fff;border:none;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;">로그아웃</button>' +
+            '</div>';
+    } else {
+        slot.innerHTML = '<button onclick="loginWithKakao()" style="padding:8px 18px;background:#FEE500;color:#000;border:none;border-radius:20px;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;"><span>💬</span> 카카오 로그인</button>';
+    }
+}
+
+// 페이지 로드 시 렌더링
+document.addEventListener('DOMContentLoaded', renderAuth);
+
+// 쿠폰찾기/매장입점 클릭 시 토큰 전달
+document.addEventListener('click', function(e) {
+    var link = e.target.closest('a[href*="airctt.com"]');
+    if (link && getAuth()) {
+        e.preventDefault();
+        var user = getAuth();
+        var url = new URL(link.href);
+        url.searchParams.set('auth_token', user.token || '');
+        url.searchParams.set('auth_name', user.name || '');
+        url.searchParams.set('auth_provider', user.provider || '');
+        window.open(url.toString(), '_blank');
+    }
+});
+</script>
 </body>
 </html>
       </script>

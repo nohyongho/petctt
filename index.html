@@ -50,12 +50,12 @@
               <section class="hero-section">
                         <div class="hero-emoji">🐾</div>
                         <h1 class="hero-title" data-i18n="hero.title">반려동물과 대화하세요</h1>
-                        <p class="hero-subtitle" data-i18n="hero.subtitle">AI 통역 · 위치 추적 · 건강 체크 · 주민등록증 · 소개팅 · 콘테스트</p>
+                        <p class="hero-subtitle" data-i18n="hero.subtitle">AI가 반려동물의 마음을 통역합니다</p>
                         <div class="hero-buttons">
                                     <a href="pages/app.html" class="btn-primary btn-lg" data-i18n="hero.cta">🐾 지금 시작하기</a>
-                                    <a href="#features" class="btn-ghost btn-lg" data-i18n="hero.learnMore">더 알아보기 ↓</a>
-                                    <a href="https://www.airctt.com/consumer" target="_blank" class="btn-coupon btn-lg" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;border-radius:50px;font-weight:600;font-size:1rem;text-decoration:none;box-shadow:0 4px 15px rgba(249,115,22,0.4);transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(249,115,22,0.5)';" onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 15px rgba(249,115,22,0.4)';">🎫 쿠폰 찾기</a>
-                                    <a href="https://www.airctt.com/merchant" target="_blank" class="btn-merchant btn-lg" style="display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border-radius:50px;font-weight:600;font-size:1rem;text-decoration:none;box-shadow:0 4px 15px rgba(99,102,241,0.4);transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(99,102,241,0.5)';" onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 15px rgba(99,102,241,0.4)';">🏪 매장입점</a>
+                                    <a href="#features" class="btn-ghost btn-lg" data-i18n="hero.learnMore" style="font-size:0.9rem;">더 알아보기 ↓</a>
+                                    <a href="https://www.airctt.com/consumer" target="_blank" class="btn-coupon btn-lg" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,#f59e0b,#f97316);font-size:0.85rem;color:#fff;border-radius:50px;font-weight:600;font-size:1rem;text-decoration:none;box-shadow:0 4px 15px rgba(249,115,22,0.4);transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(249,115,22,0.5)';" onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 15px rgba(249,115,22,0.4)';">🎫 쿠폰 찾기</a>
+                                    <a href="https://www.airctt.com/merchant" target="_blank" class="btn-merchant btn-lg" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,#6366f1,#8b5cf6);font-size:0.85rem;color:#fff;border-radius:50px;font-weight:600;font-size:1rem;text-decoration:none;box-shadow:0 4px 15px rgba(99,102,241,0.4);transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(99,102,241,0.5)';" onmouseout="this.style.transform='none';this.style.boxShadow='0 4px 15px rgba(99,102,241,0.4)';">🏪 매장입점</a>
                         </div>
                         <div class="hero-stats">
                                     <div class="stat-item"><span class="stat-number">12+</span><span class="stat-label" data-i18n="stat.animals">지원 동물</span></div>
@@ -92,7 +92,7 @@
                 <!-- ━━━ AI 펫 프로필 스캔 ━━━ -->
                 <section class="section-block">
                             <h2 class="section-heading">🔍 AI 펫 프로필 스캔</h2>
-                            <p class="section-desc">카메라로 반려동물을 비추면 AI가 품종, 나이, 성격, 연애 스타일까지 실시간 분석! 아미에게 뭐든 물어보세요.</p>
+                            <p class="section-desc">카메라로 반려동물을 비추면 AI가 품종·나이·성격을 즉시 분석합니다.</p>
                             <div style="text-align:center;margin-top:24px;">
                                           <a href="pages/pet-scan.html" class="btn-primary">📷 펫 스캔 시작하기</a>
                             </div>
@@ -101,7 +101,9 @@
                             </div>
                 </section>
 
-              <!-- ━━━ 스마트 AI 글래스 ━━━ -->
+              <div style="text-align:center;margin:32px 0 16px;"><button onclick="var el=document.getElementById('extra-features');if(el.style.opacity==='0.6'){el.style.opacity='1';this.textContent='▲ 접기';}else{el.style.opacity='0.6';this.textContent='▼ 더 많은 기능 보기';}" style="padding:10px 24px;background:rgba(255,255,255,0.1);color:#aaa;border:1px solid #333;border-radius:20px;font-size:0.85rem;cursor:pointer;">▼ 더 많은 기능 보기</button></div>
+<!-- ━━━ 스마트 AI 글래스 (숨김처리) ━━━ -->
+<div id="extra-features" style="opacity:0.6;">
               <section class="section-block">
                         <h2 class="section-heading" data-i18n="smart.title">스마트 AI 글래스</h2>
                         <div class="glasses-card">
@@ -138,6 +140,7 @@
                         <a href="pages/live-match.html" class="btn-primary" data-i18n="dating.cta">💕 소개팅 시작하기</a>
                 </div>
           </section>
+</div><!-- /extra-features -->
       
           <!-- ━━━ 콘테스트 & 오디션 ━━━ -->
           <section class="section-block">

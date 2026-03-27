@@ -373,7 +373,7 @@ export default {
                             method:'POST',
                             headers:{'Content-Type':'application/x-www-form-urlencoded'},
                             body: new URLSearchParams({
-                                          grant_type:'authorization_code', client_id: env.KAKAO_CLIENT_ID,
+                                          grant_type:'authorization_code', client_id: env.KAKAO_CLIENT_ID, client_secret: env.KAKAO_CLIENT_SECRET || '',
                                           redirect_uri:`${WORKER_BASE}/api/auth/kakao/callback`, code
                             })
                 });

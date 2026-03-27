@@ -1412,7 +1412,7 @@
                                             gate.style.cssText = 'position:fixed;inset:0;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;color:#fff;font-family:Noto Sans KR,sans-serif;';
                                             gate.innerHTML = '<img src="../public/images/petctt-logo.png" alt="PetCTT" style="width:120px;margin-bottom:24px;border-radius:50%;">' +
                                                                 '<h2 style="margin:0 0 8px;font-size:1.5rem;">PetCTT Pro</h2>' +
-                            '<p style="margin:0 0 24px;color:#aaa;font-size:0.95rem;" data-i18n="login_required">이 기능을 사용하려면 로그인이 필요합니다</p>' +
+                            '<p style="margin:0 0 24px;color:#aaa;font-size:0.95rem;" data-i18n="login_required">로그인 후 이용해주세요. 메인 페이지로 이동합니다...</p>' +
                                                                 '<div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px;margin:0 auto;"><button onclick="petcttKakaoLogin()" style="padding:12px 24px;background:#FEE500;color:#000;border:none;border-radius:8px;font-size:0.95rem;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;">💬 카카오 로그인</button><button onclick="petcttGoogleLogin()" style="padding:12px 24px;background:#fff;color:#333;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;">G 구글 로그인</button><button onclick="petcttNaverLogin()" style="padding:12px 24px;background:#03C75A;color:#fff;border:none;border-radius:8px;font-size:0.95rem;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;">N 네이버 로그인</button></div>';
                                             document.body.appendChild(gate);
                                             return;
@@ -1470,7 +1470,7 @@
                         <span class="status-dot"></span>
                         <span id="statusText" data-i18n="app.liveReady">LIVE 준비</span>
                     </div>
-                                        <a href="mypage.html" class="header-cta" style="padding:6px 14px;font-size:13px;">📋 마이페이지</a>a>
+                                        <a href="mypage.html" class="header-cta" style="padding:6px 14px;font-size:13px;">📋 마이페이지</a>
                 </div>
             </div>
         </div>
@@ -4160,7 +4160,7 @@
         // 카카오 로그인
         function petcttKakaoLogin() {
             if (!Kakao.isInitialized()) Kakao.init('fa5158f6f9735b0f0d0bd39a7158393b');
-            Kakao.Auth.login({
+            Kakao.Auth.authorize({ redirectUri: window.location.origin + "/pages/kakao-callback.html" }); return; void({
                 success: function(authObj) {
                     Kakao.API.request({ url:'/v2/user/me',
                         success: function(res) {
@@ -4175,17 +4175,23 @@
 
         // 구글 로그인 (Supabase OAuth)
         function petcttGoogleLogin() {
-            window.location.href = 'https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(window.location.href);
+            window.location.href = 'https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(window.location.origin);
         }
 
         // 네이버 로그인 (Supabase OAuth)
         function petcttNaverLogin() {
-            window.location.href = 'https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/authorize?provider=naver&redirect_to=' + encodeURIComponent(window.location.href);
+            window.location.href = 'https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/authorize?provider=naver&redirect_to=' + encodeURIComponent(window.location.origin);
         }
 
         // 페이지 로드 시 로그인 상태 확인 → 로그인되어 있으면 Pro 잠금 해제
         (function checkAuth() {
             var user = getUnifiedAuth();
+    // 로그인 안 되어 있으면 3초 후 메인으로 이동 (로그인은 메인 헤더에서!)
+    if (!user) {
+      setTimeout(function() {
+        if (!getUnifiedAuth()) window.location.href = window.location.origin;
+      }, 3000);
+    }
             if (user) {
                 // 로그인 상태면 Pro 잠금 화면 숨기기
                 setTimeout(function() {

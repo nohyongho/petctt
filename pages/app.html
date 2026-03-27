@@ -4173,7 +4173,7 @@
         // 카카오 로그인
         function petcttKakaoLogin() {
             if (!Kakao.isInitialized()) Kakao.init('fa5158f6f9735b0f0d0bd39a7158393b');
-            Kakao.Auth.authorize({ redirectUri: window.location.origin + "/pages/kakao-callback.html" }); return; void({
+            Kakao.Auth.login({
                 success: function(authObj) {
                     Kakao.API.request({ url:'/v2/user/me',
                         success: function(res) {

@@ -527,14 +527,14 @@ body {
     <button class="ai-banner-btn" onclick="showToast('🤖 AI 추천을 분석 중... (🪙 3 토큰)')">AI 추천받기</button>
   </div>
 
-  <!-- Products: 인기 상품 -->
+  <!-- Products: 실제 쿠폰 DB 연동 -->
   <div class="section-head">
-    <h2>🔥 인기 상품</h2>
-    <a href="#" class="more-link" onclick="event.preventDefault(); showToast('더보기 준비 중!')">더보기 →</a>
+    <h2>🔥 실시간 쿠폰 <span id="coupon-db-count" style="font-size:13px;color:#00e5ff;font-weight:400;"></span>건</h2>
+    <span style="font-size:12px;color:#64748b;">LIVE</span>
   </div>
-  <div class="product-grid">
+  <div class="product-grid" id="coupon-db-grid">
 
-    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+    <div class="product-card" onclick="showToast('🎟️ 위 실시간 쿠폰 목록을 확인해보세요!')">
       <div class="product-thumb">
         <div class="thumb-emoji" style="background: linear-gradient(135deg, #1a2030, #1f2940);">🍖</div>
         <span class="product-status status-sale">판매 중</span>
@@ -556,7 +556,7 @@ body {
       </div>
     </div>
 
-    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+    <div class="product-card" onclick="showToast('🎟️ 위 실시간 쿠폰 목록을 확인해보세요!')">
       <div class="product-thumb">
         <div class="thumb-emoji" style="background: linear-gradient(135deg, #201a30, #2d1f40);">🧸</div>
         <span class="product-status status-sale">판매 중</span>
@@ -577,7 +577,7 @@ body {
       </div>
     </div>
 
-    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+    <div class="product-card" onclick="showToast('🎟️ 위 실시간 쿠폰 목록을 확인해보세요!')">
       <div class="product-thumb">
         <div class="thumb-emoji" style="background: linear-gradient(135deg, #1a2520, #0d3f2b);">🏠</div>
         <span class="product-status status-reserved">예약 중</span>
@@ -598,7 +598,7 @@ body {
       </div>
     </div>
 
-    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+    <div class="product-card" onclick="showToast('🎟️ 위 실시간 쿠폰 목록을 확인해보세요!')">
       <div class="product-thumb">
         <div class="thumb-emoji" style="background: linear-gradient(135deg, #2a1a20, #401f2a);">👕</div>
         <span class="product-status status-sale">판매 중</span>
@@ -629,7 +629,7 @@ body {
   </div>
   <div class="product-grid">
 
-    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+    <div class="product-card" onclick="showToast('🎟️ 위 실시간 쿠폰 목록을 확인해보세요!')">
       <div class="product-thumb">
         <div class="thumb-emoji" style="background: linear-gradient(135deg, #1a2030, #1f3040);">💊</div>
         <span class="product-status status-sale">판매 중</span>
@@ -650,7 +650,7 @@ body {
       </div>
     </div>
 
-    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+    <div class="product-card" onclick="showToast('🎟️ 위 실시간 쿠폰 목록을 확인해보세요!')">
       <div class="product-thumb">
         <div class="thumb-emoji" style="background: linear-gradient(135deg, #201a25, #2d1f35);">🛁</div>
         <span class="product-status status-sale">판매 중</span>
@@ -671,7 +671,7 @@ body {
       </div>
     </div>
 
-    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+    <div class="product-card" onclick="showToast('🎟️ 위 실시간 쿠폰 목록을 확인해보세요!')">
       <div class="product-thumb">
         <div class="thumb-emoji" style="background: linear-gradient(135deg, #1a2520, #0d3f2b);">🐰</div>
         <span class="product-status status-sale">판매 중</span>
@@ -692,7 +692,7 @@ body {
       </div>
     </div>
 
-    <div class="product-card" onclick="showToast('상품 상세 페이지 준비 중!')">
+    <div class="product-card" onclick="showToast('🎟️ 위 실시간 쿠폰 목록을 확인해보세요!')">
       <div class="product-thumb">
         <div class="thumb-emoji" style="background: linear-gradient(135deg, #1a2030, #102040);">📦</div>
         <span class="product-status status-sold">판매 완료</span>
@@ -730,19 +730,19 @@ body {
     <h2>🤝 상생 공존 마켓 파트너</h2>
     <p>PetCTT와 함께하는 믿을 수 있는 파트너사들입니다.</p>
     <div class="partner-grid">
-      <div class="partner-card" onclick="showToast('🐔 하림 펫푸드 스토어 준비 중!')">
+      <div class="partner-card" onclick="showToast('🐔 하림 펫푸드 쿠폰이 위 목록에 있어요!')">
         <span class="partner-logo">🐔</span>
         <div class="partner-name">하림 펫푸드</div>
         <div class="partner-desc">프리미엄 펫 사료</div>
         <span class="partner-badge">✓ 공식 파트너</span>
       </div>
-      <div class="partner-card" onclick="showToast('🏥 펫 닥터 스토어 준비 중!')">
+      <div class="partner-card" onclick="showToast('🏥 파트너 제휴 문의: biz@petctt.com')">
         <span class="partner-logo">🏥</span>
         <div class="partner-name">펫 닥터</div>
         <div class="partner-desc">동물 건강 영양제</div>
         <span class="partner-badge">✓ 공식 파트너</span>
       </div>
-      <div class="partner-card" onclick="showToast('🧸 펫 토이랜드 스토어 준비 중!')">
+      <div class="partner-card" onclick="showToast('🧸 파트너 제휴 문의: biz@petctt.com')">
         <span class="partner-logo">🧸</span>
         <div class="partner-name">펫 토이랜드</div>
         <div class="partner-desc">반려동물 장난감</div>
@@ -839,6 +839,137 @@ let selectedFile = null;
 let isAdmin = false;
 
 // ===== 배너 로드 (모든 사용자) =====
+
+// ===== 실제 쿠폰 DB 로딩 =====
+const COUPON_URL = SUPABASE_URL;
+const COUPON_KEY = SUPABASE_KEY;
+
+async function loadCoupons() {
+  try {
+    const res = await fetch(
+      `${COUPON_URL}/rest/v1/coupons?is_active=eq.true&approval_status=eq.APPROVED&order=created_at.desc`,
+      { headers: { 'apikey': COUPON_KEY, 'Authorization': `Bearer ${COUPON_KEY}` } }
+    );
+    const coupons = await res.json();
+    if (!Array.isArray(coupons) || coupons.length === 0) return;
+
+    const grid = document.getElementById('coupon-db-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    const categoryEmoji = {
+      '아메리카노': '☕', '커피': '☕', '케이크': '🎂', '한정식': '🍱',
+      '레스토랑': '🍽️', '펫푸드': '🐾', '하림': '🐔', '할인': '🎟️',
+      '무료': '🎁', '구름장터': '☁️', 'PG': '💳'
+    };
+
+    const discountColor = ['#ff6b9d','#ffab40','#00e676','#00e5ff','#7c4dff','#ff5252'];
+
+    coupons.forEach((c, i) => {
+      const emoji = Object.entries(categoryEmoji).find(([k]) => (c.title||'').includes(k))?.[1] || '🎟️';
+      const discVal = c.discount_type === 'percent' ? `${c.discount_value}%` : `₩${c.discount_value.toLocaleString()}`;
+      const color = discountColor[i % discountColor.length];
+      const validTo = c.valid_to ? new Date(c.valid_to).toLocaleDateString('ko-KR') : '기간 미정';
+      const minOrder = c.min_order_amount ? `₩${c.min_order_amount.toLocaleString()} 이상` : '조건없음';
+
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.style.cssText = 'cursor:pointer;';
+      card.innerHTML = `
+        <div class="product-thumb" style="background:linear-gradient(135deg,${color}22,${color}44);display:flex;align-items:center;justify-content:center;">
+          <span class="thumb-emoji" style="font-size:2.5rem;">${emoji}</span>
+          <span class="product-status" style="background:${color}33;color:${color}">활성</span>
+        </div>
+        <div style="padding:14px;">
+          <div style="font-size:20px;font-weight:900;color:${color};margin-bottom:4px;">${discVal}</div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px;color:#f1f5f9;">${c.title}</div>
+          <div style="font-size:11px;color:#64748b;margin-bottom:8px;">${minOrder} · ~${validTo}</div>
+          <button onclick="event.stopPropagation();claimCoupon('${c.id}','${c.title.replace(/'/g,"\'")}','${discVal}')"
+            style="width:100%;padding:8px;border-radius:10px;border:none;background:${color};color:#fff;font-size:13px;font-weight:700;cursor:pointer;">
+            🎟️ 쿠폰 받기
+          </button>
+        </div>`;
+      card.onclick = () => openCouponDetail(c, emoji, color, discVal);
+      grid.appendChild(card);
+    });
+    document.getElementById('coupon-db-count').textContent = coupons.length;
+  } catch(e) { console.log('쿠폰 로딩 오류:', e); }
+}
+
+// ===== 쿠폰 상세 모달 =====
+function openCouponDetail(c, emoji, color, discVal) {
+  const validTo = c.valid_to ? new Date(c.valid_to).toLocaleDateString('ko-KR') : '기간 미정';
+  const minOrder = c.min_order_amount ? `₩${c.min_order_amount.toLocaleString()} 이상 구매 시` : '사용 조건 없음';
+  const maxDisc = c.max_discount_amount ? `최대 ₩${c.max_discount_amount.toLocaleString()} 할인` : '';
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+  overlay.innerHTML = `
+    <div style="background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:28px;width:min(380px,100%);position:relative;">
+      <button onclick="this.closest('[style*=fixed]').remove()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.08);border:none;color:#94a3b8;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;">✕</button>
+      <div style="font-size:3rem;text-align:center;margin-bottom:12px;">${emoji}</div>
+      <div style="font-size:28px;font-weight:900;color:${color};text-align:center;margin-bottom:6px;">${discVal} 할인</div>
+      <div style="font-size:16px;font-weight:700;text-align:center;margin-bottom:20px;color:#f1f5f9;">${c.title}</div>
+      <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;margin-bottom:18px;">
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;"><span style="color:#94a3b8;">사용 조건</span><span style="color:#f1f5f9;">${minOrder}</span></div>
+        ${maxDisc ? `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:13px;"><span style="color:#94a3b8;">최대 할인</span><span style="color:#f1f5f9;">${maxDisc}</span></div>` : ''}
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span style="color:#94a3b8;">유효기간</span><span style="color:#f1f5f9;">~ ${validTo}</span></div>
+      </div>
+      <button onclick="claimCoupon('${c.id}','${c.title.replace(/'/g,"\'")}','${discVal}');this.closest('[style*=fixed]').remove();"
+        style="width:100%;padding:14px;border-radius:14px;border:none;background:${color};color:#fff;font-size:15px;font-weight:700;cursor:pointer;">
+        🎟️ 내 지갑에 담기
+      </button>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.onclick = (e) => { if(e.target === overlay) overlay.remove(); };
+}
+
+// ===== 쿠폰 받기 (coupon_issues에 저장) =====
+async function claimCoupon(couponId, title, discVal) {
+  const userStr = localStorage.getItem('petctt_user') || localStorage.getItem('airctt_consumer_user');
+  if (!userStr) { showToast('⚠️ 로그인 후 쿠폰을 받을 수 있어요!'); return; }
+  let user;
+  try { user = JSON.parse(userStr); } catch(e) { showToast('⚠️ 로그인이 필요해요!'); return; }
+
+  const code = 'MKT-' + Date.now().toString(36).toUpperCase();
+  const expires = new Date(); expires.setDate(expires.getDate() + 30);
+
+  try {
+    const res = await fetch(`${COUPON_URL}/rest/v1/coupon_issues`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': COUPON_KEY,
+        'Authorization': `Bearer ${COUPON_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        coupon_id: couponId,
+        user_id: user.id,
+        issued_from: 'market',
+        claimed_via: 'market',
+        status: 'active',
+        code: code,
+        coupon_code: code,
+        expires_at: expires.toISOString(),
+        issued_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        is_used: false
+      })
+    });
+    if (res.ok || res.status === 201) {
+      showToast(`🎉 "${title}" ${discVal} 쿠폰이 지갑에 담겼어요!`);
+    } else {
+      const err = await res.text();
+      if (err.includes('duplicate') || err.includes('unique')) {
+        showToast('이미 보유 중인 쿠폰이에요!');
+      } else {
+        showToast('⚠️ 쿠폰 저장 오류. 다시 시도해주세요.');
+      }
+    }
+  } catch(e) { showToast('⚠️ 네트워크 오류. 다시 시도해주세요.'); }
+}
+
 async function loadBanners() {
   try {
     const res = await fetch(

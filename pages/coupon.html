@@ -403,53 +403,19 @@ body {
 
   </div>
 
-  <!-- My Coupons -->
+  <!-- My Coupons - 실DB 연동 -->
   <div class="coupon-section">
-    <h2>🎟️ 내 쿠폰함</h2>
-    <div class="coupon-grid">
-      <div class="coupon-card">
-        <div class="coupon-left">
-          <div class="coupon-discount" style="color: var(--accent2);">5%</div>
-          <div class="coupon-type" style="color: var(--accent2);">할인</div>
-        </div>
-        <div class="coupon-right">
-          <div class="coupon-name">구름장터 전 상품 5% 할인</div>
-          <div class="coupon-condition">₩10,000 이상 구매 시</div>
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div class="coupon-expire">⏰ 2026.02.15 까지</div>
-            <button class="coupon-use-btn" style="background: rgba(255,107,157,0.15); color: var(--accent2);" onclick="showToast('🛒 구름장터로 이동해서 사용하세요!')">사용하러가기</button>
-          </div>
-        </div>
-      </div>
-      <div class="coupon-card">
-        <div class="coupon-left">
-          <div class="coupon-discount" style="color: var(--accent5);">10%</div>
-          <div class="coupon-type" style="color: var(--accent5);">할인</div>
-        </div>
-        <div class="coupon-right">
-          <div class="coupon-name">하림 펫푸드 전용 10% 할인</div>
-          <div class="coupon-condition">하림 펫푸드 제품 한정</div>
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div class="coupon-expire">⏰ 2026.02.28 까지</div>
-            <button class="coupon-use-btn" style="background: rgba(255,171,64,0.15); color: var(--accent5);" onclick="showToast('🛒 구름장터로 이동해서 사용하세요!')">사용하러가기</button>
-          </div>
-        </div>
-      </div>
-      <div class="coupon-card">
-        <div class="coupon-left">
-          <div class="coupon-discount" style="color: var(--accent4);">무료</div>
-          <div class="coupon-type" style="color: var(--accent4);">배송</div>
-        </div>
-        <div class="coupon-right">
-          <div class="coupon-name">무료 배송 쿠폰</div>
-          <div class="coupon-condition">₩20,000 이상 구매 시</div>
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div class="coupon-expire">⏰ 2026.03.01 까지</div>
-            <button class="coupon-use-btn" style="background: rgba(0,230,118,0.15); color: var(--accent4);" onclick="showToast('🛒 구름장터로 이동해서 사용하세요!')">사용하러가기</button>
-          </div>
-        </div>
-      </div>
+    <h2>🎟️ 내 쿠폰함 <span id="wallet-count" style="font-size:13px;color:#00e5ff;font-weight:500;"></span></h2>
+    <div id="wallet-empty" style="display:none;text-align:center;padding:40px 20px;color:var(--text-muted);">
+      <div style="font-size:3rem;margin-bottom:12px;">🎟️</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:6px;">보유 쿠폰이 없어요</div>
+      <div style="font-size:13px;">위 게임을 돌려서 쿠폰을 받아보세요!</div>
     </div>
+    <div id="wallet-loading" style="text-align:center;padding:30px;color:var(--text-muted);">
+      <div style="font-size:2rem;margin-bottom:8px;">⏳</div>
+      <div style="font-size:13px;">쿠폰 불러오는 중...</div>
+    </div>
+    <div class="coupon-grid" id="wallet-grid" style="display:none;"></div>
   </div>
 
   <!-- Daily Missions -->
@@ -640,18 +606,143 @@ function closePrize() {
 // ===== 지갑 쿠폰 실제 DB 로딩 =====
 async function loadMyWallet() {
   const user = getLoggedInUser();
-  if (!user) return;
+  const grid = document.getElementById('wallet-grid');
+  const loading = document.getElementById('wallet-loading');
+  const empty = document.getElementById('wallet-empty');
+  const countEl = document.getElementById('wallet-count');
+
+  if (!user) {
+    if (loading) loading.style.display = 'none';
+    if (empty) { empty.style.display = 'block'; empty.querySelector('div:last-child').textContent = '로그인 후 쿠폰을 확인하세요!'; }
+    return;
+  }
+
   try {
+    // coupon_issues + coupons 조인하여 상세정보 함께 조회
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/coupon_issues?user_id=eq.${user.id}&is_used=eq.false&status=eq.active&order=created_at.desc`,
+      `${SUPABASE_URL}/rest/v1/coupon_issues?user_id=eq.${user.id}&is_used=eq.false&status=eq.active&order=created_at.desc&select=*,coupons(title,discount_type,discount_value,min_order_amount,valid_to,merchant_id)`,
       { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
     );
     const issues = await res.json();
+
+    if (loading) loading.style.display = 'none';
+
+    // 헤더 버튼 카운트 업데이트
     const btn = document.querySelector('.my-coupons-btn');
-    if (btn && issues.length > 0) {
-      btn.textContent = `🎟️ 내 쿠폰 ${issues.length}장`;
+    if (btn) btn.textContent = `🎟️ 내 쿠폰 ${issues.length}장`;
+    if (countEl) countEl.textContent = issues.length > 0 ? `${issues.length}장 보유` : '';
+
+    if (!issues.length) {
+      if (empty) empty.style.display = 'block';
+      return;
     }
-  } catch(e) { console.log('지갑 로딩 오류:', e); }
+
+    if (grid) {
+      grid.style.display = 'grid';
+      grid.innerHTML = '';
+
+      const colors = ['var(--accent2)','var(--accent5)','var(--accent4)','var(--accent)','#ff9800','#e91e63'];
+      const bgColors = ['rgba(255,107,157,0.15)','rgba(255,171,64,0.15)','rgba(0,230,118,0.15)','rgba(0,229,255,0.15)','rgba(255,152,0,0.15)','rgba(233,30,99,0.15)'];
+
+      issues.forEach((issue, i) => {
+        const c = issue.coupons || {};
+        const color = colors[i % colors.length];
+        const bg = bgColors[i % bgColors.length];
+
+        // 할인 표시
+        let discVal = '?%', discType = '할인';
+        if (c.discount_type === 'percent') { discVal = c.discount_value + '%'; discType = '할인'; }
+        else if (c.discount_type === 'amount') { discVal = '₩' + (c.discount_value||0).toLocaleString(); discType = '할인'; }
+
+        // 유효기간
+        const expDate = issue.expires_at || c.valid_to;
+        const expStr = expDate ? new Date(expDate).toLocaleDateString('ko-KR', {year:'numeric',month:'2-digit',day:'2-digit'}) : '기간 미정';
+        const isExpired = expDate && new Date(expDate) < new Date();
+
+        // 조건
+        const condition = c.min_order_amount ? `₩${c.min_order_amount.toLocaleString()} 이상` : '조건없음';
+
+        const card = document.createElement('div');
+        card.className = 'coupon-card';
+        if (isExpired) card.style.opacity = '0.5';
+
+        card.innerHTML = `
+          <div class="coupon-left">
+            <div class="coupon-discount" style="color:${color};font-size:${discVal.length>4?'16px':'24px'}">${discVal}</div>
+            <div class="coupon-type" style="color:${color}">${discType}</div>
+          </div>
+          <div class="coupon-right">
+            <div class="coupon-name">${c.title || '쿠폰'}</div>
+            <div class="coupon-condition">${condition}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;">
+              <div class="coupon-expire">${isExpired ? '⛔ 만료됨' : '⏰ ~' + expStr}</div>
+              ${isExpired
+                ? `<button class="coupon-use-btn" style="background:rgba(100,100,100,0.15);color:#666;cursor:not-allowed;" disabled>만료됨</button>`
+                : `<button class="coupon-use-btn" style="background:${bg};color:${color};"
+                    onclick="useCouponFromWallet('${issue.id}','${(c.title||'').replace(/'/g,"\'")}','${discVal}')">
+                    🛒 사용하기
+                  </button>`
+              }
+            </div>
+          </div>`;
+        grid.appendChild(card);
+      });
+    }
+  } catch(e) {
+    console.log('지갑 로딩 오류:', e);
+    if (loading) loading.textContent = '⚠️ 로딩 오류. 새로고침해주세요.';
+  }
+}
+
+// ===== 쿠폰 사용 처리 (USED 상태로 변경) =====
+async function useCouponFromWallet(issueId, title, discVal) {
+  const user = getLoggedInUser();
+  if (!user) { showToast('⚠️ 로그인이 필요해요!'); return; }
+
+  // 사용 확인 모달
+  const confirmed = confirm(`"${title}" ${discVal} 쿠폰을 사용하시겠어요?
+구름장터에서 할인이 적용됩니다.`);
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/coupon_issues?id=eq.${issueId}`,
+      {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          is_used: true,
+          status: 'USED',
+          used_at: new Date().toISOString(),
+          redeemed_at: new Date().toISOString()
+        })
+      }
+    );
+
+    if (res.ok) {
+      showToast(`✅ "${title}" ${discVal} 쿠폰 사용 완료! 구름장터에서 할인이 적용됩니다.`);
+      // 지갑 새로고침
+      setTimeout(() => loadMyWallet(), 800);
+      // 구름장터로 이동 옵션
+      setTimeout(() => {
+        if (confirm('구름장터로 이동하시겠어요?')) {
+          window.location.href = 'market.html';
+        }
+      }, 1000);
+    } else {
+      const err = await res.text();
+      console.error('사용처리 오류:', err);
+      showToast('⚠️ 사용 처리 오류. 다시 시도해주세요.');
+    }
+  } catch(e) {
+    console.error('쿠폰 사용 오류:', e);
+    showToast('⚠️ 네트워크 오류. 다시 시도해주세요.');
+  }
 }
 
 // 페이지 로드시 지갑 카운트 갱신

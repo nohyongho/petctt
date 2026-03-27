@@ -312,7 +312,10 @@
                         // [FIX] 카카오 로그인: Kakao SDK v2.7.x에서는 Kakao.Auth.login() 삭제됨
                         // Kakao.Auth.login()로 변경 + 콜백에서 사용자 정보 처리
                         function loginWithKakao() {
-                                    Kakao.Auth.login({
+                                    // Kakao via Supabase OAuth (SDK 2.7 removed Auth.login)
+                                    window.location.href = 'https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/authorize?provider=kakao&redirect_to=' + encodeURIComponent(window.location.origin);
+                                    return;
+                                    void({
                                                    success: function(authObj) {
                                                        Kakao.API.request({ url: '/v2/user/me',
                                                            success: function(res) {

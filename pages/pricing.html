@@ -394,7 +394,7 @@ body {
       <li><span class="check">✓</span> 쿠폰톡톡 프리미엄 쿠폰</li>
       <li class="disabled"><span class="cross">✗</span> API 접근</li>
     </ul>
-    <button class="plan-cta pro" onclick="showToast('✨ Pro 플랜은 서비스 오픈 후 이용 가능합니다!')">Pro 시작하기 ⚡</button>
+    <button class="plan-cta pro" onclick="startPayment('pro')">Pro 시작하기 ⚡</button>
   </div>
 
   <!-- Premium Plan -->
@@ -424,7 +424,7 @@ body {
       <li><span class="check">✓</span> 우선 고객 지원</li>
       <li><span class="check">✓</span> 상생 공존 마켓 파트너 뱃지</li>
     </ul>
-    <button class="plan-cta premium" onclick="showToast('👑 Premium 플랜은 서비스 오픈 후 이용 가능합니다!')">Premium 시작하기 👑</button>
+    <button class="plan-cta premium" onclick="startPayment('premium')">Premium 시작하기 👑</button>
   </div>
 </div>
 
@@ -653,6 +653,223 @@ function setBilling(mode) {
   }
 }
 
+
+// ===== T8+T9: 다우데이터 PG 데모 결제 =====
+const SB_URL_PG = 'https://nlsiwrwiyozpiofrmzxa.supabase.co';
+const SB_KEY_PG = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sc2l3cndpeW96cGlvZnJtenhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNTc4NzcsImV4cCI6MjA3NjczMzg3N30.hurd7QNUJ-JVppETyDnCwU97F1Z3jkWszYRM9NhSUAg';
+
+const PLAN_PRICES = {
+  pro:     { monthly: 9900,  yearly: 7900,  name: 'Pro',     emoji: '⚡' },
+  premium: { monthly: 29900, yearly: 23900, name: 'Premium', emoji: '👑' }
+};
+
+let currentPlan = 'pro';
+let currentMethod = 'card';
+let pgCoupon = null;
+
+function getPGUser() {
+  try {
+    if (typeof PetCTTAuth !== 'undefined') {
+      const u = PetCTTAuth.getUser(); if (u) return u;
+    }
+    return JSON.parse(localStorage.getItem('petctt_user') ||
+           localStorage.getItem('airctt_consumer_user') || 'null');
+  } catch(e) { return null; }
+}
+
+function startPayment(planId) {
+  const user = getPGUser();
+  if (!user) {
+    showToast('⚠️ 로그인 후 구독할 수 있어요!');
+    setTimeout(() => { location.href = '../index.html'; }, 1200);
+    return;
+  }
+
+  currentPlan = planId;
+  pgCoupon = null;
+
+  const plan = PLAN_PRICES[planId];
+  const price = billing === 'yearly' ? plan.yearly : plan.monthly;
+
+  document.getElementById('pg-plan-title').textContent = plan.emoji + ' ' + plan.name + ' 플랜 구독';
+  document.getElementById('pg-plan-name').textContent = plan.name;
+  document.getElementById('pg-billing-cycle').textContent = billing === 'yearly' ? '연간 (20% 할인)' : '월간';
+  document.getElementById('pg-final-amount').textContent = '₩' + price.toLocaleString();
+  document.getElementById('pg-pay-btn').textContent = '💳 ₩' + price.toLocaleString() + ' 결제하기';
+  document.getElementById('pg-coupon-applied').style.display = 'none';
+  document.getElementById('pg-coupon-row').style.display = 'none';
+
+  document.getElementById('pg-modal-overlay').style.display = 'flex';
+}
+
+function closePGModal() {
+  document.getElementById('pg-modal-overlay').style.display = 'none';
+}
+
+function selectPayMethod(el, method) {
+  currentMethod = method;
+  document.querySelectorAll('.pg-method-btn').forEach(b => {
+    b.style.borderColor = 'rgba(255,255,255,0.07)';
+    b.style.background = 'rgba(255,255,255,0.02)';
+    b.querySelector('div:last-child').style.color = '#94a3b8';
+  });
+  el.style.borderColor = 'rgba(99,102,241,0.5)';
+  el.style.background = 'rgba(99,102,241,0.1)';
+  el.querySelector('div:last-child').style.color = '#a5b4fc';
+}
+
+function recalcAmount() {
+  const plan = PLAN_PRICES[currentPlan];
+  const base = billing === 'yearly' ? plan.yearly : plan.monthly;
+  let disc = 0;
+  if (pgCoupon) {
+    const c = pgCoupon.coupons || {};
+    if (c.discount_type === 'percent') disc = Math.round(base * c.discount_value / 100);
+    else if (c.discount_type === 'amount') disc = Math.min(c.discount_value || 0, base);
+    if (c.max_discount_amount) disc = Math.min(disc, c.max_discount_amount);
+  }
+  const final = Math.max(base - disc, 0);
+  document.getElementById('pg-final-amount').textContent = '₩' + final.toLocaleString();
+  document.getElementById('pg-pay-btn').textContent = '💳 ₩' + final.toLocaleString() + ' 결제하기';
+  if (disc > 0) {
+    document.getElementById('pg-coupon-disc').textContent = '-₩' + disc.toLocaleString();
+    document.getElementById('pg-coupon-row').style.display = 'flex';
+  }
+  return final;
+}
+
+async function openPGCoupon() {
+  const user = getPGUser();
+  if (!user) { showToast('⚠️ 로그인이 필요해요!'); return; }
+  try {
+    const res = await fetch(
+      `${SB_URL_PG}/rest/v1/coupon_issues?user_id=eq.${user.id}&is_used=eq.false&status=eq.active&select=*,coupons(title,discount_type,discount_value,max_discount_amount,min_order_amount)`,
+      { headers: { 'apikey': SB_KEY_PG, 'Authorization': `Bearer ${SB_KEY_PG}` } }
+    );
+    const issues = await res.json();
+    if (!Array.isArray(issues) || !issues.length) {
+      showToast('보유 쿠폰이 없어요. 쿠폰 게임에서 받아보세요!'); return;
+    }
+    const plan = PLAN_PRICES[currentPlan];
+    const base = billing === 'yearly' ? plan.yearly : plan.monthly;
+    const valid = issues.filter(i => {
+      const minOrder = i.coupons?.min_order_amount || 0;
+      return base >= minOrder;
+    });
+    if (!valid.length) { showToast('이 플랜에 사용 가능한 쿠폰이 없어요'); return; }
+    // 첫번째 유효 쿠폰 자동 적용
+    pgCoupon = valid[0];
+    const c = pgCoupon.coupons || {};
+    let discStr = c.discount_type === 'percent' ? c.discount_value + '%' : '₩' + (c.discount_value||0).toLocaleString();
+    document.getElementById('pg-coupon-label').textContent = '🎟️ ' + (c.title||'쿠폰') + ' ' + discStr + ' 할인';
+    document.getElementById('pg-coupon-applied').style.display = 'flex';
+    recalcAmount();
+    showToast('✅ 쿠폰이 적용됐어요!');
+  } catch(e) { showToast('⚠️ 쿠폰 조회 오류'); }
+}
+
+function removePGCoupon() {
+  pgCoupon = null;
+  document.getElementById('pg-coupon-applied').style.display = 'none';
+  document.getElementById('pg-coupon-row').style.display = 'none';
+  recalcAmount();
+}
+
+// T9: 결제 완료 → plan_id 업데이트
+async function processDemoPayment() {
+  const user = getPGUser();
+  if (!user) { showToast('⚠️ 로그인이 필요해요!'); return; }
+
+  const finalAmount = recalcAmount();
+  const processing = document.getElementById('pg-processing');
+  const msgEl = document.getElementById('pg-process-msg');
+
+  // 처리중 화면 표시
+  processing.style.display = 'flex';
+  closePGModal();
+
+  // 데모: 단계별 메시지
+  const steps = [
+    { msg: '다우데이터 PG 연결 중...', delay: 600 },
+    { msg: '결제 정보 검증 중...', delay: 1200 },
+    { msg: '승인 처리 중...', delay: 1800 },
+    { msg: '구독 활성화 중...', delay: 2400 },
+  ];
+  steps.forEach(s => setTimeout(() => { if(msgEl) msgEl.textContent = s.msg; }, s.delay));
+
+  await new Promise(r => setTimeout(r, 3000));
+
+  try {
+    // T10: orders 테이블에 주문 저장
+    const pgTid = 'DAOU-' + Date.now().toString(36).toUpperCase();
+    const planExpires = new Date();
+    planExpires.setMonth(planExpires.getMonth() + (billing === 'yearly' ? 12 : 1));
+
+    const orderRes = await fetch(`${SB_URL_PG}/rest/v1/orders`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SB_KEY_PG,
+        'Authorization': `Bearer ${SB_KEY_PG}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        user_id: user.id,
+        plan_id: currentPlan,
+        amount: finalAmount,
+        billing_cycle: billing,
+        payment_method: currentMethod,
+        pg_name: 'daoudata',
+        pg_tid: pgTid,
+        coupon_issue_id: pgCoupon?.id || null,
+        status: 'completed',
+        description: PLAN_PRICES[currentPlan].name + ' 플랜 ' + (billing === 'yearly' ? '연간' : '월간') + ' 구독',
+        created_at: new Date().toISOString(),
+        plan_expires_at: planExpires.toISOString()
+      })
+    });
+
+    // 쿠폰 사용 처리
+    if (pgCoupon) {
+      await fetch(`${SB_URL_PG}/rest/v1/coupon_issues?id=eq.${pgCoupon.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type':'application/json','apikey':SB_KEY_PG,'Authorization':`Bearer ${SB_KEY_PG}`,'Prefer':'return=minimal' },
+        body: JSON.stringify({ is_used: true, status: 'USED', used_at: new Date().toISOString(), used_order_id: pgTid })
+      });
+    }
+
+    // T9: users 테이블 plan_id 업데이트 시도
+    await fetch(`${SB_URL_PG}/rest/v1/users?id=eq.${user.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type':'application/json','apikey':SB_KEY_PG,'Authorization':`Bearer ${SB_KEY_PG}`,'Prefer':'return=minimal' },
+      body: JSON.stringify({ plan_id: currentPlan, plan_expires_at: planExpires.toISOString() })
+    });
+
+    // localStorage에도 반영 (즉시 UI 업데이트)
+    try {
+      const u = JSON.parse(localStorage.getItem('petctt_user') || '{}');
+      u.plan_id = currentPlan;
+      localStorage.setItem('petctt_user', JSON.stringify(u));
+    } catch(e) {}
+
+    processing.style.display = 'none';
+
+    // 성공 모달
+    const plan = PLAN_PRICES[currentPlan];
+    setTimeout(() => {
+      alert(`🎉 결제 완료!\n\n${plan.emoji} ${plan.name} 플랜이 활성화됐어요!\n결제금액: ₩${finalAmount.toLocaleString()}\n결제수단: ${currentMethod}\nPG거래번호: ${pgTid}\n\n마이페이지에서 확인하세요!`);
+      location.href = 'mypage.html';
+    }, 300);
+
+  } catch(e) {
+    processing.style.display = 'none';
+    console.error('결제 오류:', e);
+    // 오류 발생해도 데모이므로 성공 처리
+    alert('🎉 데모 결제 완료!\n(DB 저장 오류가 있었지만 데모에서는 정상입니다)');
+    location.href = 'mypage.html';
+  }
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -660,6 +877,97 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 </script>
+
+
+<!-- T8: 다우데이터 PG 결제 데모 모달 -->
+<div id="pg-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closePGModal()">
+  <div style="background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:32px;width:min(420px,100%);max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <div>
+        <div style="font-size:16px;font-weight:700;color:#f1f5f9;" id="pg-plan-title">Pro 플랜 구독</div>
+        <div style="font-size:12px;color:#64748b;margin-top:3px;">다우데이터 안전결제</div>
+      </div>
+      <button onclick="closePGModal()" style="background:rgba(255,255,255,0.08);border:none;color:#94a3b8;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;">✕</button>
+    </div>
+
+    <!-- 결제 금액 -->
+    <div style="background:rgba(255,255,255,0.04);border-radius:16px;padding:20px;margin-bottom:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span style="font-size:14px;color:#94a3b8;">플랜</span>
+        <span style="font-size:14px;color:#f1f5f9;font-weight:600;" id="pg-plan-name">Pro</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span style="font-size:14px;color:#94a3b8;">결제 주기</span>
+        <span style="font-size:14px;color:#f1f5f9;" id="pg-billing-cycle">월간</span>
+      </div>
+      <div id="pg-coupon-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;display:none;">
+        <span style="font-size:14px;color:#94a3b8;">쿠폰 할인</span>
+        <span style="font-size:14px;color:#00e676;font-weight:600;" id="pg-coupon-disc">-₩0</span>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:15px;font-weight:700;color:#f1f5f9;">최종 결제금액</span>
+        <span style="font-size:22px;font-weight:900;color:#7c4dff;" id="pg-final-amount">₩9,900</span>
+      </div>
+    </div>
+
+    <!-- 쿠폰 적용 -->
+    <div style="margin-bottom:16px;">
+      <button onclick="openPGCoupon()" style="width:100%;padding:10px;border-radius:12px;border:1px dashed rgba(99,102,241,0.4);background:rgba(99,102,241,0.06);color:#a5b4fc;font-size:13px;cursor:pointer;">
+        🎟️ 보유 쿠폰 적용하기
+      </button>
+      <div id="pg-coupon-applied" style="display:none;margin-top:8px;padding:8px 12px;border-radius:10px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.2);font-size:12px;color:#00e676;display:flex;justify-content:space-between;align-items:center;">
+        <span id="pg-coupon-label">쿠폰 적용됨</span>
+        <button onclick="removePGCoupon()" style="background:none;border:none;color:#64748b;cursor:pointer;font-size:14px;">✕</button>
+      </div>
+    </div>
+
+    <!-- 결제 수단 -->
+    <div style="margin-bottom:20px;">
+      <div style="font-size:13px;color:#94a3b8;margin-bottom:10px;font-weight:600;">결제 수단 선택</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div class="pg-method-btn active" onclick="selectPayMethod(this,'card')" style="padding:12px;border-radius:12px;border:1px solid rgba(99,102,241,0.5);background:rgba(99,102,241,0.1);text-align:center;cursor:pointer;transition:all 0.2s;">
+          <div style="font-size:20px;margin-bottom:4px;">💳</div>
+          <div style="font-size:12px;font-weight:600;color:#a5b4fc;">신용카드</div>
+        </div>
+        <div class="pg-method-btn" onclick="selectPayMethod(this,'kakaopay')" style="padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);text-align:center;cursor:pointer;transition:all 0.2s;">
+          <div style="font-size:20px;margin-bottom:4px;">💬</div>
+          <div style="font-size:12px;font-weight:600;color:#94a3b8;">카카오페이</div>
+        </div>
+        <div class="pg-method-btn" onclick="selectPayMethod(this,'naverpay')" style="padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);text-align:center;cursor:pointer;transition:all 0.2s;">
+          <div style="font-size:20px;margin-bottom:4px;">🟢</div>
+          <div style="font-size:12px;font-weight:600;color:#94a3b8;">네이버페이</div>
+        </div>
+        <div class="pg-method-btn" onclick="selectPayMethod(this,'bank')" style="padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);text-align:center;cursor:pointer;transition:all 0.2s;">
+          <div style="font-size:20px;margin-bottom:4px;">🏦</div>
+          <div style="font-size:12px;font-weight:600;color:#94a3b8;">계좌이체</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 데모 안내 -->
+    <div style="background:rgba(255,171,64,0.08);border:1px solid rgba(255,171,64,0.2);border-radius:12px;padding:12px;margin-bottom:20px;">
+      <div style="font-size:12px;color:#ffab40;font-weight:600;margin-bottom:4px;">🧪 데모 결제 모드</div>
+      <div style="font-size:11px;color:#94a3b8;line-height:1.5;">실제 결제가 발생하지 않습니다. 다우데이터 PG/VAN 연동 테스트용입니다.</div>
+    </div>
+
+    <!-- 결제 버튼 -->
+    <button onclick="processDemoPayment()" id="pg-pay-btn"
+      style="width:100%;padding:16px;border-radius:16px;border:none;background:linear-gradient(135deg,#7c4dff,#00e5ff);color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:all 0.3s;">
+      💳 결제하기
+    </button>
+    <div style="text-align:center;margin-top:12px;font-size:11px;color:#475569;">
+      결제 시 <a href="terms.html" style="color:#6366f1;">이용약관</a> 및 <a href="privacy.html" style="color:#6366f1;">개인정보처리방침</a>에 동의합니다
+    </div>
+  </div>
+</div>
+
+<!-- 결제 처리중 오버레이 -->
+<div id="pg-processing" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:10000;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+  <div style="width:60px;height:60px;border:3px solid rgba(124,77,255,0.2);border-top-color:#7c4dff;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+  <div style="color:#f1f5f9;font-size:16px;font-weight:600;" id="pg-process-msg">결제 처리 중...</div>
+  <div style="color:#64748b;font-size:12px;">다우데이터 PG 연동 중</div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
 
 </body>
 </html>

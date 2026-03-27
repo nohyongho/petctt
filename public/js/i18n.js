@@ -1,3 +1,4 @@
+// v20260328 - 구독/대화시작/마이 업데이트
 // PetCTT i18n v2.1 - 5 languages (ko/en/ja/zh/id)
 const PetCTTI18N=(function(){'use strict';
 const SK='petctt_lang';

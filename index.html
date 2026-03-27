@@ -302,159 +302,18 @@
                         });
 
                         function loginWithGoogle() {
-                                    window.location.href = 'https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(window.location.origin);
+                                    window.location.href = 'https://petctt-auth.zeus1404.workers.dev/api/auth/google';
                         }
 
                         function loginWithNaver() {
-                                    var NID='Yj5T9606wVLFNlOPBBtR'; var CB=encodeURIComponent(window.location.origin+'/pages/naver-callback.html'); var ST='petctt_'+Date.now(); sessionStorage.setItem('naver_state',ST); window.location.href='https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id='+NID+'&redirect_uri='+CB+'&state='+ST;
+                                    window.location.href = 'https://petctt-auth.zeus1404.workers.dev/api/auth/naver';
                         }
 
                         // [FIX] 카카오 로그인: Kakao SDK v2.7.x에서는 Kakao.Auth.login() 삭제됨
                         // Kakao.Auth.login()로 변경 + 콜백에서 사용자 정보 처리
                         function loginWithKakao() {
-                                    // Kakao via Supabase OAuth (SDK 2.7 removed Auth.login)
-                                    window.location.href = 'https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/authorize?provider=kakao&redirect_to=' + encodeURIComponent(window.location.origin);
-                                    return;
-                                    void({
-                                                   success: function(authObj) {
-                                                       Kakao.API.request({ url: '/v2/user/me',
-                                                           success: function(res) {
-                                                               var a = res.kakao_account || {}; var p = a.profile || res.properties || {};
-                                                               setAuth({id:'kakao_'+res.id, email:a.email||'', name:p.nickname||'User', avatar:p.profile_image_url||'', provider:'kakao', token:authObj.access_token});
-                                                           },
-                                                           fail: function() { setAuth({id:'kakao_user',email:'',name:'User',avatar:'',provider:'kakao',token:authObj.access_token}); }
-                                                       });
-                                                   },
-                                                   fail: function(err) { console.error('Kakao err:', err); }
-                                    });
-                        }
-
-                        // [FIX] OAuth 콜백 핸들러: URL hash에서 access_token 파싱하여 세션 저장
-                        function handleOAuthCallback() {
-                                    var hash = window.location.hash;
-                                    if (!hash || hash.indexOf('access_token') === -1) return;
-
-                                    // URL hash 파싱
-                                    var params = {};
-                                    hash.substring(1).split('&').forEach(function(part) {
-                                                  var kv = part.split('=');
-                                                  if (kv.length === 2) params[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1]);
-                                    });
-
-                                    if (!params.access_token) return;
-
-                                    // Supabase access_token으로 사용자 정보 가져오기
-                                    fetch('https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/user', {
-                                                  headers: {
-                                                                  'Authorization': 'Bearer ' + params.access_token,
-                                                                  'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sc2l3cndpeW96cGlvZnJtenhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI3MjA2MDYsImV4cCI6MjA1ODI5NjYwNn0.JBJptWTzDV_bHB4M6MFsMjrJzwNqEXKxeI4nY_2OjeI'
-                                                  }
-                                    })
-                                    .then(function(res) { return res.json(); })
-                                    .then(function(userData) {
-                                                  if (userData && userData.id) {
-                                                                  var meta = userData.user_metadata || {};
-                                                                  setAuth({
-                                                                                    id: userData.id,
-                                                                                    email: userData.email || meta.email || '',
-                                                                                    name: meta.full_name || meta.name || userData.email || '사용자',
-                                                                                    avatar: meta.avatar_url || meta.picture || '',
-                                                                                    provider: (userData.app_metadata && userData.app_metadata.provider) || 'oauth',
-                                                                                    token: params.access_token
-                                                                  });
-                                                                  showToast('로그인 성공! 환영합니다 🎉');
-                                                  }
-                                                  // URL에서 hash 제거
-                                                  history.replaceState(null, '', window.location.pathname);
-                                    })
-                                    .catch(function(err) {
-                                                  console.error('OAuth callback error:', err);
-                                                  // 토큰이 있으면 기본 정보로 저장
-                                                  setAuth({
-                                                                  id: 'oauth_user',
-                                                                  email: '',
-                                                                  name: '사용자',
-                                                                  avatar: '',
-                                                                  provider: 'oauth',
-                                                                  token: params.access_token
-                                                  });
-                                                  showToast('로그인 성공! 🎉');
-                                                  history.replaceState(null, '', window.location.pathname);
-                                    });
-                        }
-
-                        function renderAuth() {
-                                    var slot = document.getElementById('auth-slot');
-                                    if (!slot) return;
-                                    var user = getAuth();
-                                    if (user) {
-                                                  slot.innerHTML = '<div style="display:flex;align-items:center;gap:8px;">'
-                                                    + (user.avatar ? '<img src="' + user.avatar + '" style="width:28px;height:28px;border-radius:50%;border:2px solid #2dd4bf;">' : '<span style="font-size:1.2rem;">👤</span>')
-                                                    + '<span style="font-size:0.85rem;font-weight:600;color:#fff;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + user.name + '</span>'
-                                                    + '<button onclick="clearAuth()" style="padding:6px 12px;background:rgba(239,68,68,0.8);color:#fff;border:none;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;">로그아웃</button>'
-                                                    + '</div>';
-                                    } else {
-                                                  slot.innerHTML = '<div style="position:relative;display:inline-block;">'
-                                                    + '<button id="loginToggleBtn" onclick="toggleLoginMenu()" style="padding:8px 18px;background:linear-gradient(135deg,#FEE500,#03C75A);color:#000;border:none;border-radius:20px;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">🔐 로그인</button>'
-                                                    + '<div id="loginDropdown" style="display:none;position:absolute;top:42px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:8px;z-index:9999;min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,0.5);">'
-                                                    + '<button onclick="loginWithKakao();closeLoginMenu()" style="width:100%;padding:10px 16px;background:#FEE500;color:#000;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;margin-bottom:6px;display:flex;align-items:center;gap:8px;">💬 카카오 로그인</button>'
-                                                    + '<button onclick="loginWithGoogle();closeLoginMenu()" style="width:100%;padding:10px 16px;background:#fff;color:#333;border:1px solid #ddd;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;margin-bottom:6px;display:flex;align-items:center;gap:8px;">G 구글 로그인</button>'
-                                                    + '<button onclick="loginWithNaver();closeLoginMenu()" style="width:100%;padding:10px 16px;background:#03C75A;color:#fff;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;">N 네이버 로그인</button>'
-                                                    + '</div></div>';
-                                    }
-                        }
-
-                        // 페이지 로드 시 OAuth 콜백 처리 + 렌더링
-                        document.addEventListener('DOMContentLoaded', function() {
-                                    handleOAuthCallback();
-                                    renderAuth();
-                        });
-
-                        // 쿠폰찾기/매장입점 클릭 시 토큰 전달
-                        document.addEventListener('click', function(e) {
-                                    var link = e.target.closest('a[href*="airctt.com"]');
-                                    if (link && getAuth()) {
-                                                  e.preventDefault();
-                                                  var user = getAuth();
-                                                  var url = new URL(link.href);
-                                                  url.searchParams.set('auth_token', user.token || '');
-                                                  url.searchParams.set('auth_name', user.name || '');
-                                                  url.searchParams.set('auth_provider', user.provider || '');
-                                                  window.open(url.toString(), '_blank');
-                                    }
-                        });
-              </script>
-
-              <!-- Google Translate 전체 페이지 번역 -->
-              <script>
-                        function googleTranslateElementInit() {
-                                    new google.translate.TranslateElement({
-                                                  pageLanguage: 'ko',
-                                                  includedLanguages: 'ko,en,ja,zh-CN,zh-TW,es,fr,de,pt,vi,th,id,ar,hi,ru',
-                                                  layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-                                                  autoDisplay: false
-                                    }, 'google_translate_element');
-                        }
-              </script>
-              <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-
-              <style>
-                        /* Google Translate 위젯 스타일 커스텀 */
-                        .goog-te-gadget { font-size: 0 !important; }
-                        .goog-te-gadget .goog-te-combo {
-                                    padding: 6px 10px;
-                                    border-radius: 16px;
-                                    border: 1px solid #444;
-                                    background: rgba(30,30,50,0.8);
-                                    color: #fff;
-                                    font-size: 0.75rem;
-                                    font-weight: 600;
-                                    cursor: pointer;
-                                    outline: none;
-                        }
-                        .goog-te-banner-frame { display: none !important; }
-                        body { top: 0 !important; }
-                        .skiptranslate { display: none !important; }
+                                    window.location.href = 'https://petctt-auth.zeus1404.workers.dev/api/auth/kakao';
+                         }
                         </style>
 
 

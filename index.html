@@ -61,7 +61,7 @@
                                                         <div style="display:flex;align-items:center;gap:12px;position:relative;">
                                                                           <div id="auth-slot" style="position:relative;"></div>
                                                                           <button onclick="var d=localStorage.getItem('petctt_theme')!=='light';d=!d;localStorage.setItem('petctt_theme',d?'dark':'light');if(d){document.body.classList.remove('light-mode');this.textContent='🌙'}else{document.body.classList.add('light-mode');this.textContent='☀️'}" id="darkmode-btn" style="width:32px;height:32px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.3s;color:#fff;" title="Dark/Light">&#x1F319;</button>
-                                                                          <div style="position:relative;display:inline-block;"><button onclick="var d=document.getElementById('translateDropdown');if(d)d.style.display=d.style.display==='none'?'block':'none'" id="translate-btn" style="width:32px;height:32px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.3s;color:#fff;" title="Translate">&#x1F310;</button><div id="translateDropdown" class="notranslate" style="display:none;position:absolute;top:40px;right:0;background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:6px;z-index:99999;min-width:150px;max-height:400px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.5);"><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none'" class="tr-item" style="background:rgba(45,212,191,0.15);">🇰🇷 Korean</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='en';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none'" class="tr-item">🇺🇸 English</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='ja';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none'" class="tr-item">🇯🇵 日本語</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='zh-CN';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none'" class="tr-item">🇨🇳 中文简体</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='zh-TW';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none'" class="tr-item">🇹🇼 中文繁體</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='es';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none'" class="tr-item">🇪🇸 Español</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='fr';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none'" class="tr-item">🇫🇷 Français</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='de';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none'" class="tr-item">🇩🇪 Deutsch</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='pt';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none'" class="tr-item">🇧🇷 Português</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='vi';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none'" class="tr-item">🇻🇳 Tiếng Việt</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='th';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none'" class="tr-item">🇹🇭 ไทย</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='id';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none'" class="tr-item">🇮🇩 Indonesia</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='ar';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none'" class="tr-item">🇸🇦 العربية</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='hi';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none'" class="tr-item">🇮🇳 हिन्दी</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='ru';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none'" class="tr-item">🇷🇺 Русский</div></div></div></div>
+                                                                          <div style="position:relative;display:inline-block;"><button onclick="var d=document.getElementById('translateDropdown');if(d)d.style.display=d.style.display==='none'?'block':'none'" id="translate-btn" style="width:32px;height:32px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.3s;color:#fff;" title="Translate">&#x1F310;</button><div id="translateDropdown" class="notranslate" style="display:none;position:absolute;top:40px;right:0;background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:6px;z-index:99999;min-width:150px;max-height:400px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.5);"><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none';if(window._killBar)window._killBar();" class="tr-item" style="background:rgba(45,212,191,0.15);">🇰🇷 Korean</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='en';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none';if(window._killBar)window._killBar();" class="tr-item">🇺🇸 English</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='ja';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none';if(window._killBar)window._killBar();" class="tr-item">🇯🇵 日本語</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='zh-CN';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none';if(window._killBar)window._killBar();" class="tr-item">🇨🇳 中文简体</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='zh-TW';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none';if(window._killBar)window._killBar();" class="tr-item">🇹🇼 中文繁體</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='es';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none';if(window._killBar)window._killBar();" class="tr-item">🇪🇸 Español</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='fr';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none';if(window._killBar)window._killBar();" class="tr-item">🇫🇷 Français</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='de';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none';if(window._killBar)window._killBar();" class="tr-item">🇩🇪 Deutsch</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='pt';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none';if(window._killBar)window._killBar();" class="tr-item">🇧🇷 Português</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='vi';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none';if(window._killBar)window._killBar();" class="tr-item">🇻🇳 Tiếng Việt</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='th';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none';if(window._killBar)window._killBar();" class="tr-item">🇹🇭 ไทย</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='id';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none';if(window._killBar)window._killBar();" class="tr-item">🇮🇩 Indonesia</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='ar';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none';if(window._killBar)window._killBar();" class="tr-item">🇸🇦 العربية</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='hi';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none';if(window._killBar)window._killBar();" class="tr-item">🇮🇳 हिन्दी</div><div onclick="var c=document.querySelector('.goog-te-combo');if(c){c.value='ru';c.dispatchEvent(new Event('change',{bubbles:true}))}document.getElementById('translateDropdown').style.display='none';if(window._killBar)window._killBar();" class="tr-item">🇷🇺 Русский</div></div></div></div>
                                                                           <div data-sub-dropdown style="display:inline-block"></div>
                                                                           <div id="google_translate_element" style="display:none!important;position:absolute;opacity:0;width:0;height:0;overflow:hidden;pointer-events:none;"></div>
 <script>window.googleTranslateElementInit=function(){new google.translate.TranslateElement({pageLanguage:'ko',includedLanguages:'ko,en,ja,zh-CN,zh-TW,es,fr,de,pt,vi,th,id,ar,hi,ru',autoDisplay:false},'google_translate_element');};</script>
@@ -376,6 +376,12 @@ iframe.goog-te-banner-frame{display:none!important;}
                         #google_translate_element { position:absolute!important;opacity:0;width:1px;height:1px;overflow:hidden;pointer-events:none; }
                         .goog-te-gadget { font-size: 0 !important; }
                         .goog-te-gadget .goog-te-combo { padding:6px 10px; border-radius:16px; border:1px solid #444; background:rgba(30,30,50,0.8); color:#fff; font-size:0.75rem; font-weight:600; cursor:pointer; outline:none; }
+/* T2 최종: Google 번역바 완전 차단 */
+body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !important; }
+.goog-te-banner-frame, .goog-te-banner-frame * { display: none !important; }
+#goog-gt-tt { display: none !important; }
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf { display: none !important; }
+
               
 
     
@@ -396,22 +402,67 @@ iframe.goog-te-banner-frame{display:none!important;}
 </script>
 <script>
 (function hideTBar(){
-  var css='.goog-te-banner-frame,.skiptranslate,iframe.goog-te-banner-frame{display:none!important;visibility:hidden!important;height:0!important;}body{top:0!important;margin-top:0!important;}.goog-te-gadget{display:none!important;}#goog-gt-tt{display:none!important;}';
-  var s=document.createElement('style');s.textContent=css;document.head.appendChild(s);
-  var obs=new MutationObserver(function(){
-    document.querySelectorAll('iframe.goog-te-banner-frame,.skiptranslate:not(.notranslate)').forEach(function(el){el.style.cssText='display:none!important;visibility:hidden!important;height:0!important;';});
-    document.body.style.top='0';
-    document.body.style.marginTop='0';
+  // 강력한 CSS injection
+  var css = [
+    '.goog-te-banner-frame{display:none!important;visibility:hidden!important;height:0!important;max-height:0!important;overflow:hidden!important;}',
+    'iframe.goog-te-banner-frame{display:none!important;}',
+    '.goog-te-banner-frame.skiptranslate{display:none!important;}',
+    '.skiptranslate:not(.notranslate){display:none!important;visibility:hidden!important;}',
+    '.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,.VIpgJd-ZVi9od-l4eHX-hSRGPd{display:none!important;}',
+    '#goog-gt-tt,.goog-te-balloon-frame,.goog-te-balloon-frame *{display:none!important;}',
+    'body{top:0!important;margin-top:0!important;position:static!important;}',
+    '.goog-te-gadget{display:none!important;font-size:0!important;}'
+  ].join('');
+  var s = document.createElement('style');
+  s.id = 'petctt-notranslate-bar';
+  s.textContent = css;
+  (document.head || document.documentElement).appendChild(s);
+
+  function killBar() {
+    // iframe 번역바 제거
+    document.querySelectorAll('iframe.goog-te-banner-frame').forEach(function(el){
+      el.style.cssText = 'display:none!important;height:0!important;';
+      try { el.remove(); } catch(e){}
+    });
+    // skiptranslate 요소 숨김 (notranslate 제외)
+    document.querySelectorAll('.skiptranslate:not(.notranslate)').forEach(function(el){
+      el.style.cssText = 'display:none!important;';
+    });
+    // body 위치 강제 고정
+    if (document.body) {
+      document.body.style.top = '0';
+      document.body.style.marginTop = '0';
+    }
+    // Google 번역 툴팁 제거
+    var tt = document.getElementById('goog-gt-tt');
+    if (tt) tt.style.display = 'none';
+  }
+
+  // MutationObserver로 DOM 변경 시마다 실행
+  var obs = new MutationObserver(function(mutations) {
+    var needKill = mutations.some(function(m) {
+      return Array.from(m.addedNodes).some(function(n) {
+        return n.nodeType === 1 && (
+          (n.className && typeof n.className === 'string' &&
+           (n.className.includes('goog-te') || n.className.includes('skiptranslate'))) ||
+          n.tagName === 'IFRAME'
+        );
+      });
+    });
+    if (needKill || document.body.style.top !== '0px') killBar();
   });
-  obs.observe(document.body||document.documentElement,{childList:true,subtree:true,attributes:true});
-  setTimeout(function(){
-    document.querySelectorAll('iframe.goog-te-banner-frame,.skiptranslate:not(.notranslate)').forEach(function(el){el.style.cssText='display:none!important;';});
-    document.body.style.top='0';
-  },1000);
-  setTimeout(function(){
-    document.querySelectorAll('iframe.goog-te-banner-frame').forEach(function(el){el.remove();});
-    document.body.style.top='0';
-  },3000);
+
+  obs.observe(document.documentElement, {
+    childList: true, subtree: true, attributes: true,
+    attributeFilter: ['style', 'class']
+  });
+
+  // 즉시 + 주기적 실행
+  killBar();
+  setTimeout(killBar, 500);
+  setTimeout(killBar, 1500);
+  setTimeout(killBar, 3000);
+  setInterval(killBar, 2000); // 2초마다 체크
 })();
 </script>
 </body>

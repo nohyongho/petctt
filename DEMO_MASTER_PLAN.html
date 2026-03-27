@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PetCTT × AIRCTT 데모 작업 계획서</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Noto Sans KR',sans-serif;background:#0a0a14;color:#e2e8f0;min-height:100vh;padding:24px 16px}
+.plan{max-width:760px;margin:0 auto}
+h1{font-size:18px;font-weight:700;color:#f1f5f9;margin-bottom:4px}
+.sub{font-size:12px;color:#64748b;margin-bottom:20px}
+.dday-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.badge{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.b-red{background:#3f1515;color:#f09595}
+.b-amber{background:#3d2a0a;color:#f0c87a}
+.b-green{background:#0d2e1c;color:#5dcaa5}
+.b-purple{background:#2a1f4a;color:#afa9ec}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.stat{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px;text-align:center}
+.stat-n{font-size:24px;font-weight:700}
+.stat-l{font-size:11px;color:#64748b;margin-top:2px}
+.ng{color:#1D9E75}.na{color:#BA7517}.nr{color:#E24B4A}.np{color:#7F77DD}
+.pbar{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.pfill{height:100%;border-radius:3px;background:#1D9E75;transition:width 0.4s}
+.ptxt{font-size:11px;color:#64748b;text-align:right;margin-bottom:20px}
+.phase{margin-bottom:18px}
+.ph-head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;border:0.5px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);margin-bottom:8px}
+.ph-icon{font-size:16px}
+.ph-title{font-size:14px;font-weight:600;flex:1;color:#f1f5f9}
+.ph-meta{font-size:11px;color:#64748b}
+.task{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:8px;border:0.5px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);margin-bottom:6px;cursor:pointer;transition:background 0.15s}
+.task:hover{background:rgba(255,255,255,0.05)}
+.task.done{opacity:0.4}
+.task.done .task-title{text-decoration:line-through}
+.chk{width:20px;height:20px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all 0.2s}
+.chk.on{background:#1D9E75;border-color:#1D9E75}
+.chk svg{display:none}
+.chk.on svg{display:block}
+.tb{flex:1}
+.task-title{font-size:13px;font-weight:600;margin-bottom:3px;color:#f1f5f9}
+.task-desc{font-size:11px;color:#94a3b8;line-height:1.5}
+.task-commit{font-size:10px;color:#475569;margin-top:3px;font-family:monospace}
+.tags{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
+.tag{padding:2px 8px;border-radius:8px;font-size:10px;font-weight:600}
+.tt{background:#1e3a5f;color:#7eb3f0}
+.th{background:#3f1515;color:#f09595}
+.tm{background:#3d2a0a;color:#f0c87a}
+.te{background:#0d2e1c;color:#5dcaa5}
+.td{background:#2a1f4a;color:#afa9ec}
+.tu{background:#3a1a2f;color:#ed93b1}
+hr{border:none;border-top:0.5px solid rgba(255,255,255,0.07);margin:16px 0}
+.ms-wrap{margin-bottom:14px}
+.ms-title{font-size:13px;font-weight:600;color:#f1f5f9;margin-bottom:8px}
+.ms{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;border:0.5px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);margin-bottom:5px}
+.ms-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.ms-lbl{font-size:12px;font-weight:500;flex:1}
+.ms-date{font-size:11px;color:#64748b}
+.footer{font-size:11px;color:#334155;text-align:center;margin-top:24px;padding-top:16px;border-top:0.5px solid rgba(255,255,255,0.06)}
+</style>
+</head>
+<body>
+<div class="plan">
+<h1>PetCTT × AIRCTT 데모 작업 계획서 v1.0</h1>
+<div class="sub">마트 · 다우데이터 · 밴피지사 연동 데모 | 주식회사 발로레 | 2026-03-28</div>
+
+<div class="dday-row">
+  <span class="badge b-red">D-7 긴급</span>
+  <span class="badge b-amber">총 18개 태스크</span>
+  <span class="badge b-purple">5단계 Phase</span>
+  <span class="badge b-green" id="badge-done">완료: 0개</span>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-n ng" id="s-done">0</div><div class="stat-l">완료</div></div>
+  <div class="stat"><div class="stat-n na" id="s-prog">0</div><div class="stat-l">진행중</div></div>
+  <div class="stat"><div class="stat-n nr" id="s-todo">18</div><div class="stat-l">남은 것</div></div>
+  <div class="stat"><div class="stat-n np" id="s-pct">0%</div><div class="stat-l">진행률</div></div>
+</div>
+<div class="pbar"><div class="pfill" id="pbar" style="width:0%"></div></div>
+<div class="ptxt" id="ptxt">0 / 18 완료</div>
+
+<!-- PHASE 1 -->
+<div class="phase">
+  <div class="ph-head"><span class="ph-icon">🔥</span><span class="ph-title">Phase 1 — 치명 버그 수정</span><span class="ph-meta">예상 3시간 | Day 1</span></div>
+
+  <div class="task" id="t1" onclick="toggle('t1','fix: 게임쿠폰 coupon_id NULL 버그 수정')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">게임쿠폰 coupon_id NULL 버그 수정</div>
+      <div class="task-desc">PRIZES 배열에 실제 coupon_id 11건 매핑. saveCouponToWallet coupon_id 필드 추가</div>
+      <div class="task-commit" id="c-t1">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">1시간</span><span class="tag te">쉬움</span><span class="tag td">coupon.html</span></div>
+    </div>
+  </div>
+
+  <div class="task" id="t2" onclick="toggle('t2','fix: 구글번역 상단바 완전 숨김 최종 확인')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">구글번역 상단바 완전 숨김 최종 확인</div>
+      <div class="task-desc">MutationObserver 적용 후 번역 사용 시 바 재등장 여부 테스트</div>
+      <div class="task-commit" id="c-t2">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">30분</span><span class="tag te">쉬움</span><span class="tag tu">index.html</span></div>
+    </div>
+  </div>
+
+  <div class="task" id="t3" onclick="toggle('t3','feat: coupon.html 지갑 사용하기 Supabase 실연동')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">coupon.html 지갑 "사용하기" 버튼 실제 연동</div>
+      <div class="task-desc">showToast("준비중") → Supabase coupon_issues status=USED 업데이트</div>
+      <div class="task-commit" id="c-t3">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">1.5시간</span><span class="tag tm">보통</span><span class="tag td">coupon.html</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- PHASE 2 -->
+<div class="phase">
+  <div class="ph-head"><span class="ph-icon">🛒</span><span class="ph-title">Phase 2 — 구름장터 DB 연동</span><span class="ph-meta">예상 8시간 | Day 1~2</span></div>
+
+  <div class="task" id="t4" onclick="toggle('t4','feat: market.html coupons DB 실시간 연동')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">market.html ← coupons 테이블 실시간 연동</div>
+      <div class="task-desc">하드코딩 상품 제거 → Supabase coupons 11건 자동 렌더링. 할인율·매장명·유효기간 카드</div>
+      <div class="task-commit" id="c-t4">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">2시간</span><span class="tag tm">보통</span><span class="tag td">market.html</span></div>
+    </div>
+  </div>
+
+  <div class="task" id="t5" onclick="toggle('t5','feat: 쿠폰 상세 모달 + 쿠폰받기 구현')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">상품 클릭 → 상세 모달 + 쿠폰 받기 구현</div>
+      <div class="task-desc">준비중 8개 → 쿠폰 상세 모달. 할인정보·유효기간·사용조건·내 지갑에 담기 버튼</div>
+      <div class="task-commit" id="c-t5">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">2시간</span><span class="tag tm">보통</span><span class="tag tu">market.html</span></div>
+    </div>
+  </div>
+
+  <div class="task" id="t6" onclick="toggle('t6','feat: 장터-지갑 쿠폰 적용 UI 구현')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">장터 ↔ 지갑 쿠폰 적용 UI</div>
+      <div class="task-desc">결제 전 "내 쿠폰 적용" → coupon_issues 조회 → 선택 → 할인 계산 → 최종금액</div>
+      <div class="task-commit" id="c-t6">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">3시간</span><span class="tag th">핵심</span><span class="tag td">market.html</span></div>
+    </div>
+  </div>
+
+  <div class="task" id="t7" onclick="toggle('t7','feat: 파트너사 카드 실제 연결')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">파트너사 카드 실제 연결</div>
+      <div class="task-desc">하림·펫닥터·펫토이랜드 준비중 → 파트너 쿠폰 필터 이동</div>
+      <div class="task-commit" id="c-t7">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">1시간</span><span class="tag te">쉬움</span><span class="tag tu">market.html</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- PHASE 3 -->
+<div class="phase">
+  <div class="ph-head"><span class="ph-icon">💳</span><span class="ph-title">Phase 3 — 다우데이터 PG 연동</span><span class="ph-meta">예상 12시간 | Day 3~4</span></div>
+
+  <div class="task" id="t8" onclick="toggle('t8','feat: pricing.html 다우데이터 PG 결제창 연동')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">pricing.html Pro/Premium → 다우데이터 PG창</div>
+      <div class="task-desc">서비스오픈후 2개 → 다우데이터 결제창 호출. PG 데모 1,000원 쿠폰 시연</div>
+      <div class="task-commit" id="c-t8">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">4시간</span><span class="tag th">핵심</span><span class="tag td">pricing.html</span></div>
+    </div>
+  </div>
+
+  <div class="task" id="t9" onclick="toggle('t9','feat: PG 결제완료 콜백 plan_id 자동업데이트')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">결제완료 → plan_id 자동 업데이트</div>
+      <div class="task-desc">PG 콜백 → Supabase users plan_id 업데이트 → mypage 플랜 실시간 반영</div>
+      <div class="task-commit" id="c-t9">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">3시간</span><span class="tag th">핵심</span><span class="tag td">Worker+DB</span></div>
+    </div>
+  </div>
+
+  <div class="task" id="t10" onclick="toggle('t10','feat: orders 테이블 생성 및 주문저장')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">orders 테이블 생성 + 주문 저장</div>
+      <div class="task-desc">결제 시 orders 레코드 자동 생성. user_id·coupon_id·amount·status·pg_tid</div>
+      <div class="task-commit" id="c-t10">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">2시간</span><span class="tag tm">보통</span><span class="tag td">Supabase</span></div>
+    </div>
+  </div>
+
+  <div class="task" id="t11" onclick="toggle('t11','feat: VAN 쿠폰사용 처리 API')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">밴피지사(나이스·다우) VAN 쿠폰 사용 처리</div>
+      <div class="task-desc">매장 단말기 쿠폰코드 입력 → coupon_issues is_used=true → 실시간 집계</div>
+      <div class="task-commit" id="c-t11">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">3시간</span><span class="tag th">핵심</span><span class="tag td">API</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- PHASE 4 -->
+<div class="phase">
+  <div class="ph-head"><span class="ph-icon">👤</span><span class="ph-title">Phase 4 — 마이페이지 실데이터 연동</span><span class="ph-meta">예상 5시간 | Day 5</span></div>
+
+  <div class="task" id="t12" onclick="toggle('t12','feat: mypage 쿠폰지갑 실DB 연동')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">mypage 내 쿠폰 지갑 실데이터 연동</div>
+      <div class="task-desc">coupon_issues user_id + active 조회 → 보유쿠폰 목록. 42건 즉시 활용</div>
+      <div class="task-commit" id="c-t12">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">2시간</span><span class="tag tm">보통</span><span class="tag td">mypage.html</span></div>
+    </div>
+  </div>
+
+  <div class="task" id="t13" onclick="toggle('t13','feat: mypage 결제내역 orders 연동')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">결제내역 orders 테이블 연동</div>
+      <div class="task-desc">orders user_id 조회 → 결제일·금액·상태 목록. 더미 데이터 완전 제거</div>
+      <div class="task-commit" id="c-t13">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">1.5시간</span><span class="tag tm">보통</span><span class="tag td">mypage.html</span></div>
+    </div>
+  </div>
+
+  <div class="task" id="t14" onclick="toggle('t14','feat: mypage 플랜뱃지 실시간 반영')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">플랜 뱃지 실시간 반영</div>
+      <div class="task-desc">로그인 시 plan_id 조회 → Free/Standard/Premium 뱃지. PG 결제 후 즉시 갱신</div>
+      <div class="task-commit" id="c-t14">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">1시간</span><span class="tag te">쉬움</span><span class="tag tu">mypage.html</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- PHASE 5 -->
+<div class="phase">
+  <div class="ph-head"><span class="ph-icon">🔗</span><span class="ph-title">Phase 5 — PetCTT × AIRCTT 세션 통합</span><span class="ph-meta">예상 6시간 | Day 6~7</span></div>
+
+  <div class="task" id="t15" onclick="toggle('t15','feat: 공통 user_id 매핑 테이블 생성')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">공통 user_id 매핑 테이블 생성</div>
+      <div class="task-desc">petctt_user_id ↔ airctt_user_id 매핑. 쿠폰찾기 버튼 클릭 시 자동 세션 전달</div>
+      <div class="task-commit" id="c-t15">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">3시간</span><span class="tag th">핵심</span><span class="tag td">Worker+DB</span></div>
+    </div>
+  </div>
+
+  <div class="task" id="t16" onclick="toggle('t16','feat: AIRCTT 발행쿠폰 PetCTT 장터 자동노출')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">AIRCTT 발행쿠폰 → PetCTT 장터 자동 노출</div>
+      <div class="task-desc">merchant 쿠폰 발행 → APPROVED → petctt market.html 자동 갱신</div>
+      <div class="task-commit" id="c-t16">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">3시간</span><span class="tag th">핵심</span><span class="tag td">market.html</span></div>
+    </div>
+  </div>
+
+  <div class="task" id="t17" onclick="toggle('t17','test: 전체 순환구조 E2E 테스트')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">전체 순환구조 E2E 테스트</div>
+      <div class="task-desc">매장발행→게임드랍→지갑획득→장터사용→정산 전 과정 실제 시연</div>
+      <div class="task-commit" id="c-t17">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">2시간</span><span class="tag th">필수</span><span class="tag td">전체</span></div>
+    </div>
+  </div>
+
+  <div class="task" id="t18" onclick="toggle('t18','docs: 데모 시나리오 문서 작성')">
+    <div class="chk"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+    <div class="tb">
+      <div class="task-title">데모 시나리오 문서 작성</div>
+      <div class="task-desc">마트·다우데이터·밴피지사 시연용 스크립트. 각 단계별 화면 캡처 포함</div>
+      <div class="task-commit" id="c-t18">커밋: 대기중...</div>
+      <div class="tags"><span class="tag tt">1시간</span><span class="tag te">쉬움</span><span class="tag td">README</span></div>
+    </div>
+  </div>
+</div>
+
+<hr>
+<div class="ms-wrap">
+  <div class="ms-title">데모 마일스톤</div>
+  <div class="ms"><div class="ms-dot" style="background:#1D9E75"></div><div class="ms-lbl">Phase 1 완료 — 버그 제로</div><div class="ms-date">Day 1</div></div>
+  <div class="ms"><div class="ms-dot" style="background:#1D9E75"></div><div class="ms-lbl">Phase 2 완료 — 장터 실제 작동</div><div class="ms-date">Day 2</div></div>
+  <div class="ms"><div class="ms-dot" style="background:#BA7517"></div><div class="ms-lbl">Phase 3 완료 — PG 결제 데모 가능</div><div class="ms-date">Day 4</div></div>
+  <div class="ms"><div class="ms-dot" style="background:#BA7517"></div><div class="ms-lbl">Phase 4 완료 — 마이페이지 완성</div><div class="ms-date">Day 5</div></div>
+  <div class="ms"><div class="ms-dot" style="background:#7F77DD"></div><div class="ms-lbl">Phase 5 완료 — 완전 순환 구조 🚀</div><div class="ms-date">Day 7</div></div>
+</div>
+
+<div class="footer">주식회사 발로레 | AIRCTT × PetCTT | 2026 우주대스타 여정 💜</div>
+</div>
+
+<script>
+var TOTAL = 18;
+var state = JSON.parse(localStorage.getItem('plan_state')||'{}');
+var commits = {
+  t1:'🎟️ fix: 게임쿠폰 coupon_id NULL 버그수정 + PRIZES 11건 매핑',
+  t2:'🌐 fix: 구글번역 상단바 MutationObserver 완전숨김',
+  t3:'💼 feat: coupon.html 지갑 사용하기 Supabase 실연동',
+  t4:'🛒 feat: market.html coupons DB 실시간 연동 11건',
+  t5:'🎯 feat: 쿠폰 상세모달 + claimCoupon 지갑담기',
+  t6:'💰 feat: 장터-지갑 쿠폰 적용 할인계산 UI',
+  t7:'🤝 feat: 파트너사 카드 연결 개선',
+  t8:'💳 feat: pricing.html 다우데이터 PG 결제창 연동',
+  t9:'✅ feat: PG 콜백 plan_id 자동업데이트',
+  t10:'📦 feat: orders 테이블 생성 주문저장',
+  t11:'🏪 feat: VAN 쿠폰사용 처리 API',
+  t12:'👤 feat: mypage 쿠폰지갑 실DB 연동',
+  t13:'📊 feat: mypage 결제내역 orders 연동',
+  t14:'⭐ feat: mypage 플랜뱃지 실시간 반영',
+  t15:'🔗 feat: petctt-airctt user_id 매핑 테이블',
+  t16:'🚀 feat: AIRCTT 발행쿠폰 PetCTT 장터 자동노출',
+  t17:'🧪 test: 전체 순환구조 E2E 테스트 완료',
+  t18:'📝 docs: 데모 시나리오 문서 완성'
+};
+
+function init(){
+  Object.keys(state).forEach(function(id){
+    if(state[id]){ applyDone(id); }
+  });
+  update();
+}
+
+function toggle(id, msg){
+  state[id] = !state[id];
+  localStorage.setItem('plan_state', JSON.stringify(state));
+  applyDone(id);
+  update();
+}
+
+function applyDone(id){
+  var el = document.getElementById(id);
+  var chk = el.querySelector('.chk');
+  var ct = document.getElementById('c-'+id);
+  if(state[id]){
+    chk.classList.add('on');
+    el.classList.add('done');
+    var now = new Date().toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    if(ct) ct.textContent = '✅ ' + commits[id] + ' (' + now + ')';
+  } else {
+    chk.classList.remove('on');
+    el.classList.remove('done');
+    if(ct) ct.textContent = '커밋: 대기중...';
+  }
+}
+
+function update(){
+  var done = Object.values(state).filter(Boolean).length;
+  var pct = Math.round(done/TOTAL*100);
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-todo').textContent = TOTAL-done;
+  document.getElementById('s-pct').textContent = pct+'%';
+  document.getElementById('pbar').style.width = pct+'%';
+  document.getElementById('ptxt').textContent = done+' / '+TOTAL+' 완료';
+  document.getElementById('badge-done').textContent = '완료: '+done+'개';
+}
+
+init();
+</script>
+</body>
+</html>

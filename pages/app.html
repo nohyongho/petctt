@@ -1404,17 +1404,11 @@
         <script src="../public/js/auth-core.js"></script>
         <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                            const token = localStorage.getItem('petctt_token');
-                            if (!token) {
-                                            document.body.innerHTML = '';
-                                            const gate = document.createElement('div');
-                                            gate.id = 'login-gate';
-                                            gate.style.cssText = 'position:fixed;inset:0;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;color:#fff;font-family:Noto Sans KR,sans-serif;';
-                                            gate.innerHTML = '<img src="../public/images/petctt-logo.png" alt="PetCTT" style="width:120px;margin-bottom:24px;border-radius:50%;">' +
-                                                                '<h2 style="margin:0 0 8px;font-size:1.5rem;">PetCTT Pro</h2>' +
-                            '<p style="margin:0 0 24px;color:#aaa;font-size:0.95rem;" data-i18n="login_required">로그인 후 이용해주세요. 메인 페이지로 이동합니다...</p>' +
-                                                                '<div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px;margin:0 auto;"><button onclick="petcttKakaoLogin()" style="padding:12px 24px;background:#FEE500;color:#000;border:none;border-radius:8px;font-size:0.95rem;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;">💬 카카오 로그인</button><button onclick="petcttGoogleLogin()" style="padding:12px 24px;background:#fff;color:#333;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;">G 구글 로그인</button><button onclick="petcttNaverLogin()" style="padding:12px 24px;background:#03C75A;color:#fff;border:none;border-radius:8px;font-size:0.95rem;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;">N 네이버 로그인</button></div>';
-                                            document.body.appendChild(gate);
+                            const unifiedUser = (function(){ try { return JSON.parse(localStorage.getItem('petctt_unified_auth')); } catch(e){ return null; } })();
+                            const token = localStorage.getItem('petctt_token') || (unifiedUser && unifiedUser.token);
+                            if (!token && !unifiedUser) {
+                                            console.log('Not logged in - use header login');
+                                            // gate removed - no login blocking
                                             return;
             }
                             try {
@@ -4146,6 +4140,25 @@
             }
         }
         
+                // Header login rendering (same as index.html)
+        function renderAuth() {
+            var slot = document.getElementById('auth-slot');
+            if (!slot) return;
+            var user = getUnifiedAuth();
+            if (user) {
+                slot.innerHTML = '<div style="display:flex;align-items:center;gap:8px;">'
+                  + (user.avatar ? '<img src="' + user.avatar + '" style="width:28px;height:28px;border-radius:50%;border:2px solid #2dd4bf;">' : '')
+                  + '<span style="font-size:0.85rem;font-weight:600;color:#fff;">' + user.name + '</span>'
+                  + '<button onclick="clearUnifiedAuth()" style="padding:6px 12px;background:rgba(239,68,68,0.8);color:#fff;border:none;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;">logout</button></div>';
+            } else {
+                slot.innerHTML = '<div style="position:relative;display:inline-block;"><button onclick="toggleLoginMenu()" style="padding:8px 18px;background:linear-gradient(135deg,#FEE500,#03C75A);color:#000;border:none;border-radius:20px;font-size:0.85rem;font-weight:700;cursor:pointer;">login</button><div id="loginDropdown" style="display:none;position:absolute;top:42px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:8px;z-index:9999;min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,0.5);"><button onclick="petcttKakaoLogin()" style="width:100%;padding:10px 16px;background:#FEE500;color:#000;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;margin-bottom:6px;">kakao</button><button onclick="petcttGoogleLogin()" style="width:100%;padding:10px 16px;background:#fff;color:#333;border:1px solid #ddd;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:pointer;margin-bottom:6px;">google</button><button onclick="petcttNaverLogin()" style="width:100%;padding:10px 16px;background:#03C75A;color:#fff;border:none;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;">naver</button></div></div>';
+            }
+        }
+        function toggleLoginMenu(){var d=document.getElementById('loginDropdown');if(d)d.style.display=d.style.display==='none'?'block':'none';}
+        function clearUnifiedAuth(){localStorage.removeItem('petctt_unified_auth');localStorage.removeItem('petctt_token');localStorage.removeItem('airctt_consumer_session');try{Kakao.Auth.logout();}catch(e){}renderAuth();}
+        document.addEventListener('click',function(e){if(!e.target.closest('#auth-slot')){var d=document.getElementById('loginDropdown');if(d)d.style.display='none';}});
+        document.addEventListener('DOMContentLoaded',function(){renderAuth();});
+
         // ===== 통합 로그인 (카카오/구글/네이버) =====
         var UNIFIED_AUTH_KEY = 'petctt_unified_auth';
         function getUnifiedAuth() { try { return JSON.parse(localStorage.getItem(UNIFIED_AUTH_KEY)); } catch(e) { return null; } }
@@ -4189,7 +4202,7 @@
     // 로그인 안 되어 있으면 3초 후 메인으로 이동 (로그인은 메인 헤더에서!)
     if (!user) {
       setTimeout(function() {
-        if (!getUnifiedAuth()) window.location.href = window.location.origin;
+        // no redirect
       }, 3000);
     }
             if (user) {

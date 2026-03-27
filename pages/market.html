@@ -438,6 +438,62 @@ body {
   .banner-section { padding:12px 16px 0; }
   .banner-carousel { min-height:160px; }
 }
+
+/* 쿠폰 적용 바 */
+.coupon-apply-bar {
+  background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(0,229,255,0.1));
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: 16px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.coupon-apply-info { flex: 1; }
+.coupon-apply-title { font-size: 14px; font-weight: 700; color: #c4b5fd; margin-bottom: 3px; }
+.coupon-apply-sub { font-size: 12px; color: var(--text-muted); }
+.coupon-apply-btn {
+  padding: 8px 18px; border-radius: 20px; border: none;
+  background: linear-gradient(135deg, #6366f1, #00e5ff);
+  color: #fff; font-size: 13px; font-weight: 700; cursor: pointer;
+  white-space: nowrap;
+}
+.coupon-selected-bar {
+  background: rgba(0,230,118,0.1);
+  border: 1px solid rgba(0,230,118,0.3);
+  border-radius: 12px;
+  padding: 10px 16px;
+  margin-top: 8px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+}
+.coupon-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+  z-index: 9999; display: none;
+  align-items: center; justify-content: center; padding: 16px;
+}
+.coupon-modal-box {
+  background: #1a1a2e; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px; padding: 24px; width: min(420px,100%);
+  max-height: 80vh; overflow-y: auto;
+}
+.coupon-modal-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.07);
+  margin-bottom: 8px; cursor: pointer; transition: all 0.2s;
+}
+.coupon-modal-item:hover { border-color: rgba(99,102,241,0.4); background: rgba(99,102,241,0.08); }
+.coupon-modal-item.selected { border-color: #00e676; background: rgba(0,230,118,0.1); }
+.cmi-disc { font-size: 20px; font-weight: 900; min-width: 52px; text-align: center; }
+.cmi-info { flex: 1; }
+.cmi-title { font-size: 13px; font-weight: 700; color: #f1f5f9; }
+.cmi-sub { font-size: 11px; color: #64748b; margin-top: 2px; }
+
 </style>
 </head>
 <body>
@@ -525,6 +581,40 @@ body {
       <div class="ai-banner-desc">반려동물의 건강 상태와 취향을 분석하여 최적의 상품을 추천해드려요!</div>
     </div>
     <button class="ai-banner-btn" onclick="showToast('🤖 AI 추천을 분석 중... (🪙 3 토큰)')">AI 추천받기</button>
+  </div>
+
+
+  <!-- 내 쿠폰 적용 바 -->
+  <div class="coupon-apply-bar">
+    <div class="coupon-apply-info">
+      <div class="coupon-apply-title">🎟️ 보유 쿠폰으로 할인받기</div>
+      <div class="coupon-apply-sub" id="apply-bar-sub">로그인하면 보유 쿠폰을 확인할 수 있어요</div>
+    </div>
+    <button class="coupon-apply-btn" onclick="openCouponWalletModal()">쿠폰 선택</button>
+  </div>
+  <div class="coupon-selected-bar" id="selected-bar">
+    <div>
+      <span style="color:#00e676;font-weight:700;" id="selected-disc-text"></span>
+      <span style="font-size:12px;color:#94a3b8;margin-left:6px;" id="selected-title-text"></span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span style="font-size:12px;color:#00e676;">할인 적용중</span>
+      <button onclick="clearCoupon()" style="background:rgba(255,255,255,0.08);border:none;color:#94a3b8;padding:4px 10px;border-radius:8px;font-size:12px;cursor:pointer;">✕ 해제</button>
+    </div>
+  </div>
+
+  <!-- 쿠폰 선택 모달 -->
+  <div class="coupon-modal-overlay" id="couponWalletModal" onclick="if(event.target===this)closeCouponModal()">
+    <div class="coupon-modal-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="font-size:15px;font-weight:700;color:#f1f5f9;">🎟️ 내 쿠폰 선택</div>
+        <button onclick="closeCouponModal()" style="background:rgba(255,255,255,0.08);border:none;color:#94a3b8;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;">✕</button>
+      </div>
+      <div id="wallet-modal-list">
+        <div style="text-align:center;padding:30px;color:#64748b;">⏳ 불러오는 중...</div>
+      </div>
+      <button onclick="closeCouponModal()" style="width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:#94a3b8;font-size:13px;cursor:pointer;margin-top:8px;">닫기</button>
+    </div>
   </div>
 
   <!-- Products: 실제 쿠폰 DB 연동 -->
@@ -1305,6 +1395,131 @@ async function deleteBanner(id) {
 // ===== 초기화 =====
 checkAdmin();
 loadBanners();
+
+// ===== T6: 지갑 쿠폰 선택 & 할인 적용 =====
+const SUPABASE_URL_MKT = 'https://nlsiwrwiyozpiofrmzxa.supabase.co';
+const SUPABASE_KEY_MKT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sc2l3cndpeW96cGlvZnJtenhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNTc4NzcsImV4cCI6MjA3NjczMzg3N30.hurd7QNUJ-JVppETyDnCwU97F1Z3jkWszYRM9NhSUAg';
+
+let selectedCoupon = null;
+
+function getMarketUser() {
+  try {
+    return JSON.parse(localStorage.getItem('petctt_user') ||
+           localStorage.getItem('airctt_consumer_user') || 'null');
+  } catch(e) { return null; }
+}
+
+async function openCouponWalletModal() {
+  const modal = document.getElementById('couponWalletModal');
+  const list = document.getElementById('wallet-modal-list');
+  if (!modal || !list) return;
+
+  modal.style.display = 'flex';
+  list.innerHTML = '<div style="text-align:center;padding:30px;color:#64748b;">⏳ 쿠폰 불러오는 중...</div>';
+
+  const user = getMarketUser();
+  if (!user) {
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:#64748b;">🔒 로그인 후 이용 가능해요</div>';
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL_MKT}/rest/v1/coupon_issues?user_id=eq.${user.id}&is_used=eq.false&status=eq.active&order=created_at.desc&select=*,coupons(title,discount_type,discount_value,min_order_amount,valid_to)`,
+      { headers: { 'apikey': SUPABASE_KEY_MKT, 'Authorization': `Bearer ${SUPABASE_KEY_MKT}` } }
+    );
+    const issues = await res.json();
+
+    if (!Array.isArray(issues) || !issues.length) {
+      list.innerHTML = `<div style="text-align:center;padding:30px;color:#64748b;">
+        <div style="font-size:2rem;margin-bottom:8px;">🎟️</div>
+        <div>보유 쿠폰이 없어요</div>
+        <a href="coupon.html" style="color:#6366f1;font-size:12px;margin-top:8px;display:block;">쿠폰 게임 하러가기 →</a>
+      </div>`;
+      return;
+    }
+
+    const colors = ['#ff6b9d','#ffab40','#00e676','#00e5ff','#7c4dff','#ff5252'];
+    list.innerHTML = '';
+
+    // 헤더 카운트 업데이트
+    document.getElementById('apply-bar-sub').textContent = `보유 쿠폰 ${issues.length}장 · 선택하면 자동 할인!`;
+
+    issues.forEach((issue, i) => {
+      const c = issue.coupons || {};
+      const color = colors[i % colors.length];
+      const isExpired = issue.expires_at && new Date(issue.expires_at) < new Date();
+      if (isExpired) return;
+
+      let discVal = '';
+      if (c.discount_type === 'percent') discVal = c.discount_value + '% 할인';
+      else if (c.discount_type === 'amount') discVal = '₩' + (c.discount_value||0).toLocaleString() + ' 할인';
+
+      const cond = c.min_order_amount ? `₩${c.min_order_amount.toLocaleString()} 이상 구매 시` : '조건없음';
+      const expStr = issue.expires_at ? new Date(issue.expires_at).toLocaleDateString('ko-KR') : '';
+
+      const item = document.createElement('div');
+      item.className = 'coupon-modal-item' + (selectedCoupon?.id === issue.id ? ' selected' : '');
+      item.innerHTML = `
+        <div class="cmi-disc" style="color:${color}">${c.discount_value || '?'}${c.discount_type==='percent'?'%':'₩'}</div>
+        <div class="cmi-info">
+          <div class="cmi-title">${c.title || '쿠폰'}</div>
+          <div class="cmi-sub">${cond}${expStr ? ' · ~'+expStr : ''}</div>
+        </div>
+        ${selectedCoupon?.id === issue.id ? '<span style="color:#00e676;font-size:18px;">✓</span>' : ''}
+      `;
+      item.onclick = () => selectCoupon(issue, c, discVal, color);
+      list.appendChild(item);
+    });
+  } catch(e) {
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:#ef4444;">⚠️ 오류가 발생했어요</div>';
+  }
+}
+
+function selectCoupon(issue, couponInfo, discVal, color) {
+  selectedCoupon = { id: issue.id, issue, couponInfo, discVal, color };
+  // 선택 바 표시
+  const bar = document.getElementById('selected-bar');
+  const discText = document.getElementById('selected-disc-text');
+  const titleText = document.getElementById('selected-title-text');
+  if (bar) bar.style.display = 'flex';
+  if (discText) discText.textContent = discVal;
+  if (titleText) titleText.textContent = couponInfo.title || '쿠폰';
+  showToast(`✅ "${couponInfo.title}" ${discVal} 쿠폰 선택됨!`);
+  closeCouponModal();
+}
+
+function clearCoupon() {
+  selectedCoupon = null;
+  const bar = document.getElementById('selected-bar');
+  if (bar) bar.style.display = 'none';
+  showToast('쿠폰이 해제됐어요');
+}
+
+function closeCouponModal() {
+  const modal = document.getElementById('couponWalletModal');
+  if (modal) modal.style.display = 'none';
+}
+
+// 페이지 로드시 보유 쿠폰 수 확인
+async function initCouponBar() {
+  const user = getMarketUser();
+  if (!user) return;
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL_MKT}/rest/v1/coupon_issues?user_id=eq.${user.id}&is_used=eq.false&status=eq.active&select=id`,
+      { headers: { 'apikey': SUPABASE_KEY_MKT, 'Authorization': `Bearer ${SUPABASE_KEY_MKT}` } }
+    );
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      const sub = document.getElementById('apply-bar-sub');
+      if (sub) sub.textContent = `보유 쿠폰 ${data.length}장 · 선택하면 자동 할인!`;
+    }
+  } catch(e) {}
+}
+
+window.addEventListener('load', () => { initCouponBar(); });
+
 </script>
 
 </body>

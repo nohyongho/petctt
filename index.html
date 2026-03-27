@@ -15,7 +15,22 @@
                   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
                   <link rel="stylesheet" href="public/css/app.css">
                   <script src="public/js/i18n.js"></script>
-          </head>
+          
+              <style>
+                        .tr-item { padding:8px 12px;cursor:pointer;border-radius:8px;font-size:0.8rem;color:#fff;transition:background 0.2s; }
+                        .tr-item:hover { background:rgba(255,255,255,0.1); }
+                        #darkmode-btn:hover, #translate-btn:hover { background:rgba(255,255,255,0.2)!important; transform:scale(1.1); }
+                        .light-mode { background:#f0f4f8!important; color:#1a1a2e!important; }
+                        .light-mode header { background:rgba(255,255,255,0.95)!important; box-shadow:0 2px 8px rgba(0,0,0,0.1)!important; }
+                        .light-mode .logo-text { color:#1a1a2e!important; }
+                        .light-mode .hero-title, .light-mode h2, .light-mode h3 { color:#1a1a2e!important; }
+                        .light-mode .hero-subtitle, .light-mode p { color:#555!important; }
+                        .light-mode #darkmode-btn, .light-mode #translate-btn { background:rgba(0,0,0,0.05)!important; border-color:rgba(0,0,0,0.15)!important; }
+                        .light-mode #translateDropdown { background:#fff!important; border-color:#ddd!important; }
+                        .light-mode .tr-item { color:#333!important; }
+                        .light-mode .tr-item:hover { background:rgba(0,0,0,0.05)!important; }
+              </style>
+</head>
     <body>
 
               <!-- 3D 배경 캔버스 -->
@@ -38,6 +53,8 @@
                                                         </div>
                                                         <div style="display:flex;align-items:center;gap:12px;position:relative;">
                                                                           <div id="auth-slot" style="position:relative;"></div>
+                                                                          <button onclick="toggleDarkMode()" id="darkmode-btn" style="width:32px;height:32px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.3s;color:#fff;" title="Dark/Light">&#x1F319;</button>
+                                                                          <div style="position:relative;display:inline-block;"><button onclick="toggleTranslateMenu()" id="translate-btn" style="width:32px;height:32px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all 0.3s;color:#fff;" title="Translate">&#x1F310;</button><div id="translateDropdown" style="display:none;position:absolute;top:40px;right:0;background:#1a1a2e;border:1px solid #333;border-radius:12px;padding:6px;z-index:99999;min-width:130px;box-shadow:0 8px 24px rgba(0,0,0,0.5);"><div onclick="doTranslate('en')" class="tr-item">&#x1F1FA;&#x1F1F8; English</div><div onclick="doTranslate('ja')" class="tr-item">&#x1F1EF;&#x1F1F5; Japanese</div><div onclick="doTranslate('zh-CN')" class="tr-item">&#x1F1E8;&#x1F1F3; Chinese</div><div onclick="doTranslate('es')" class="tr-item">&#x1F1EA;&#x1F1F8; Spanish</div><div onclick="doTranslate('fr')" class="tr-item">&#x1F1EB;&#x1F1F7; French</div><div onclick="doTranslate('ko')" class="tr-item" style="background:rgba(45,212,191,0.15);">&#x1F1F0;&#x1F1F7; Korean</div></div></div>
                                                                           <div data-sub-dropdown style="display:inline-block"></div>
                                                                           <div id="google_translate_element" style="display:inline-block;"></div>
 <script>window.googleTranslateElementInit=function(){new google.translate.TranslateElement({pageLanguage:'ko',includedLanguages:'ko,en,ja,zh-CN,zh-TW,es,fr,de,pt,vi,th,id,ar,hi,ru',layout:google.translate.TranslateElement.InlineLayout.SIMPLE,autoDisplay:false},'google_translate_element');};</script>
@@ -338,7 +355,7 @@
                         body { top: 0 !important; }
                         .goog-te-banner-frame { display: none !important; }
                         body { top: 0 !important; }
-                        #google_translate_element { display: inline-block !important; }
+                        #google_translate_element { position:absolute!important;opacity:0;width:1px;height:1px;overflow:hidden;pointer-events:none; }
                         .goog-te-gadget { font-size: 0 !important; }
                         .goog-te-gadget .goog-te-combo { padding:6px 10px; border-radius:16px; border:1px solid #444; background:rgba(30,30,50,0.8); color:#fff; font-size:0.75rem; font-weight:600; cursor:pointer; outline:none; }
               

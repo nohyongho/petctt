@@ -306,14 +306,23 @@
                         }
 
                         function loginWithNaver() {
-                                    window.location.href = 'https://nlsiwrwiyozpiofrmzxa.supabase.co/auth/v1/authorize?provider=naver&redirect_to=' + encodeURIComponent(window.location.origin);
+                                    var NID='Yj5T9606wVLFNlOPBBtR'; var CB=encodeURIComponent(window.location.origin+'/pages/naver-callback.html'); var ST='petctt_'+Date.now(); sessionStorage.setItem('naver_state',ST); window.location.href='https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id='+NID+'&redirect_uri='+CB+'&state='+ST;
                         }
 
                         // [FIX] 카카오 로그인: Kakao SDK v2.7.x에서는 Kakao.Auth.login() 삭제됨
                         // Kakao.Auth.login()로 변경 + 콜백에서 사용자 정보 처리
                         function loginWithKakao() {
-                                    Kakao.Auth.authorize({
-                                                  redirectUri: window.location.origin + '/pages/kakao-callback.html'
+                                    Kakao.Auth.login({
+                                                   success: function(authObj) {
+                                                       Kakao.API.request({ url: '/v2/user/me',
+                                                           success: function(res) {
+                                                               var a = res.kakao_account || {}; var p = a.profile || res.properties || {};
+                                                               setAuth({id:'kakao_'+res.id, email:a.email||'', name:p.nickname||'User', avatar:p.profile_image_url||'', provider:'kakao', token:authObj.access_token});
+                                                           },
+                                                           fail: function() { setAuth({id:'kakao_user',email:'',name:'User',avatar:'',provider:'kakao',token:authObj.access_token}); }
+                                                       });
+                                                   },
+                                                   fail: function(err) { console.error('Kakao err:', err); }
                                     });
                         }
 

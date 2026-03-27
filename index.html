@@ -66,7 +66,17 @@
                                                                           <div id="google_translate_element" style="display:none!important;position:absolute;opacity:0;width:0;height:0;overflow:hidden;pointer-events:none;"></div>
 <script>window.googleTranslateElementInit=function(){new google.translate.TranslateElement({pageLanguage:'ko',includedLanguages:'ko,en,ja,zh-CN,zh-TW,es,fr,de,pt,vi,th,id,ar,hi,ru',autoDisplay:false},'google_translate_element');};</script>
 <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-<style>.goog-te-banner-frame{display:none!important}body{top:0!important}.goog-te-gadget{font-size:0!important}.goog-te-gadget .goog-te-combo{padding:6px 10px;border-radius:16px;border:1px solid #444;background:rgba(30,30,50,0.8);color:#fff;font-size:0.75rem;font-weight:600;cursor:pointer;outline:none}</style>
+<style>.goog-te-banner-frame{display:none!important;visibility:hidden!important;height:0!important;}
+.goog-te-banner-frame.skiptranslate{display:none!important;}
+.skiptranslate{display:none!important;visibility:hidden!important;}
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf{display:none!important;}
+.VIpgJd-ZVi9od-l4eHX-hSRGPd{display:none!important;}
+body{top:0!important;margin-top:0!important;}
+iframe.goog-te-banner-frame{display:none!important;}
+.goog-te-gadget{font-size:0!important;display:none!important;}
+.goog-te-gadget .goog-te-combo{padding:6px 10px;border-radius:16px;border:1px solid #444;background:rgba(30,30,50,0.8);color:#fff;font-size:0.75rem;font-weight:600;cursor:pointer;outline:none}
+#goog-gt-tt{display:none!important;}
+.goog-te-balloon-frame{display:none!important;}</style>
               <a href="pages/mypage.html" class="header-cta">📋 마이</a>
                                                         </div>
                                         </div>
@@ -381,6 +391,26 @@
       var d=document.getElementById('translateDropdown');if(d)d.style.display='none';
     }
   });
+})();
+</script>
+<script>
+(function hideTBar(){
+  var css='.goog-te-banner-frame,.skiptranslate,iframe.goog-te-banner-frame{display:none!important;visibility:hidden!important;height:0!important;}body{top:0!important;margin-top:0!important;}.goog-te-gadget{display:none!important;}#goog-gt-tt{display:none!important;}';
+  var s=document.createElement('style');s.textContent=css;document.head.appendChild(s);
+  var obs=new MutationObserver(function(){
+    document.querySelectorAll('iframe.goog-te-banner-frame,.skiptranslate:not(.notranslate)').forEach(function(el){el.style.cssText='display:none!important;visibility:hidden!important;height:0!important;';});
+    document.body.style.top='0';
+    document.body.style.marginTop='0';
+  });
+  obs.observe(document.body||document.documentElement,{childList:true,subtree:true,attributes:true});
+  setTimeout(function(){
+    document.querySelectorAll('iframe.goog-te-banner-frame,.skiptranslate:not(.notranslate)').forEach(function(el){el.style.cssText='display:none!important;';});
+    document.body.style.top='0';
+  },1000);
+  setTimeout(function(){
+    document.querySelectorAll('iframe.goog-te-banner-frame').forEach(function(el){el.remove();});
+    document.body.style.top='0';
+  },3000);
 })();
 </script>
 </body>

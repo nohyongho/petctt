@@ -5,8 +5,8 @@ const LANGS=[{code:'ko',flag:'🇰🇷',label:'한국어'},{code:'en',flag:'🇺
 const S={
 ko:{
 'hero.title':'반려동물과 대화하세요','hero.subtitle':'AI 통역 · 위치 추적 · 건강 체크 · 주민등록증 · 소개팅 · 콘테스트',
-'hero.cta':'🐾 지금 시작하기','hero.learnMore':'더 알아보기 ↓',
-'nav.start':'앱 시작하기','nav.login':'🔑 로그인','nav.logout':'🚪 로그아웃','nav.mypage':'👤 마이페이지','nav.pricing':'⚡ 요금제',
+'hero.cta':'🐾 대화시작','hero.learnMore':'더 알아보기 ↓',
+'nav.start':'앱 시작하기','nav.login':'🔑 로그인','nav.logout':'🚪 로그아웃','nav.mypage':'📋 마이','nav.pricing':'⚡ 요금제',
 'feat.title':'핵심 기능',
 'feat.talk.title':'AI 통역','feat.talk.desc':'반려동물의 소리를 AI가 분석하여 실시간 양방향 음성 통역. 감정 분석 그래프와 학습 진도까지.','feat.talk.tag':'카메라 + 음성 AI',
 'feat.health.title':'건강 체크','feat.health.desc':'카메라 기반 AI 생체 스캔으로 심박수, 체온, 스트레스 레벨을 실시간 분석.','feat.health.tag':'AI 생체 분석',
@@ -22,7 +22,7 @@ ko:{
 'tech.glass.title':'스마트글라스 확장','tech.glass.desc':'ROUNZ AR 글래스와 연동하여 반려동물을 바라보면 통역/건강 정보가 AR 오버레이',
 'tech.bio.title':'생체 인식 ID','tech.bio.desc':'코끝 무늬 + 앞양발 지문의 고유 패턴으로 세계 유일한 펫 신분증 발급',
 'partner.title':'제휴 & 문의','partner.cta':'📩 제휴 문의하기',
-'sub.btn':'구독하기','sub.free':'무료','sub.standard':'스탠다드','sub.premium':'프리미엄',
+'sub.btn':'구독','sub.free':'무료','sub.standard':'스탠다드','sub.premium':'프리미엄',
 'app.selectAnimal':'통역할 동물을 선택하세요','app.startTalk':'동물대화 시작','app.stopTalk':'중지',
 'app.humanMic':'내가 말하기','app.animalMic':'동물 듣기','app.recording':'녹음 중...','app.aiThinking':'AI 분석 중...','app.loginRequired':'로그인 후 이용 가능합니다',
 'app.liveReady':'LIVE 준비','app.liveActive':'LIVE 활성',

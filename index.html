@@ -360,5 +360,47 @@
                         .goog-te-gadget .goog-te-combo { padding:6px 10px; border-radius:16px; border:1px solid #444; background:rgba(30,30,50,0.8); color:#fff; font-size:0.75rem; font-weight:600; cursor:pointer; outline:none; }
               
 
-    </body>
+    
+<script>
+// ===== Translate + Dark Mode (standalone block) =====
+window.toggleTranslateMenu = function() {
+    var d = document.getElementById('translateDropdown');
+    if (d) d.style.display = d.style.display === 'none' ? 'block' : 'none';
+};
+window.doTranslate = function(lang) {
+    var combo = document.querySelector('.goog-te-combo');
+    if (combo) { combo.value = lang; combo.dispatchEvent(new Event('change')); }
+    var d = document.getElementById('translateDropdown');
+    if (d) d.style.display = 'none';
+};
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#translate-btn') && !e.target.closest('#translateDropdown')) {
+        var d = document.getElementById('translateDropdown');
+        if (d) d.style.display = 'none';
+    }
+});
+
+var isDark = localStorage.getItem('petctt_theme') !== 'light';
+window.toggleDarkMode = function() {
+    isDark = !isDark;
+    localStorage.setItem('petctt_theme', isDark ? 'dark' : 'light');
+    applyTheme();
+};
+function applyTheme() {
+    var btn = document.getElementById('darkmode-btn');
+    if (isDark) {
+        document.body.classList.remove('light-mode');
+        if (btn) btn.textContent = '\u{1F319}';
+    } else {
+        document.body.classList.add('light-mode');
+        if (btn) btn.textContent = '\u{2600}\u{FE0F}';
+    }
+}
+window.applyTheme = applyTheme;
+// Apply on load
+document.addEventListener('DOMContentLoaded', applyTheme);
+if (document.readyState !== 'loading') applyTheme();
+</script>
+
+</body>
 </html>

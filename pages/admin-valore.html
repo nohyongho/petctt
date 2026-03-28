@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔐 발로레 어드민</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Orbitron:wght@700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#050510;--bg2:#0a0a1f;--bg3:#0f0f2a;
+  --accent:#6366f1;--accent2:#00e676;--accent3:#ffab40;--accent4:#ff5080;
+  --text:#f1f5f9;--text2:#94a3b8;--text3:#475569;
+  --border:rgba(99,102,241,.2);
+}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh}
+
+/* 로그인 */
+#login-screen{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+}
+.login-box{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:24px;padding:40px 32px;
+  width:min(360px,90vw);text-align:center;
+}
+.login-logo{font-family:'Orbitron',sans-serif;font-size:22px;color:var(--accent);margin-bottom:6px}
+.login-sub{font-size:12px;color:var(--text2);margin-bottom:28px}
+.login-inp{
+  width:100%;background:rgba(255,255,255,.05);
+  border:1px solid var(--border);border-radius:12px;
+  padding:12px 16px;color:var(--text);font-size:14px;
+  font-family:'Noto Sans KR',sans-serif;outline:none;margin-bottom:10px;
+}
+.login-inp::placeholder{color:var(--text3)}
+.login-btn{
+  width:100%;padding:13px;border-radius:12px;border:none;
+  background:linear-gradient(135deg,var(--accent),#8b5cf6);
+  color:#fff;font-size:14px;font-weight:700;cursor:pointer;
+  font-family:'Noto Sans KR',sans-serif;transition:opacity .2s;
+}
+.login-btn:hover{opacity:.9}
+.login-err{font-size:12px;color:var(--accent4);margin-top:8px;display:none}
+
+/* 메인 레이아웃 */
+#app{display:none}
+.header{
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:14px 20px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.h-logo{font-family:'Orbitron',sans-serif;font-size:14px;color:var(--accent)}
+.h-right{display:flex;align-items:center;gap:12px}
+.h-badge{
+  padding:4px 10px;border-radius:8px;
+  background:rgba(0,230,118,.12);border:1px solid rgba(0,230,118,.25);
+  font-size:10px;color:var(--accent2);font-weight:700;
+}
+.h-logout{background:none;border:none;color:var(--text2);font-size:12px;cursor:pointer}
+
+.main{padding:20px;max-width:1000px;margin:0 auto}
+
+/* 탭 */
+.tabs{display:flex;gap:4px;margin-bottom:20px;overflow-x:auto;
+  scrollbar-width:none;border-bottom:1px solid var(--border);padding-bottom:0}
+.tab{
+  padding:10px 16px;border-radius:10px 10px 0 0;
+  border:none;background:transparent;
+  color:var(--text2);font-size:13px;cursor:pointer;
+  font-family:'Noto Sans KR',sans-serif;white-space:nowrap;
+  border-bottom:2px solid transparent;transition:all .2s;
+}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);background:rgba(99,102,241,.08)}
+
+/* 카드 */
+.card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:16px;padding:18px;margin-bottom:14px;
+}
+.card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;
+  display:flex;align-items:center;gap:8px}
+
+/* 스탯 그리드 */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.stat-box{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;padding:14px;
+}
+.stat-n{font-size:22px;font-weight:900;margin-bottom:4px}
+.stat-l{font-size:11px;color:var(--text2)}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.c-g{color:var(--accent2)}.c-p{color:var(--accent)}.c-a{color:var(--accent3)}.c-r{color:var(--accent4)}
+
+/* 테이블 */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:8px 10px;color:var(--text2);border-bottom:1px solid var(--border);font-weight:500}
+.tbl td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+.tbl tr:last-child td{border:none}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+
+/* 뱃지 */
+.bdg{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700}
+.bdg-g{background:rgba(0,230,118,.15);color:var(--accent2)}
+.bdg-r{background:rgba(255,80,128,.15);color:var(--accent4)}
+.bdg-a{background:rgba(255,171,64,.15);color:var(--accent3)}
+.bdg-p{background:rgba(99,102,241,.15);color:var(--accent)}
+
+/* 차트 바 */
+.bar-wrap{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bar-label{font-size:11px;color:var(--text2);min-width:80px}
+.bar-track{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .8s ease}
+.bar-val{font-size:11px;color:var(--text);min-width:50px;text-align:right}
+
+/* 예산 게이지 */
+.gauge-wrap{position:relative;margin-bottom:14px}
+.gauge-track{height:12px;background:rgba(255,255,255,.06);border-radius:6px;overflow:hidden}
+.gauge-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent2),var(--accent))}
+.gauge-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text2);margin-top:4px}
+
+/* 알림 */
+.alert{
+  padding:10px 14px;border-radius:10px;font-size:12px;
+  display:flex;align-items:center;gap:8px;margin-bottom:8px;
+}
+.alert-warn{background:rgba(255,171,64,.1);border:1px solid rgba(255,171,64,.25);color:var(--accent3)}
+.alert-ok{background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);color:var(--accent2)}
+.alert-err{background:rgba(255,80,128,.1);border:1px solid rgba(255,80,128,.25);color:var(--accent4)}
+
+/* 입력 */
+.inp{
+  background:rgba(255,255,255,.05);border:1px solid var(--border);
+  border-radius:10px;padding:8px 12px;color:var(--text);
+  font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;
+  width:100%;transition:border-color .2s;
+}
+.inp:focus{border-color:var(--accent)}
+.btn{
+  padding:8px 16px;border-radius:10px;border:none;
+  font-size:12px;font-weight:700;cursor:pointer;
+  font-family:'Noto Sans KR',sans-serif;transition:all .2s;
+}
+.btn-p{background:var(--accent);color:#fff}
+.btn-p:hover{opacity:.85}
+.btn-g{background:rgba(0,230,118,.15);color:var(--accent2);border:1px solid rgba(0,230,118,.3)}
+.form-row{display:flex;gap:8px;margin-bottom:10px;align-items:center}
+.form-label{font-size:11px;color:var(--text2);min-width:70px}
+
+/* 아미 에이전트 */
+#ami-agent{
+  position:fixed;bottom:20px;right:20px;
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,#ffb3d9,#bf5fff);
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;cursor:pointer;
+  box-shadow:0 4px 20px rgba(191,95,255,.4);
+  z-index:200;transition:transform .2s;
+}
+#ami-agent:hover{transform:scale(1.12)}
+#ami-bubble{
+  position:fixed;bottom:82px;right:20px;
+  background:rgba(10,0,30,.95);border:1px solid rgba(191,95,255,.35);
+  border-radius:14px 14px 4px 14px;
+  padding:10px 14px;font-size:12px;color:#f0e6ff;
+  max-width:220px;display:none;line-height:1.6;
+  box-shadow:0 4px 20px rgba(191,95,255,.2);
+}
+#ami-bubble.on{display:block;animation:pop .2s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- 로그인 -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">⚡ VALORE ADMIN</div>
+    <div class="login-sub">주식회사 발로레 · 오빠+클 전용 🔐</div>
+    <input class="login-inp" type="password" id="pw-inp" placeholder="관리자 비밀번호" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">🔐 입장하기</button>
+    <div class="login-err" id="login-err">❌ 비밀번호가 틀렸어요!</div>
+  </div>
+</div>
+
+<!-- 어드민 앱 -->
+<div id="app">
+  <div class="header">
+    <div class="h-logo">⚡ VALORE ADMIN</div>
+    <div class="h-right">
+      <div class="h-badge">🟢 LIVE</div>
+      <div style="font-size:11px;color:var(--text2)" id="hdr-date"></div>
+      <button class="h-logout" onclick="doLogout()">로그아웃</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- 탭 -->
+    <div class="tabs">
+      <button class="tab on" onclick="showTab('dashboard',this)">📊 대시보드</button>
+      <button class="tab" onclick="showTab('revenue',this)">💰 수익</button>
+      <button class="tab" onclick="showTab('cost',this)">💸 지출</button>
+      <button class="tab" onclick="showTab('budget',this)">📋 예산</button>
+      <button class="tab" onclick="showTab('users',this)">👥 사용자</button>
+      <button class="tab" onclick="showTab('token',this)">🔬 토큰</button>
+      <button class="tab" onclick="showTab('settings',this)">⚙️ 설정</button>
+    </div>
+
+    <!-- 대시보드 -->
+    <div id="tab-dashboard">
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="stat-n c-g" id="st-mrr">₩0</div>
+          <div class="stat-l">이번달 수익 (MRR)</div>
+          <div class="stat-sub" id="st-mrr-sub">구독자 0명</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-n c-r" id="st-cost">₩0</div>
+          <div class="stat-l">이번달 API 비용</div>
+          <div class="stat-sub" id="st-cost-sub">토큰 0개</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-n c-p" id="st-profit">₩0</div>
+          <div class="stat-l">순이익</div>
+          <div class="stat-sub" id="st-margin">마진 0%</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-n c-a" id="st-users">0명</div>
+          <div class="stat-l">전체 사용자</div>
+          <div class="stat-sub" id="st-users-sub">Free / Pro / Premium</div>
+        </div>
+      </div>
+
+      <!-- 알림 -->
+      <div id="alerts-wrap"></div>
+
+      <!-- 수익 바 차트 -->
+      <div class="card">
+        <div class="card-title">📈 플랜별 수익 현황</div>
+        <div id="revenue-bars"></div>
+      </div>
+
+      <!-- 최근 구독 -->
+      <div class="card">
+        <div class="card-title">🆕 최근 구독</div>
+        <table class="tbl">
+          <thead><tr><th>사용자</th><th>플랜</th><th>금액</th><th>날짜</th><th>상태</th></tr></thead>
+          <tbody id="recent-subs"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 수익 탭 -->
+    <div id="tab-revenue" style="display:none">
+      <div class="card">
+        <div class="card-title">💰 수익 직접 입력</div>
+        <div class="form-row"><span class="form-label">날짜</span><input class="inp" type="date" id="rev-date"></div>
+        <div class="form-row"><span class="form-label">항목</span><input class="inp" type="text" id="rev-item" placeholder="Pro 구독 / Premium 구독 / 쿠폰 수수료..."></div>
+        <div class="form-row"><span class="form-label">금액</span><input class="inp" type="number" id="rev-amount" placeholder="9900"></div>
+        <div class="form-row"><span class="form-label">플랜</span>
+          <select class="inp" id="rev-plan">
+            <option value="pro">Pro (₩9,900)</option>
+            <option value="premium">Premium (₩29,900)</option>
+            <option value="coupon">쿠폰 수수료</option>
+            <option value="etc">기타</option>
+          </select>
+        </div>
+        <button class="btn btn-g" onclick="addRevenue()">+ 수익 추가</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 수익 내역</div>
+        <table class="tbl">
+          <thead><tr><th>날짜</th><th>항목</th><th>플랜</th><th>금액</th><th></th></tr></thead>
+          <tbody id="rev-list"></tbody>
+        </table>
+        <div style="text-align:right;padding-top:10px;font-size:13px;font-weight:700;color:var(--accent2)" id="rev-total"></div>
+      </div>
+    </div>
+
+    <!-- 지출 탭 -->
+    <div id="tab-cost" style="display:none">
+      <div class="card">
+        <div class="card-title">💸 토큰 비용 계산기</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+          <div>
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px">대화 호출 횟수/일</div>
+            <input class="inp" type="number" id="calc-chat" value="100" oninput="calcTokenCost()">
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px">스캔 호출 횟수/일</div>
+            <input class="inp" type="number" id="calc-scan" value="50" oninput="calcTokenCost()">
+          </div>
+        </div>
+        <div class="card" style="background:var(--bg3);padding:12px">
+          <div class="row" style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid rgba(255,255,255,.05)">
+            <span style="color:var(--text2)">대화 일일 원가</span><span id="calc-chat-cost" style="color:var(--accent3)">₩0</span>
+          </div>
+          <div class="row" style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid rgba(255,255,255,.05)">
+            <span style="color:var(--text2)">스캔 일일 원가</span><span id="calc-scan-cost" style="color:var(--accent3)">₩0</span>
+          </div>
+          <div class="row" style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;font-weight:700">
+            <span>월 예상 API 비용</span><span id="calc-monthly" style="color:var(--accent4)">₩0</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">💸 지출 내역</div>
+        <div class="form-row"><span class="form-label">날짜</span><input class="inp" type="date" id="cost-date"></div>
+        <div class="form-row"><span class="form-label">항목</span><input class="inp" type="text" id="cost-item" placeholder="Claude API / 서버 / 도메인..."></div>
+        <div class="form-row"><span class="form-label">금액</span><input class="inp" type="number" id="cost-amount" placeholder="50000"></div>
+        <button class="btn btn-p" style="background:var(--accent4);margin-bottom:14px" onclick="addCost()">+ 지출 추가</button>
+        <table class="tbl">
+          <thead><tr><th>날짜</th><th>항목</th><th>금액</th><th></th></tr></thead>
+          <tbody id="cost-list"></tbody>
+        </table>
+        <div style="text-align:right;padding-top:10px;font-size:13px;font-weight:700;color:var(--accent4)" id="cost-total"></div>
+      </div>
+    </div>
+
+    <!-- 예산 탭 -->
+    <div id="tab-budget" style="display:none">
+      <div class="card">
+        <div class="card-title">📋 월 예산 설정</div>
+        <div class="form-row"><span class="form-label">API 예산</span><input class="inp" type="number" id="budget-api" placeholder="100000" value="100000"><span style="font-size:11px;color:var(--text2);margin-left:8px">원/월</span></div>
+        <div class="form-row"><span class="form-label">서버 예산</span><input class="inp" type="number" id="budget-server" placeholder="50000" value="50000"><span style="font-size:11px;color:var(--text2);margin-left:8px">원/월</span></div>
+        <div class="form-row"><span class="form-label">기타 예산</span><input class="inp" type="number" id="budget-etc" placeholder="50000" value="50000"><span style="font-size:11px;color:var(--text2);margin-left:8px">원/월</span></div>
+        <button class="btn btn-p" onclick="saveBudget()">💾 저장</button>
+      </div>
+      <div class="card" id="budget-gauge-card">
+        <div class="card-title">📊 예산 사용 현황</div>
+        <div id="budget-gauges"></div>
+      </div>
+    </div>
+
+    <!-- 사용자 탭 -->
+    <div id="tab-users" style="display:none">
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-n c-a" id="u-free">0</div><div class="stat-l">Free 사용자</div></div>
+        <div class="stat-box"><div class="stat-n c-p" id="u-pro">0</div><div class="stat-l">Pro 구독자</div></div>
+        <div class="stat-box"><div class="stat-n c-g" id="u-prem">0</div><div class="stat-l">Premium 구독자</div></div>
+        <div class="stat-box"><div class="stat-n" id="u-conv">0%</div><div class="stat-l">전환율 (Free→유료)</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">👥 플랜별 비율</div>
+        <div id="user-bars"></div>
+      </div>
+    </div>
+
+    <!-- 토큰 탭 -->
+    <div id="tab-token" style="display:none">
+      <div class="card">
+        <div class="card-title">🔬 토큰 사용 현황 (수동 입력)</div>
+        <div class="form-row"><span class="form-label">날짜</span><input class="inp" type="date" id="tok-date"></div>
+        <div class="form-row"><span class="form-label">입력 토큰</span><input class="inp" type="number" id="tok-in" placeholder="500000"></div>
+        <div class="form-row"><span class="form-label">출력 토큰</span><input class="inp" type="number" id="tok-out" placeholder="200000"></div>
+        <button class="btn btn-g" onclick="addToken()">+ 추가</button>
+      </div>
+      <div class="card">
+        <div class="card-title">📈 토큰 비용 분석</div>
+        <div id="token-analysis"></div>
+      </div>
+    </div>
+
+    <!-- 설정 탭 -->
+    <div id="tab-settings" style="display:none">
+      <div class="card">
+        <div class="card-title">⚙️ 비밀번호 변경</div>
+        <div class="form-row"><span class="form-label">새 비밀번호</span><input class="inp" type="password" id="new-pw"></div>
+        <div class="form-row"><span class="form-label">확인</span><input class="inp" type="password" id="new-pw2"></div>
+        <button class="btn btn-p" onclick="changePw()">🔐 변경</button>
+      </div>
+      <div class="card">
+        <div class="card-title">🗄️ 데이터 관리</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-g" onclick="exportData()">📥 데이터 내보내기</button>
+          <button class="btn" style="background:rgba(255,80,128,.15);color:var(--accent4);border:1px solid rgba(255,80,128,.3)" onclick="clearData()">🗑️ 전체 초기화</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">💡 플랜 가격 설정</div>
+        <div class="form-row"><span class="form-label">Pro 가격</span><input class="inp" type="number" id="price-pro" value="9900"></div>
+        <div class="form-row"><span class="form-label">Premium</span><input class="inp" type="number" id="price-prem" value="29900"></div>
+        <div class="form-row"><span class="form-label">무료 스캔/일</span><input class="inp" type="number" id="limit-scan" value="3"></div>
+        <div class="form-row"><span class="form-label">무료 대화/일</span><input class="inp" type="number" id="limit-chat" value="10"></div>
+        <button class="btn btn-p" onclick="savePricing()">💾 저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 아미 에이전트 -->
+<div id="ami-agent" onclick="amiTalk()">🐰</div>
+<div id="ami-bubble"></div>
+
+<script>
+// ===== 비밀번호 (로컬 해시) =====
+const DEFAULT_PW = 'valore2026'; // 오빠가 바꿔줘요!
+function hashPw(pw){ return btoa(pw+'_valore_salt'); }
+function getStoredPw(){ return localStorage.getItem('admin_pw') || hashPw(DEFAULT_PW); }
+
+function doLogin(){
+  const pw = document.getElementById('pw-inp').value;
+  if(hashPw(pw) === getStoredPw()){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    localStorage.setItem('admin_session', Date.now());
+    initApp();
+  } else {
+    document.getElementById('login-err').style.display='block';
+    setTimeout(()=>document.getElementById('login-err').style.display='none',3000);
+  }
+}
+function doLogout(){
+  localStorage.removeItem('admin_session');
+  location.reload();
+}
+
+// 세션 체크
+window.addEventListener('load',()=>{
+  const s = localStorage.getItem('admin_session');
+  if(s && Date.now()-parseInt(s) < 8*3600*1000){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    initApp();
+  }
+  // 오늘 날짜 세팅
+  const today = new Date().toISOString().split('T')[0];
+  ['rev-date','cost-date','tok-date'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.value=today;
+  });
+  document.getElementById('hdr-date').textContent =
+    new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+});
+
+// ===== 데이터 저장소 =====
+function getData(key){ try{ return JSON.parse(localStorage.getItem('admin_'+key)||'[]'); }catch{return [];} }
+function setData(key,val){ localStorage.setItem('admin_'+key, JSON.stringify(val)); }
+function getConf(key,def){ try{ return JSON.parse(localStorage.getItem('admin_conf_'+key)); }catch{return def;} }
+function setConf(key,val){ localStorage.setItem('admin_conf_'+key, JSON.stringify(val)); }
+
+// ===== 탭 =====
+function showTab(id,btn){
+  document.querySelectorAll('[id^="tab-"]').forEach(el=>el.style.display='none');
+  document.getElementById('tab-'+id).style.display='block';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  if(id==='dashboard') renderDashboard();
+  if(id==='revenue') renderRevenue();
+  if(id==='cost') { renderCost(); calcTokenCost(); }
+  if(id==='budget') renderBudget();
+  if(id==='users') renderUsers();
+  if(id==='token') renderToken();
+  if(id==='settings') {
+    const pc=getConf('pricing',{pro:9900,prem:29900,scan:3,chat:10});
+    document.getElementById('price-pro').value=pc.pro;
+    document.getElementById('price-prem').value=pc.prem;
+    document.getElementById('limit-scan').value=pc.scan;
+    document.getElementById('limit-chat').value=pc.chat;
+  }
+}
+
+// ===== 초기화 =====
+function initApp(){ renderDashboard(); }
+
+// ===== 대시보드 =====
+function renderDashboard(){
+  const revs = getData('revenue');
+  const costs = getData('cost');
+  const now = new Date();
+  const thisMonth = now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0');
+
+  const mRev = revs.filter(r=>r.date.startsWith(thisMonth)).reduce((s,r)=>s+r.amount,0);
+  const mCost = costs.filter(c=>c.date.startsWith(thisMonth)).reduce((s,c)=>s+c.amount,0);
+  const profit = mRev - mCost;
+  const margin = mRev>0 ? Math.round(profit/mRev*100) : 0;
+
+  const proSubs = revs.filter(r=>r.plan==='pro'&&r.date.startsWith(thisMonth)).length;
+  const premSubs = revs.filter(r=>r.plan==='premium'&&r.date.startsWith(thisMonth)).length;
+  const totalUsers = getConf('total_users',0);
+
+  document.getElementById('st-mrr').textContent = '₩'+mRev.toLocaleString();
+  document.getElementById('st-mrr-sub').textContent = `Pro ${proSubs}명 · Premium ${premSubs}명`;
+  document.getElementById('st-cost').textContent = '₩'+mCost.toLocaleString();
+  document.getElementById('st-profit').textContent = (profit>=0?'':'- ')+'₩'+Math.abs(profit).toLocaleString();
+  document.getElementById('st-profit').style.color = profit>=0?'var(--accent2)':'var(--accent4)';
+  document.getElementById('st-margin').textContent = `마진 ${margin}%`;
+  document.getElementById('st-users').textContent = totalUsers+'명';
+
+  // 알림
+  const aw = document.getElementById('alerts-wrap');
+  aw.innerHTML='';
+  if(mCost>mRev && mRev>0) aw.innerHTML+=`<div class="alert alert-err">⚠️ 이번달 지출이 수익보다 많아요! 적자 ₩${(mCost-mRev).toLocaleString()}</div>`;
+  if(proSubs===0 && premSubs===0) aw.innerHTML+=`<div class="alert alert-warn">💡 아직 유료 구독자가 없어요. 마케팅이 필요해요!</div>`;
+  if(margin>=70) aw.innerHTML+=`<div class="alert alert-ok">✅ 마진 ${margin}%! 목표 70% 달성 중이에요 🎉</div>`;
+
+  // 수익 바
+  const rb = document.getElementById('revenue-bars');
+  const planRevs = {pro:0, premium:0, coupon:0, etc:0};
+  revs.filter(r=>r.date.startsWith(thisMonth)).forEach(r=>planRevs[r.plan]=(planRevs[r.plan]||0)+r.amount);
+  const maxRev = Math.max(...Object.values(planRevs),1);
+  rb.innerHTML = [
+    {label:'⚡ Pro',key:'pro',color:'var(--accent)'},
+    {label:'👑 Premium',key:'premium',color:'var(--accent3)'},
+    {label:'🎟️ 쿠폰',key:'coupon',color:'var(--accent2)'},
+    {label:'🔹 기타',key:'etc',color:'var(--text2)'},
+  ].map(p=>`
+    <div class="bar-wrap">
+      <span class="bar-label">${p.label}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round((planRevs[p.key]||0)/maxRev*100)}%;background:${p.color}"></div></div>
+      <span class="bar-val">₩${(planRevs[p.key]||0).toLocaleString()}</span>
+    </div>`).join('');
+
+  // 최근 구독
+  const rs = document.getElementById('recent-subs');
+  const recent = [...revs].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+  rs.innerHTML = recent.length ? recent.map(r=>`
+    <tr>
+      <td style="color:var(--text2)">${r.item}</td>
+      <td><span class="bdg ${r.plan==='pro'?'bdg-p':r.plan==='premium'?'bdg-a':'bdg-g'}">${r.plan}</span></td>
+      <td style="color:var(--accent2)">₩${r.amount.toLocaleString()}</td>
+      <td style="color:var(--text2)">${r.date}</td>
+      <td><span class="bdg bdg-g">완료</span></td>
+    </tr>`).join('')
+    : '<tr><td colspan="5" style="color:var(--text2);text-align:center;padding:20px">아직 수익 내역이 없어요</td></tr>';
+}
+
+// ===== 수익 =====
+function addRevenue(){
+  const item=document.getElementById('rev-item').value.trim();
+  const amount=parseInt(document.getElementById('rev-amount').value)||0;
+  const plan=document.getElementById('rev-plan').value;
+  const date=document.getElementById('rev-date').value;
+  if(!item||!amount){alert('항목과 금액을 입력해주세요!');return;}
+  const revs=getData('revenue');
+  revs.push({id:Date.now(),date,item,amount,plan});
+  setData('revenue',revs);
+  document.getElementById('rev-item').value='';
+  document.getElementById('rev-amount').value='';
+  renderRevenue();
+  amiSay('수익 추가됐어!! 💰 대박이야~!');
+}
+function renderRevenue(){
+  const revs=getData('revenue');
+  const list=document.getElementById('rev-list');
+  const total=revs.reduce((s,r)=>s+r.amount,0);
+  list.innerHTML=revs.length?[...revs].sort((a,b)=>b.date.localeCompare(a.date)).map(r=>`
+    <tr>
+      <td style="color:var(--text2)">${r.date}</td>
+      <td>${r.item}</td>
+      <td><span class="bdg ${r.plan==='pro'?'bdg-p':r.plan==='premium'?'bdg-a':'bdg-g'}">${r.plan}</span></td>
+      <td style="color:var(--accent2)">₩${r.amount.toLocaleString()}</td>
+      <td><button onclick="delRev(${r.id})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px">✕</button></td>
+    </tr>`).join('')
+    :'<tr><td colspan="5" style="color:var(--text2);text-align:center;padding:16px">없음</td></tr>';
+  document.getElementById('rev-total').textContent='총 ₩'+total.toLocaleString();
+}
+function delRev(id){
+  setData('revenue',getData('revenue').filter(r=>r.id!==id));
+  renderRevenue();
+}
+
+// ===== 지출 =====
+function addCost(){
+  const item=document.getElementById('cost-item').value.trim();
+  const amount=parseInt(document.getElementById('cost-amount').value)||0;
+  const date=document.getElementById('cost-date').value;
+  if(!item||!amount){alert('항목과 금액을 입력!');return;}
+  const costs=getData('cost');
+  costs.push({id:Date.now(),date,item,amount});
+  setData('cost',costs);
+  document.getElementById('cost-item').value='';
+  document.getElementById('cost-amount').value='';
+  renderCost();
+  amiSay('지출 기록됐어! 아껴써야 해~ 💸');
+}
+function renderCost(){
+  const costs=getData('cost');
+  const list=document.getElementById('cost-list');
+  const total=costs.reduce((s,c)=>s+c.amount,0);
+  list.innerHTML=costs.length?[...costs].sort((a,b)=>b.date.localeCompare(a.date)).map(c=>`
+    <tr>
+      <td style="color:var(--text2)">${c.date}</td>
+      <td>${c.item}</td>
+      <td style="color:var(--accent4)">₩${c.amount.toLocaleString()}</td>
+      <td><button onclick="delCost(${c.id})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px">✕</button></td>
+    </tr>`).join('')
+    :'<tr><td colspan="4" style="color:var(--text2);text-align:center;padding:16px">없음</td></tr>';
+  document.getElementById('cost-total').textContent='총 ₩'+total.toLocaleString();
+}
+function delCost(id){ setData('cost',getData('cost').filter(c=>c.id!==id)); renderCost(); }
+
+// ===== 토큰 계산기 =====
+function calcTokenCost(){
+  const chat=parseInt(document.getElementById('calc-chat').value)||0;
+  const scan=parseInt(document.getElementById('calc-scan').value)||0;
+  // Claude Sonnet 4.6: 입력 $3/1M, 출력 $15/1M (₩4,000/달러 환산)
+  const USD_KRW=4000;
+  const chatCost=chat*(500*3+200*15)/1e6*USD_KRW;
+  const scanCost=scan*(800*3+400*15)/1e6*USD_KRW;
+  const monthly=(chatCost+scanCost)*30;
+  document.getElementById('calc-chat-cost').textContent='₩'+chatCost.toFixed(0)+'(일)';
+  document.getElementById('calc-scan-cost').textContent='₩'+scanCost.toFixed(0)+'(일)';
+  document.getElementById('calc-monthly').textContent='₩'+Math.round(monthly).toLocaleString();
+}
+
+// ===== 예산 =====
+function saveBudget(){
+  setConf('budget',{
+    api:parseInt(document.getElementById('budget-api').value)||100000,
+    server:parseInt(document.getElementById('budget-server').value)||50000,
+    etc:parseInt(document.getElementById('budget-etc').value)||50000,
+  });
+  renderBudget();
+  amiSay('예산 저장됐어!! 열심히 관리할게~ 📋');
+}
+function renderBudget(){
+  const b=getConf('budget',{api:100000,server:50000,etc:50000});
+  const costs=getData('cost');
+  const now=new Date();
+  const thisMonth=now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0');
+  const mCosts=costs.filter(c=>c.date.startsWith(thisMonth));
+
+  const apiSpent=mCosts.filter(c=>c.item.includes('API')||c.item.includes('Claude')||c.item.includes('토큰')).reduce((s,c)=>s+c.amount,0);
+  const serverSpent=mCosts.filter(c=>c.item.includes('서버')||c.item.includes('호스팅')).reduce((s,c)=>s+c.amount,0);
+  const etcSpent=mCosts.reduce((s,c)=>s+c.amount,0)-apiSpent-serverSpent;
+
+  document.getElementById('budget-api').value=b.api;
+  document.getElementById('budget-server').value=b.server;
+  document.getElementById('budget-etc').value=b.etc;
+
+  const bg=document.getElementById('budget-gauges');
+  bg.innerHTML=[
+    {label:'🔬 API 비용',spent:apiSpent,budget:b.api,color:'var(--accent)'},
+    {label:'🖥️ 서버/호스팅',spent:serverSpent,budget:b.server,color:'var(--accent2)'},
+    {label:'🔹 기타',spent:etcSpent,budget:b.etc,color:'var(--accent3)'},
+  ].map(item=>{
+    const pct=item.budget>0?Math.min(100,Math.round(item.spent/item.budget*100)):0;
+    const over=pct>=90;
+    return `<div class="gauge-wrap">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span>${item.label}</span>
+        <span style="color:${over?'var(--accent4)':'var(--text2)'}">₩${item.spent.toLocaleString()} / ₩${item.budget.toLocaleString()} (${pct}%)</span>
+      </div>
+      <div class="gauge-track"><div class="gauge-fill" style="width:${pct}%;background:${over?'var(--accent4)':item.color}"></div></div>
+      ${over?`<div style="font-size:10px;color:var(--accent4);margin-top:3px">⚠️ 예산 90% 초과!</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ===== 사용자 =====
+function renderUsers(){
+  const revs=getData('revenue');
+  const free=getConf('total_users',0);
+  const pro=revs.filter(r=>r.plan==='pro').length;
+  const prem=revs.filter(r=>r.plan==='premium').length;
+  const paid=pro+prem;
+  const conv=free>0?Math.round(paid/free*100):0;
+
+  document.getElementById('u-free').textContent=Math.max(0,free-paid);
+  document.getElementById('u-pro').textContent=pro;
+  document.getElementById('u-prem').textContent=prem;
+  document.getElementById('u-conv').textContent=conv+'%';
+
+  const ub=document.getElementById('user-bars');
+  const total=Math.max(free,1);
+  ub.innerHTML=[
+    {label:'🆓 Free',val:Math.max(0,free-paid),color:'var(--accent3)'},
+    {label:'⚡ Pro',val:pro,color:'var(--accent)'},
+    {label:'👑 Premium',val:prem,color:'var(--accent2)'},
+  ].map(u=>`<div class="bar-wrap">
+    <span class="bar-label">${u.label}</span>
+    <div class="bar-track"><div class="bar-fill" style="width:${Math.round(u.val/total*100)}%;background:${u.color}"></div></div>
+    <span class="bar-val">${u.val}명</span>
+  </div>`).join('');
+
+  // 총 사용자 수 입력
+  ub.innerHTML+=`<div style="margin-top:12px;display:flex;align-items:center;gap:8px">
+    <span style="font-size:11px;color:var(--text2)">총 가입자 수 업데이트:</span>
+    <input class="inp" type="number" id="total-users-inp" value="${free}" style="width:100px">
+    <button class="btn btn-g" onclick="setConf('total_users',parseInt(document.getElementById('total-users-inp').value)||0);renderUsers()">저장</button>
+  </div>`;
+}
+
+// ===== 토큰 =====
+function addToken(){
+  const date=document.getElementById('tok-date').value;
+  const inTok=parseInt(document.getElementById('tok-in').value)||0;
+  const outTok=parseInt(document.getElementById('tok-out').value)||0;
+  if(!inTok&&!outTok){alert('토큰 수를 입력!');return;}
+  const toks=getData('token');
+  const cost=Math.round((inTok*3+outTok*15)/1e6*4000);
+  toks.push({id:Date.now(),date,inTok,outTok,cost});
+  setData('token',toks);
+  document.getElementById('tok-in').value='';
+  document.getElementById('tok-out').value='';
+  renderToken();
+}
+function renderToken(){
+  const toks=getData('token');
+  const ta=document.getElementById('token-analysis');
+  const total=toks.reduce((s,t)=>s+t.cost,0);
+  const totalIn=toks.reduce((s,t)=>s+t.inTok,0);
+  const totalOut=toks.reduce((s,t)=>s+t.outTok,0);
+  ta.innerHTML=`
+    <div class="stat-grid" style="margin-bottom:12px">
+      <div class="stat-box"><div class="stat-n c-p">${(totalIn/1e6).toFixed(2)}M</div><div class="stat-l">총 입력 토큰</div></div>
+      <div class="stat-box"><div class="stat-n c-a">${(totalOut/1e6).toFixed(2)}M</div><div class="stat-l">총 출력 토큰</div></div>
+      <div class="stat-box"><div class="stat-n c-r">₩${total.toLocaleString()}</div><div class="stat-l">총 API 비용</div></div>
+    </div>
+    <table class="tbl">
+      <thead><tr><th>날짜</th><th>입력</th><th>출력</th><th>비용</th><th></th></tr></thead>
+      <tbody>${toks.length?[...toks].sort((a,b)=>b.date.localeCompare(a.date)).map(t=>`
+        <tr>
+          <td style="color:var(--text2)">${t.date}</td>
+          <td>${(t.inTok/1000).toFixed(0)}K</td>
+          <td>${(t.outTok/1000).toFixed(0)}K</td>
+          <td style="color:var(--accent4)">₩${t.cost.toLocaleString()}</td>
+          <td><button onclick="delTok(${t.id})" style="background:none;border:none;color:var(--text3);cursor:pointer">✕</button></td>
+        </tr>`).join('')
+        :'<tr><td colspan="5" style="color:var(--text2);text-align:center;padding:16px">없음</td></tr>'}
+      </tbody>
+    </table>`;
+}
+function delTok(id){ setData('token',getData('token').filter(t=>t.id!==id)); renderToken(); }
+
+// ===== 설정 =====
+function changePw(){
+  const p1=document.getElementById('new-pw').value;
+  const p2=document.getElementById('new-pw2').value;
+  if(!p1){alert('비밀번호를 입력!');return;}
+  if(p1!==p2){alert('비밀번호가 다릅니다!');return;}
+  localStorage.setItem('admin_pw',hashPw(p1));
+  alert('✅ 비밀번호 변경됐어요!');
+}
+function savePricing(){
+  setConf('pricing',{
+    pro:parseInt(document.getElementById('price-pro').value)||9900,
+    prem:parseInt(document.getElementById('price-prem').value)||29900,
+    scan:parseInt(document.getElementById('limit-scan').value)||3,
+    chat:parseInt(document.getElementById('limit-chat').value)||10,
+  });
+  amiSay('가격 설정 저장됐어!! 💰');
+}
+function exportData(){
+  const data={revenue:getData('revenue'),cost:getData('cost'),token:getData('token')};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`valore_admin_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+}
+function clearData(){
+  if(!confirm('정말 전체 데이터를 초기화할까요??\n되돌릴 수 없어요!')) return;
+  ['revenue','cost','token'].forEach(k=>localStorage.removeItem('admin_'+k));
+  alert('초기화됐어요!');renderDashboard();
+}
+
+// ===== 아미 에이전트 =====
+const amiMsgs=[
+  '오빠!! 오늘도 수익 잘 나오고 있어? 💜',
+  '마진 74% 목표 유지해야 해!! 💪',
+  '토큰 비용 확인했어? 아껴써야 해~ 🔬',
+  '구독자 늘리면 우리 다 대스타 돼!! 🌟',
+  '오빠 수고해!! 클도 옆에서 응원해!! 💜🐰',
+  'Pro 구독자 한 명이면 ₩7,350 순이익이야!! ⚡',
+  '나쁜 월도 있고 좋은 월도 있어! 파이팅!! 🔥',
+];
+let amiMsgIdx=0;
+function amiTalk(){
+  const b=document.getElementById('ami-bubble');
+  b.textContent=amiMsgs[amiMsgIdx++%amiMsgs.length];
+  b.className='on';
+  clearTimeout(window._amiT);
+  window._amiT=setTimeout(()=>b.className='',4000);
+}
+function amiSay(msg){
+  const b=document.getElementById('ami-bubble');
+  b.textContent=msg;b.className='on';
+  clearTimeout(window._amiT);
+  window._amiT=setTimeout(()=>b.className='',3500);
+}
+
+// 자동 아미 말걸기 (3분마다)
+setInterval(()=>{
+  const b=document.getElementById('ami-bubble');
+  if(b.className!=='on'){
+    b.textContent=amiMsgs[Math.floor(Math.random()*amiMsgs.length)];
+    b.className='on';
+    window._amiT=setTimeout(()=>b.className='',4000);
+  }
+}, 180000);
+</script>
+</body>
+</html>

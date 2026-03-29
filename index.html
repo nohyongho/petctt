@@ -529,6 +529,12 @@ iframe.goog-te-banner-frame{display:none!important;}
               <script>
                         // 카카오 SDK 초기화
                         if (!Kakao.isInitialized()) Kakao.init('fa5158f6f9735b0f0d0bd39a7158393b');
+                                    // 통합 인증 ready 이벤트
+                                    window.addEventListener('auth:ready', function(e){
+                                        renderAuth();
+                                    });
+                                    // 페이지 로드 시 renderAuth
+                                    setTimeout(renderAuth, 300);
 
                         const AUTH_KEY = 'petctt_unified_auth';
 
@@ -556,6 +562,15 @@ iframe.goog-te-banner-frame{display:none!important;}
                                     try { Kakao.Auth.logout(); } catch(e) {}
                                     renderAuth();
                         }
+                        function doLogout() {
+                                    if (window.ValoreAuth) {
+                                        ValoreAuth.logout();
+                                    } else {
+                                        clearAuth();
+                                        location.reload();
+                                    }
+                        }
+
 
                         function toggleLoginMenu() {
                                     var d = document.getElementById('loginDropdown');
@@ -1170,6 +1185,7 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
 
 </script>
 
+<script src="/public/js/auth.js"></script>
 <script src="/public/js/paywall.js"></script>
 </body>
 </html>

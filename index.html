@@ -38,12 +38,17 @@
                         .light-mode .stat-number { color: #059669 !important; }
               
 /* ========== 아미 토끼 완전판 v1 ========== */
-#ami-particle-canvas{position:fixed;inset:0;pointer-events:none;z-index:89}
+#ami-particle-canvas{position:fixed;inset:0;pointer-events:none;z-index:99989}
 
 #ami-root{
-  position:fixed;z-index:90;
-  cursor:pointer;user-select:none;
-  /* JS로 위치 제어 */
+  position:fixed;
+  z-index:99990;          /* header(99999) 바로 아래, 항상 보임 */
+  cursor:pointer;
+  user-select:none;
+  left:50%;               /* 초기 CSS 기본값 */
+  bottom:28px;
+  transform:translateX(-50%);
+  transition:left 0.05s linear; /* 부드러운 이동 */
 }
 
 #ami-bubble{
@@ -81,6 +86,7 @@
   position:absolute;right:-46px;top:40%;
   transform:translateY(-50%);
   display:flex;flex-direction:column;gap:6px;
+  z-index:99991;
 }
 .ami-cb{
   width:34px;height:34px;border-radius:50%;
@@ -116,7 +122,7 @@
   border-bottom:none;
   border-radius:22px 22px 0 0;
   padding:14px 14px 26px;
-  z-index:500;
+  z-index:99995;
   transition:transform .36s cubic-bezier(.34,1.2,.64,1);
   backdrop-filter:blur(24px);
   box-shadow:0 -6px 36px rgba(180,80,255,.18);
@@ -857,9 +863,12 @@ let ALastTap = 0;
 AMI.style.left = AAX+'px';
 AMI.style.bottom = '28px';
 AMI.style.transform = 'none';
+AMI.style.display = 'block'; /* 명시적 표시 */
 
 function amiSetPos() {
   AMI.style.left = AAX+'px';
+  AMI.style.bottom = '28px';
+  // scaleX(방향) + translateY(점프) — translateX(-50%) 제거 (CSS에서 처리)
   AMI.style.transform = `scaleX(${AFacing}) translateY(${AJO}px)`;
 }
 

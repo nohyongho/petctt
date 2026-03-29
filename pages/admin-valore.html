@@ -241,6 +241,12 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
         <div id="revenue-bars"></div>
       </div>
 
+      <!-- 월 손익 요약 -->
+      <div class="card" id="pnl-card">
+        <div class="card-title">📊 이번달 손익 요약</div>
+        <div id="pnl-summary" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"></div>
+      </div>
+
       <!-- 최근 구독 -->
       <div class="card">
         <div class="card-title">🆕 최근 구독</div>
@@ -480,13 +486,20 @@ function renderDashboard(){
   const premSubs = revs.filter(r=>r.plan==='premium'&&r.date.startsWith(thisMonth)).length;
   const totalUsers = getConf('total_users',0);
 
+  // Supabase 연동 전: localStorage 기반 집계
+  const totalPaid = proSubs + premSubs;
+  const storedTotal = getConf('total_users', 0) || 0;
+  const freeEst = Math.max(0, storedTotal - totalPaid);
+
   document.getElementById('st-mrr').textContent = '₩'+mRev.toLocaleString();
-  document.getElementById('st-mrr-sub').textContent = `Pro ${proSubs}명 · Premium ${premSubs}명`;
+  document.getElementById('st-mrr-sub').textContent = `⚡ Pro ${proSubs}명 · 👑 Premium ${premSubs}명`;
   document.getElementById('st-cost').textContent = '₩'+mCost.toLocaleString();
-  document.getElementById('st-profit').textContent = (profit>=0?'':'- ')+'₩'+Math.abs(profit).toLocaleString();
+  document.getElementById('st-cost-sub').textContent = `이번달 지출 항목 ${costs.filter(c=>c.date.startsWith(thisMonth)).length}건`;
+  document.getElementById('st-profit').textContent = (profit>=0?'+':'')+'₩'+profit.toLocaleString();
   document.getElementById('st-profit').style.color = profit>=0?'var(--accent2)':'var(--accent4)';
-  document.getElementById('st-margin').textContent = `마진 ${margin}%`;
-  document.getElementById('st-users').textContent = totalUsers+'명';
+  document.getElementById('st-margin').textContent = mRev>0 ? `마진 ${margin}%` : '수익 없음';
+  document.getElementById('st-users').textContent = storedTotal > 0 ? storedTotal+'명' : totalPaid+'명(유료)';
+  document.getElementById('st-users-sub').textContent = `🆓 Free ${freeEst} · ⚡ Pro ${proSubs} · 👑 Premium ${premSubs}`;
 
   // 알림
   const aw = document.getElementById('alerts-wrap');
@@ -513,6 +526,24 @@ function renderDashboard(){
     </div>`).join('');
 
   // 최근 구독
+  // 손익 요약
+  const pnl = document.getElementById('pnl-summary');
+  if(pnl) {
+    const breakEven = mCost > 0 ? Math.ceil(mCost / 7350) : 0; // Pro 마진으로 손익분기
+    const status = profit > 0 ? '🟢 흑자' : profit < 0 ? '🔴 적자' : '⚪ 균형';
+    pnl.innerHTML = [
+      {label:'수익',val:'₩'+mRev.toLocaleString(),color:'var(--accent2)'},
+      {label:'지출',val:'₩'+mCost.toLocaleString(),color:'var(--accent4)'},
+      {label:status,val:'₩'+Math.abs(profit).toLocaleString()+(profit>=0?' 순이익':' 손실'),color:profit>=0?'var(--accent2)':'var(--accent4)'},
+    ].map(s=>`<div style="background:var(--bg3);border-radius:10px;padding:10px;text-align:center;border:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:900;color:${s.color}">${s.val}</div>
+      <div style="font-size:10px;color:var(--text2);margin-top:3px">${s.label}</div>
+    </div>`).join('');
+    if(breakEven>0 && profit<=0) {
+      pnl.innerHTML += `<div style="grid-column:1/-1;font-size:11px;color:var(--accent3);text-align:center;margin-top:6px">💡 Pro 구독자 ${breakEven}명이면 이번달 손익분기!</div>`;
+    }
+  }
+
   const rs = document.getElementById('recent-subs');
   const recent = [...revs].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
   rs.innerHTML = recent.length ? recent.map(r=>`

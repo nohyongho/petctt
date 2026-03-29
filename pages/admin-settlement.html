@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>발로레 정산 어드민 — 본사/총판/대리점</title>
+<title>발로레 정산 어드민 — 원천거래 기반 3단 자동 정산</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -42,10 +42,11 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px}
 .card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:6px}
 
-/* 정산 계층 배지 */
+/* 배지 */
 .badge-hq{background:rgba(99,102,241,.2);color:#a5b4fc;border:1px solid rgba(99,102,241,.4);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
 .badge-dist{background:rgba(6,182,212,.2);color:#67e8f9;border:1px solid rgba(6,182,212,.4);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
 .badge-agent{background:rgba(16,185,129,.2);color:#6ee7b7;border:1px solid rgba(16,185,129,.4);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-txn{background:rgba(251,191,36,.2);color:#fbbf24;border:1px solid rgba(251,191,36,.4);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
 
 /* 통계 그리드 */
 .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
@@ -79,17 +80,16 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
 .flow-hq{border-left:3px solid var(--hq)}
 .flow-dist{border-left:3px solid var(--dist)}
 .flow-agent{border-left:3px solid var(--agent)}
-
-/* 권한 */
-.perm-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border2)}
-.perm-row:last-child{border-bottom:none}
-.toggle{width:40px;height:22px;border-radius:11px;border:none;cursor:pointer;position:relative;transition:background .2s}
-.toggle.on{background:#10b981}
-.toggle.off{background:var(--text3)}
+.flow-txn{border-left:3px solid #fbbf24}
 
 /* 공지 */
 .notice{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:12px;padding:12px 14px;font-size:12px;color:#a5b4fc;margin-bottom:12px;line-height:1.7}
+.notice-txn{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:#fbbf24}
 .empty{text-align:center;padding:32px;color:var(--text3);font-size:13px}
+
+/* 필터바 */
+.filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.filter-bar .sel,.filter-bar .inp{flex:unset;min-width:100px}
 </style>
 </head>
 <body>
@@ -98,7 +98,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">🏢 VALORE 정산 어드민</div>
-    <div class="login-sub">본사 / 총판 / 대리점 3단 정산 관리</div>
+    <div class="login-sub">원천거래 기반 · 본사 / 총판 / 대리점 3단 자동 정산</div>
     <input class="login-inp" type="password" id="pw-inp" placeholder="관리자 비밀번호"
       onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" onclick="doLogin()">🔐 입장하기</button>
@@ -111,13 +111,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
   <div class="header">
     <div>
       <div class="header-title">🏢 발로레 정산 어드민</div>
-      <div class="header-sub" id="login-role">본사 관리자</div>
+      <div class="header-sub">원천거래 기반 자동 정산 시스템</div>
     </div>
     <button class="logout-btn" onclick="doLogout()">로그아웃</button>
   </div>
 
   <div class="tab-nav">
     <button class="tab active" onclick="showTab('overview',this)">📊 정산 개요</button>
+    <button class="tab" onclick="showTab('txn',this)" style="color:#fbbf24;font-weight:700">💰 원천거래 등록</button>
     <button class="tab" onclick="showTab('hq',this)">🏢 본사</button>
     <button class="tab" onclick="showTab('distributor',this)">🏪 총판</button>
     <button class="tab" onclick="showTab('agent',this)">🤝 대리점</button>
@@ -127,49 +128,58 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
 
   <!-- ① 정산 개요 -->
   <div id="tab-overview" class="tab-content active">
-
     <div class="notice">
-      💡 <b>3단 정산 구조</b>: 본사(발로레) → 총판 → 대리점 순으로 수수료가 배분됩니다.<br>
-      매출의 <b>본사 % · 총판 % · 대리점 %</b> 기본 구조 (조정 가능)
+      💡 <b>실운영 정산 흐름</b>: 현장에서 원천거래 발생 → 시스템이 자동으로 본사/총판/대리점 몫 배분 → 본사가 월별 승인/지급<br>
+      <b>원천거래 등록</b> 탭에서 매출을 입력하면 비율대로 자동 분배됩니다
     </div>
 
-    <!-- 이번달 요약 -->
     <div class="card">
       <div class="card-title">📅 이번달 정산 요약</div>
       <div class="stat-grid">
         <div class="stat-box">
           <div class="stat-val" id="ov-total" style="color:var(--accent2)">₩0</div>
-          <div class="stat-lbl">총 매출</div>
+          <div class="stat-lbl">총 매출 (원천거래)</div>
         </div>
         <div class="stat-box">
           <div class="stat-val" id="ov-hq" style="color:#a5b4fc">₩0</div>
-          <div class="stat-lbl">본사 수익</div>
+          <div class="stat-lbl">본사 배분액</div>
         </div>
         <div class="stat-box">
           <div class="stat-val" id="ov-dist" style="color:#67e8f9">₩0</div>
-          <div class="stat-lbl">총판 합계</div>
+          <div class="stat-lbl">총판 배분 합계</div>
         </div>
       </div>
       <div class="stat-grid">
         <div class="stat-box">
           <div class="stat-val" id="ov-agent" style="color:#6ee7b7">₩0</div>
-          <div class="stat-lbl">대리점 합계</div>
+          <div class="stat-lbl">대리점 배분 합계</div>
         </div>
         <div class="stat-box">
-          <div class="stat-val" id="ov-dist-count" style="color:var(--accent3)">0</div>
-          <div class="stat-lbl">총판 수</div>
+          <div class="stat-val" id="ov-txn-count" style="color:#fbbf24">0</div>
+          <div class="stat-lbl">이번달 거래건수</div>
         </div>
         <div class="stat-box">
-          <div class="stat-val" id="ov-agent-count" style="color:var(--accent3)">0</div>
-          <div class="stat-lbl">대리점 수</div>
+          <div class="stat-val" id="ov-pending-count" style="color:var(--accent3)">0</div>
+          <div class="stat-lbl">미승인 건수</div>
         </div>
       </div>
     </div>
 
     <!-- 정산 흐름 -->
     <div class="card">
-      <div class="card-title">💡 정산 흐름 구조</div>
+      <div class="card-title">💡 정산 흐름 구조 (실운영형)</div>
       <div class="flow-box">
+        <div class="flow-item flow-txn">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <span class="badge-txn">원천</span>
+              <span style="font-size:13px;font-weight:700;margin-left:8px">원천거래 발생 (현장)</span>
+            </div>
+            <span style="font-size:13px;font-weight:900;color:#fbbf24">100%</span>
+          </div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px">구독료 · 쿠폰수수료 · 가맹비 · 광고비 · 기타</div>
+        </div>
+        <div class="flow-arrow">↓ 시스템 자동 분배</div>
         <div class="flow-item flow-hq">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <div>
@@ -178,14 +188,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
             </div>
             <span style="font-size:13px;font-weight:900;color:#a5b4fc" id="flow-hq-rate">60%</span>
           </div>
-          <div style="font-size:11px;color:var(--text2);margin-top:4px">플랫폼 운영 · PetCTT · AIRCTT · 기술 개발</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px">집계 · 승인 · 지급 처리</div>
         </div>
         <div class="flow-arrow">↓ 총판 수수료 배분</div>
         <div class="flow-item flow-dist">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <div>
               <span class="badge-dist">총판</span>
-              <span style="font-size:13px;font-weight:700;margin-left:8px">지역 총판 (다수)</span>
+              <span style="font-size:13px;font-weight:700;margin-left:8px">지역 총판</span>
             </div>
             <span style="font-size:13px;font-weight:900;color:#67e8f9" id="flow-dist-rate">25%</span>
           </div>
@@ -196,7 +206,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
           <div style="display:flex;justify-content:space-between;align-items:center">
             <div>
               <span class="badge-agent">대리점</span>
-              <span style="font-size:13px;font-weight:700;margin-left:8px">개별 대리점 (다수)</span>
+              <span style="font-size:13px;font-weight:700;margin-left:8px">개별 대리점</span>
             </div>
             <span style="font-size:13px;font-weight:900;color:#6ee7b7" id="flow-agent-rate">15%</span>
           </div>
@@ -205,54 +215,32 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
       </div>
     </div>
 
-    <!-- 미정산 현황 -->
+    <!-- 미승인 원천거래 -->
     <div class="card">
-      <div class="card-title">⏰ 미정산 현황</div>
+      <div class="card-title">⏰ 미승인 원천거래</div>
       <table class="tbl">
         <thead><tr>
-          <th>구분</th><th>업체명</th><th>미정산액</th><th>마감</th><th>처리</th>
+          <th>날짜</th><th>유형</th><th>업체명</th><th>금액</th><th>총판</th><th>대리점</th><th>처리</th>
         </tr></thead>
-        <tbody id="pending-tbody">
-          <tr><td colspan="5" class="empty">미정산 내역 없음</td></tr>
+        <tbody id="pending-txn-tbody">
+          <tr><td colspan="7" class="empty">미승인 거래 없음 👍</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- ② 본사 탭 -->
-  <div id="tab-hq" class="tab-content">
-    <div class="card">
-      <div class="card-title">🏢 본사 수익 설정</div>
-      <div class="form-row">
-        <input class="inp" type="number" id="hq-rate" placeholder="본사 비율 %" value="60">
-        <button class="btn btn-primary" onclick="saveHqRate()">저장</button>
-      </div>
-      <div style="font-size:11px;color:var(--text2)">총 매출에서 본사가 가져가는 비율 (나머지는 총판+대리점 배분)</div>
+  <!-- ★ 원천거래 등록 탭 (신설) -->
+  <div id="tab-txn" class="tab-content">
+    <div class="notice notice-txn">
+      💰 <b>원천거래 등록</b>: 현장에서 발생한 매출/수수료를 여기에 입력하면<br>
+      설정된 비율(본사 <span id="txn-hq-rate">60</span>% · 총판 <span id="txn-dist-rate">25</span>% · 대리점 <span id="txn-agent-rate">15</span>%)대로 <b>자동 분배</b>됩니다
     </div>
 
     <div class="card">
-      <div class="card-title">📊 본사 월별 수익</div>
-      <div class="stat-grid">
-        <div class="stat-box">
-          <div class="stat-val" id="hq-month-rev" style="color:var(--accent2)">₩0</div>
-          <div class="stat-lbl">이번달 수익</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-val" id="hq-year-rev" style="color:#a5b4fc">₩0</div>
-          <div class="stat-lbl">올해 누적</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-val" id="hq-pending" style="color:var(--accent3)">₩0</div>
-          <div class="stat-lbl">미수금</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">💰 수익 수동 입력</div>
+      <div class="card-title">📝 새 원천거래 등록</div>
       <div class="form-row">
-        <input class="inp" type="date" id="hq-rev-date">
-        <select class="sel" id="hq-rev-type">
+        <input class="inp" type="date" id="txn-date">
+        <select class="sel" id="txn-type">
           <option value="subscription">구독료</option>
           <option value="coupon_fee">쿠폰 수수료</option>
           <option value="merchant_fee">가맹점 수수료</option>
@@ -261,14 +249,129 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
         </select>
       </div>
       <div class="form-row">
-        <input class="inp" type="number" id="hq-rev-amount" placeholder="금액 (원)">
-        <input class="inp" type="text" id="hq-rev-note" placeholder="메모">
-        <button class="btn btn-success" onclick="addHqRev()">+ 추가</button>
+        <input class="inp" type="text" id="txn-biz-name" placeholder="업체명">
+        <input class="inp" type="number" id="txn-amount" placeholder="금액 (원)">
       </div>
-      <table class="tbl" style="margin-top:12px">
-        <thead><tr><th>날짜</th><th>유형</th><th>금액</th><th>메모</th><th></th></tr></thead>
-        <tbody id="hq-rev-tbody">
-          <tr><td colspan="5" class="empty">수익 내역 없음</td></tr>
+      <div class="form-row">
+        <select class="sel" id="txn-dist">
+          <option value="">소속 총판 선택</option>
+        </select>
+        <select class="sel" id="txn-agent">
+          <option value="">소속 대리점 선택 (선택)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <input class="inp" type="text" id="txn-memo" placeholder="메모 (선택)" style="flex:2">
+        <button class="btn btn-warn" onclick="addTxn()" style="flex:0">💰 거래 등록</button>
+      </div>
+
+      <!-- 자동 분배 미리보기 -->
+      <div id="txn-preview" style="display:none;margin-top:12px;padding:12px;background:var(--bg3);border-radius:12px;border:1px solid var(--border2)">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:8px">💡 자동 분배 미리보기</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;text-align:center">
+            <div style="font-size:10px;color:var(--text2)">본사 몫</div>
+            <div id="preview-hq" style="font-size:14px;font-weight:900;color:#a5b4fc">₩0</div>
+          </div>
+          <div style="flex:1;text-align:center">
+            <div style="font-size:10px;color:var(--text2)">총판 몫</div>
+            <div id="preview-dist" style="font-size:14px;font-weight:900;color:#67e8f9">₩0</div>
+          </div>
+          <div style="flex:1;text-align:center">
+            <div style="font-size:10px;color:var(--text2)">대리점 몫</div>
+            <div id="preview-agent" style="font-size:14px;font-weight:900;color:#6ee7b7">₩0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 원천거래 목록 -->
+    <div class="card">
+      <div class="card-title">📋 원천거래 내역</div>
+      <div class="filter-bar">
+        <input class="inp" type="month" id="txn-filter-month" style="min-width:140px">
+        <select class="sel" id="txn-filter-type" style="min-width:120px">
+          <option value="">전체 유형</option>
+          <option value="subscription">구독료</option>
+          <option value="coupon_fee">쿠폰 수수료</option>
+          <option value="merchant_fee">가맹점 수수료</option>
+          <option value="ad_fee">광고비</option>
+          <option value="etc">기타</option>
+        </select>
+        <select class="sel" id="txn-filter-status" style="min-width:100px">
+          <option value="">전체 상태</option>
+          <option value="pending">미승인</option>
+          <option value="approved">승인됨</option>
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="renderTxnList()">🔍 조회</button>
+      </div>
+      <table class="tbl">
+        <thead><tr>
+          <th>날짜</th><th>유형</th><th>업체명</th><th>총액</th>
+          <th>본사</th><th>총판</th><th>대리점</th><th>상태</th><th></th>
+        </tr></thead>
+        <tbody id="txn-tbody">
+          <tr><td colspan="9" class="empty">등록된 원천거래 없음</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ② 본사 탭 (조회/집계/승인 중심) -->
+  <div id="tab-hq" class="tab-content">
+    <div class="notice">
+      🏢 본사는 원천거래에서 <b>자동 배분된 금액</b>을 집계하고, 총판/대리점 지급을 <b>승인/처리</b>합니다
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 본사 수익 집계</div>
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="stat-val" id="hq-month-rev" style="color:var(--accent2)">₩0</div>
+          <div class="stat-lbl">이번달 본사 몫</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="hq-year-rev" style="color:#a5b4fc">₩0</div>
+          <div class="stat-lbl">올해 누적</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="hq-pending" style="color:var(--accent3)">₩0</div>
+          <div class="stat-lbl">미지급 합계</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚙️ 정산 비율 설정</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">비율 합계가 100%가 되도록 설정 (전체 원천거래에 적용)</div>
+      <div class="form-row">
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px"><span class="badge-hq">본사</span></div>
+          <input class="inp" type="number" id="rule-hq" value="60" min="0" max="100" oninput="syncRates()">
+        </div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px"><span class="badge-dist">총판</span></div>
+          <input class="inp" type="number" id="rule-dist" value="25" min="0" max="100" oninput="syncRates()">
+        </div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px"><span class="badge-agent">대리점</span></div>
+          <input class="inp" type="number" id="rule-agent" value="15" min="0" max="100" oninput="syncRates()">
+        </div>
+        <div style="flex:1;align-self:flex-end">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px">합계</div>
+          <div class="inp" id="rule-total" style="background:var(--bg);cursor:default;font-weight:700;color:var(--accent2)">100%</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveRules()">규칙 저장</button>
+    </div>
+
+    <!-- 본사 기준 원천거래 조회 -->
+    <div class="card">
+      <div class="card-title">📋 본사 배분 내역 (원천거래 기준)</div>
+      <table class="tbl">
+        <thead><tr><th>날짜</th><th>유형</th><th>업체명</th><th>거래총액</th><th>본사 몫</th></tr></thead>
+        <tbody id="hq-txn-tbody">
+          <tr><td colspan="5" class="empty">원천거래를 먼저 등록하세요</td></tr>
         </tbody>
       </table>
     </div>
@@ -281,10 +384,9 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
       <div class="form-row">
         <input class="inp" type="text" id="dist-name" placeholder="총판명">
         <input class="inp" type="text" id="dist-region" placeholder="담당 지역">
-        <input class="inp" type="number" id="dist-rate" placeholder="수수료 %" value="25">
+        <input class="inp" type="text" id="dist-contact" placeholder="담당자 연락처">
       </div>
       <div class="form-row">
-        <input class="inp" type="text" id="dist-contact" placeholder="담당자 연락처">
         <input class="inp" type="text" id="dist-code" placeholder="총판 코드 (자동생성)" readonly>
         <button class="btn btn-primary" onclick="genDistCode()">코드 생성</button>
         <button class="btn btn-success" onclick="addDistributor()">+ 등록</button>
@@ -292,33 +394,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
     </div>
 
     <div class="card">
-      <div class="card-title">📋 총판 목록</div>
+      <div class="card-title">📋 총판 목록 · 배분 현황</div>
       <table class="tbl">
         <thead><tr>
-          <th>코드</th><th>총판명</th><th>지역</th><th>수수료</th>
-          <th>이번달</th><th>대리점수</th><th>상태</th><th></th>
+          <th>코드</th><th>총판명</th><th>지역</th>
+          <th>이번달 배분액</th><th>거래건수</th><th>대리점수</th><th>상태</th><th></th>
         </tr></thead>
         <tbody id="dist-tbody">
           <tr><td colspan="8" class="empty">등록된 총판 없음</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- 총판별 정산 입력 -->
-    <div class="card">
-      <div class="card-title">💸 총판 정산 입력</div>
-      <div class="form-row">
-        <select class="sel" id="dist-settle-target">
-          <option value="">총판 선택</option>
-        </select>
-        <input class="inp" type="number" id="dist-settle-amount" placeholder="정산 금액">
-        <input class="inp" type="date" id="dist-settle-date">
-        <button class="btn btn-warn" onclick="addDistSettlement()">정산 처리</button>
-      </div>
-      <table class="tbl" style="margin-top:12px">
-        <thead><tr><th>날짜</th><th>총판</th><th>금액</th><th>상태</th><th></th></tr></thead>
-        <tbody id="dist-settle-tbody">
-          <tr><td colspan="5" class="empty">정산 내역 없음</td></tr>
         </tbody>
       </table>
     </div>
@@ -333,11 +416,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
         <select class="sel" id="agent-dist">
           <option value="">소속 총판 선택</option>
         </select>
-        <input class="inp" type="number" id="agent-rate" placeholder="수수료 %" value="15">
+        <input class="inp" type="text" id="agent-region" placeholder="담당 지역">
       </div>
       <div class="form-row">
         <input class="inp" type="text" id="agent-contact" placeholder="담당자 연락처">
-        <input class="inp" type="text" id="agent-region" placeholder="담당 지역">
         <input class="inp" type="text" id="agent-code" placeholder="대리점 코드 (자동생성)" readonly>
         <button class="btn btn-primary" onclick="genAgentCode()">코드 생성</button>
         <button class="btn btn-success" onclick="addAgent()">+ 등록</button>
@@ -345,81 +427,37 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
     </div>
 
     <div class="card">
-      <div class="card-title">📋 대리점 목록</div>
+      <div class="card-title">📋 대리점 목록 · 배분 현황</div>
       <table class="tbl">
         <thead><tr>
           <th>코드</th><th>대리점명</th><th>소속 총판</th><th>지역</th>
-          <th>수수료</th><th>이번달</th><th>상태</th><th></th>
+          <th>이번달 배분액</th><th>거래건수</th><th>상태</th><th></th>
         </tr></thead>
         <tbody id="agent-tbody">
           <tr><td colspan="8" class="empty">등록된 대리점 없음</td></tr>
         </tbody>
       </table>
     </div>
-
-    <!-- 대리점별 정산 -->
-    <div class="card">
-      <div class="card-title">💸 대리점 정산 입력</div>
-      <div class="form-row">
-        <select class="sel" id="agent-settle-target">
-          <option value="">대리점 선택</option>
-        </select>
-        <input class="inp" type="number" id="agent-settle-amount" placeholder="정산 금액">
-        <input class="inp" type="date" id="agent-settle-date">
-        <button class="btn btn-warn" onclick="addAgentSettlement()">정산 처리</button>
-      </div>
-      <table class="tbl" style="margin-top:12px">
-        <thead><tr><th>날짜</th><th>대리점</th><th>총판</th><th>금액</th><th>상태</th><th></th></tr></thead>
-        <tbody id="agent-settle-tbody">
-          <tr><td colspan="6" class="empty">정산 내역 없음</td></tr>
-        </tbody>
-      </table>
-    </div>
   </div>
 
-  <!-- ⑤ 정산 처리 -->
+  <!-- ⑤ 정산 처리 (월별 확정/지급/CSV) -->
   <div id="tab-settlement" class="tab-content">
     <div class="card">
-      <div class="card-title">💸 전체 정산 현황</div>
+      <div class="card-title">💸 월별 정산 확정 · 지급</div>
       <div class="form-row" style="margin-bottom:14px">
         <input class="inp" type="month" id="settle-month">
         <button class="btn btn-primary" onclick="calcSettlement()">📊 정산 계산</button>
-        <button class="btn btn-success" onclick="exportSettlement()">📥 내보내기</button>
+        <button class="btn btn-success" onclick="exportSettlement()">📥 CSV 다운로드</button>
       </div>
       <table class="tbl">
         <thead><tr>
-          <th>구분</th><th>업체명</th><th>총 매출</th>
-          <th>수수료율</th><th>정산액</th><th>지급 상태</th><th>처리</th>
+          <th>구분</th><th>업체명</th><th>거래건수</th>
+          <th>거래총액</th><th>배분율</th><th>배분액</th><th>지급 상태</th><th>처리</th>
         </tr></thead>
         <tbody id="settle-all-tbody">
-          <tr><td colspan="7" class="empty">정산 월을 선택하고 계산 버튼을 눌러요</td></tr>
+          <tr><td colspan="8" class="empty">정산 월을 선택하고 계산 버튼을 눌러요</td></tr>
         </tbody>
       </table>
-    </div>
-
-    <!-- 정산 규칙 설정 -->
-    <div class="card">
-      <div class="card-title">⚙️ 정산 규칙</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">비율 합계가 100%가 되도록 설정</div>
-      <div class="form-row">
-        <div style="flex:1">
-          <div style="font-size:11px;color:var(--text2);margin-bottom:4px"><span class="badge-hq">본사</span></div>
-          <input class="inp" type="number" id="rule-hq" value="60" min="0" max="100" oninput="syncRates('hq')">
-        </div>
-        <div style="flex:1">
-          <div style="font-size:11px;color:var(--text2);margin-bottom:4px"><span class="badge-dist">총판</span></div>
-          <input class="inp" type="number" id="rule-dist" value="25" min="0" max="100" oninput="syncRates('dist')">
-        </div>
-        <div style="flex:1">
-          <div style="font-size:11px;color:var(--text2);margin-bottom:4px"><span class="badge-agent">대리점</span></div>
-          <input class="inp" type="number" id="rule-agent" value="15" min="0" max="100" oninput="syncRates('agent')">
-        </div>
-        <div style="flex:1;align-self:flex-end">
-          <div style="font-size:11px;color:var(--text2);margin-bottom:4px">합계</div>
-          <div class="inp" id="rule-total" style="background:var(--bg);cursor:default;font-weight:700;color:var(--accent2)">100%</div>
-        </div>
-      </div>
-      <button class="btn btn-primary" onclick="saveRules()">규칙 저장</button>
     </div>
   </div>
 
@@ -428,13 +466,13 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
     <div class="card">
       <div class="card-title">🔑 코드 현황</div>
       <div class="notice">
-        총판/대리점 코드는 가맹점 등록 시 사용됩니다.<br>
-        코드 입력으로 소속 총판/대리점이 자동 연결되어 수수료가 배분됩니다.
+        총판/대리점 코드는 원천거래 등록 시 소속 연결에 사용됩니다.<br>
+        코드로 연결된 총판/대리점에 수수료가 자동 배분됩니다.
       </div>
       <table class="tbl">
         <thead><tr>
           <th>코드</th><th>구분</th><th>업체명</th>
-          <th>등록 가맹점수</th><th>이번달 수수료</th><th>상태</th>
+          <th>연결 거래수</th><th>이번달 배분액</th><th>상태</th>
         </tr></thead>
         <tbody id="codes-tbody">
           <tr><td colspan="6" class="empty">등록된 코드 없음</td></tr>
@@ -442,7 +480,6 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
       </table>
     </div>
 
-    <!-- 코드 검색 -->
     <div class="card">
       <div class="card-title">🔍 코드 조회</div>
       <div class="form-row">
@@ -456,8 +493,9 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
 
 <script>
 // ===== 상수 =====
-const PW = 'valore2026';
-const STORE_KEY = 'valore_settlement_v1';
+var PW = 'valore2026';
+var STORE_KEY = 'valore_settlement_v2';
+var TYPE_MAP = {subscription:'구독료',coupon_fee:'쿠폰수수료',merchant_fee:'가맹점수수료',ad_fee:'광고비',etc:'기타'};
 
 // ===== 로그인 =====
 function doLogin(){
@@ -470,10 +508,6 @@ function doLogin(){
     document.getElementById('login-err').style.display='block';
   }
 }
-document.getElementById('pw-inp').addEventListener('keydown', function(e){
-  if(e.key==='Enter') doLogin();
-});
-
 function doLogout(){
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('app').style.display='none';
@@ -482,490 +516,498 @@ function doLogout(){
 
 // ===== 탭 =====
 function showTab(id, btn){
-  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active')});
+  document.querySelectorAll('.tab').forEach(function(el){el.classList.remove('active')});
   document.getElementById('tab-'+id).classList.add('active');
   if(btn) btn.classList.add('active');
 }
 
-// ===== 데이터 저장/로드 =====
+// ===== 데이터 =====
 function getData(key){ try{ return JSON.parse(localStorage.getItem(STORE_KEY+'_'+key)||'[]'); }catch(e){ return []; } }
 function setData(key, val){ localStorage.setItem(STORE_KEY+'_'+key, JSON.stringify(val)); }
 function getConf(key, def){ try{ var val = JSON.parse(localStorage.getItem(STORE_KEY+'_conf_'+key)); return val !== null && val !== undefined ? val : (def !== undefined ? def : null); }catch(e){ return def !== undefined ? def : null; } }
 function setConf(key, val){ localStorage.setItem(STORE_KEY+'_conf_'+key, JSON.stringify(val)); }
 
+// ===== 유틸 =====
+function fmt(n){ return '₩'+(n||0).toLocaleString(); }
+function curMonth(){ return new Date().toISOString().substring(0,7); }
+function getRules(){ return getConf('rates', {hq:60, dist:25, agent:15}); }
+
 // ===== 초기화 =====
 function initApp(){
-  // 오늘 날짜 기본값
   var today = new Date().toISOString().split('T')[0];
-  var thisMonth = today.substring(0,7);
-  ['hq-rev-date','dist-settle-date','agent-settle-date'].forEach(function(id){
-    var el = document.getElementById(id); if(el) el.value = today;
-  });
-  var sm = document.getElementById('settle-month');
-  if(sm) sm.value = thisMonth;
+  var mon = today.substring(0,7);
+  var el;
+  el = document.getElementById('txn-date'); if(el) el.value = today;
+  el = document.getElementById('settle-month'); if(el) el.value = mon;
+  el = document.getElementById('txn-filter-month'); if(el) el.value = mon;
 
-  // 비율 로드
-  var rules = getConf('rates', {hq:60, dist:25, agent:15});
+  var rules = getRules();
   document.getElementById('rule-hq').value = rules.hq;
   document.getElementById('rule-dist').value = rules.dist;
   document.getElementById('rule-agent').value = rules.agent;
   updateFlowRates(rules);
 
+  // 금액 입력 시 미리보기
+  document.getElementById('txn-amount').addEventListener('input', updateTxnPreview);
+
   renderAll();
+}
+
+// ===== 원천거래 자동 분배 미리보기 =====
+function updateTxnPreview(){
+  var amount = parseInt(document.getElementById('txn-amount').value) || 0;
+  var preview = document.getElementById('txn-preview');
+  if(amount > 0){
+    var rules = getRules();
+    preview.style.display = 'block';
+    document.getElementById('preview-hq').textContent = fmt(Math.round(amount * rules.hq / 100));
+    document.getElementById('preview-dist').textContent = fmt(Math.round(amount * rules.dist / 100));
+    document.getElementById('preview-agent').textContent = fmt(Math.round(amount * rules.agent / 100));
+  } else {
+    preview.style.display = 'none';
+  }
 }
 
 // ===== 렌더링 =====
 function renderAll(){
+  populateSelects();
   renderOverview();
-  renderHqRevs();
+  renderTxnList();
+  renderHqTxns();
   renderDistributors();
   renderAgents();
   renderCodes();
 }
 
-function fmt(n){ return '₩'+(n||0).toLocaleString(); }
-function thisMonth(){ return new Date().toISOString().substring(0,7); }
+function populateSelects(){
+  var dists = getData('distributors');
+  var agents = getData('agents');
+
+  // 원천거래 총판 select
+  var txnDist = document.getElementById('txn-dist');
+  txnDist.innerHTML = '<option value="">소속 총판 선택</option>';
+  dists.forEach(function(d){ txnDist.innerHTML += '<option value="'+d.name+'">'+d.name+'</option>'; });
+
+  // 원천거래 대리점 select
+  var txnAgent = document.getElementById('txn-agent');
+  txnAgent.innerHTML = '<option value="">소속 대리점 선택 (선택)</option>';
+  agents.forEach(function(a){ txnAgent.innerHTML += '<option value="'+a.name+'">'+a.name+' ('+a.distName+')</option>'; });
+
+  // 대리점 소속 총판 select
+  var agentDist = document.getElementById('agent-dist');
+  agentDist.innerHTML = '<option value="">소속 총판 선택</option>';
+  dists.forEach(function(d){ agentDist.innerHTML += '<option value="'+d.name+'">'+d.name+'</option>'; });
+}
 
 function renderOverview(){
-  var rules = getConf('rates', {hq:60, dist:25, agent:15});
+  var rules = getRules();
+  var txns = getData('transactions');
   var dists = getData('distributors');
   var agents = getData('agents');
-  var hqRevs = getData('hq_revs');
-  var distSettles = getData('dist_settlements');
-  var agentSettles = getData('agent_settlements');
+  var mon = curMonth();
 
-  // 이번달 총 매출 (본사 수익 기준으로 역산)
-  var mon = thisMonth();
-  var hqThisMonth = hqRevs.filter(r=>r.date.startsWith(mon)).reduce((s,r)=>s+r.amount,0);
-  var totalRev = rules.hq > 0 ? Math.round(hqThisMonth / rules.hq * 100) : 0;
-  var distTotal = Math.round(totalRev * rules.dist / 100);
-  var agentTotal = Math.round(totalRev * rules.agent / 100);
+  var monthTxns = txns.filter(function(t){ return t.date.startsWith(mon); });
+  var totalRev = monthTxns.reduce(function(s,t){ return s + t.amount; }, 0);
+  var pendingCount = monthTxns.filter(function(t){ return t.status === 'pending'; }).length;
 
   document.getElementById('ov-total').textContent = fmt(totalRev);
-  document.getElementById('ov-hq').textContent = fmt(hqThisMonth);
-  document.getElementById('ov-dist').textContent = fmt(distTotal);
-  document.getElementById('ov-agent').textContent = fmt(agentTotal);
-  document.getElementById('ov-dist-count').textContent = dists.length;
-  document.getElementById('ov-agent-count').textContent = agents.length;
+  document.getElementById('ov-hq').textContent = fmt(Math.round(totalRev * rules.hq / 100));
+  document.getElementById('ov-dist').textContent = fmt(Math.round(totalRev * rules.dist / 100));
+  document.getElementById('ov-agent').textContent = fmt(Math.round(totalRev * rules.agent / 100));
+  document.getElementById('ov-txn-count').textContent = monthTxns.length;
+  document.getElementById('ov-pending-count').textContent = pendingCount;
 
-  // HQ 탭 통계
-  document.getElementById('hq-month-rev').textContent = fmt(hqThisMonth);
-  var yearTotal = hqRevs.filter(r=>r.date.startsWith(new Date().getFullYear()+''))
-    .reduce((s,r)=>s+r.amount,0);
-  document.getElementById('hq-year-rev').textContent = fmt(yearTotal);
-
-  // 미정산
-  var pendingDist = distSettles.filter(r=>r.status==='pending').reduce((s,r)=>s+r.amount,0);
-  var pendingAgent = agentSettles.filter(r=>r.status==='pending').reduce((s,r)=>s+r.amount,0);
-  document.getElementById('hq-pending').textContent = fmt(pendingDist+pendingAgent);
-
-  // 미정산 테이블
-  var pendingAll = [
-    ...distSettles.filter(r=>r.status==='pending').map(r=>({...r, type:'총판'})),
-    ...agentSettles.filter(r=>r.status==='pending').map(r=>({...r, type:'대리점'}))
-  ];
-  var pb = document.getElementById('pending-tbody');
-  if(pendingAll.length===0){
-    pb.innerHTML='<tr><td colspan="5" class="empty">미정산 내역 없음 👍</td></tr>';
+  // 미승인 원천거래
+  var pendingTxns = txns.filter(function(t){ return t.status === 'pending'; });
+  var pb = document.getElementById('pending-txn-tbody');
+  if(pendingTxns.length === 0){
+    pb.innerHTML = '<tr><td colspan="7" class="empty">미승인 거래 없음 👍</td></tr>';
   } else {
-    pb.innerHTML = pendingAll.map(function(r){
-      return '<tr><td><span class="badge-'+(r.type==='총판'?'dist':'agent')+'">'+r.type+'</span></td>'+
-        '<td>'+r.target+'</td><td>'+fmt(r.amount)+'</td><td>'+r.date+'</td>'+
-        '<td><button class="btn btn-success btn-sm" onclick="markPaid(\''+r.type+'\','+r.id+')">지급 완료</button></td></tr>';
+    pb.innerHTML = pendingTxns.map(function(t){
+      return '<tr><td>'+t.date+'</td><td>'+(TYPE_MAP[t.type]||t.type)+'</td><td>'+t.bizName+'</td>'+
+        '<td style="font-weight:700;color:var(--accent2)">'+fmt(t.amount)+'</td>'+
+        '<td>'+(t.distName||'—')+'</td><td>'+(t.agentName||'—')+'</td>'+
+        '<td><button class="btn btn-success btn-sm" onclick="approveTxn('+t.id+')">✅ 승인</button> '+
+        '<button class="btn btn-danger btn-sm" onclick="delTxn('+t.id+')">삭제</button></td></tr>';
     }).join('');
   }
 }
 
-function renderHqRevs(){
-  var revs = getData('hq_revs');
-  var tbody = document.getElementById('hq-rev-tbody');
-  var typeMap = {subscription:'구독료',coupon_fee:'쿠폰수수료',merchant_fee:'가맹점수수료',ad_fee:'광고비',etc:'기타'};
-  if(revs.length===0){
-    tbody.innerHTML='<tr><td colspan="5" class="empty">수익 내역 없음</td></tr>';
-  } else {
-    tbody.innerHTML = revs.slice().reverse().map(function(r){
-      return '<tr><td>'+r.date+'</td><td>'+(typeMap[r.type]||r.type)+'</td>'+
-        '<td style="color:var(--accent2);font-weight:700">'+fmt(r.amount)+'</td>'+
-        '<td>'+r.note+'</td>'+
-        '<td><button class="btn btn-danger btn-sm" onclick="delHqRev('+r.id+')">삭제</button></td></tr>';
-    }).join('');
+// ===== 원천거래 CRUD =====
+function addTxn(){
+  var date = document.getElementById('txn-date').value;
+  var type = document.getElementById('txn-type').value;
+  var bizName = document.getElementById('txn-biz-name').value.trim();
+  var amount = parseInt(document.getElementById('txn-amount').value) || 0;
+  var distName = document.getElementById('txn-dist').value;
+  var agentName = document.getElementById('txn-agent').value;
+  var memo = document.getElementById('txn-memo').value.trim();
+
+  if(!date || !bizName || !amount){
+    alert('날짜, 업체명, 금액을 입력해요!');
+    return;
   }
-}
 
-function renderDistributors(){
-  var dists = getData('distributors');
-  var distSettles = getData('dist_settlements');
-  var mon = thisMonth();
-
-  var tbody = document.getElementById('dist-tbody');
-  var agentList = getData('agents');
-
-  // 총판 select 업데이트
-  var selDist = document.getElementById('dist-settle-target');
-  var selAgentDist = document.getElementById('agent-dist');
-  selDist.innerHTML = '<option value="">총판 선택</option>';
-  selAgentDist.innerHTML = '<option value="">소속 총판 선택</option>';
-  dists.forEach(function(d){
-    selDist.innerHTML += '<option value="'+d.name+'">'+d.name+'</option>';
-    selAgentDist.innerHTML += '<option value="'+d.name+'">'+d.name+'</option>';
+  var rules = getRules();
+  var txns = getData('transactions');
+  txns.push({
+    id: Date.now(),
+    date: date,
+    type: type,
+    bizName: bizName,
+    amount: amount,
+    distName: distName || '',
+    agentName: agentName || '',
+    memo: memo,
+    hqAmount: Math.round(amount * rules.hq / 100),
+    distAmount: Math.round(amount * rules.dist / 100),
+    agentAmount: Math.round(amount * rules.agent / 100),
+    status: 'pending',
+    createdAt: new Date().toISOString()
   });
+  setData('transactions', txns);
 
-  if(dists.length===0){
-    tbody.innerHTML='<tr><td colspan="8" class="empty">등록된 총판 없음</td></tr>';
-  } else {
-    tbody.innerHTML = dists.map(function(d){
-      var monthAmt = distSettles.filter(r=>r.target===d.name&&r.date.startsWith(mon))
-        .reduce((s,r)=>s+r.amount,0);
-      var agentCnt = agentList.filter(a=>a.distName===d.name).length;
-      return '<tr>'+
-        '<td><code style="color:var(--dist)">'+d.code+'</code></td>'+
-        '<td><span class="badge-dist">총판</span> '+d.name+'</td>'+
-        '<td>'+d.region+'</td>'+
-        '<td style="color:#67e8f9;font-weight:700">'+d.rate+'%</td>'+
-        '<td>'+fmt(monthAmt)+'</td>'+
-        '<td>'+agentCnt+'개</td>'+
-        '<td><span style="color:var(--accent2);font-size:11px">활성</span></td>'+
-        '<td><button class="btn btn-danger btn-sm" onclick="delDist('+d.id+')">삭제</button></td></tr>';
-    }).join('');
-  }
-
-  renderDistSettlements();
+  // 폼 초기화
+  document.getElementById('txn-biz-name').value = '';
+  document.getElementById('txn-amount').value = '';
+  document.getElementById('txn-memo').value = '';
+  document.getElementById('txn-preview').style.display = 'none';
+  renderAll();
+  alert('💰 원천거래가 등록되었어요! (미승인 상태)');
 }
 
-function renderDistSettlements(){
-  var settles = getData('dist_settlements');
-  var tbody = document.getElementById('dist-settle-tbody');
-  if(settles.length===0){
-    tbody.innerHTML='<tr><td colspan="5" class="empty">정산 내역 없음</td></tr>';
-  } else {
-    tbody.innerHTML = settles.slice().reverse().map(function(r){
-      var isP = r.status==='pending';
-      return '<tr><td>'+r.date+'</td><td>'+r.target+'</td>'+
-        '<td style="color:#67e8f9;font-weight:700">'+fmt(r.amount)+'</td>'+
-        '<td><span style="color:'+(isP?'var(--accent3)':'var(--accent2)')+'">'+
-          (isP?'⏰ 대기':'✅ 완료')+'</span></td>'+
-        '<td>'+(isP?'<button class="btn btn-success btn-sm" onclick="markPaid(\'총판\','+r.id+')">완료처리</button>':'')+'</td></tr>';
-    }).join('');
-  }
-}
-
-function renderAgents(){
-  var agents = getData('agents');
-  var agentSettles = getData('agent_settlements');
-  var mon = thisMonth();
-
-  // 대리점 select 업데이트
-  var sel = document.getElementById('agent-settle-target');
-  sel.innerHTML = '<option value="">대리점 선택</option>';
-  agents.forEach(function(a){
-    sel.innerHTML += '<option value="'+a.name+'">'+a.name+'('+a.distName+')</option>';
-  });
-
-  var tbody = document.getElementById('agent-tbody');
-  if(agents.length===0){
-    tbody.innerHTML='<tr><td colspan="8" class="empty">등록된 대리점 없음</td></tr>';
-  } else {
-    tbody.innerHTML = agents.map(function(a){
-      var monthAmt = agentSettles.filter(r=>r.target===a.name&&r.date.startsWith(mon))
-        .reduce((s,r)=>s+r.amount,0);
-      return '<tr>'+
-        '<td><code style="color:var(--agent)">'+a.code+'</code></td>'+
-        '<td><span class="badge-agent">대리점</span> '+a.name+'</td>'+
-        '<td>'+a.distName+'</td><td>'+a.region+'</td>'+
-        '<td style="color:#6ee7b7;font-weight:700">'+a.rate+'%</td>'+
-        '<td>'+fmt(monthAmt)+'</td>'+
-        '<td><span style="color:var(--accent2);font-size:11px">활성</span></td>'+
-        '<td><button class="btn btn-danger btn-sm" onclick="delAgent('+a.id+')">삭제</button></td></tr>';
-    }).join('');
-  }
-
-  renderAgentSettlements();
-}
-
-function renderAgentSettlements(){
-  var settles = getData('agent_settlements');
-  var tbody = document.getElementById('agent-settle-tbody');
-  if(settles.length===0){
-    tbody.innerHTML='<tr><td colspan="6" class="empty">정산 내역 없음</td></tr>';
-  } else {
-    tbody.innerHTML = settles.slice().reverse().map(function(r){
-      var isP = r.status==='pending';
-      return '<tr><td>'+r.date+'</td><td>'+r.target+'</td><td>'+r.distName+'</td>'+
-        '<td style="color:#6ee7b7;font-weight:700">'+fmt(r.amount)+'</td>'+
-        '<td><span style="color:'+(isP?'var(--accent3)':'var(--accent2)')+'">'+
-          (isP?'⏰ 대기':'✅ 완료')+'</span></td>'+
-        '<td>'+(isP?'<button class="btn btn-success btn-sm" onclick="markPaid(\'대리점\','+r.id+')">완료처리</button>':'')+'</td></tr>';
-    }).join('');
-  }
-}
-
-function renderCodes(){
-  var dists = getData('distributors');
-  var agents = getData('agents');
-  var all = [
-    ...dists.map(d=>({code:d.code, type:'총판', name:d.name, rate:d.rate, badge:'badge-dist'})),
-    ...agents.map(a=>({code:a.code, type:'대리점', name:a.name, rate:a.rate, badge:'badge-agent'}))
-  ];
-  var tbody = document.getElementById('codes-tbody');
-  if(all.length===0){
-    tbody.innerHTML='<tr><td colspan="6" class="empty">등록된 코드 없음</td></tr>';
-  } else {
-    tbody.innerHTML = all.map(function(r){
-      return '<tr><td><code style="color:var(--accent)">'+r.code+'</code></td>'+
-        '<td><span class="'+r.badge+'">'+r.type+'</span></td>'+
-        '<td>'+r.name+'</td><td>—</td>'+
-        '<td>'+r.rate+'%</td>'+
-        '<td><span style="color:var(--accent2);font-size:11px">활성</span></td></tr>';
-    }).join('');
-  }
-}
-
-// ===== CRUD =====
-function addHqRev(){
-  var date=document.getElementById('hq-rev-date').value;
-  var type=document.getElementById('hq-rev-type').value;
-  var amount=parseInt(document.getElementById('hq-rev-amount').value)||0;
-  var note=document.getElementById('hq-rev-note').value;
-  if(!date||!amount){alert('날짜와 금액을 입력해요!');return;}
-  var revs=getData('hq_revs');
-  revs.push({id:Date.now(),date,type,amount,note});
-  setData('hq_revs',revs);
-  document.getElementById('hq-rev-amount').value='';
-  document.getElementById('hq-rev-note').value='';
+function approveTxn(id){
+  var txns = getData('transactions');
+  txns = txns.map(function(t){ return t.id === id ? Object.assign({}, t, {status:'approved'}) : t; });
+  setData('transactions', txns);
   renderAll();
 }
 
-function delHqRev(id){
-  if(!confirm('삭제할까요?'))return;
-  setData('hq_revs',getData('hq_revs').filter(r=>r.id!==id));
+function approveAllPending(){
+  var txns = getData('transactions');
+  txns = txns.map(function(t){ return t.status === 'pending' ? Object.assign({}, t, {status:'approved'}) : t; });
+  setData('transactions', txns);
+  renderAll();
+  alert('✅ 모든 미승인 거래가 승인되었어요!');
+}
+
+function delTxn(id){
+  if(!confirm('이 거래를 삭제할까요?')) return;
+  setData('transactions', getData('transactions').filter(function(t){ return t.id !== id; }));
   renderAll();
 }
 
-function saveHqRate(){
-  var rate=parseInt(document.getElementById('hq-rate').value)||60;
-  var rules=getConf('rates',{hq:60,dist:25,agent:15});
-  rules.hq=rate;
-  setConf('rates',rules);
-  updateFlowRates(rules);
-  alert('저장됐어요!');
+function renderTxnList(){
+  var txns = getData('transactions');
+  var filterMonth = document.getElementById('txn-filter-month').value;
+  var filterType = document.getElementById('txn-filter-type').value;
+  var filterStatus = document.getElementById('txn-filter-status').value;
+
+  if(filterMonth) txns = txns.filter(function(t){ return t.date.startsWith(filterMonth); });
+  if(filterType) txns = txns.filter(function(t){ return t.type === filterType; });
+  if(filterStatus) txns = txns.filter(function(t){ return t.status === filterStatus; });
+
+  var tbody = document.getElementById('txn-tbody');
+  if(txns.length === 0){
+    tbody.innerHTML = '<tr><td colspan="9" class="empty">등록된 원천거래 없음</td></tr>';
+  } else {
+    tbody.innerHTML = txns.slice().reverse().map(function(t){
+      var isPending = t.status === 'pending';
+      return '<tr>'+
+        '<td>'+t.date+'</td>'+
+        '<td>'+(TYPE_MAP[t.type]||t.type)+'</td>'+
+        '<td>'+t.bizName+'</td>'+
+        '<td style="font-weight:700;color:var(--accent2)">'+fmt(t.amount)+'</td>'+
+        '<td style="color:#a5b4fc">'+fmt(t.hqAmount)+'</td>'+
+        '<td style="color:#67e8f9">'+fmt(t.distAmount)+'</td>'+
+        '<td style="color:#6ee7b7">'+fmt(t.agentAmount)+'</td>'+
+        '<td><span style="color:'+(isPending?'var(--accent3)':'var(--accent2)')+'">'+
+          (isPending?'⏰ 미승인':'✅ 승인')+'</span></td>'+
+        '<td>'+(isPending?'<button class="btn btn-success btn-sm" onclick="approveTxn('+t.id+')">승인</button> ':'')+
+          '<button class="btn btn-danger btn-sm" onclick="delTxn('+t.id+')">삭제</button></td></tr>';
+    }).join('');
+  }
 }
 
+// ===== 본사 배분 내역 =====
+function renderHqTxns(){
+  var txns = getData('transactions');
+  var mon = curMonth();
+  var monthTxns = txns.filter(function(t){ return t.date.startsWith(mon); });
+
+  // 본사 통계
+  var hqMonth = monthTxns.reduce(function(s,t){ return s + t.hqAmount; }, 0);
+  var yearTxns = txns.filter(function(t){ return t.date.startsWith(new Date().getFullYear()+''); });
+  var hqYear = yearTxns.reduce(function(s,t){ return s + t.hqAmount; }, 0);
+  var pendingAmt = txns.filter(function(t){ return t.status === 'pending'; })
+    .reduce(function(s,t){ return s + t.distAmount + t.agentAmount; }, 0);
+
+  document.getElementById('hq-month-rev').textContent = fmt(hqMonth);
+  document.getElementById('hq-year-rev').textContent = fmt(hqYear);
+  document.getElementById('hq-pending').textContent = fmt(pendingAmt);
+
+  var tbody = document.getElementById('hq-txn-tbody');
+  if(monthTxns.length === 0){
+    tbody.innerHTML = '<tr><td colspan="5" class="empty">이번달 원천거래 없음</td></tr>';
+  } else {
+    tbody.innerHTML = monthTxns.slice().reverse().map(function(t){
+      return '<tr><td>'+t.date+'</td><td>'+(TYPE_MAP[t.type]||t.type)+'</td><td>'+t.bizName+'</td>'+
+        '<td>'+fmt(t.amount)+'</td><td style="color:#a5b4fc;font-weight:700">'+fmt(t.hqAmount)+'</td></tr>';
+    }).join('');
+  }
+}
+
+// ===== 총판 =====
 function genDistCode(){
-  var dists=getData('distributors');
-  var code='DIST-'+String(dists.length+1).padStart(3,'0');
-  document.getElementById('dist-code').value=code;
+  var dists = getData('distributors');
+  document.getElementById('dist-code').value = 'DIST-'+String(dists.length+1).padStart(3,'0');
 }
 
 function addDistributor(){
-  var name=document.getElementById('dist-name').value.trim();
-  var region=document.getElementById('dist-region').value.trim();
-  var rate=parseInt(document.getElementById('dist-rate').value)||25;
-  var contact=document.getElementById('dist-contact').value.trim();
-  var code=document.getElementById('dist-code').value.trim();
-  if(!name||!code){alert('총판명과 코드를 입력해요!');return;}
-  var dists=getData('distributors');
-  dists.push({id:Date.now(),name,region,rate,contact,code,createdAt:new Date().toISOString()});
-  setData('distributors',dists);
+  var name = document.getElementById('dist-name').value.trim();
+  var region = document.getElementById('dist-region').value.trim();
+  var contact = document.getElementById('dist-contact').value.trim();
+  var code = document.getElementById('dist-code').value.trim();
+  if(!name || !code){ alert('총판명과 코드를 입력해요!'); return; }
+  var dists = getData('distributors');
+  dists.push({id:Date.now(), name:name, region:region, contact:contact, code:code, createdAt:new Date().toISOString()});
+  setData('distributors', dists);
   ['dist-name','dist-region','dist-contact','dist-code'].forEach(function(id){document.getElementById(id).value='';});
   renderAll();
 }
 
 function delDist(id){
-  if(!confirm('총판을 삭제할까요?'))return;
-  setData('distributors',getData('distributors').filter(r=>r.id!==id));
+  if(!confirm('총판을 삭제할까요?')) return;
+  setData('distributors', getData('distributors').filter(function(r){return r.id!==id;}));
   renderAll();
 }
 
+function renderDistributors(){
+  var dists = getData('distributors');
+  var txns = getData('transactions');
+  var agents = getData('agents');
+  var mon = curMonth();
+
+  var tbody = document.getElementById('dist-tbody');
+  if(dists.length === 0){
+    tbody.innerHTML = '<tr><td colspan="8" class="empty">등록된 총판 없음</td></tr>';
+  } else {
+    tbody.innerHTML = dists.map(function(d){
+      var distTxns = txns.filter(function(t){ return t.distName === d.name && t.date.startsWith(mon); });
+      var distAmt = distTxns.reduce(function(s,t){ return s + t.distAmount; }, 0);
+      var agentCnt = agents.filter(function(a){ return a.distName === d.name; }).length;
+      return '<tr>'+
+        '<td><code style="color:var(--dist)">'+d.code+'</code></td>'+
+        '<td><span class="badge-dist">총판</span> '+d.name+'</td>'+
+        '<td>'+d.region+'</td>'+
+        '<td style="color:#67e8f9;font-weight:700">'+fmt(distAmt)+'</td>'+
+        '<td>'+distTxns.length+'건</td>'+
+        '<td>'+agentCnt+'개</td>'+
+        '<td><span style="color:var(--accent2);font-size:11px">활성</span></td>'+
+        '<td><button class="btn btn-danger btn-sm" onclick="delDist('+d.id+')">삭제</button></td></tr>';
+    }).join('');
+  }
+}
+
+// ===== 대리점 =====
 function genAgentCode(){
-  var agents=getData('agents');
-  var code='AGENT-'+String(agents.length+1).padStart(3,'0');
-  document.getElementById('agent-code').value=code;
+  var agents = getData('agents');
+  document.getElementById('agent-code').value = 'AGENT-'+String(agents.length+1).padStart(3,'0');
 }
 
 function addAgent(){
-  var name=document.getElementById('agent-name').value.trim();
-  var distName=document.getElementById('agent-dist').value;
-  var rate=parseInt(document.getElementById('agent-rate').value)||15;
-  var contact=document.getElementById('agent-contact').value.trim();
-  var region=document.getElementById('agent-region').value.trim();
-  var code=document.getElementById('agent-code').value.trim();
-  if(!name||!distName||!code){alert('대리점명, 소속 총판, 코드를 입력해요!');return;}
-  var agents=getData('agents');
-  agents.push({id:Date.now(),name,distName,rate,contact,region,code,createdAt:new Date().toISOString()});
-  setData('agents',agents);
+  var name = document.getElementById('agent-name').value.trim();
+  var distName = document.getElementById('agent-dist').value;
+  var contact = document.getElementById('agent-contact').value.trim();
+  var region = document.getElementById('agent-region').value.trim();
+  var code = document.getElementById('agent-code').value.trim();
+  if(!name || !distName || !code){ alert('대리점명, 소속 총판, 코드를 입력해요!'); return; }
+  var agents = getData('agents');
+  agents.push({id:Date.now(), name:name, distName:distName, contact:contact, region:region, code:code, createdAt:new Date().toISOString()});
+  setData('agents', agents);
   ['agent-name','agent-contact','agent-region','agent-code'].forEach(function(id){document.getElementById(id).value='';});
   renderAll();
 }
 
 function delAgent(id){
-  if(!confirm('대리점을 삭제할까요?'))return;
-  setData('agents',getData('agents').filter(r=>r.id!==id));
+  if(!confirm('대리점을 삭제할까요?')) return;
+  setData('agents', getData('agents').filter(function(r){return r.id!==id;}));
   renderAll();
 }
 
-function addDistSettlement(){
-  var target=document.getElementById('dist-settle-target').value;
-  var amount=parseInt(document.getElementById('dist-settle-amount').value)||0;
-  var date=document.getElementById('dist-settle-date').value;
-  if(!target||!amount||!date){alert('총판, 금액, 날짜를 입력해요!');return;}
-  var settles=getData('dist_settlements');
-  settles.push({id:Date.now(),target,amount,date,status:'pending'});
-  setData('dist_settlements',settles);
-  document.getElementById('dist-settle-amount').value='';
-  renderAll();
-}
+function renderAgents(){
+  var agents = getData('agents');
+  var txns = getData('transactions');
+  var mon = curMonth();
 
-function addAgentSettlement(){
-  var target=document.getElementById('agent-settle-target').value;
-  var amount=parseInt(document.getElementById('agent-settle-amount').value)||0;
-  var date=document.getElementById('agent-settle-date').value;
-  if(!target||!amount||!date){alert('대리점, 금액, 날짜를 입력해요!');return;}
-  var agents=getData('agents');
-  var agent=agents.find(a=>a.name===target)||{};
-  var settles=getData('agent_settlements');
-  settles.push({id:Date.now(),target,distName:agent.distName||'—',amount,date,status:'pending'});
-  setData('agent_settlements',settles);
-  document.getElementById('agent-settle-amount').value='';
-  renderAll();
-}
-
-function markPaid(type,id){
-  if(type==='총판'||type==='dist'){
-    var settles=getData('dist_settlements');
-    settles=settles.map(r=>r.id===id?{...r,status:'paid'}:r);
-    setData('dist_settlements',settles);
+  var tbody = document.getElementById('agent-tbody');
+  if(agents.length === 0){
+    tbody.innerHTML = '<tr><td colspan="8" class="empty">등록된 대리점 없음</td></tr>';
   } else {
-    var settles=getData('agent_settlements');
-    settles=settles.map(r=>r.id===id?{...r,status:'paid'}:r);
-    setData('agent_settlements',settles);
-  }
-  renderAll();
-}
-
-// ===== 정산 계산 =====
-function calcSettlement(){
-  var mon=document.getElementById('settle-month').value;
-  if(!mon){alert('월을 선택해요!');return;}
-  var rules=getConf('rates',{hq:60,dist:25,agent:15});
-  var hqRevs=getData('hq_revs').filter(r=>r.date.startsWith(mon));
-  var dists=getData('distributors');
-  var agents=getData('agents');
-  var hqTotal=hqRevs.reduce((s,r)=>s+r.amount,0);
-  var grandTotal=rules.hq>0?Math.round(hqTotal/rules.hq*100):0;
-
-  var rows=[];
-  // 본사
-  rows.push({type:'본사',badge:'badge-hq',name:'주식회사 발로레',total:grandTotal,rate:rules.hq,amount:hqTotal,status:'완료'});
-  // 총판 (균등 배분)
-  if(dists.length>0){
-    var distPer=Math.round(grandTotal*rules.dist/100/dists.length);
-    dists.forEach(function(d){
-      rows.push({type:'총판',badge:'badge-dist',name:d.name,total:grandTotal,rate:d.rate||rules.dist,amount:distPer,status:'대기'});
-    });
-  }
-  // 대리점 (균등 배분)
-  if(agents.length>0){
-    var agentPer=Math.round(grandTotal*rules.agent/100/agents.length);
-    agents.forEach(function(a){
-      rows.push({type:'대리점',badge:'badge-agent',name:a.name,total:grandTotal,rate:a.rate||rules.agent,amount:agentPer,status:'대기'});
-    });
-  }
-
-  var tbody=document.getElementById('settle-all-tbody');
-  if(rows.length===0){
-    tbody.innerHTML='<tr><td colspan="7" class="empty">해당 월 데이터 없음</td></tr>';
-  } else {
-    tbody.innerHTML=rows.map(function(r){
-      var isHq=r.type==='본사';
+    tbody.innerHTML = agents.map(function(a){
+      var agentTxns = txns.filter(function(t){ return t.agentName === a.name && t.date.startsWith(mon); });
+      var agentAmt = agentTxns.reduce(function(s,t){ return s + t.agentAmount; }, 0);
       return '<tr>'+
-        '<td><span class="'+r.badge+'">'+r.type+'</span></td>'+
-        '<td>'+r.name+'</td>'+
-        '<td>'+fmt(r.total)+'</td>'+
-        '<td>'+r.rate+'%</td>'+
-        '<td style="font-weight:900;color:var(--accent2)">'+fmt(r.amount)+'</td>'+
-        '<td><span style="color:'+(r.status==='완료'?'var(--accent2)':'var(--accent3)')+'">'+
-          (r.status==='완료'?'✅ 완료':'⏰ 대기')+'</span></td>'+
-        '<td>'+(isHq?'—':'<button class="btn btn-success btn-sm">지급</button>')+'</td></tr>';
+        '<td><code style="color:var(--agent)">'+a.code+'</code></td>'+
+        '<td><span class="badge-agent">대리점</span> '+a.name+'</td>'+
+        '<td>'+a.distName+'</td><td>'+a.region+'</td>'+
+        '<td style="color:#6ee7b7;font-weight:700">'+fmt(agentAmt)+'</td>'+
+        '<td>'+agentTxns.length+'건</td>'+
+        '<td><span style="color:var(--accent2);font-size:11px">활성</span></td>'+
+        '<td><button class="btn btn-danger btn-sm" onclick="delAgent('+a.id+')">삭제</button></td></tr>';
     }).join('');
   }
 }
 
+// ===== 코드 =====
+function renderCodes(){
+  var dists = getData('distributors');
+  var agents = getData('agents');
+  var txns = getData('transactions');
+  var mon = curMonth();
+  var all = [];
+  dists.forEach(function(d){
+    var cnt = txns.filter(function(t){return t.distName===d.name;}).length;
+    var amt = txns.filter(function(t){return t.distName===d.name&&t.date.startsWith(mon);}).reduce(function(s,t){return s+t.distAmount;},0);
+    all.push({code:d.code,type:'총판',name:d.name,badge:'badge-dist',cnt:cnt,amt:amt});
+  });
+  agents.forEach(function(a){
+    var cnt = txns.filter(function(t){return t.agentName===a.name;}).length;
+    var amt = txns.filter(function(t){return t.agentName===a.name&&t.date.startsWith(mon);}).reduce(function(s,t){return s+t.agentAmount;},0);
+    all.push({code:a.code,type:'대리점',name:a.name,badge:'badge-agent',cnt:cnt,amt:amt});
+  });
+
+  var tbody = document.getElementById('codes-tbody');
+  if(all.length === 0){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">등록된 코드 없음</td></tr>';
+  } else {
+    tbody.innerHTML = all.map(function(r){
+      return '<tr><td><code style="color:var(--accent)">'+r.code+'</code></td>'+
+        '<td><span class="'+r.badge+'">'+r.type+'</span></td>'+
+        '<td>'+r.name+'</td><td>'+r.cnt+'건</td>'+
+        '<td>'+fmt(r.amt)+'</td>'+
+        '<td><span style="color:var(--accent2);font-size:11px">활성</span></td></tr>';
+    }).join('');
+  }
+}
+
+function searchCode(){
+  var q = document.getElementById('code-search').value.trim().toUpperCase();
+  var dists = getData('distributors');
+  var agents = getData('agents');
+  var result = document.getElementById('code-result');
+  var d = dists.find(function(x){return x.code.toUpperCase()===q;});
+  var a = agents.find(function(x){return x.code.toUpperCase()===q;});
+  if(d){
+    result.innerHTML='<div class="flow-item flow-dist" style="margin-top:0"><span class="badge-dist">총판</span> <b>'+d.name+'</b><br><span style="font-size:11px;color:var(--text2)">지역: '+d.region+' · 연락처: '+d.contact+'</span></div>';
+  } else if(a){
+    result.innerHTML='<div class="flow-item flow-agent" style="margin-top:0"><span class="badge-agent">대리점</span> <b>'+a.name+'</b><br><span style="font-size:11px;color:var(--text2)">소속총판: '+a.distName+' · 지역: '+a.region+'</span></div>';
+  } else {
+    result.innerHTML='<span style="color:var(--accent4)">코드를 찾을 수 없어요: '+q+'</span>';
+  }
+}
+
+// ===== 정산 계산/내보내기 =====
+function calcSettlement(){
+  var mon = document.getElementById('settle-month').value;
+  if(!mon){ alert('월을 선택해요!'); return; }
+  var rules = getRules();
+  var txns = getData('transactions').filter(function(t){ return t.date.startsWith(mon) && t.status === 'approved'; });
+  var dists = getData('distributors');
+  var agents = getData('agents');
+
+  if(txns.length === 0){
+    document.getElementById('settle-all-tbody').innerHTML = '<tr><td colspan="8" class="empty">해당 월 승인된 거래가 없어요</td></tr>';
+    return;
+  }
+
+  var grandTotal = txns.reduce(function(s,t){return s+t.amount;},0);
+  var rows = [];
+
+  // 본사
+  var hqAmt = txns.reduce(function(s,t){return s+t.hqAmount;},0);
+  rows.push({type:'본사',badge:'badge-hq',name:'주식회사 발로레',cnt:txns.length,total:grandTotal,rate:rules.hq,amount:hqAmt,paid:true});
+
+  // 총판별
+  dists.forEach(function(d){
+    var dTxns = txns.filter(function(t){return t.distName===d.name;});
+    if(dTxns.length > 0){
+      var dAmt = dTxns.reduce(function(s,t){return s+t.distAmount;},0);
+      var dTotal = dTxns.reduce(function(s,t){return s+t.amount;},0);
+      rows.push({type:'총판',badge:'badge-dist',name:d.name,cnt:dTxns.length,total:dTotal,rate:rules.dist,amount:dAmt,paid:false});
+    }
+  });
+
+  // 대리점별
+  agents.forEach(function(a){
+    var aTxns = txns.filter(function(t){return t.agentName===a.name;});
+    if(aTxns.length > 0){
+      var aAmt = aTxns.reduce(function(s,t){return s+t.agentAmount;},0);
+      var aTotal = aTxns.reduce(function(s,t){return s+t.amount;},0);
+      rows.push({type:'대리점',badge:'badge-agent',name:a.name,cnt:aTxns.length,total:aTotal,rate:rules.agent,amount:aAmt,paid:false});
+    }
+  });
+
+  var tbody = document.getElementById('settle-all-tbody');
+  tbody.innerHTML = rows.map(function(r){
+    return '<tr>'+
+      '<td><span class="'+r.badge+'">'+r.type+'</span></td>'+
+      '<td>'+r.name+'</td>'+
+      '<td>'+r.cnt+'건</td>'+
+      '<td>'+fmt(r.total)+'</td>'+
+      '<td>'+r.rate+'%</td>'+
+      '<td style="font-weight:900;color:var(--accent2)">'+fmt(r.amount)+'</td>'+
+      '<td><span style="color:'+(r.paid?'var(--accent2)':'var(--accent3)')+'">'+(r.paid?'✅ 자동':'⏰ 대기')+'</span></td>'+
+      '<td>'+(r.paid?'—':'<button class="btn btn-success btn-sm">지급확인</button>')+'</td></tr>';
+  }).join('');
+}
+
 function exportSettlement(){
-  var mon=document.getElementById('settle-month').value||thisMonth();
-  var dists=getData('distributors');
-  var agents=getData('agents');
-  var distSettles=getData('dist_settlements').filter(r=>r.date.startsWith(mon));
-  var agentSettles=getData('agent_settlements').filter(r=>r.date.startsWith(mon));
-
-  var csv=['구분,업체명,코드,정산액,상태,날짜'];
-  distSettles.forEach(function(r){
-    var d=dists.find(x=>x.name===r.target)||{code:'-'};
-    csv.push('총판,'+r.target+','+d.code+','+r.amount+','+(r.status==='paid'?'완료':'대기')+','+r.date);
+  var mon = document.getElementById('settle-month').value || curMonth();
+  var txns = getData('transactions').filter(function(t){ return t.date.startsWith(mon); });
+  var csv = ['날짜,유형,업체명,총액,본사몫,총판,총판몫,대리점,대리점몫,상태,메모'];
+  txns.forEach(function(t){
+    csv.push(t.date+','+(TYPE_MAP[t.type]||t.type)+','+t.bizName+','+t.amount+','+t.hqAmount+','+(t.distName||'-')+','+t.distAmount+','+(t.agentName||'-')+','+t.agentAmount+','+(t.status==='approved'?'승인':'미승인')+','+(t.memo||''));
   });
-  agentSettles.forEach(function(r){
-    var a=agents.find(x=>x.name===r.target)||{code:'-'};
-    csv.push('대리점,'+r.target+','+a.code+','+r.amount+','+(r.status==='paid'?'완료':'대기')+','+r.date);
-  });
-
-  var blob=new Blob(['\uFEFF'+csv.join('\n')],{type:'text/csv;charset=utf-8'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url; a.download='valore_settlement_'+mon+'.csv'; a.click();
+  var blob = new Blob(['\uFEFF'+csv.join('\n')], {type:'text/csv;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'valore_settlement_'+mon+'.csv'; a.click();
   URL.revokeObjectURL(url);
 }
 
-// ===== 정산 규칙 =====
-function syncRates(changed){
-  var hq=parseInt(document.getElementById('rule-hq').value)||0;
-  var dist=parseInt(document.getElementById('rule-dist').value)||0;
-  var agent=parseInt(document.getElementById('rule-agent').value)||0;
-  var total=hq+dist+agent;
-  var el=document.getElementById('rule-total');
-  el.textContent=total+'%';
-  el.style.color=total===100?'var(--accent2)':'var(--accent4)';
+// ===== 비율 관리 =====
+function syncRates(){
+  var hq = parseInt(document.getElementById('rule-hq').value) || 0;
+  var dist = parseInt(document.getElementById('rule-dist').value) || 0;
+  var agent = parseInt(document.getElementById('rule-agent').value) || 0;
+  var total = hq + dist + agent;
+  var el = document.getElementById('rule-total');
+  el.textContent = total + '%';
+  el.style.color = total === 100 ? 'var(--accent2)' : 'var(--accent4)';
 }
 
 function saveRules(){
-  var hq=parseInt(document.getElementById('rule-hq').value)||0;
-  var dist=parseInt(document.getElementById('rule-dist').value)||0;
-  var agent=parseInt(document.getElementById('rule-agent').value)||0;
-  if(hq+dist+agent!==100){alert('합계가 100%가 되어야 해요!\n현재: '+(hq+dist+agent)+'%');return;}
-  var rules={hq,dist,agent};
-  setConf('rates',rules);
+  var hq = parseInt(document.getElementById('rule-hq').value) || 0;
+  var dist = parseInt(document.getElementById('rule-dist').value) || 0;
+  var agent = parseInt(document.getElementById('rule-agent').value) || 0;
+  if(hq + dist + agent !== 100){ alert('합계가 100%가 되어야 해요!\n현재: '+(hq+dist+agent)+'%'); return; }
+  var rules = {hq:hq, dist:dist, agent:agent};
+  setConf('rates', rules);
   updateFlowRates(rules);
-  document.getElementById('hq-rate').value=hq;
   renderAll();
   alert('✅ 정산 규칙 저장됐어요!');
 }
 
 function updateFlowRates(rules){
-  document.getElementById('flow-hq-rate').textContent=rules.hq+'%';
-  document.getElementById('flow-dist-rate').textContent=rules.dist+'%';
-  document.getElementById('flow-agent-rate').textContent=rules.agent+'%';
-}
-
-// ===== 코드 조회 =====
-function searchCode(){
-  var q=document.getElementById('code-search').value.trim().toUpperCase();
-  var dists=getData('distributors');
-  var agents=getData('agents');
-  var result=document.getElementById('code-result');
-
-  var d=dists.find(x=>x.code.toUpperCase()===q);
-  var a=agents.find(x=>x.code.toUpperCase()===q);
-
-  if(d){
-    result.innerHTML='<div class="flow-item flow-dist" style="margin-top:0">'+
-      '<span class="badge-dist">총판</span> <b>'+d.name+'</b><br>'+
-      '<span style="font-size:11px;color:var(--text2)">지역: '+d.region+' · 수수료: '+d.rate+'% · 연락처: '+d.contact+'</span></div>';
-  } else if(a){
-    result.innerHTML='<div class="flow-item flow-agent" style="margin-top:0">'+
-      '<span class="badge-agent">대리점</span> <b>'+a.name+'</b><br>'+
-      '<span style="font-size:11px;color:var(--text2)">소속총판: '+a.distName+' · 지역: '+a.region+' · 수수료: '+a.rate+'%</span></div>';
-  } else {
-    result.innerHTML='<span style="color:var(--accent4)">코드를 찾을 수 없어요: '+q+'</span>';
-  }
+  document.getElementById('flow-hq-rate').textContent = rules.hq + '%';
+  document.getElementById('flow-dist-rate').textContent = rules.dist + '%';
+  document.getElementById('flow-agent-rate').textContent = rules.agent + '%';
+  var el;
+  el = document.getElementById('txn-hq-rate'); if(el) el.textContent = rules.hq;
+  el = document.getElementById('txn-dist-rate'); if(el) el.textContent = rules.dist;
+  el = document.getElementById('txn-agent-rate'); if(el) el.textContent = rules.agent;
 }
 </script>
 </body>

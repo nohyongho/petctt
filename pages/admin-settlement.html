@@ -46,6 +46,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
 .badge-hq{background:rgba(99,102,241,.2);color:#a5b4fc;border:1px solid rgba(99,102,241,.4);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
 .badge-dist{background:rgba(6,182,212,.2);color:#67e8f9;border:1px solid rgba(6,182,212,.4);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
 .badge-agent{background:rgba(16,185,129,.2);color:#6ee7b7;border:1px solid rgba(16,185,129,.4);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-merch{background:rgba(236,72,153,.2);color:#f472b6;border:1px solid rgba(236,72,153,.4);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
 .badge-txn{background:rgba(251,191,36,.2);color:#fbbf24;border:1px solid rgba(251,191,36,.4);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
 
 /* 통계 그리드 */
@@ -120,6 +121,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
     <button class="tab active" onclick="showTab('overview',this)">📊 정산 개요</button>
     <button class="tab" onclick="showTab('txn',this)" style="color:#fbbf24;font-weight:700">💰 원천거래 등록</button>
     <button class="tab" onclick="showTab('hq',this)">🏢 본사</button>
+    <button class="tab" onclick="showTab('merchant',this)">🏬 가맹점</button>
     <button class="tab" onclick="showTab('distributor',this)">🏪 총판</button>
     <button class="tab" onclick="showTab('agent',this)">🤝 대리점</button>
     <button class="tab" onclick="showTab('settlement',this)">💸 정산 처리</button>
@@ -161,6 +163,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
         <div class="stat-box">
           <div class="stat-val" id="ov-pending-count" style="color:var(--accent3)">0</div>
           <div class="stat-lbl">미승인 건수</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="ov-merch-count" style="color:#f472b6">0</div>
+          <div class="stat-lbl">등록 가맹점수</div>
         </div>
       </div>
     </div>
@@ -250,7 +256,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
         </select>
       </div>
       <div class="form-row">
-        <input class="inp" type="text" id="txn-biz-name" placeholder="업체명">
+        <select class="sel" id="txn-merchant" onchange="txnMerchantChange()">
+          <option value="">가맹점 선택 (또는 직접입력)</option>
+        </select>
+        <input class="inp" type="text" id="txn-biz-name" placeholder="업체명 (직접입력)">
         <input class="inp" type="number" id="txn-amount" placeholder="금액 (원)">
       </div>
       <div class="form-row">
@@ -379,6 +388,58 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
     </div>
   </div>
 
+
+  <!-- ★ 가맹점 관리 탭 -->
+  <div id="tab-merchant" class="tab-content">
+    <div class="notice" style="background:rgba(236,72,153,.1);border-color:rgba(236,72,153,.3);color:#f472b6">
+      🏬 <b>가맹점 관리</b>: 총판/대리점이 유치한 가맹점을 등록하면 원천거래와 자동 연결됩니다
+    </div>
+    <div class="card">
+      <div class="card-title">📝 가맹점 등록</div>
+      <div class="form-row">
+        <input class="inp" type="text" id="merch-name" placeholder="가맹점명 (상호)">
+        <select class="sel" id="merch-type">
+          <option value="restaurant">음식점</option>
+          <option value="cafe">카페</option>
+          <option value="retail">소매점</option>
+          <option value="beauty">뷰티/미용</option>
+          <option value="fitness">헬스/피트니스</option>
+          <option value="pet">반려동물</option>
+          <option value="etc">기타</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <select class="sel" id="merch-dist">
+          <option value="">소속 총판 선택</option>
+        </select>
+        <select class="sel" id="merch-agent">
+          <option value="">소속 대리점 선택</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <input class="inp" type="text" id="merch-contact" placeholder="연락처">
+        <input class="inp" type="text" id="merch-addr" placeholder="주소">
+      </div>
+      <div class="form-row">
+        <input class="inp" type="text" id="merch-code" placeholder="가맹점 코드 (자동생성)" readonly>
+        <button class="btn btn-primary" onclick="genMerchCode()">코드 생성</button>
+        <button class="btn btn-success" onclick="addMerchant()">+ 등록</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 가맹점 목록 · 매출 현황</div>
+      <table class="tbl">
+        <thead><tr>
+          <th>코드</th><th>가맹점명</th><th>업종</th><th>소속 총판</th><th>소속 대리점</th>
+          <th>이번달 매출</th><th>거래건수</th><th></th>
+        </tr></thead>
+        <tbody id="merch-tbody">
+          <tr><td colspan="8" class="empty">등록된 가맹점 없음</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- ③ 총판 탭 -->
   <div id="tab-distributor" class="tab-content">
     <div class="card">
@@ -387,6 +448,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
         <input class="inp" type="text" id="dist-name" placeholder="총판명">
         <input class="inp" type="text" id="dist-region" placeholder="담당 지역">
         <input class="inp" type="text" id="dist-contact" placeholder="담당자 연락처">
+        <input class="inp" type="number" id="dist-rate" placeholder="수수료율 (%)" min="0" max="100" style="max-width:120px">
       </div>
       <div class="form-row">
         <input class="inp" type="text" id="dist-code" placeholder="총판 코드 (자동생성)" readonly>
@@ -399,11 +461,11 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
       <div class="card-title">📋 총판 목록 · 배분 현황</div>
       <table class="tbl">
         <thead><tr>
-          <th>코드</th><th>총판명</th><th>지역</th>
-          <th>이번달 배분액</th><th>거래건수</th><th>대리점수</th><th>상태</th><th></th>
+          <th>코드</th><th>총판명</th><th>지역</th><th>수수료율</th>
+          <th>이번달 배분액</th><th>거래건수</th><th>대리점수</th><th>유치 가맹점</th><th>상태</th><th></th>
         </tr></thead>
         <tbody id="dist-tbody">
-          <tr><td colspan="8" class="empty">등록된 총판 없음</td></tr>
+          <tr><td colspan="10" class="empty">등록된 총판 없음</td></tr>
         </tbody>
       </table>
     </div>
@@ -422,6 +484,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
       </div>
       <div class="form-row">
         <input class="inp" type="text" id="agent-contact" placeholder="담당자 연락처">
+        <input class="inp" type="number" id="agent-rate" placeholder="수수료율 (%)" min="0" max="100" style="max-width:120px">
         <input class="inp" type="text" id="agent-code" placeholder="대리점 코드 (자동생성)" readonly>
         <button class="btn btn-primary" onclick="genAgentCode()">코드 생성</button>
         <button class="btn btn-success" onclick="addAgent()">+ 등록</button>
@@ -432,11 +495,11 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
       <div class="card-title">📋 대리점 목록 · 배분 현황</div>
       <table class="tbl">
         <thead><tr>
-          <th>코드</th><th>대리점명</th><th>소속 총판</th><th>지역</th>
-          <th>이번달 배분액</th><th>거래건수</th><th>상태</th><th></th>
+          <th>코드</th><th>대리점명</th><th>소속 총판</th><th>지역</th><th>수수료율</th>
+          <th>이번달 배분액</th><th>거래건수</th><th>유치 가맹점</th><th>상태</th><th></th>
         </tr></thead>
         <tbody id="agent-tbody">
-          <tr><td colspan="8" class="empty">등록된 대리점 없음</td></tr>
+          <tr><td colspan="10" class="empty">등록된 대리점 없음</td></tr>
         </tbody>
       </table>
     </div>
@@ -497,6 +560,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
 // ===== 상수 =====
 var PW = 'valore2026';
 var STORE_KEY = 'valore_settlement_v2';
+var MERCH_TYPE_MAP = {restaurant:'음식점',cafe:'카페',retail:'소매점',beauty:'뷰티/미용',fitness:'헬스/피트니스',pet:'반려동물',etc:'기타'};
 var TYPE_MAP = {subscription:'구독료',coupon_fee:'쿠폰수수료',merchant_fee:'가맹점수수료',ad_fee:'광고비',store_fee:'매장입점 판매수수료',etc:'기타'};
 
 // ===== 로그인 =====
@@ -579,6 +643,7 @@ function renderAll(){
   renderHqTxns();
   renderDistributors();
   renderAgents();
+  renderMerchants();
   renderCodes();
 }
 
@@ -595,6 +660,25 @@ function populateSelects(){
   var txnAgent = document.getElementById('txn-agent');
   txnAgent.innerHTML = '<option value="">소속 대리점 선택 (선택)</option>';
   agents.forEach(function(a){ txnAgent.innerHTML += '<option value="'+a.name+'">'+a.name+' ('+a.distName+')</option>'; });
+
+  // 가맹점 select들
+  var merchDist = document.getElementById('merch-dist');
+  if(merchDist){
+    merchDist.innerHTML = '<option value="">소속 총판 선택</option>';
+    dists.forEach(function(d){ merchDist.innerHTML += '<option value="'+d.name+'">'+d.name+'</option>'; });
+  }
+  var merchAgent = document.getElementById('merch-agent');
+  if(merchAgent){
+    merchAgent.innerHTML = '<option value="">소속 대리점 선택</option>';
+    agents.forEach(function(a){ merchAgent.innerHTML += '<option value="'+a.name+'">'+a.name+' ('+a.distName+')</option>'; });
+  }
+  // 원천거래 가맹점 select
+  var txnMerch = document.getElementById('txn-merchant');
+  if(txnMerch){
+    var merchs = getData('merchants');
+    txnMerch.innerHTML = '<option value="">가맹점 선택 (또는 직접입력)</option>';
+    merchs.forEach(function(m){ txnMerch.innerHTML += '<option value="'+m.name+'" data-dist="'+m.distName+'" data-agent="'+(m.agentName||'')+'">'+m.name+' ['+m.code+']</option>'; });
+  }
 
   // 대리점 소속 총판 select
   var agentDist = document.getElementById('agent-dist');
@@ -619,6 +703,7 @@ function renderOverview(){
   document.getElementById('ov-agent').textContent = fmt(Math.round(totalRev * rules.agent / 100));
   document.getElementById('ov-txn-count').textContent = monthTxns.length;
   document.getElementById('ov-pending-count').textContent = pendingCount;
+  document.getElementById('ov-merch-count').textContent = getData('merchants').length;
 
   // 미승인 원천거래
   var pendingTxns = txns.filter(function(t){ return t.status === 'pending'; });
@@ -773,9 +858,10 @@ function addDistributor(){
   var code = document.getElementById('dist-code').value.trim();
   if(!name || !code){ alert('총판명과 코드를 입력해요!'); return; }
   var dists = getData('distributors');
-  dists.push({id:Date.now(), name:name, region:region, contact:contact, code:code, createdAt:new Date().toISOString()});
+  var rate = parseInt(document.getElementById('dist-rate').value) || 0;
+  dists.push({id:Date.now(), name:name, region:region, contact:contact, code:code, rate:rate, createdAt:new Date().toISOString()});
   setData('distributors', dists);
-  ['dist-name','dist-region','dist-contact','dist-code'].forEach(function(id){document.getElementById(id).value='';});
+  ['dist-name','dist-region','dist-contact','dist-code','dist-rate'].forEach(function(id){document.getElementById(id).value='';});
   renderAll();
 }
 
@@ -799,13 +885,16 @@ function renderDistributors(){
       var distTxns = txns.filter(function(t){ return t.distName === d.name && t.date.startsWith(mon); });
       var distAmt = distTxns.reduce(function(s,t){ return s + t.distAmount; }, 0);
       var agentCnt = agents.filter(function(a){ return a.distName === d.name; }).length;
+      var merchCnt = getData('merchants').filter(function(m){ return m.distName === d.name; }).length;
       return '<tr>'+
         '<td><code style="color:var(--dist)">'+d.code+'</code></td>'+
         '<td><span class="badge-dist">총판</span> '+d.name+'</td>'+
         '<td>'+d.region+'</td>'+
+        '<td style="color:var(--accent3)">'+(d.rate||0)+'%</td>'+
         '<td style="color:#67e8f9;font-weight:700">'+fmt(distAmt)+'</td>'+
         '<td>'+distTxns.length+'건</td>'+
         '<td>'+agentCnt+'개</td>'+
+        '<td style="color:#f472b6">'+merchCnt+'개</td>'+
         '<td><span style="color:var(--accent2);font-size:11px">활성</span></td>'+
         '<td><button class="btn btn-danger btn-sm" onclick="delDist('+d.id+')">삭제</button></td></tr>';
     }).join('');
@@ -826,9 +915,10 @@ function addAgent(){
   var code = document.getElementById('agent-code').value.trim();
   if(!name || !distName || !code){ alert('대리점명, 소속 총판, 코드를 입력해요!'); return; }
   var agents = getData('agents');
-  agents.push({id:Date.now(), name:name, distName:distName, contact:contact, region:region, code:code, createdAt:new Date().toISOString()});
+  var rate = parseInt(document.getElementById('agent-rate').value) || 0;
+  agents.push({id:Date.now(), name:name, distName:distName, contact:contact, region:region, code:code, rate:rate, createdAt:new Date().toISOString()});
   setData('agents', agents);
-  ['agent-name','agent-contact','agent-region','agent-code'].forEach(function(id){document.getElementById(id).value='';});
+  ['agent-name','agent-contact','agent-region','agent-code','agent-rate'].forEach(function(id){document.getElementById(id).value='';});
   renderAll();
 }
 
@@ -850,12 +940,15 @@ function renderAgents(){
     tbody.innerHTML = agents.map(function(a){
       var agentTxns = txns.filter(function(t){ return t.agentName === a.name && t.date.startsWith(mon); });
       var agentAmt = agentTxns.reduce(function(s,t){ return s + t.agentAmount; }, 0);
+      var merchCnt2 = getData('merchants').filter(function(m){ return m.agentName === a.name; }).length;
       return '<tr>'+
         '<td><code style="color:var(--agent)">'+a.code+'</code></td>'+
         '<td><span class="badge-agent">대리점</span> '+a.name+'</td>'+
         '<td>'+a.distName+'</td><td>'+a.region+'</td>'+
+        '<td style="color:var(--accent3)">'+(a.rate||0)+'%</td>'+
         '<td style="color:#6ee7b7;font-weight:700">'+fmt(agentAmt)+'</td>'+
         '<td>'+agentTxns.length+'건</td>'+
+        '<td style="color:#f472b6">'+merchCnt2+'개</td>'+
         '<td><span style="color:var(--accent2);font-size:11px">활성</span></td>'+
         '<td><button class="btn btn-danger btn-sm" onclick="delAgent('+a.id+')">삭제</button></td></tr>';
     }).join('');
@@ -977,6 +1070,74 @@ function exportSettlement(){
   var a = document.createElement('a');
   a.href = url; a.download = 'valore_settlement_'+mon+'.csv'; a.click();
   URL.revokeObjectURL(url);
+}
+
+
+
+// ===== 가맹점 =====
+function genMerchCode(){
+  var merchs = getData('merchants');
+  document.getElementById('merch-code').value = 'MERCH-'+String(merchs.length+1).padStart(3,'0');
+}
+
+function addMerchant(){
+  var name = document.getElementById('merch-name').value.trim();
+  var type = document.getElementById('merch-type').value;
+  var distName = document.getElementById('merch-dist').value;
+  var agentName = document.getElementById('merch-agent').value;
+  var contact = document.getElementById('merch-contact').value.trim();
+  var addr = document.getElementById('merch-addr').value.trim();
+  var code = document.getElementById('merch-code').value.trim();
+  if(!name || !code){ alert('가맹점명과 코드를 입력해요!'); return; }
+  var merchs = getData('merchants');
+  merchs.push({id:Date.now(), name:name, type:type, distName:distName, agentName:agentName, contact:contact, addr:addr, code:code, createdAt:new Date().toISOString()});
+  setData('merchants', merchs);
+  ['merch-name','merch-contact','merch-addr','merch-code'].forEach(function(id){document.getElementById(id).value='';});
+  renderAll();
+  alert('🏬 가맹점이 등록되었어요!');
+}
+
+function delMerchant(id){
+  if(!confirm('가맹점을 삭제할까요?')) return;
+  setData('merchants', getData('merchants').filter(function(r){return r.id!==id;}));
+  renderAll();
+}
+
+function renderMerchants(){
+  var merchs = getData('merchants');
+  var txns = getData('transactions');
+  var mon = curMonth();
+  var tbody = document.getElementById('merch-tbody');
+  if(!tbody) return;
+  if(merchs.length === 0){
+    tbody.innerHTML = '<tr><td colspan="8" class="empty">등록된 가맹점 없음</td></tr>';
+  } else {
+    tbody.innerHTML = merchs.map(function(m){
+      var mTxns = txns.filter(function(t){ return t.bizName === m.name && t.date.startsWith(mon); });
+      var mAmt = mTxns.reduce(function(s,t){ return s + t.amount; }, 0);
+      return '<tr>'+
+        '<td><code style="color:#f472b6">'+m.code+'</code></td>'+
+        '<td><span class="badge-merch">가맹점</span> '+m.name+'</td>'+
+        '<td>'+(MERCH_TYPE_MAP[m.type]||m.type)+'</td>'+
+        '<td>'+(m.distName||'—')+'</td>'+
+        '<td>'+(m.agentName||'—')+'</td>'+
+        '<td style="color:var(--accent2);font-weight:700">'+fmt(mAmt)+'</td>'+
+        '<td>'+mTxns.length+'건</td>'+
+        '<td><button class="btn btn-danger btn-sm" onclick="delMerchant('+m.id+')">삭제</button></td></tr>';
+    }).join('');
+  }
+}
+
+function txnMerchantChange(){
+  var sel = document.getElementById('txn-merchant');
+  var opt = sel.options[sel.selectedIndex];
+  if(opt && opt.value){
+    document.getElementById('txn-biz-name').value = opt.value;
+    var distName = opt.getAttribute('data-dist');
+    var agentName = opt.getAttribute('data-agent');
+    if(distName){ document.getElementById('txn-dist').value = distName; }
+    if(agentName){ document.getElementById('txn-agent').value = agentName; }
+  }
 }
 
 // ===== 비율 관리 =====

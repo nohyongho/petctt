@@ -358,11 +358,16 @@
     },500);
   }
 
-  // DOM 준비 후 실행
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+  // DOM 준비 후 실행 (외부 스크립트는 DOMContentLoaded 놓칠 수 있음)
+  // readyState 체크 + 여러 fallback
+  function tryInit(){
+    if(document.getElementById('ami-root') && document.getElementById('ami-particle-canvas')){
+      init();
+    } else {
+      // DOM 아직 준비 안됨 → 재시도
+      setTimeout(tryInit, 50);
+    }
   }
+  tryInit();
 
 })();

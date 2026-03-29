@@ -819,18 +819,33 @@ var ABT=0,AET=0,ATT=0,ABlkT=0,ABlkV=0;
 var AMouthO=0,AHappyV=0,AFartAT=0;
 var ASoundON=false,AMicON=false,AChatOpen=false;
 var ASRecog=null,AHist=[],ALastTap=0;
-AMI.style.position='fixed';
-AMI.style.display='block';
-AMI.style.visibility='visible';
-AMI.style.opacity='1';
-AMI.style.zIndex='99990';
-AMI.style.bottom='28px';
-AMI.style.left=Math.round(innerWidth/2 - 44)+'px';
-AMI.style.cursor='pointer';
-AMI.style.pointerEvents='auto';
-AMI.style.transform='scaleX(1) translateY(0)';
-AAX=Math.round(innerWidth/2 - 44);
-function amiSetPos(){AMI.style.left=AAX+'px';AMI.style.bottom='28px';AMI.style.transform='scaleX('+AFacing+') translateY('+AJO+'px)';AMI.style.zIndex='99990';}
+// 아미 강제 표시
+var amiCenterX = Math.round(innerWidth/2);
+AAX = amiCenterX;
+AMI.setAttribute('style', [
+  'position:fixed',
+  'display:block',
+  'visibility:visible',
+  'opacity:1',
+  'z-index:99990',
+  'bottom:28px',
+  'left:' + amiCenterX + 'px',
+  'transform:translateX(-50%)',
+  'cursor:pointer',
+  'pointer-events:auto',
+  'width:100px',
+  'height:120px'
+].join('!important;') + '!important');
+function amiSetPos(){
+  var tx='scaleX('+AFacing+') translateY('+AJO+'px)';
+  AMI.style.left=AAX+'px';
+  AMI.style.bottom='28px';
+  AMI.style.transform=tx;
+  AMI.style.zIndex='99990';
+  AMI.style.display='block';
+  AMI.style.visibility='visible';
+  AMI.style.opacity='1';
+}
 function el(id){return document.getElementById(id);}
 function amiAnimLoop(){
   ABT+=.04;AET+=.07;ATT+=.055;AFartAT++;ABlkT++;

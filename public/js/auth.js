@@ -140,27 +140,21 @@ function loginWithNaver() {
   window.location.href = 'https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=' + clientId + '&redirect_uri=' + redirectUri + '&state=' + state;
 }
 
-// ===== 구글 로그인 (Supabase OAuth) =====
-async function loginWithGoogle() {
-  try {
-    // Supabase Google OAuth 방식 (403 문제 해결)
-    var redirectTo = window.location.origin + '/auth/callback';
-    var res = await sbFetch('/auth/v1/authorize?provider=google&redirect_to=' + encodeURIComponent(redirectTo), {
-      method: 'GET',
-      headers: { 'apikey': SUPABASE_KEY }
-    });
-    if (res.url) {
-      window.location.href = res.url;
-    } else {
-      // fallback: Google 직접
-      var data = await res.json();
-      if (data.url) window.location.href = data.url;
-    }
-  } catch(e) {
-    console.error('Google 로그인 오류:', e);
-    // fallback: Cloudflare Worker
-    window.location.href = 'https://petctt-auth.zeus1404.workers.dev/api/auth/google';
+// ===== 구글 로그인 (Supabase OAuth - 직접 redirect) =====
+function loginWithGoogle() {
+  // Supabase OAuth 직접 redirect (fetch 불필요, 403 해결)
+  var redirectTo = window.location.origin;
+  // petctt.com 또는 airctt.com 감지
+  if (window.location.hostname.includes('airctt')) {
+    redirectTo = 'https://www.airctt.com';
+  } else {
+    redirectTo = 'https://www.petctt.com';
   }
+  var oauthUrl = SUPABASE_URL + '/auth/v1/authorize' +
+    '?provider=google' +
+    '&redirect_to=' + encodeURIComponent(redirectTo) +
+    '&scopes=email+profile';
+  window.location.href = oauthUrl;
 }
 
 // ===== OAuth 콜백 처리 (URL 파라미터) =====
@@ -290,10 +284,23 @@ function showLoginRequired() {
 
 // ===== 초기화 =====
 async function init() {
-  // OAuth 콜백 처리
-  if (window.location.hash.includes('access_token') ||
-      window.location.search.includes('user=')) {
-    await handleOAuthCallback();
+  // OAuth 콜백 처리 (Supabase는 hash로 access_token 반환)
+  var needsCallback = 
+    window.location.hash.includes('access_token') ||
+    window.location.hash.includes('error=') ||
+    window.location.search.includes('user=') ||
+    window.location.search.includes('code=');
+
+  if (needsCallback) {
+    var user = await handleOAuthCallback();
+    if (user) {
+      console.log('[ValoreAuth] 로그인 성공:', user.name, '/', user.provider);
+      // 로그인 성공 시 hash 제거
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState({}, document.title,
+          window.location.pathname + window.location.search);
+      }
+    }
   }
   // 로그인 상태 UI 업데이트 이벤트
   window.dispatchEvent(new CustomEvent('auth:ready', { detail: getUser() }));

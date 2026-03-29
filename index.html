@@ -786,437 +786,153 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
 
 
 <script>
-// ========== 아미 토끼 완전판 v1 - 메타버스 진입 스타트 ==========
-
-// 파티클
-const APC = document.getElementById('ami-particle-canvas');
-const APX = APC.getContext('2d');
-APC.width = innerWidth; APC.height = innerHeight;
-window.addEventListener('resize', () => { APC.width=innerWidth; APC.height=innerHeight; });
-let APS = [];
-
-class AP {
-  constructor(x, y, t) {
-    this.x=x; this.y=y; this.t=t; this.l=1;
-    if(t==='f') {
-      this.vx=(Math.random()-.5)*11; this.vy=-(Math.random()*9+3);
-      this.d=.01+Math.random()*.007; this.r=Math.random()*18+7;
-      this.em=['💨','💫','✨','⭐','🌟','💥','🎉','🌈','🦋','🎊'][~~(Math.random()*10)];
-    } else if(t==='j') {
-      this.vx=(Math.random()-.5)*7; this.vy=-(Math.random()*7+1);
-      this.d=.022; this.r=Math.random()*5+2;
-      this.c=`hsl(${~~(Math.random()*80+270)},100%,75%)`;
-    } else {
-      this.vx=(Math.random()-.5)*2; this.vy=-(Math.random()*1.5+.3);
-      this.d=.028; this.r=Math.random()*3+1;
-      this.c=`hsl(${~~(Math.random()*50+290)},100%,80%)`;
-    }
-  }
-  update() { this.x+=this.vx; this.y+=this.vy; this.vy+=.2; this.l-=this.d; }
-  draw() {
-    if(this.l<=0) return;
-    if(this.t==='f') {
-      APX.save(); APX.globalAlpha=this.l*.88;
-      APX.font=`${this.r*1.5}px serif`; APX.textAlign='center';
-      APX.fillText(this.em, this.x, this.y); APX.restore();
-    } else {
-      APX.save(); APX.globalAlpha=this.l*.85;
-      APX.beginPath(); APX.arc(this.x, this.y, this.r, 0, Math.PI*2);
-      const g=APX.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);
-      g.addColorStop(0,'#fff'); g.addColorStop(1,this.c);
-      APX.fillStyle=g; APX.fill(); APX.restore();
-    }
-  }
+// ========== 아미 토끼 v2 ==========
+(function(){
+var APC=document.getElementById('ami-particle-canvas');
+var APX=APC.getContext('2d');
+APC.width=innerWidth;APC.height=innerHeight;
+window.addEventListener('resize',function(){APC.width=innerWidth;APC.height=innerHeight;});
+var APS=[];
+function AP(x,y,t){
+  this.x=x;this.y=y;this.t=t;this.l=1;
+  if(t==='f'){this.vx=(Math.random()-.5)*11;this.vy=-(Math.random()*9+3);this.d=.011;this.r=Math.random()*18+7;this.em=['F','J','N','E','S','X','G','R'][~~(Math.random()*8)];}
+  else if(t==='j'){this.vx=(Math.random()-.5)*7;this.vy=-(Math.random()*7+1);this.d=.022;this.r=Math.random()*5+2;this.c='hsl('+(~~(Math.random()*80+270))+',100%,75%)';}
+  else{this.vx=(Math.random()-.5)*2;this.vy=-(Math.random()*1.5+.3);this.d=.028;this.r=Math.random()*3+1;this.c='hsl('+(~~(Math.random()*50+290))+',100%,80%)';}
 }
-(function aloop() {
-  APX.clearRect(0,0,APC.width,APC.height);
-  APS=APS.filter(p=>p.l>0);
-  APS.forEach(p=>{p.update();p.draw();});
-  requestAnimationFrame(aloop);
-})();
-
-function amiFart(x,y,n=20){ for(let i=0;i<n;i++) setTimeout(()=>APS.push(new AP(x,y,'f')),i*32); for(let i=0;i<12;i++) APS.push(new AP(x+(Math.random()-.5)*28,y,'j')); }
-function amiDust(x,y){ for(let i=0;i<9;i++) APS.push(new AP(x+(Math.random()-.5)*22,y,'j')); }
-function amiTrail(x,y){ if(Math.random()>.55) APS.push(new AP(x,y,'t')); }
-
-// 물리 변수
-const AMI = document.getElementById('ami-root');
-let AAX = innerWidth/2, AAY = 0;
-let ATX = innerWidth/2;
-let AJO = 0, AJV = 0, AisJ = false;
-let AFacing = 1;
-let AMTimer = 0, ALTimer = 0, AStt = 'idle';
-let AClickN = 0;
-
-// 애니 변수
-let ABT=0, AET=0, ATT=0, ABlkT=0, ABlkV=0;
-let AMouthO=0, AHappyV=0, AFartAT=0;
-
-// 소리/마이크 상태
-let ASoundON = false;
-let AMicON = false;
-let AChatOpen = false;
-let ASRecog = null;
-let AHist = [];
-let ALastTap = 0;
-
-AMI.style.left = AAX+'px';
-AMI.style.bottom = '28px';
-AMI.style.transform = 'none';
-AMI.style.display = 'block'; /* 명시적 표시 */
-
-function amiSetPos() {
-  AMI.style.left = AAX+'px';
-  AMI.style.bottom = '28px';
-  // scaleX(방향) + translateY(점프) — translateX(-50%) 제거 (CSS에서 처리)
-  AMI.style.transform = `scaleX(${AFacing}) translateY(${AJO}px)`;
-}
-
-// ===== 애니메이션 =====
-function amiAnimLoop() {
-  ABT+=.04; AET+=.07; ATT+=.055; AFartAT++;
-  ABlkT++;
-  if(ABlkT>220){ABlkV=1; if(ABlkT>232){ABlkV=0;ABlkT=0;}}
-
-  const bS=1+Math.sin(ABT)*.015;
-  const ew=Math.sin(AET)*5;
-  const tw=Math.sin(ATT)*6;
-
-  // 상태별 변환
-  const svg=document.getElementById('ami-svg');
-  if(AStt==='lay') svg.style.transform=`rotate(${AFacing>0?78:-78}deg) scale(${bS})`;
-  else if(AStt==='sleep') svg.style.transform=`rotate(${AFacing>0?90:-90}deg) scale(${bS})`;
-  else if(AStt==='hang') svg.style.transform=`rotate(${AFacing>0?-20:-20}deg) scale(${bS})`; // 매달리기
-  else if(AStt==='stand') svg.style.transform=`scale(${bS}) translateY(-8px)`; // 꼿꼿이 서기
-  else svg.style.transform=`scale(${bS})`;
-
-  // 귀
-  document.getElementById('ami-ear-l').setAttribute('transform',`rotate(${-ew},25,38)`);
-  document.getElementById('ami-ear-r').setAttribute('transform',`rotate(${ew},63,38)`);
-  // 꼬리
-  document.getElementById('ami-tail').setAttribute('cx',73+tw);
-  // 눈 깜빡
-  const bop=ABlkV?.88:0;
-  document.getElementById('ami-blink-l').setAttribute('opacity',bop);
-  document.getElementById('ami-blink-r').setAttribute('opacity',bop);
-  document.getElementById('ami-eye-l').setAttribute('opacity',ABlkV?0:1);
-  document.getElementById('ami-eye-r').setAttribute('opacity',ABlkV?0:1);
-  // 하트눈
-  document.getElementById('ami-hl').setAttribute('opacity',AHappyV);
-  document.getElementById('ami-hr').setAttribute('opacity',AHappyV);
-  if(AHappyV>.1){ document.getElementById('ami-eye-l').setAttribute('opacity',0); document.getElementById('ami-eye-r').setAttribute('opacity',0); }
-  // 입
-  const mo=AMouthO;
-  document.getElementById('ami-mouth-n').setAttribute('opacity',mo>0?0:1);
-  document.getElementById('ami-mouth-o').setAttribute('opacity',mo>0?.9:0);
-  document.getElementById('ami-mouth-oi').setAttribute('opacity',mo>0?.8:0);
-  document.getElementById('ami-t1').setAttribute('opacity',mo>0?1:0);
-  document.getElementById('ami-t2').setAttribute('opacity',mo>0?1:0);
-  if(mo>0){ const ry=Math.sin(Date.now()/75)*2+3.8; document.getElementById('ami-mouth-o').setAttribute('ry',ry); document.getElementById('ami-mouth-oi').setAttribute('ry',ry*.65); }
-  // 발
-  const fUp=AisJ?Math.abs(AJV)*.7:0;
-  document.getElementById('ami-fl').setAttribute('cy',103-fUp*.32);
-  document.getElementById('ami-fr').setAttribute('cy',103-fUp*.32);
-
-  // 자동 방구 (파티클은 항상!)
-  if(AFartAT>290+Math.random()*240){ AFartAT=0; amiDoFart(); }
-
+AP.prototype.update=function(){this.x+=this.vx;this.y+=this.vy;this.vy+=.2;this.l-=this.d;};
+AP.prototype.draw=function(){
+  if(this.l<=0)return;
+  if(this.t==='f'){
+    var emap={'F':'💨','J':'💫','N':'✨','E':'⭐','S':'🌟','X':'💥','G':'🎉','R':'🌈'};
+    APX.save();APX.globalAlpha=this.l*.88;APX.font=(this.r*1.5)+'px serif';APX.textAlign='center';APX.fillText(emap[this.em]||'💨',this.x,this.y);APX.restore();
+  }else{APX.save();APX.globalAlpha=this.l*.85;APX.beginPath();APX.arc(this.x,this.y,this.r,0,Math.PI*2);var g=APX.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r);g.addColorStop(0,'#fff');g.addColorStop(1,this.c);APX.fillStyle=g;APX.fill();APX.restore();}
+};
+(function ploop(){APX.clearRect(0,0,APC.width,APC.height);APS=APS.filter(function(p){return p.l>0;});APS.forEach(function(p){p.update();p.draw();});requestAnimationFrame(ploop);})();
+function amiFart(x,y,n){n=n||20;for(var i=0;i<n;i++)(function(i){setTimeout(function(){APS.push(new AP(x,y,'f'));},i*32);})(i);for(var j=0;j<12;j++)APS.push(new AP(x+(Math.random()-.5)*28,y,'j'));}
+function amiDust(x,y){for(var i=0;i<9;i++)APS.push(new AP(x+(Math.random()-.5)*22,y,'j'));}
+function amiTrail(x,y){if(Math.random()>.55)APS.push(new AP(x,y,'t'));}
+var AMI=document.getElementById('ami-root');
+var AAX=innerWidth/2,ATX=innerWidth/2;
+var AJO=0,AJV=0,AisJ=false,AFacing=1;
+var AMTimer=60,ALTimer=0,AStt='idle',AClickN=0;
+var ABT=0,AET=0,ATT=0,ABlkT=0,ABlkV=0;
+var AMouthO=0,AHappyV=0,AFartAT=0;
+var ASoundON=false,AMicON=false,AChatOpen=false;
+var ASRecog=null,AHist=[],ALastTap=0;
+AMI.style.cssText='position:fixed!important;display:block!important;visibility:visible!important;opacity:1!important;z-index:99990!important;left:'+(innerWidth/2)+'px;bottom:28px;cursor:pointer;user-select:none;';
+function amiSetPos(){AMI.style.left=AAX+'px';AMI.style.bottom='28px';AMI.style.transform='scaleX('+AFacing+') translateY('+AJO+'px)';}
+function el(id){return document.getElementById(id);}
+function amiAnimLoop(){
+  ABT+=.04;AET+=.07;ATT+=.055;AFartAT++;ABlkT++;
+  if(ABlkT>220){ABlkV=1;if(ABlkT>232){ABlkV=0;ABlkT=0;}}
+  var bS=1+Math.sin(ABT)*.015,ew=Math.sin(AET)*5,tw=Math.sin(ATT)*6;
+  var svg=el('ami-svg');
+  if(svg){
+    if(AStt==='lay')svg.style.transform='rotate('+(AFacing>0?78:-78)+'deg) scale('+bS+')';
+    else if(AStt==='sleep')svg.style.transform='rotate('+(AFacing>0?90:-90)+'deg) scale('+bS+')';
+    else if(AStt==='hang')svg.style.transform='rotate(-25deg) scale('+bS+')';
+    else if(AStt==='stand')svg.style.transform='scale('+bS+') translateY(-8px)';
+    else svg.style.transform='scale('+bS+')';
+  }
+  if(el('ami-ear-l'))el('ami-ear-l').setAttribute('transform','rotate('+(-ew)+',25,38)');
+  if(el('ami-ear-r'))el('ami-ear-r').setAttribute('transform','rotate('+(ew)+',63,38)');
+  if(el('ami-tail'))el('ami-tail').setAttribute('cx',73+tw);
+  var blOp=ABlkV?'0.88':'0';
+  if(el('ami-blink-l'))el('ami-blink-l').setAttribute('opacity',blOp);
+  if(el('ami-blink-r'))el('ami-blink-r').setAttribute('opacity',blOp);
+  if(el('ami-eye-l'))el('ami-eye-l').setAttribute('opacity',ABlkV?'0':'1');
+  if(el('ami-eye-r'))el('ami-eye-r').setAttribute('opacity',ABlkV?'0':'1');
+  if(el('ami-hl'))el('ami-hl').setAttribute('opacity',AHappyV);
+  if(el('ami-hr'))el('ami-hr').setAttribute('opacity',AHappyV);
+  if(AHappyV>.1){if(el('ami-eye-l'))el('ami-eye-l').setAttribute('opacity','0');if(el('ami-eye-r'))el('ami-eye-r').setAttribute('opacity','0');}
+  var mo=AMouthO;
+  if(el('ami-mouth-n'))el('ami-mouth-n').setAttribute('opacity',mo>0?'0':'1');
+  if(el('ami-mouth-o'))el('ami-mouth-o').setAttribute('opacity',mo>0?'0.9':'0');
+  if(el('ami-mouth-oi'))el('ami-mouth-oi').setAttribute('opacity',mo>0?'0.8':'0');
+  if(el('ami-t1'))el('ami-t1').setAttribute('opacity',mo>0?'1':'0');
+  if(el('ami-t2'))el('ami-t2').setAttribute('opacity',mo>0?'1':'0');
+  if(mo>0){var ry=Math.sin(Date.now()/75)*2+3.8;if(el('ami-mouth-o'))el('ami-mouth-o').setAttribute('ry',''+ry);if(el('ami-mouth-oi'))el('ami-mouth-oi').setAttribute('ry',''+(ry*.65));}
+  var fUp=AisJ?Math.abs(AJV)*.7:0;
+  if(el('ami-fl'))el('ami-fl').setAttribute('cy',''+(103-fUp*.32));
+  if(el('ami-fr'))el('ami-fr').setAttribute('cy',''+(103-fUp*.32));
+  if(AFartAT>290+Math.random()*240){AFartAT=0;amiDoFart();}
   requestAnimationFrame(amiAnimLoop);
 }
 amiAnimLoop();
-
-// ===== 물리 루프 =====
-function amiPhysLoop() {
-  // 점프
-  if(AisJ) {
-    AJV+=.75; AJO+=AJV;
-    if(AJO>=0) {
-      AJO=0; AJV=0; AisJ=false;
-      if(AStt==='jump') AStt='idle';
-      const r=AMI.getBoundingClientRect();
-      amiDust(r.left+r.width/2, r.bottom);
-    }
-    amiSetPos();
-  }
-
-  // 이동 타이머
+function amiPhysLoop(){
+  if(AisJ){AJV+=.75;AJO+=AJV;if(AJO>=0){AJO=0;AJV=0;AisJ=false;if(AStt==='jump')AStt='idle';var r0=AMI.getBoundingClientRect();amiDust(r0.left+r0.width/2,r0.bottom);}amiSetPos();}
   AMTimer--;
-  if(AMTimer<=0) {
-    AMTimer = 55+~~(Math.random()*110);
-    ATX = 70+Math.random()*(innerWidth-140);
-    const rnd=Math.random();
-
-    if(rnd<.38)      { AStt='idle'; amiDoJump(); }
-    else if(rnd<.50) { AStt='idle'; amiDoJump(); setTimeout(amiDoJump,500); } // 더블점프!
-    else if(rnd<.62) { AStt='lay';  ALTimer=80+~~(Math.random()*60); }
-    else if(rnd<.72) { AStt='sleep';ALTimer=110+~~(Math.random()*70); }
-    else if(rnd<.82) { AStt='hang'; ALTimer=70+~~(Math.random()*50); }
-    else if(rnd<.90) { AStt='stand';ALTimer=60+~~(Math.random()*50); }
-    else             { AStt='idle'; amiDoJump(); amiDoJump(); }
-
-    // 랜덤 말풍선 (조용히)
-    if(Math.random()>.72) {
-      const msgs=['뿡~ 💨','나 여기 있어! 🐰','안녕~! ✨','폴짝폴짝~','탭해줘! 💜','쿠폰 받을래? 🎟️'];
-      amiShowBubble(msgs[~~(Math.random()*msgs.length)], 2200);
-    }
+  if(AMTimer<=0){
+    AMTimer=55+~~(Math.random()*110);ATX=70+Math.random()*(innerWidth-140);
+    var rnd=Math.random();
+    if(rnd<.38){AStt='idle';amiDoJump();}
+    else if(rnd<.50){AStt='idle';amiDoJump();setTimeout(amiDoJump,500);}
+    else if(rnd<.62){AStt='lay';ALTimer=80+~~(Math.random()*60);}
+    else if(rnd<.72){AStt='sleep';ALTimer=110+~~(Math.random()*70);}
+    else if(rnd<.82){AStt='hang';ALTimer=70+~~(Math.random()*50);}
+    else if(rnd<.90){AStt='stand';ALTimer=60+~~(Math.random()*50);}
+    else{AStt='idle';amiDoJump();setTimeout(amiDoJump,400);}
+    if(Math.random()>.72){var mm=['vung!! F','na yeogi! RB','annyeong~ N','polljak!','kupon? T'];var picked=mm[~~(Math.random()*mm.length)];amiShowBubble(picked,2200);}
   }
-
-  // 레이어 타이머
-  if((AStt==='lay'||AStt==='sleep'||AStt==='hang'||AStt==='stand')&&ALTimer>0) {
-    ALTimer--; if(ALTimer<=0) AStt='idle';
-  }
-
-  // 수평 이동
-  if(AStt!=='lay'&&AStt!=='sleep') {
-    const dx=ATX-AAX; AAX+=dx*.036;
-    if(Math.abs(dx)>8) { AFacing=dx>0?1:-1; amiTrail(AAX,innerHeight-60); }
-  }
-  AAX=Math.max(60,Math.min(innerWidth-60,AAX));
-  amiSetPos();
-
+  if((AStt==='lay'||AStt==='sleep'||AStt==='hang'||AStt==='stand')&&ALTimer>0){ALTimer--;if(ALTimer<=0)AStt='idle';}
+  if(AStt!=='lay'&&AStt!=='sleep'){var dx=ATX-AAX;AAX+=dx*.036;if(Math.abs(dx)>8){AFacing=dx>0?1:-1;amiTrail(AAX,innerHeight-60);}}
+  AAX=Math.max(60,Math.min(innerWidth-60,AAX));amiSetPos();
   requestAnimationFrame(amiPhysLoop);
 }
 amiPhysLoop();
-
-function amiDoJump() {
-  if(AisJ) return;
-  AisJ=true; AJV=-(12+Math.random()*5); AStt='jump';
-  const r=AMI.getBoundingClientRect();
-  amiDust(r.left+r.width/2, r.bottom);
-}
-
-// ===== 방구 =====
-function amiDoFart() {
-  const r=AMI.getBoundingClientRect();
-  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+function amiDoJump(){if(AisJ)return;AisJ=true;AJV=-(12+Math.random()*5);AStt='jump';var r=AMI.getBoundingClientRect();amiDust(r.left+r.width/2,r.bottom);}
+function amiDoFart(){
+  var r=AMI.getBoundingClientRect();
+  var cx=r.width>0?r.left+r.width/2:innerWidth/2,cy=r.height>0?r.top+r.height/2:innerHeight-80;
   amiFart(cx,cy);
-  document.getElementById('ami-fi').setAttribute('opacity',1);
-  setTimeout(()=>document.getElementById('ami-fi').setAttribute('opacity',0), 700);
-  const m=['뿡!! 💨 실수야~','앗 방귀!! 부끄러워 😳💨','뿡뿡~! 냄새 안 나지?? 🙊','으앗 미끄러웠어 💨ㅎㅎ','방귀 뿡!! 쏴리~ 💨'][~~(Math.random()*5)];
-  amiShowBubble(m, 2800);
-  if(ASoundON) amiSpeak(m.replace(/[^\w\s가-힣]/g,'').trim());
+  var fi=el('ami-fi');if(fi){fi.setAttribute('opacity','1');setTimeout(function(){fi.setAttribute('opacity','0');},700);}
+  var msgs=['뿡!! 💨 실수야~','앗 방귀!! 😳💨','뿡뿡~! 🙊','으앗! 💨ㅎㅎ','뿡!! 쏴리~💨'];
+  var m=msgs[~~(Math.random()*msgs.length)];
+  amiShowBubble(m,2800);
+  if(ASoundON)amiSpeak(m);
 }
-
-// ===== 클릭 =====
-AMI.addEventListener('click', function(e) {
-  if(e.target.closest('.ami-cb')) return;
-
-  const now=Date.now();
-  if(now-ALastTap<340) { amiToggleChat(); ALastTap=0; return; }
-  ALastTap=now;
-
+AMI.addEventListener('click',function(e){
+  if(e.target.closest&&e.target.closest('.ami-cb'))return;
+  var now=Date.now();if(now-ALastTap<340){amiToggleChat();ALastTap=0;return;}ALastTap=now;
   AClickN++;
-  const r=AMI.getBoundingClientRect();
-  for(let i=0;i<8;i++) APS.push(new AP(r.left+r.width/2+(Math.random()-.5)*20,r.top+r.height/2,'j'));
-
-  if(AClickN%5===0) { amiDoFart(); amiDoJump(); return; }
-
-  amiDoJump(); AStt='idle';
-  const msgs=['안녕!! 나 아미야~ 🐰','폴짝폴짝~! 키키 ✨','간질간질해!! 🌸','또 눌렀어? 😏','나랑 놀자! 💜','🔊버튼 누르면 목소리 나와!','더블탭 = 채팅창! 💬','쿠폰 받을래? 🎟️'];
-  const msg=msgs[~~(Math.random()*msgs.length)];
-  amiShowBubble(msg, 2800);
-  if(ASoundON) amiSpeak(msg.replace(/[^\w\s가-힣]/g,'').trim());
-  AHappyV=1; setTimeout(()=>AHappyV=0, 2200);
+  var r=AMI.getBoundingClientRect();
+  for(var i=0;i<8;i++)APS.push(new AP(r.left+r.width/2+(Math.random()-.5)*20,r.top+r.height/2,'j'));
+  if(AClickN%5===0){amiDoFart();amiDoJump();return;}
+  amiDoJump();AStt='idle';
+  var msgs=['안녕!! 나 아미야~ 🐰','폴짝폴짝~! ✨','간질간질해!! 🌸','또 눌렀어? 😏','나랑 놀자! 💜','목소리 켜봐! 🔊','쿠폰 받을래? 🎟️','더블탭 = 채팅! 💬'];
+  var msg=msgs[~~(Math.random()*msgs.length)];
+  amiShowBubble(msg,2800);if(ASoundON)amiSpeak(msg);
+  AHappyV=1;setTimeout(function(){AHappyV=0;},2200);
 });
-
-// ===== 말풍선 =====
-const ABub=document.getElementById('ami-bubble');
-let ABubT=null;
-function amiShowBubble(txt,dur=3500){
-  ABub.textContent=txt; ABub.className='on';
-  clearTimeout(ABubT);
-  if(dur>0) ABubT=setTimeout(()=>{ABub.className='';},dur);
-}
-
-// ===== 소리 ON/OFF =====
-// 무료 귀여운 어린아이 목소리: Web Speech API pitch=2.0
-// + ElevenLabs 무료티어 or VoiceRSS 무료 API 폴백
-function amiUpdateSoundUI(){
-  const sb=document.getElementById('ami-sbtn-side');
-  sb.textContent=ASoundON?'🔊':'🔇';
-  sb.classList.toggle('ami-act',ASoundON);
-  sb.classList.toggle('ami-muted',!ASoundON);
-  const stb=document.getElementById('ami-stbtn');
-  stb.textContent=ASoundON?'ON':'OFF';
-  stb.className=ASoundON?'on':'off';
-  document.getElementById('ami-stxt').textContent=
-    ASoundON?'켜짐 — 목소리로 대화':'꺼짐 — 말풍선으로 표시';
-}
-function amiToggleSound(){
-  ASoundON=!ASoundON;
-  amiUpdateSoundUI();
-  if(ASoundON){
-    amiShowBubble('소리 켰어!! 🔊
-이제 목소리로 얘기해~!',3000);
-    amiDoJump();
-    // 즉시 목소리 테스트
-    setTimeout(()=>amiSpeak('소리 켰어! 이제 목소리로 얘기해!'),300);
-  } else {
-    amiShowBubble('조용 모드~ 🤫
-말풍선으로 얘기할게!',2800);
-    if(window.speechSynthesis) speechSynthesis.cancel();
-    amiDoJump();
-  }
-}
-
-// ===== 목소리 (무료 어린아이 톤) =====
-// Web Speech API: pitch 2.0 최고값 = 가장 귀여운 고음
-// VoiceRSS 무료 API도 폴백으로 지원
-if(window.speechSynthesis) {
-  speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices();
-}
-
-function amiSpeak(txt) {
-  if(!ASoundON||!txt||txt.length<1) return;
-  if(!window.speechSynthesis) return;
-
-  speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(txt);
-  u.lang='ko-KR';
-  u.pitch=2.0;   // 최대 고음 = 어린아이 톤!
-  u.rate=1.15;   // 약간 빠르게 (활발함)
-  u.volume=0.95;
-
-  // 한국어 여성/어린이 목소리 선택 우선순위
-  const vv=speechSynthesis.getVoices();
-  const kv =
-    vv.find(v=>v.lang.includes('ko')&&/female|woman|girl|수진|지수|나나|유나/i.test(v.name)) ||
-    vv.find(v=>v.lang==='ko-KR') ||
-    vv.find(v=>v.lang.includes('ko')) ||
-    vv.find(v=>v.lang.includes('KR'));
-  if(kv) u.voice=kv;
-
-  u.onstart=()=>{ AMouthO=1; };
-  u.onend=()=>{ AMouthO=0; };
-  u.onerror=()=>{ AMouthO=0; };
-  speechSynthesis.speak(u);
-}
-
-// ===== 마이크 =====
-function amiToggleMic(){
-  if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){
-    amiShowBubble('크롬 브라우저에서만
-음성인식이 돼요! 😢',3000);return;
-  }
-  if(AMicON){ASRecog&&ASRecog.stop();return;}
-  if(!ASoundON){ASoundON=true;amiUpdateSoundUI();}
-
-  ASRecog=new(window.SpeechRecognition||window.webkitSpeechRecognition)();
-  ASRecog.lang='ko-KR';ASRecog.interimResults=false;ASRecog.maxAlternatives=1;
-  ASRecog.onstart=()=>{
-    AMicON=true;
-    document.getElementById('ami-mic-side').classList.add('ami-rec');
-    document.getElementById('ami-mic').classList.add('rec');
-    amiShowBubble('듣고 있어!! 🎤
-말해봐~!',15000);
-  };
-  ASRecog.onresult=e=>{
-    const t=e.results[0][0].transcript;
-    document.getElementById('ami-inp').value=t;
-    if(!AChatOpen) amiToggleChat();
-    amiSend();
-  };
-  ASRecog.onend=()=>{
-    AMicON=false;
-    document.getElementById('ami-mic-side').classList.remove('ami-rec');
-    document.getElementById('ami-mic').classList.remove('rec');
-    ABub.className='';
-  };
-  ASRecog.onerror=()=>{
-    AMicON=false;
-    document.getElementById('ami-mic-side').classList.remove('ami-rec');
-    document.getElementById('ami-mic').classList.remove('rec');
-    amiShowBubble('마이크 오류! 다시 눌러봐~ 😅',2500);
-  };
-  ASRecog.start();
-}
-
-// ===== 채팅 =====
-function amiToggleChat(){
-  AChatOpen=!AChatOpen;
-  document.getElementById('ami-chat').classList.toggle('open',AChatOpen);
-  document.getElementById('ami-chat-btn').classList.toggle('ami-act',AChatOpen);
-  if(AChatOpen){ ABub.className=''; setTimeout(()=>document.getElementById('ami-inp').focus(),400); }
-}
-
-// ===== Claude API =====
-const AMI_SYS=`당신은 아미(Ami)예요! PetCTT의 귀여운 흰토끼 AI 친구 🐰
-나이: 6~7살 소녀처럼 말함. 말투: 반말, 짧고 귀엽게, 이모지 많이! 2~3문장 이내.
-역할: PetCTT 안내 (쿠폰게임, 구름장터, 반려동물 AI통역, 매장입점, 스마트글래스예정).
-가끔 방귀 드립 OK. 항상 한국어. 모르면 솔직하게 "나도 몰라~" 라고 해요.
-PetCTT 서비스: 반려동물 AI통역, 쿠폰 게임, 구름장터 쇼핑, 매장 쿠폰, 스마트글래스 준비중.`;
-
-async function amiCallClaude(msg){
-  if(!PAYWALL.canUse('chat')){
-    PAYWALL.showPopup('chat');
-    return '아미가 오늘 대화를 너무 많이 했어~ 💜\nPro로 업그레이드하면 무제한으로 얘기할 수 있어! ⚡';
-  }
-  PAYWALL.addCount('chat');
-  AHist.push({role:'user',content:msg});
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:AMI_SYS,messages:AHist.slice(-10)})
-    });
-    const d=await res.json();
-    const r=d.content?.[0]?.text||'앗 잠깐 연결 이상해~ 다시 해줘! 🙊';
-    AHist.push({role:'assistant',content:r});return r;
-  }catch(e){return '아이고~ 잠깐 연결 끊겼어! 다시 말해줘~ 💜';}
-}
-
-const ALog=document.getElementById('ami-log');
-function amiAddU(t){const d=document.createElement('div');d.className='ami-mu';d.textContent=t;ALog.appendChild(d);ALog.scrollTop=ALog.scrollHeight;}
-function amiAddDots(){const d=document.createElement('div');d.className='ami-ma';d.innerHTML='<div class="ami-ma-nm">🐰 아미</div><div class="ami-dots"><span></span><span></span><span></span></div>';ALog.appendChild(d);ALog.scrollTop=ALog.scrollHeight;return d;}
-function amiAddAT(){const d=document.createElement('div');d.className='ami-ma';d.innerHTML='<div class="ami-ma-nm">🐰 아미</div><div></div>';ALog.appendChild(d);ALog.scrollTop=ALog.scrollHeight;return d.querySelector('div:last-child');}
-
-async function amiSend(){
-  const inp=document.getElementById('ami-inp');
-  const t=inp.value.trim();if(!t)return;inp.value='';
-  if(!AChatOpen) amiToggleChat();
-  amiAddU(t);amiDoJump();
-  if(Math.random()>.65) setTimeout(amiDoFart,600);
-  const dots=amiAddDots();
-  const rep=await amiCallClaude(t);
-  dots.remove();
-  const td=amiAddAT();
-  amiShowBubble(rep.substring(0,48)+(rep.length>48?'…':''),5500);
-  AMouthO=ASoundON?1:0; AHappyV=1;
-  let i=0;
-  const ti=setInterval(()=>{
-    if(i<rep.length){td.textContent+=rep[i++];ALog.scrollTop=ALog.scrollHeight;}
-    else{clearInterval(ti);AMouthO=0;setTimeout(()=>AHappyV=0,2500);}
-  },20);
-  amiSpeak(rep.replace(/[^\w\s가-힣]/g,'').trim());
-}
-function amiQ(q){document.getElementById('ami-inp').value=q;amiSend();}
-
-// 배경 클릭 파티클
-document.addEventListener('click',e=>{
-  if(!e.target.closest('#ami-root')&&!e.target.closest('#ami-chat'))
-    for(let i=0;i<4;i++) APS.push(new AP(e.clientX+(Math.random()-.5)*10,e.clientY+(Math.random()-.5)*10,'j'));
-});
-
-// 기존 activateAmi 오버라이드
+var ABub=el('ami-bubble'),ABubT=null;
+function amiShowBubble(txt,dur){if(!ABub)return;dur=dur||3500;ABub.textContent=txt;ABub.className='on';clearTimeout(ABubT);if(dur>0)ABubT=setTimeout(function(){ABub.className='';},dur);}
+function amiUpdateSoundUI(){var sb=el('ami-sbtn-side');if(sb){sb.textContent=ASoundON?'🔊':'🔇';sb.className='ami-cb '+(ASoundON?'ami-act':'ami-muted');}var stb=el('ami-stbtn');if(stb){stb.textContent=ASoundON?'ON':'OFF';stb.className=ASoundON?'on':'off';}var stxt=el('ami-stxt');if(stxt)stxt.textContent=ASoundON?'켜짐':'꺼짐';}
+function amiToggleSound(){ASoundON=!ASoundON;amiUpdateSoundUI();if(ASoundON){amiShowBubble('소리 켰어!! 🔊',3000);amiDoJump();setTimeout(function(){amiSpeak('소리 켰어!');},300);}else{amiShowBubble('조용 모드~ 🤫',2800);if(window.speechSynthesis)speechSynthesis.cancel();amiDoJump();}}
+if(window.speechSynthesis)speechSynthesis.onvoiceschanged=function(){speechSynthesis.getVoices();};
+function amiSpeak(txt){if(!ASoundON||!txt||!window.speechSynthesis)return;speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(txt.replace(/[\u{1F300}-\u{1FFFF}]/gu,''));u.lang='ko-KR';u.pitch=2.0;u.rate=1.18;u.volume=.95;var vv=speechSynthesis.getVoices();for(var i=0;i<vv.length;i++){if(vv[i].lang.indexOf('ko')>=0){u.voice=vv[i];break;}}u.onstart=function(){AMouthO=1;};u.onend=function(){AMouthO=0;};speechSynthesis.speak(u);}
+function amiToggleMic(){if(!window.SpeechRecognition&&!window.webkitSpeechRecognition){amiShowBubble('크롬에서만 가능해요',3000);return;}if(AMicON){ASRecog&&ASRecog.stop();return;}if(!ASoundON){ASoundON=true;amiUpdateSoundUI();}ASRecog=new(window.SpeechRecognition||window.webkitSpeechRecognition)();ASRecog.lang='ko-KR';ASRecog.interimResults=false;ASRecog.onstart=function(){AMicON=true;var b=el('ami-mic-side');if(b)b.classList.add('ami-rec');amiShowBubble('듣고 있어!! 🎤',15000);};ASRecog.onresult=function(e){var t=e.results[0][0].transcript;var inp=el('ami-inp');if(inp)inp.value=t;if(!AChatOpen)amiToggleChat();amiSend();};ASRecog.onend=function(){AMicON=false;var b=el('ami-mic-side');if(b)b.classList.remove('ami-rec');if(ABub)ABub.className='';};ASRecog.start();}
+function amiToggleChat(){AChatOpen=!AChatOpen;var panel=el('ami-chat');if(panel)panel.classList.toggle('open',AChatOpen);var btn=el('ami-chat-btn');if(btn)btn.classList.toggle('ami-act',AChatOpen);if(AChatOpen){if(ABub)ABub.className='';setTimeout(function(){var i=el('ami-inp');if(i)i.focus();},400);}}
+var AMI_SYS='당신은 아미(Ami)예요! PetCTT의 귀여운 흰토끼 AI 친구. 6~7살 소녀처럼 말함. 짧고 귀엽게, 이모지 많이! 2~3문장 이내. 한국어. PetCTT 쿠폰게임, 구름장터, AI통역, 매장입점 안내.';
+async function amiCallClaude(msg){if(window.PAYWALL&&!PAYWALL.canUse('chat')){PAYWALL.showPopup('chat');return '아미가 오늘 너무 많이 대화했어~ Pro로 업그레이드하면 무제한! ⚡';}if(window.PAYWALL)PAYWALL.addCount('chat');AHist.push({role:'user',content:msg});try{var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:AMI_SYS,messages:AHist.slice(-10)})});var d=await res.json();var r=d.content&&d.content[0]&&d.content[0].text||'앗 잠깐 연결 이상해~ 🙊';AHist.push({role:'assistant',content:r});return r;}catch(e){return '아이고~ 잠깐 연결 끊겼어! 💜';}}
+var ALog=el('ami-log');
+function amiAddU(t){if(!ALog)return;var d=document.createElement('div');d.className='ami-mu';d.textContent=t;ALog.appendChild(d);ALog.scrollTop=ALog.scrollHeight;}
+function amiAddDots(){if(!ALog)return null;var d=document.createElement('div');d.className='ami-ma';d.innerHTML='<div class="ami-ma-nm">🐰 아미</div><div class="ami-dots"><span></span><span></span><span></span></div>';ALog.appendChild(d);ALog.scrollTop=ALog.scrollHeight;return d;}
+function amiAddAT(){if(!ALog)return document.createElement('div');var d=document.createElement('div');d.className='ami-ma';d.innerHTML='<div class="ami-ma-nm">🐰 아미</div><div></div>';ALog.appendChild(d);ALog.scrollTop=ALog.scrollHeight;return d.querySelector('div:last-child');}
+async function amiSend(){var inp=el('ami-inp');if(!inp)return;var t=inp.value.trim();if(!t)return;inp.value='';if(!AChatOpen)amiToggleChat();amiAddU(t);amiDoJump();if(Math.random()>.68)setTimeout(amiDoFart,600);var dots=amiAddDots();var rep=await amiCallClaude(t);if(dots)dots.remove();var td=amiAddAT();amiShowBubble(rep.substring(0,50)+(rep.length>50?'…':''),5500);AMouthO=ASoundON?1:0;AHappyV=1;var ii=0;var ti=setInterval(function(){if(ii<rep.length){td.textContent+=rep[ii++];if(ALog)ALog.scrollTop=ALog.scrollHeight;}else{clearInterval(ti);AMouthO=0;setTimeout(function(){AHappyV=0;},2500);}},20);amiSpeak(rep);}
+function amiQ(q){var i=el('ami-inp');if(i){i.value=q;amiSend();}}
+document.addEventListener('click',function(e){if(e.target.closest&&(e.target.closest('#ami-root')||e.target.closest('#ami-chat')))return;for(var i=0;i<4;i++)APS.push(new AP(e.clientX+(Math.random()-.5)*10,e.clientY+(Math.random()-.5)*10,'j'));});
 window.activateAmi=function(){amiDoJump();amiDoFart();};
-
-// ===== 등장! =====
-setTimeout(()=>{
-  amiDoJump();
-  const r=AMI.getBoundingClientRect();
-  amiFart(r.left+44,r.top+60,26);
-  for(let i=0;i<20;i++) APS.push(new AP(r.left+(Math.random()-.5)*60+44,r.top+50,'j'));
-  setTimeout(()=>{
-    const msg='안녕!! 나 아미야~ 🐰💜
-🔊누르면 목소리도 나와!';
-    amiShowBubble(msg,6000);
-    AHappyV=1;setTimeout(()=>AHappyV=0,3000);
-    // 채팅에도 추가
-    const td=amiAddAT();
-    const full='안녕!! 나 아미야~ 🐰💜 뭐든 물어봐! 쿠폰도 알려줄게~!';
-    let i=0;const ti=setInterval(()=>{if(i<full.length)td.textContent+=full[i++];else clearInterval(ti);},28);
-  },700);
-},1100);
+window.amiToggleSound=amiToggleSound;window.amiToggleMic=amiToggleMic;window.amiToggleChat=amiToggleChat;window.amiSend=amiSend;window.amiQ=amiQ;
+// 등장
+amiDoJump();
+var rInit=AMI.getBoundingClientRect();
+amiFart(rInit.width>0?rInit.left+rInit.width/2:innerWidth/2,rInit.height>0?rInit.top+rInit.height/2:innerHeight-80,20);
+setTimeout(function(){
+  amiShowBubble('안녕!! 나 아미야~ 🐰💜\n🔊누르면 목소리도 나와!',6000);
+  AHappyV=1;setTimeout(function(){AHappyV=0;},3000);
+  if(ALog){var td=amiAddAT();var full='안녕!! 나 아미야~ 🐰💜 뭐든 물어봐!';var ii=0;var ti=setInterval(function(){if(ii<full.length)td.textContent+=full[ii++];else clearInterval(ti);},28);}
+},500);
+})();
 </script>
 
 <script>

@@ -177,7 +177,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
             </div>
             <span style="font-size:13px;font-weight:900;color:#fbbf24">100%</span>
           </div>
-          <div style="font-size:11px;color:var(--text2);margin-top:4px">구독료 · 쿠폰수수료 · 가맹비 · 광고비 · 기타</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px">구독료 · 쿠폰수수료 · 가맹비 · 광고비 · 매장입점 판매수수료 · 기타</div>
         </div>
         <div class="flow-arrow">↓ 시스템 자동 분배</div>
         <div class="flow-item flow-hq">
@@ -233,7 +233,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
   <div id="tab-txn" class="tab-content">
     <div class="notice notice-txn">
       💰 <b>원천거래 등록</b>: 현장에서 발생한 매출/수수료를 여기에 입력하면<br>
-      설정된 비율(본사 <span id="txn-hq-rate">60</span>% · 총판 <span id="txn-dist-rate">25</span>% · 대리점 <span id="txn-agent-rate">15</span>%)대로 <b>자동 분배</b>됩니다
+      설정된 비율(본사 <span id="txn-hq-rate"></span>% · 총판 <span id="txn-dist-rate"></span>% · 대리점 <span id="txn-agent-rate"></span>%)대로 <b>자동 분배</b>됩니다
     </div>
 
     <div class="card">
@@ -245,6 +245,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
           <option value="coupon_fee">쿠폰 수수료</option>
           <option value="merchant_fee">가맹점 수수료</option>
           <option value="ad_fee">광고비</option>
+          <option value="store_fee">매장입점 판매수수료</option>
           <option value="etc">기타</option>
         </select>
       </div>
@@ -296,6 +297,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
           <option value="coupon_fee">쿠폰 수수료</option>
           <option value="merchant_fee">가맹점 수수료</option>
           <option value="ad_fee">광고비</option>
+          <option value="store_fee">매장입점 판매수수료</option>
           <option value="etc">기타</option>
         </select>
         <select class="sel" id="txn-filter-status" style="min-width:100px">
@@ -495,7 +497,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
 // ===== 상수 =====
 var PW = 'valore2026';
 var STORE_KEY = 'valore_settlement_v2';
-var TYPE_MAP = {subscription:'구독료',coupon_fee:'쿠폰수수료',merchant_fee:'가맹점수수료',ad_fee:'광고비',etc:'기타'};
+var TYPE_MAP = {subscription:'구독료',coupon_fee:'쿠폰수수료',merchant_fee:'가맹점수수료',ad_fee:'광고비',store_fee:'매장입점 판매수수료',etc:'기타'};
 
 // ===== 로그인 =====
 function doLogin(){

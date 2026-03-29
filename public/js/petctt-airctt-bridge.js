@@ -104,13 +104,80 @@ function goToMerchantSignup() {
   bridgeToAirCTT('/merchant');
 }
 
+// ===== 양방향 로그아웃 연동 =====
+function bridgeLogout() {
+  // 모든 세션 키 삭제
+  var keys = [
+    'petctt_unified_auth',
+    'petctt_user',
+    'airctt_consumer_user',
+    'airctt_consumer_session',
+    'airctt_merchant_user',
+    'airctt_merchant_session'
+  ];
+  keys.forEach(function(k){ localStorage.removeItem(k); });
+
+  // 카카오 로그아웃
+  try {
+    if (window.Kakao && Kakao.isInitialized && Kakao.isInitialized()) {
+      if (Kakao.Auth && Kakao.Auth.getAccessToken && Kakao.Auth.getAccessToken()) {
+        Kakao.Auth.logout();
+      }
+    }
+  } catch(e) {}
+
+  console.log('[Bridge] 양방향 로그아웃 완료');
+}
+
+// ValoreAuth.logout에 브리지 연결
+function setupBridgeLogout() {
+  if (window.ValoreAuth) {
+    var origLogout = ValoreAuth.logout.bind(ValoreAuth);
+    ValoreAuth.logout = function(redirectUrl) {
+      bridgeLogout();
+      origLogout(redirectUrl);
+    };
+  }
+}
+
+// auth:ready 이벤트에서 브리지 세션 복원
+window.addEventListener('auth:ready', function(e) {
+  var user = e.detail;
+  if (user) {
+    // PetCTT 로그인 시 AIRCTT 세션도 동기화
+    var data = JSON.stringify(user);
+    localStorage.setItem('airctt_consumer_user', data);
+    localStorage.setItem('airctt_consumer_session', JSON.stringify({
+      access_token: user.token || '',
+      user: user
+    }));
+  }
+  setupBridgeLogout();
+});
+
+// getPetCTTUser를 ValoreAuth 우선으로 업데이트
+function getPetCTTUserV2() {
+  try {
+    if (window.ValoreAuth) {
+      var u = ValoreAuth.getUser();
+      if (u) return u;
+    }
+    return JSON.parse(
+      localStorage.getItem('petctt_unified_auth') ||
+      localStorage.getItem('petctt_user') ||
+      localStorage.getItem('airctt_consumer_user') || 'null'
+    );
+  } catch(e) { return null; }
+}
+
 // 전역 노출
 window.PetCTTBridge = {
-  bridgeToAirCTT,
-  syncAirCTTCoupons,
-  goToCouponSearch,
-  goToMerchantSignup,
-  getPetCTTUser
+  bridgeToAirCTT: bridgeToAirCTT,
+  bridgeLogout: bridgeLogout,
+  syncAirCTTCoupons: syncAirCTTCoupons,
+  goToCouponSearch: goToCouponSearch,
+  goToMerchantSignup: goToMerchantSignup,
+  getPetCTTUser: getPetCTTUserV2
 };
 
-console.log('[PetCTT Bridge v1.0] 로드됨 - PetCTT ↔ AIRCTT 세션 연동 준비 완료');
+console.log('[PetCTT Bridge v2.0] 로드됨 - petctt ↔ airctt 양방향 세션 연동 완료');

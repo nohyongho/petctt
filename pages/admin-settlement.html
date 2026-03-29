@@ -131,8 +131,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
   <!-- ① 정산 개요 -->
   <div id="tab-overview" class="tab-content active">
     <div class="notice">
-      💡 <b>실운영 정산 흐름</b>: 현장에서 원천거래 발생 → 시스템이 자동으로 본사/총판/대리점 몫 배분 → 본사가 월별 승인/지급<br>
-      <b>원천거래 등록</b> 탭에서 매출을 입력하면 비율대로 자동 분배됩니다
+      💡 <b>실운영 정산 흐름</b>: 가맹점 매출 발생 → 수수료율 적용 → 플랫폼 수수료를 본사/총판/대리점 자동 분배 → 가맹점은 매출-수수료 수령<br>
+      배민/쿠팡과 동일한 구조: <b>매출 × 수수료율 = 수수료 → 수수료를 분배</b>
     </div>
 
     <div class="card">
@@ -140,21 +140,21 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
       <div class="stat-grid">
         <div class="stat-box">
           <div class="stat-val" id="ov-total" style="color:var(--accent2)">₩0</div>
-          <div class="stat-lbl">총 매출 (원천거래)</div>
+          <div class="stat-lbl">가맹점 총 매출</div>
         </div>
         <div class="stat-box">
-          <div class="stat-val" id="ov-hq" style="color:#a5b4fc">₩0</div>
-          <div class="stat-lbl">본사 배분액</div>
+          <div class="stat-val" id="ov-fee-total" style="color:#fbbf24">₩0</div>
+          <div class="stat-lbl">플랫폼 수수료 합계</div>
         </div>
         <div class="stat-box">
-          <div class="stat-val" id="ov-dist" style="color:#67e8f9">₩0</div>
-          <div class="stat-lbl">총판 배분 합계</div>
+          <div class="stat-val" id="ov-merch-payout" style="color:#f472b6">₩0</div>
+          <div class="stat-lbl">가맹점 정산 합계</div>
         </div>
       </div>
       <div class="stat-grid">
         <div class="stat-box">
-          <div class="stat-val" id="ov-agent" style="color:#6ee7b7">₩0</div>
-          <div class="stat-lbl">대리점 배분 합계</div>
+          <div class="stat-val" id="ov-hq" style="color:#a5b4fc">₩0</div>
+          <div class="stat-lbl">본사 배분액</div>
         </div>
         <div class="stat-box">
           <div class="stat-val" id="ov-txn-count" style="color:#fbbf24">0</div>
@@ -179,13 +179,13 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
           <div style="display:flex;justify-content:space-between;align-items:center">
             <div>
               <span class="badge-txn">원천</span>
-              <span style="font-size:13px;font-weight:700;margin-left:8px">원천거래 발생 (현장)</span>
+              <span style="font-size:13px;font-weight:700;margin-left:8px">가맹점 매출 발생</span>
             </div>
             <span style="font-size:13px;font-weight:900;color:#fbbf24">100%</span>
           </div>
-          <div style="font-size:11px;color:var(--text2);margin-top:4px">구독료 · 쿠폰수수료 · 가맹비 · 광고비 · 매장입점 판매수수료 · 기타</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px">가맹점 매출에서 수수료율(%)만큼 플랫폼 수수료 산출</div>
         </div>
-        <div class="flow-arrow">↓ 시스템 자동 분배</div>
+        <div class="flow-arrow">↓ 수수료에서 자동 분배 (가맹점은 나머지 수령)</div>
         <div class="flow-item flow-hq">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <div>
@@ -226,7 +226,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
       <div class="card-title">⏰ 미승인 원천거래</div>
       <table class="tbl">
         <thead><tr>
-          <th>날짜</th><th>유형</th><th>업체명</th><th>금액</th><th>총판</th><th>대리점</th><th>처리</th>
+          <th>날짜</th><th>유형</th><th>업체명</th><th>매출</th><th>수수료</th><th>총판</th><th>대리점</th><th>처리</th>
         </tr></thead>
         <tbody id="pending-txn-tbody">
           <tr><td colspan="7" class="empty">미승인 거래 없음 👍</td></tr>
@@ -238,8 +238,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
   <!-- ★ 원천거래 등록 탭 (신설) -->
   <div id="tab-txn" class="tab-content">
     <div class="notice notice-txn">
-      💰 <b>원천거래 등록</b>: 현장에서 발생한 매출/수수료를 여기에 입력하면<br>
-      설정된 비율(본사 <span id="txn-hq-rate"></span>% · 총판 <span id="txn-dist-rate"></span>% · 대리점 <span id="txn-agent-rate"></span>%)대로 <b>자동 분배</b>됩니다
+      💰 <b>원천거래 등록</b>: 가맹점 매출을 입력하면 <b>수수료율</b>만큼 플랫폼 수수료가 산출되고<br>
+      그 수수료를 본사(<span id="txn-hq-rate"></span>%) · 총판(<span id="txn-dist-rate"></span>%) · 대리점(<span id="txn-agent-rate"></span>%)이 <b>자동 분배</b>합니다 (가맹점은 나머지 수령)
     </div>
 
     <div class="card">
@@ -260,7 +260,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
           <option value="">가맹점 선택 (또는 직접입력)</option>
         </select>
         <input class="inp" type="text" id="txn-biz-name" placeholder="업체명 (직접입력)">
-        <input class="inp" type="number" id="txn-amount" placeholder="금액 (원)">
+        <input class="inp" type="number" id="txn-amount" placeholder="가맹점 매출액 (원)">
+        <input class="inp" type="number" id="txn-fee-rate" placeholder="수수료율 (%)" value="10" min="0" max="100" style="max-width:120px" oninput="updateTxnPreview()">
       </div>
       <div class="form-row">
         <select class="sel" id="txn-dist">
@@ -277,19 +278,34 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
 
       <!-- 자동 분배 미리보기 -->
       <div id="txn-preview" style="display:none;margin-top:12px;padding:12px;background:var(--bg3);border-radius:12px;border:1px solid var(--border2)">
-        <div style="font-size:11px;color:var(--text2);margin-bottom:8px">💡 자동 분배 미리보기</div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <div style="flex:1;text-align:center">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:8px">💡 수수료 분배 미리보기</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+          <div style="flex:1;text-align:center;padding:8px;background:var(--bg);border-radius:8px">
+            <div style="font-size:10px;color:var(--text2)">가맹점 매출</div>
+            <div id="preview-sales" style="font-size:14px;font-weight:900;color:var(--accent2)">₩0</div>
+          </div>
+          <div style="flex:1;text-align:center;padding:8px;background:var(--bg);border-radius:8px">
+            <div style="font-size:10px;color:#fbbf24">플랫폼 수수료</div>
+            <div id="preview-fee" style="font-size:14px;font-weight:900;color:#fbbf24">₩0</div>
+          </div>
+          <div style="flex:1;text-align:center;padding:8px;background:var(--bg);border-radius:8px">
+            <div style="font-size:10px;color:#f472b6">가맹점 정산액</div>
+            <div id="preview-merch-payout" style="font-size:14px;font-weight:900;color:#f472b6">₩0</div>
+          </div>
+        </div>
+        <div style="font-size:10px;color:var(--text3);text-align:center;margin-bottom:6px">↓ 플랫폼 수수료 분배 ↓</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <div style="flex:1;text-align:center;padding:6px;background:rgba(99,102,241,.1);border-radius:8px">
             <div style="font-size:10px;color:var(--text2)">본사 몫</div>
-            <div id="preview-hq" style="font-size:14px;font-weight:900;color:#a5b4fc">₩0</div>
+            <div id="preview-hq" style="font-size:13px;font-weight:900;color:#a5b4fc">₩0</div>
           </div>
-          <div style="flex:1;text-align:center">
+          <div style="flex:1;text-align:center;padding:6px;background:rgba(6,182,212,.1);border-radius:8px">
             <div style="font-size:10px;color:var(--text2)">총판 몫</div>
-            <div id="preview-dist" style="font-size:14px;font-weight:900;color:#67e8f9">₩0</div>
+            <div id="preview-dist" style="font-size:13px;font-weight:900;color:#67e8f9">₩0</div>
           </div>
-          <div style="flex:1;text-align:center">
+          <div style="flex:1;text-align:center;padding:6px;background:rgba(16,185,129,.1);border-radius:8px">
             <div style="font-size:10px;color:var(--text2)">대리점 몫</div>
-            <div id="preview-agent" style="font-size:14px;font-weight:900;color:#6ee7b7">₩0</div>
+            <div id="preview-agent" style="font-size:13px;font-weight:900;color:#6ee7b7">₩0</div>
           </div>
         </div>
       </div>
@@ -318,8 +334,8 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
       </div>
       <table class="tbl">
         <thead><tr>
-          <th>날짜</th><th>유형</th><th>업체명</th><th>총액</th>
-          <th>본사</th><th>총판</th><th>대리점</th><th>상태</th><th></th>
+          <th>날짜</th><th>유형</th><th>업체명</th><th>매출</th><th>수수료율</th><th>수수료</th>
+          <th>본사</th><th>총판</th><th>대리점</th><th>가맹점정산</th><th>상태</th><th></th>
         </tr></thead>
         <tbody id="txn-tbody">
           <tr><td colspan="9" class="empty">등록된 원천거래 없음</td></tr>
@@ -331,7 +347,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
   <!-- ② 본사 탭 (조회/집계/승인 중심) -->
   <div id="tab-hq" class="tab-content">
     <div class="notice">
-      🏢 본사는 원천거래에서 <b>자동 배분된 금액</b>을 집계하고, 총판/대리점 지급을 <b>승인/처리</b>합니다
+      🏢 본사는 가맹점 매출에서 발생한 <b>플랫폼 수수료 중 본사 몫</b>을 집계하고, 총판/대리점 지급을 <b>승인/처리</b>합니다
     </div>
 
     <div class="card">
@@ -431,10 +447,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
       <table class="tbl">
         <thead><tr>
           <th>코드</th><th>가맹점명</th><th>업종</th><th>소속 총판</th><th>소속 대리점</th>
-          <th>이번달 매출</th><th>거래건수</th><th></th>
+          <th>이번달 매출</th><th>정산액</th><th>거래건수</th><th></th>
         </tr></thead>
         <tbody id="merch-tbody">
-          <tr><td colspan="8" class="empty">등록된 가맹점 없음</td></tr>
+          <tr><td colspan="9" class="empty">등록된 가맹점 없음</td></tr>
         </tbody>
       </table>
     </div>
@@ -517,7 +533,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
       <table class="tbl">
         <thead><tr>
           <th>구분</th><th>업체명</th><th>거래건수</th>
-          <th>거래총액</th><th>배분율</th><th>배분액</th><th>지급 상태</th><th>처리</th>
+          <th>매출총액</th><th>수수료합계</th><th>배분율</th><th>배분액</th><th>지급 상태</th><th>처리</th>
         </tr></thead>
         <tbody id="settle-all-tbody">
           <tr><td colspan="8" class="empty">정산 월을 선택하고 계산 버튼을 눌러요</td></tr>
@@ -623,13 +639,19 @@ function initApp(){
 // ===== 원천거래 자동 분배 미리보기 =====
 function updateTxnPreview(){
   var amount = parseInt(document.getElementById('txn-amount').value) || 0;
+  var feeRate = parseFloat(document.getElementById('txn-fee-rate').value) || 0;
   var preview = document.getElementById('txn-preview');
   if(amount > 0){
+    var fee = Math.round(amount * feeRate / 100);
+    var merchPayout = amount - fee;
     var rules = getRules();
     preview.style.display = 'block';
-    document.getElementById('preview-hq').textContent = fmt(Math.round(amount * rules.hq / 100));
-    document.getElementById('preview-dist').textContent = fmt(Math.round(amount * rules.dist / 100));
-    document.getElementById('preview-agent').textContent = fmt(Math.round(amount * rules.agent / 100));
+    document.getElementById('preview-sales').textContent = fmt(amount);
+    document.getElementById('preview-fee').textContent = fmt(fee) + ' (' + feeRate + '%)';
+    document.getElementById('preview-merch-payout').textContent = fmt(merchPayout);
+    document.getElementById('preview-hq').textContent = fmt(Math.round(fee * rules.hq / 100));
+    document.getElementById('preview-dist').textContent = fmt(Math.round(fee * rules.dist / 100));
+    document.getElementById('preview-agent').textContent = fmt(Math.round(fee * rules.agent / 100));
   } else {
     preview.style.display = 'none';
   }
@@ -697,10 +719,13 @@ function renderOverview(){
   var totalRev = monthTxns.reduce(function(s,t){ return s + t.amount; }, 0);
   var pendingCount = monthTxns.filter(function(t){ return t.status === 'pending'; }).length;
 
+  var totalFee = monthTxns.reduce(function(s,t){ return s + (t.fee||0); }, 0);
+  var totalMerchPayout = monthTxns.reduce(function(s,t){ return s + (t.merchPayout||0); }, 0);
+  var totalHq = monthTxns.reduce(function(s,t){ return s + (t.hqAmount||0); }, 0);
   document.getElementById('ov-total').textContent = fmt(totalRev);
-  document.getElementById('ov-hq').textContent = fmt(Math.round(totalRev * rules.hq / 100));
-  document.getElementById('ov-dist').textContent = fmt(Math.round(totalRev * rules.dist / 100));
-  document.getElementById('ov-agent').textContent = fmt(Math.round(totalRev * rules.agent / 100));
+  document.getElementById('ov-fee-total').textContent = fmt(totalFee);
+  document.getElementById('ov-merch-payout').textContent = fmt(totalMerchPayout);
+  document.getElementById('ov-hq').textContent = fmt(totalHq);
   document.getElementById('ov-txn-count').textContent = monthTxns.length;
   document.getElementById('ov-pending-count').textContent = pendingCount;
   document.getElementById('ov-merch-count').textContent = getData('merchants').length;
@@ -709,11 +734,12 @@ function renderOverview(){
   var pendingTxns = txns.filter(function(t){ return t.status === 'pending'; });
   var pb = document.getElementById('pending-txn-tbody');
   if(pendingTxns.length === 0){
-    pb.innerHTML = '<tr><td colspan="7" class="empty">미승인 거래 없음 👍</td></tr>';
+    pb.innerHTML = '<tr><td colspan="8" class="empty">미승인 거래 없음 👍</td></tr>';
   } else {
     pb.innerHTML = pendingTxns.map(function(t){
       return '<tr><td>'+t.date+'</td><td>'+(TYPE_MAP[t.type]||t.type)+'</td><td>'+t.bizName+'</td>'+
         '<td style="font-weight:700;color:var(--accent2)">'+fmt(t.amount)+'</td>'+
+        '<td style="color:#fbbf24">'+fmt(t.fee||0)+'</td>'+
         '<td>'+(t.distName||'—')+'</td><td>'+(t.agentName||'—')+'</td>'+
         '<td><button class="btn btn-success btn-sm" onclick="approveTxn('+t.id+')">✅ 승인</button> '+
         '<button class="btn btn-danger btn-sm" onclick="delTxn('+t.id+')">삭제</button></td></tr>';
@@ -730,6 +756,7 @@ function addTxn(){
   var distName = document.getElementById('txn-dist').value;
   var agentName = document.getElementById('txn-agent').value;
   var memo = document.getElementById('txn-memo').value.trim();
+  var feeRate = parseFloat(document.getElementById('txn-fee-rate').value) || 0;
 
   if(!date || !bizName || !amount){
     alert('날짜, 업체명, 금액을 입력해요!');
@@ -737,6 +764,8 @@ function addTxn(){
   }
 
   var rules = getRules();
+  var fee = Math.round(amount * feeRate / 100);
+  var merchPayout = amount - fee;
   var txns = getData('transactions');
   txns.push({
     id: Date.now(),
@@ -744,12 +773,15 @@ function addTxn(){
     type: type,
     bizName: bizName,
     amount: amount,
+    feeRate: feeRate,
+    fee: fee,
+    merchPayout: merchPayout,
     distName: distName || '',
     agentName: agentName || '',
     memo: memo,
-    hqAmount: Math.round(amount * rules.hq / 100),
-    distAmount: Math.round(amount * rules.dist / 100),
-    agentAmount: Math.round(amount * rules.agent / 100),
+    hqAmount: Math.round(fee * rules.hq / 100),
+    distAmount: Math.round(fee * rules.dist / 100),
+    agentAmount: Math.round(fee * rules.agent / 100),
     status: 'pending',
     createdAt: new Date().toISOString()
   });
@@ -797,7 +829,7 @@ function renderTxnList(){
 
   var tbody = document.getElementById('txn-tbody');
   if(txns.length === 0){
-    tbody.innerHTML = '<tr><td colspan="9" class="empty">등록된 원천거래 없음</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="12" class="empty">등록된 원천거래 없음</td></tr>';
   } else {
     tbody.innerHTML = txns.slice().reverse().map(function(t){
       var isPending = t.status === 'pending';
@@ -806,9 +838,12 @@ function renderTxnList(){
         '<td>'+(TYPE_MAP[t.type]||t.type)+'</td>'+
         '<td>'+t.bizName+'</td>'+
         '<td style="font-weight:700;color:var(--accent2)">'+fmt(t.amount)+'</td>'+
+        '<td style="color:#fbbf24">'+(t.feeRate||0)+'%</td>'+
+        '<td style="color:#fbbf24">'+fmt(t.fee||0)+'</td>'+
         '<td style="color:#a5b4fc">'+fmt(t.hqAmount)+'</td>'+
         '<td style="color:#67e8f9">'+fmt(t.distAmount)+'</td>'+
         '<td style="color:#6ee7b7">'+fmt(t.agentAmount)+'</td>'+
+        '<td style="color:#f472b6;font-weight:700">'+fmt(t.merchPayout||0)+'</td>'+
         '<td><span style="color:'+(isPending?'var(--accent3)':'var(--accent2)')+'">'+
           (isPending?'⏰ 미승인':'✅ 승인')+'</span></td>'+
         '<td>'+(isPending?'<button class="btn btn-success btn-sm" onclick="approveTxn('+t.id+')">승인</button> ':'')+
@@ -1013,7 +1048,7 @@ function calcSettlement(){
   var agents = getData('agents');
 
   if(txns.length === 0){
-    document.getElementById('settle-all-tbody').innerHTML = '<tr><td colspan="8" class="empty">해당 월 승인된 거래가 없어요</td></tr>';
+    document.getElementById('settle-all-tbody').innerHTML = '<tr><td colspan="9" class="empty">해당 월 승인된 거래가 없어요</td></tr>';
     return;
   }
 
@@ -1022,7 +1057,8 @@ function calcSettlement(){
 
   // 본사
   var hqAmt = txns.reduce(function(s,t){return s+t.hqAmount;},0);
-  rows.push({type:'본사',badge:'badge-hq',name:'주식회사 발로레',cnt:txns.length,total:grandTotal,rate:rules.hq,amount:hqAmt,paid:true});
+  var grandFee = txns.reduce(function(s,t){return s+(t.fee||0);},0);
+  rows.push({type:'본사',badge:'badge-hq',name:'주식회사 발로레',cnt:txns.length,total:grandTotal,fee:grandFee,rate:rules.hq,amount:hqAmt,paid:true});
 
   // 총판별
   dists.forEach(function(d){
@@ -1030,7 +1066,8 @@ function calcSettlement(){
     if(dTxns.length > 0){
       var dAmt = dTxns.reduce(function(s,t){return s+t.distAmount;},0);
       var dTotal = dTxns.reduce(function(s,t){return s+t.amount;},0);
-      rows.push({type:'총판',badge:'badge-dist',name:d.name,cnt:dTxns.length,total:dTotal,rate:rules.dist,amount:dAmt,paid:false});
+      var dFee = dTxns.reduce(function(s,t){return s+(t.fee||0);},0);
+      rows.push({type:'총판',badge:'badge-dist',name:d.name,cnt:dTxns.length,total:dTotal,fee:dFee,rate:rules.dist,amount:dAmt,paid:false});
     }
   });
 
@@ -1040,7 +1077,8 @@ function calcSettlement(){
     if(aTxns.length > 0){
       var aAmt = aTxns.reduce(function(s,t){return s+t.agentAmount;},0);
       var aTotal = aTxns.reduce(function(s,t){return s+t.amount;},0);
-      rows.push({type:'대리점',badge:'badge-agent',name:a.name,cnt:aTxns.length,total:aTotal,rate:rules.agent,amount:aAmt,paid:false});
+      var aFee = aTxns.reduce(function(s,t){return s+(t.fee||0);},0);
+      rows.push({type:'대리점',badge:'badge-agent',name:a.name,cnt:aTxns.length,total:aTotal,fee:aFee,rate:rules.agent,amount:aAmt,paid:false});
     }
   });
 
@@ -1051,6 +1089,7 @@ function calcSettlement(){
       '<td>'+r.name+'</td>'+
       '<td>'+r.cnt+'건</td>'+
       '<td>'+fmt(r.total)+'</td>'+
+      '<td style="color:#fbbf24">'+fmt(r.fee||0)+'</td>'+
       '<td>'+r.rate+'%</td>'+
       '<td style="font-weight:900;color:var(--accent2)">'+fmt(r.amount)+'</td>'+
       '<td><span style="color:'+(r.paid?'var(--accent2)':'var(--accent3)')+'">'+(r.paid?'✅ 자동':'⏰ 대기')+'</span></td>'+
@@ -1061,9 +1100,9 @@ function calcSettlement(){
 function exportSettlement(){
   var mon = document.getElementById('settle-month').value || curMonth();
   var txns = getData('transactions').filter(function(t){ return t.date.startsWith(mon); });
-  var csv = ['날짜,유형,업체명,총액,본사몫,총판,총판몫,대리점,대리점몫,상태,메모'];
+  var csv = ['날짜,유형,업체명,매출액,수수료율,수수료,본사몫,총판,총판몫,대리점,대리점몫,가맹점정산액,상태,메모'];
   txns.forEach(function(t){
-    csv.push(t.date+','+(TYPE_MAP[t.type]||t.type)+','+t.bizName+','+t.amount+','+t.hqAmount+','+(t.distName||'-')+','+t.distAmount+','+(t.agentName||'-')+','+t.agentAmount+','+(t.status==='approved'?'승인':'미승인')+','+(t.memo||''));
+    csv.push(t.date+','+(TYPE_MAP[t.type]||t.type)+','+t.bizName+','+t.amount+','+(t.feeRate||0)+'%,'+(t.fee||0)+','+t.hqAmount+','+(t.distName||'-')+','+t.distAmount+','+(t.agentName||'-')+','+t.agentAmount+','+(t.merchPayout||0)+','+(t.status==='approved'?'승인':'미승인')+','+(t.memo||''));
   });
   var blob = new Blob(['\uFEFF'+csv.join('\n')], {type:'text/csv;charset=utf-8'});
   var url = URL.createObjectURL(blob);
@@ -1115,6 +1154,7 @@ function renderMerchants(){
     tbody.innerHTML = merchs.map(function(m){
       var mTxns = txns.filter(function(t){ return t.bizName === m.name && t.date.startsWith(mon); });
       var mAmt = mTxns.reduce(function(s,t){ return s + t.amount; }, 0);
+      var mPayout = mTxns.reduce(function(s,t){ return s + (t.merchPayout||0); }, 0);
       return '<tr>'+
         '<td><code style="color:#f472b6">'+m.code+'</code></td>'+
         '<td><span class="badge-merch">가맹점</span> '+m.name+'</td>'+
@@ -1122,6 +1162,7 @@ function renderMerchants(){
         '<td>'+(m.distName||'—')+'</td>'+
         '<td>'+(m.agentName||'—')+'</td>'+
         '<td style="color:var(--accent2);font-weight:700">'+fmt(mAmt)+'</td>'+
+        '<td style="color:#f472b6;font-weight:700">'+fmt(mPayout)+'</td>'+
         '<td>'+mTxns.length+'건</td>'+
         '<td><button class="btn btn-danger btn-sm" onclick="delMerchant('+m.id+')">삭제</button></td></tr>';
     }).join('');

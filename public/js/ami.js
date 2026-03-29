@@ -76,17 +76,24 @@
     var soundOn=false, chatOpen=false;
     var hist=[], lastTap=0;
 
-    // 아미 위치 초기 설정 (강제)
-    root.style.cssText = 'position:fixed!important;bottom:28px!important;' +
-      'left:'+ax+'px!important;transform:translateX(-50%)!important;' +
-      'z-index:99990!important;display:block!important;' +
-      'visibility:visible!important;opacity:1!important;' +
-      'cursor:pointer!important;pointer-events:auto!important;';
+    // 아미 위치 초기 설정 (개별 setProperty로 !important 적용)
+    root.style.setProperty('position','fixed','important');
+    root.style.setProperty('display','block','important');
+    root.style.setProperty('visibility','visible','important');
+    root.style.setProperty('opacity','1','important');
+    root.style.setProperty('z-index','99990','important');
+    root.style.setProperty('bottom','28px','important');
+    root.style.setProperty('left', ax+'px','important');
+    root.style.setProperty('transform','translateX(-50%)','important');
+    root.style.setProperty('cursor','pointer','important');
+    root.style.setProperty('pointer-events','auto','important');
 
     function setPos(){
-      root.style.left = ax+'px';
-      root.style.bottom = '28px';
-      root.style.transform = 'translateX(-50%) scaleX('+facing+') translateY('+jOffset+'px)';
+      root.style.setProperty('left', ax+'px','important');
+      root.style.setProperty('bottom','28px','important');
+      root.style.setProperty('transform','translateX(-50%) scaleX('+facing+') translateY('+jOffset+'px)','important');
+      root.style.setProperty('display','block','important');
+      root.style.setProperty('visibility','visible','important');
     }
 
     function g(id){ return document.getElementById(id); }

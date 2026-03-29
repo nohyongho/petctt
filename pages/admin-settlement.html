@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>발로레 정산 어드민 — 원천거래 기반 3단 자동 정산</title>
+<title>발로레 정산 어드민 — 역할 기반 3단 자동 정산</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -86,6 +86,11 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
 /* 공지 */
 .notice{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:12px;padding:12px 14px;font-size:12px;color:#a5b4fc;margin-bottom:12px;line-height:1.7}
 .notice-txn{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:#fbbf24}
+.role-tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700}
+.role-hq{background:rgba(99,102,241,.2);color:#a5b4fc}
+.role-dist{background:rgba(6,182,212,.2);color:#67e8f9}
+.role-agent{background:rgba(16,185,129,.2);color:#6ee7b7}
+.role-merch{background:rgba(236,72,153,.2);color:#f472b6}
 .empty{text-align:center;padding:32px;color:var(--text3);font-size:13px}
 
 /* 필터바 */
@@ -99,11 +104,31 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">🏢 VALORE 정산 어드민</div>
-    <div class="login-sub">원천거래 기반 · 본사 / 총판 / 대리점 3단 자동 정산</div>
-    <input class="login-inp" type="password" id="pw-inp" placeholder="관리자 비밀번호"
+    <div class="login-sub">역할 기반 · 본사 / 총판 / 대리점 / 가맹점 4단 권한 정산</div>
+    <select class="login-inp" id="role-sel" style="cursor:pointer;font-weight:700">
+      <option value="hq">🏢 본사 (전체 관리)</option>
+      <option value="distributor">🏪 총판</option>
+      <option value="agent">🤝 대리점</option>
+      <option value="merchant">🏬 가맹점</option>
+    </select>
+    <input class="login-inp" type="text" id="code-inp" placeholder="소속 코드 (본사는 생략)" style="display:none">
+    <input class="login-inp" type="password" id="pw-inp" placeholder="비밀번호"
       onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" onclick="doLogin()">🔐 입장하기</button>
+    <script>
+    document.getElementById('role-sel').addEventListener('change', function(){
+      var ci = document.getElementById('code-inp');
+      ci.style.display = this.value === 'hq' ? 'none' : 'block';
+      ci.placeholder = this.value === 'distributor' ? '총판 코드 (예: DIST-001)' :
+                        this.value === 'agent' ? '대리점 코드 (예: AGENT-001)' :
+                        '가맹점 코드 (예: MERCH-001)';
+    });
+    </script>
     <div class="login-err" id="login-err">❌ 비밀번호가 틀렸어요!</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:16px;line-height:1.6">
+      💡 초대 URL로 접속 시 역할/코드가 자동 설정됩니다<br>
+      <code style="font-size:10px;color:var(--text2)">?role=distributor&code=DIST-001</code>
+    </div>
   </div>
 </div>
 
@@ -112,7 +137,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
   <div class="header">
     <div>
       <div class="header-title">🏢 발로레 정산 어드민</div>
-      <div class="header-sub">원천거래 기반 자동 정산 시스템</div>
+      <div class="header-sub">원천거래 기반 자동 정산 시스템 · <span id="cur-role-badge" style="font-weight:700"></span> <span id="cur-code-text" style="color:var(--accent3)"></span></div>
     </div>
     <button class="logout-btn" onclick="doLogout()">로그아웃</button>
   </div>
@@ -562,6 +587,32 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
     </div>
 
     <div class="card">
+      <div class="card-title">🔗 초대 URL 생성</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px">총판/대리점/가맹점에게 전달할 전용 URL을 생성합니다</div>
+      <div class="form-row">
+        <select class="sel" id="invite-role">
+          <option value="distributor">🏪 총판</option>
+          <option value="agent">🤝 대리점</option>
+          <option value="merchant">🏬 가맹점</option>
+        </select>
+        <select class="sel" id="invite-code">
+          <option value="">코드 선택</option>
+        </select>
+        <button class="btn btn-primary" onclick="genInviteURL()">URL 생성</button>
+      </div>
+      <div id="invite-result" style="margin-top:10px;display:none;padding:12px;background:var(--bg3);border-radius:10px;border:1px solid var(--border2)">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:6px">📋 아래 URL을 복사해서 전달하세요</div>
+        <div style="display:flex;gap:8px">
+          <input class="inp" type="text" id="invite-url" readonly style="flex:1;font-size:11px;color:var(--accent)">
+          <button class="btn btn-success btn-sm" onclick="copyInviteURL()">📋 복사</button>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--text2)">
+          관리자 URL: <span id="invite-admin-url" style="color:var(--accent3);font-size:10px"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
       <div class="card-title">🔍 코드 조회</div>
       <div class="form-row">
         <input class="inp" type="text" id="code-search" placeholder="코드 입력 (예: DIST-001)">
@@ -580,14 +631,105 @@ var MERCH_TYPE_MAP = {restaurant:'음식점',cafe:'카페',retail:'소매점',be
 var TYPE_MAP = {subscription:'구독료',coupon_fee:'쿠폰수수료',merchant_fee:'가맹점수수료',ad_fee:'광고비',store_fee:'매장입점 판매수수료',etc:'기타'};
 
 // ===== 로그인 =====
+var CUR_ROLE = 'hq';
+var CUR_CODE = '';
+var CUR_NAME = '';
+
 function doLogin(){
   var pw = document.getElementById('pw-inp').value;
-  if(pw === PW){
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('app').style.display='block';
-    initApp();
-  } else {
+  if(pw !== PW){
     document.getElementById('login-err').style.display='block';
+    return;
+  }
+  CUR_ROLE = document.getElementById('role-sel').value;
+  CUR_CODE = document.getElementById('code-inp').value.trim().toUpperCase();
+
+  // 본사 외 역할은 코드 필수
+  if(CUR_ROLE !== 'hq' && !CUR_CODE){
+    alert('소속 코드를 입력해주세요!');
+    return;
+  }
+
+  // 코드 유효성 검증
+  if(CUR_ROLE === 'distributor'){
+    var d = getData('distributors').find(function(x){return x.code.toUpperCase()===CUR_CODE;});
+    if(!d){ alert('등록되지 않은 총판 코드입니다: '+CUR_CODE); return; }
+    CUR_NAME = d.name;
+  } else if(CUR_ROLE === 'agent'){
+    var a = getData('agents').find(function(x){return x.code.toUpperCase()===CUR_CODE;});
+    if(!a){ alert('등록되지 않은 대리점 코드입니다: '+CUR_CODE); return; }
+    CUR_NAME = a.name;
+  } else if(CUR_ROLE === 'merchant'){
+    var m = getData('merchants').find(function(x){return x.code.toUpperCase()===CUR_CODE;});
+    if(!m){ alert('등록되지 않은 가맹점 코드입니다: '+CUR_CODE); return; }
+    CUR_NAME = m.name;
+  } else {
+    CUR_NAME = '주식회사 발로레';
+  }
+
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  applyRoleUI();
+  initApp();
+}
+
+// URL 파라미터로 자동 로그인 설정
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var role = params.get('role');
+  var codeParam = params.get('code');
+  if(role){
+    var sel = document.getElementById('role-sel');
+    if(sel){
+      sel.value = role;
+      sel.dispatchEvent(new Event('change'));
+    }
+  }
+  if(codeParam){
+    var ci = document.getElementById('code-inp');
+    if(ci){ ci.value = codeParam; ci.style.display='block'; }
+  }
+})();
+
+// 역할별 UI 제어
+function applyRoleUI(){
+  var ROLE_MAP = {hq:'🏢 본사', distributor:'🏪 총판', agent:'🤝 대리점', merchant:'🏬 가맹점'};
+  var ROLE_CLASS = {hq:'role-hq', distributor:'role-dist', agent:'role-agent', merchant:'role-merch'};
+
+  // 헤더 배지
+  var badge = document.getElementById('cur-role-badge');
+  badge.className = 'role-tag ' + ROLE_CLASS[CUR_ROLE];
+  badge.textContent = ROLE_MAP[CUR_ROLE];
+  document.getElementById('cur-code-text').textContent = CUR_CODE ? '(' + CUR_CODE + ' · ' + CUR_NAME + ')' : '';
+
+  // 탭 표시/숨김
+  var tabs = document.querySelectorAll('.tab');
+  var TAB_PERMS = {
+    hq:          ['overview','txn','merchant','distributor','agent','settlement','codes'],
+    distributor: ['overview','txn','merchant','agent','codes'],
+    agent:       ['overview','txn','merchant','codes'],
+    merchant:    ['overview']
+  };
+  var allowed = TAB_PERMS[CUR_ROLE] || [];
+
+  tabs.forEach(function(tab){
+    var onclick = tab.getAttribute('onclick') || '';
+    var match = onclick.match(/showTab\('(\w+)'/);
+    if(match){
+      var tabId = match[1];
+      tab.style.display = allowed.indexOf(tabId) >= 0 ? '' : 'none';
+    }
+  });
+
+  // 본사 전용 요소 숨김
+  if(CUR_ROLE !== 'hq'){
+    // 비율 설정 카드 숨김 (본사만)
+    var ruleCards = document.querySelectorAll('.card');
+    ruleCards.forEach(function(card){
+      var title = card.querySelector('.card-title');
+      if(title && title.textContent.includes('비율 설정')) card.style.display = 'none';
+      if(title && title.textContent.includes('미승인 원천거래') && CUR_ROLE === 'merchant') card.style.display = 'none';
+    });
   }
 }
 function doLogout(){
@@ -634,6 +776,41 @@ function initApp(){
   document.getElementById('txn-amount').addEventListener('input', updateTxnPreview);
 
   renderAll();
+  if(typeof updateInviteCodes === "function") updateInviteCodes();
+}
+
+
+
+// ===== 역할별 데이터 필터링 =====
+// 위는 아래를 본다. 아래는 위를 못 본다. 옆도 못 본다.
+function filterByRole(txns){
+  if(CUR_ROLE === 'hq') return txns; // 본사: 전체
+  if(CUR_ROLE === 'distributor'){
+    // 총판: 자기 이름이 distName인 거래 + 자기 소속 대리점 거래
+    return txns.filter(function(t){ return t.distName === CUR_NAME; });
+  }
+  if(CUR_ROLE === 'agent'){
+    // 대리점: 자기 이름이 agentName인 거래
+    return txns.filter(function(t){ return t.agentName === CUR_NAME; });
+  }
+  if(CUR_ROLE === 'merchant'){
+    // 가맹점: 자기 이름이 bizName인 거래
+    return txns.filter(function(t){ return t.bizName === CUR_NAME; });
+  }
+  return txns;
+}
+
+function filterDistsByRole(dists){
+  if(CUR_ROLE === 'hq') return dists;
+  if(CUR_ROLE === 'distributor') return dists.filter(function(d){ return d.name === CUR_NAME; });
+  return []; // 대리점/가맹점은 총판 목록 못 봄
+}
+
+function filterAgentsByRole(agents){
+  if(CUR_ROLE === 'hq') return agents;
+  if(CUR_ROLE === 'distributor') return agents.filter(function(a){ return a.distName === CUR_NAME; });
+  if(CUR_ROLE === 'agent') return agents.filter(function(a){ return a.name === CUR_NAME; });
+  return [];
 }
 
 // ===== 원천거래 자동 분배 미리보기 =====
@@ -710,7 +887,7 @@ function populateSelects(){
 
 function renderOverview(){
   var rules = getRules();
-  var txns = getData('transactions');
+  var txns = filterByRole(getData('transactions'));
   var dists = getData('distributors');
   var agents = getData('agents');
   var mon = curMonth();
@@ -818,7 +995,7 @@ function delTxn(id){
 }
 
 function renderTxnList(){
-  var txns = getData('transactions');
+  var txns = filterByRole(getData('transactions'));
   var filterMonth = document.getElementById('txn-filter-month').value;
   var filterType = document.getElementById('txn-filter-type').value;
   var filterStatus = document.getElementById('txn-filter-status').value;
@@ -854,7 +1031,7 @@ function renderTxnList(){
 
 // ===== 본사 배분 내역 =====
 function renderHqTxns(){
-  var txns = getData('transactions');
+  var txns = filterByRole(getData('transactions'));
   var mon = curMonth();
   var monthTxns = txns.filter(function(t){ return t.date.startsWith(mon); });
 
@@ -907,9 +1084,9 @@ function delDist(id){
 }
 
 function renderDistributors(){
-  var dists = getData('distributors');
-  var txns = getData('transactions');
-  var agents = getData('agents');
+  var dists = filterDistsByRole(getData('distributors'));
+  var txns = filterByRole(getData('transactions'));
+  var agents = filterAgentsByRole(getData('agents'));
   var mon = curMonth();
 
   var tbody = document.getElementById('dist-tbody');
@@ -964,8 +1141,8 @@ function delAgent(id){
 }
 
 function renderAgents(){
-  var agents = getData('agents');
-  var txns = getData('transactions');
+  var agents = filterAgentsByRole(getData('agents'));
+  var txns = filterByRole(getData('transactions'));
   var mon = curMonth();
 
   var tbody = document.getElementById('agent-tbody');
@@ -1043,7 +1220,7 @@ function calcSettlement(){
   var mon = document.getElementById('settle-month').value;
   if(!mon){ alert('월을 선택해요!'); return; }
   var rules = getRules();
-  var txns = getData('transactions').filter(function(t){ return t.date.startsWith(mon) && t.status === 'approved'; });
+  var txns = filterByRole(getData('transactions')).filter(function(t){ return t.date.startsWith(mon) && t.status === 'approved'; });
   var dists = getData('distributors');
   var agents = getData('agents');
 
@@ -1099,7 +1276,7 @@ function calcSettlement(){
 
 function exportSettlement(){
   var mon = document.getElementById('settle-month').value || curMonth();
-  var txns = getData('transactions').filter(function(t){ return t.date.startsWith(mon); });
+  var txns = filterByRole(getData('transactions')).filter(function(t){ return t.date.startsWith(mon); });
   var csv = ['날짜,유형,업체명,매출액,수수료율,수수료,본사몫,총판,총판몫,대리점,대리점몫,가맹점정산액,상태,메모'];
   txns.forEach(function(t){
     csv.push(t.date+','+(TYPE_MAP[t.type]||t.type)+','+t.bizName+','+t.amount+','+(t.feeRate||0)+'%,'+(t.fee||0)+','+t.hqAmount+','+(t.distName||'-')+','+t.distAmount+','+(t.agentName||'-')+','+t.agentAmount+','+(t.merchPayout||0)+','+(t.status==='approved'?'승인':'미승인')+','+(t.memo||''));
@@ -1179,6 +1356,40 @@ function txnMerchantChange(){
     if(distName){ document.getElementById('txn-dist').value = distName; }
     if(agentName){ document.getElementById('txn-agent').value = agentName; }
   }
+}
+
+
+
+// ===== 초대 URL =====
+document.getElementById('invite-role').addEventListener('change', updateInviteCodes);
+function updateInviteCodes(){
+  var role = document.getElementById('invite-role').value;
+  var sel = document.getElementById('invite-code');
+  sel.innerHTML = '<option value="">코드 선택</option>';
+  var items = role === 'distributor' ? getData('distributors') :
+              role === 'agent' ? getData('agents') :
+              getData('merchants');
+  items.forEach(function(item){
+    sel.innerHTML += '<option value="'+item.code+'">'+item.code+' — '+item.name+'</option>';
+  });
+}
+
+function genInviteURL(){
+  var role = document.getElementById('invite-role').value;
+  var code = document.getElementById('invite-code').value;
+  if(!code){ alert('코드를 선택해주세요!'); return; }
+  var base = window.location.origin + window.location.pathname;
+  var joinURL = base + '?role=' + role + '&code=' + code;
+  document.getElementById('invite-url').value = joinURL;
+  document.getElementById('invite-admin-url').textContent = joinURL;
+  document.getElementById('invite-result').style.display = 'block';
+}
+
+function copyInviteURL(){
+  var inp = document.getElementById('invite-url');
+  inp.select();
+  document.execCommand('copy');
+  alert('📋 URL이 복사되었어요!');
 }
 
 // ===== 비율 관리 =====

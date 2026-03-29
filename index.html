@@ -588,18 +588,65 @@ iframe.goog-te-banner-frame{display:none!important;}
                         });
 
                         function loginWithGoogle() {
-                                    window.location.href = 'https://petctt-auth.zeus1404.workers.dev/api/auth/google';
+                                    if (window.ValoreAuth) {
+                                        ValoreAuth.loginWithGoogle();
+                                    } else {
+                                        window.location.href = 'https://petctt-auth.zeus1404.workers.dev/api/auth/google';
+                                    }
                         }
 
                         function loginWithNaver() {
-                                    window.location.href = 'https://petctt-auth.zeus1404.workers.dev/api/auth/naver';
+                                    if (window.ValoreAuth) {
+                                        ValoreAuth.loginWithNaver();
+                                    } else {
+                                        window.location.href = 'https://petctt-auth.zeus1404.workers.dev/api/auth/naver';
+                                    }
                         }
 
                         // [FIX] 카카오 로그인: Kakao SDK v2.7.x에서는 Kakao.Auth.login() 삭제됨
                         // Kakao.Auth.login()로 변경 + 콜백에서 사용자 정보 처리
                         function loginWithKakao() {
-                                    window.location.href = 'https://petctt-auth.zeus1404.workers.dev/api/auth/kakao';
-                         }
+                                    if (window.ValoreAuth) {
+                                        ValoreAuth.loginWithKakao()
+                                            .then(function(){ renderAuth(); })
+                                            .catch(function(e){
+                                                console.error('카카오 로그인 실패:', e);
+                                                window.location.href = 'https://petctt-auth.zeus1404.workers.dev/api/auth/kakao';
+                                            });
+                                    } else {
+                                        window.location.href = 'https://petctt-auth.zeus1404.workers.dev/api/auth/kakao';
+                                    }
+                        }
+                        // ===== renderAuth (ValoreAuth 기반) =====
+                        function renderAuth() {
+                                    var user = window.ValoreAuth
+                                        ? ValoreAuth.getUser()
+                                        : (function(){ try { return JSON.parse(localStorage.getItem('petctt_unified_auth'))||null; } catch(e){ return null; } })();
+                                    var slot = document.getElementById('auth-slot');
+                                    if (!slot) return;
+                                    if (user) {
+                                        slot.innerHTML =
+                                            '<div style="display:flex;align-items:center;gap:6px;cursor:pointer" onclick="toggleLoginMenu()">' +
+                                            (user.picture ? '<img src="'+user.picture+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(139,92,246,.5)" onerror="this.style.display='none'">' : '<span style="font-size:18px">👤</span>') +
+                                            '<span style="font-size:12px;color:#f1f5f9;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+( (user.name||'').split(' ')[0] || user.email.split('@')[0] )+'</span>' +
+                                            '<span style="font-size:10px;color:#6366f1">▾</span>' +
+                                            '</div>' +
+                                            '<div id="loginDropdown" style="display:none;position:absolute;top:38px;right:0;background:#0a0020;border:1px solid rgba(139,92,246,.3);border-radius:14px;padding:10px;min-width:160px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:9999">' +
+                                            '<div style="font-size:11px;color:#64748b;padding:4px 8px 8px">'+( user.plan_id==='premium'?'👑 Premium': user.plan_id==='pro'?'⚡ Pro':'🆓 Free')+'</div>' +
+                                            '<button onclick="doLogout()" style="width:100%;padding:8px 12px;border-radius:10px;border:none;background:rgba(255,80,80,.15);color:#ff8080;font-size:12px;cursor:pointer;text-align:left;font-family:inherit">🚪 로그아웃</button>' +
+                                            '</div>';
+                                    } else {
+                                        slot.innerHTML =
+                                            '<button onclick="toggleLoginMenu()" style="padding:6px 14px;border-radius:20px;border:1px solid rgba(99,102,241,.4);background:rgba(99,102,241,.15);color:#a5b4fc;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">🔑 로그인</button>' +
+                                            '<div id="loginDropdown" style="display:none;position:absolute;top:38px;right:0;background:#0a0020;border:1px solid rgba(139,92,246,.3);border-radius:14px;padding:12px;min-width:200px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:9999">' +
+                                            '<div style="font-size:12px;color:#94a3b8;margin-bottom:10px;padding:0 4px">로그인 방법 선택</div>' +
+                                            '<button onclick="loginWithKakao();closeLoginMenu()" style="width:100%;padding:10px 12px;border-radius:10px;border:none;background:#FEE500;color:#3A1D1D;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:6px;font-family:inherit;display:flex;align-items:center;gap:8px">💬 카카오로 계속하기</button>' +
+                                            '<button onclick="loginWithGoogle();closeLoginMenu()" style="width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#f1f5f9;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:6px;font-family:inherit;display:flex;align-items:center;gap:8px">🌐 Google로 계속하기</button>' +
+                                            '<button onclick="loginWithNaver();closeLoginMenu()" style="width:100%;padding:10px 12px;border-radius:10px;border:none;background:#03C75A;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px">N 네이버로 계속하기</button>' +
+                                            '</div>';
+                                    }
+                        }
+
 
 
     

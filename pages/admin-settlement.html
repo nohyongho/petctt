@@ -491,7 +491,7 @@ function showTab(id, btn){
 // ===== 데이터 저장/로드 =====
 function getData(key){ try{ return JSON.parse(localStorage.getItem(STORE_KEY+'_'+key)||'[]'); }catch(e){ return []; } }
 function setData(key, val){ localStorage.setItem(STORE_KEY+'_'+key, JSON.stringify(val)); }
-function getConf(key, def){ try{ return JSON.parse(localStorage.getItem(STORE_KEY+'_conf_'+key)); }catch(e){ return def; } }
+function getConf(key, def){ try{ var val = JSON.parse(localStorage.getItem(STORE_KEY+'_conf_'+key)); return val !== null && val !== undefined ? val : (def !== undefined ? def : null); }catch(e){ return def !== undefined ? def : null; } }
 function setConf(key, val){ localStorage.setItem(STORE_KEY+'_conf_'+key, JSON.stringify(val)); }
 
 // ===== 초기화 =====

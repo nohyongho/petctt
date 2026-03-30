@@ -305,14 +305,15 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
   <div id="tab-txn" class="tab-content">
     <div class="notice notice-txn">
       💰 <b>원천거래 등록</b>: 가맹점 매출을 입력하면 <b>수수료율</b>만큼 플랫폼 수수료가 산출되고<br>
-      그 수수료를 본사(<span id="txn-hq-rate"></span>%) · 총판(<span id="txn-dist-rate"></span>%) · 대리점(<span id="txn-agent-rate"></span>%)이 <b>자동 분배</b>합니다 (가맹점은 나머지 수령)
+      그 수수료를 본사 · 총판 · 대리점이 설정 비율대로 <b>자동 분배</b>합니다 (가맹점은 나머지 수령)<br>
+      💡 <b>거래유형별 수수료율</b>은 본사 탭에서 설정 가능 (식당/쿠폰/광고 등 원가별 차등)
     </div>
 
     <div class="card">
       <div class="card-title">📝 새 원천거래 등록</div>
       <div class="form-row">
         <input class="inp" type="date" id="txn-date">
-        <select class="sel" id="txn-type">
+        <select class="sel" id="txn-type" onchange="applyFeeRateByType()">
           <option value="subscription">구독료</option>
           <option value="coupon_fee">쿠폰 수수료</option>
           <option value="merchant_fee">가맹점 수수료</option>
@@ -464,6 +465,47 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
         </div>
       </div>
       <button class="btn btn-primary" onclick="saveRules()">규칙 저장</button>
+    </div>
+
+
+    <div class="card">
+      <div class="card-title">💰 거래유형별 수수료율 설정</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px">유형마다 원가가 다르니까 수수료율도 다르게! (거래 등록 시 자동 적용)</div>
+      <table class="tbl">
+        <thead><tr><th>거래유형</th><th>기본 수수료율 (%)</th><th>수수료 방식</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>구독료</td>
+            <td><input class="inp" type="number" id="frate-subscription" value="10" min="0" max="100" style="width:80px;padding:6px 8px" oninput="saveFeeRates()"></td>
+            <td><select class="sel" id="fmode-subscription" style="padding:6px 8px;min-width:90px" onchange="saveFeeRates()"><option value="percent">%</option><option value="fixed">정액(원)</option></select></td>
+          </tr>
+          <tr>
+            <td>쿠폰 수수료</td>
+            <td><input class="inp" type="number" id="frate-coupon_fee" value="5" min="0" max="100" style="width:80px;padding:6px 8px" oninput="saveFeeRates()"></td>
+            <td><select class="sel" id="fmode-coupon_fee" style="padding:6px 8px;min-width:90px" onchange="saveFeeRates()"><option value="percent">%</option><option value="fixed">정액(원)</option></select></td>
+          </tr>
+          <tr>
+            <td>가맹점 수수료</td>
+            <td><input class="inp" type="number" id="frate-merchant_fee" value="3" min="0" max="100" style="width:80px;padding:6px 8px" oninput="saveFeeRates()"></td>
+            <td><select class="sel" id="fmode-merchant_fee" style="padding:6px 8px;min-width:90px" onchange="saveFeeRates()"><option value="percent">%</option><option value="fixed">정액(원)</option></select></td>
+          </tr>
+          <tr>
+            <td>광고비</td>
+            <td><input class="inp" type="number" id="frate-ad_fee" value="15" min="0" max="100" style="width:80px;padding:6px 8px" oninput="saveFeeRates()"></td>
+            <td><select class="sel" id="fmode-ad_fee" style="padding:6px 8px;min-width:90px" onchange="saveFeeRates()"><option value="percent">%</option><option value="fixed">정액(원)</option></select></td>
+          </tr>
+          <tr>
+            <td>매장입점 판매수수료</td>
+            <td><input class="inp" type="number" id="frate-store_fee" value="8" min="0" max="100" style="width:80px;padding:6px 8px" oninput="saveFeeRates()"></td>
+            <td><select class="sel" id="fmode-store_fee" style="padding:6px 8px;min-width:90px" onchange="saveFeeRates()"><option value="percent">%</option><option value="fixed">정액(원)</option></select></td>
+          </tr>
+          <tr>
+            <td>기타</td>
+            <td><input class="inp" type="number" id="frate-etc" value="10" min="0" max="100" style="width:80px;padding:6px 8px" oninput="saveFeeRates()"></td>
+            <td><select class="sel" id="fmode-etc" style="padding:6px 8px;min-width:90px" onchange="saveFeeRates()"><option value="percent">%</option><option value="fixed">정액(원)</option></select></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- 본사 기준 원천거래 조회 -->
@@ -854,11 +896,60 @@ function initApp(){
 
   renderAll();
   renderSettleSchedule();
+  loadFeeRates();
   if(typeof updateInviteCodes === "function") updateInviteCodes();
 }
 
 
 
+
+
+// ===== 거래유형 변경 시 수수료율 자동 적용 =====
+function applyFeeRateByType(){
+  var type = document.getElementById('txn-type').value;
+  var rate = getFeeRateForType(type);
+  document.getElementById('txn-fee-rate').value = rate;
+  updateTxnPreview();
+}
+
+// ===== 거래유형별 수수료율 =====
+var FEE_RATE_TYPES = ['subscription','coupon_fee','merchant_fee','ad_fee','store_fee','etc'];
+var FEE_RATE_DEFAULTS = {subscription:10, coupon_fee:5, merchant_fee:3, ad_fee:15, store_fee:8, etc:10};
+var FEE_MODE_DEFAULTS = {subscription:'percent', coupon_fee:'percent', merchant_fee:'percent', ad_fee:'percent', store_fee:'percent', etc:'percent'};
+
+function saveFeeRates(){
+  var rates = {};
+  var modes = {};
+  FEE_RATE_TYPES.forEach(function(t){
+    var rateEl = document.getElementById('frate-'+t);
+    var modeEl = document.getElementById('fmode-'+t);
+    if(rateEl) rates[t] = parseFloat(rateEl.value) || 0;
+    if(modeEl) modes[t] = modeEl.value;
+  });
+  setConf('fee_rates_by_type', rates);
+  setConf('fee_modes_by_type', modes);
+}
+
+function loadFeeRates(){
+  var rates = getConf('fee_rates_by_type', FEE_RATE_DEFAULTS);
+  var modes = getConf('fee_modes_by_type', FEE_MODE_DEFAULTS);
+  FEE_RATE_TYPES.forEach(function(t){
+    var rateEl = document.getElementById('frate-'+t);
+    var modeEl = document.getElementById('fmode-'+t);
+    if(rateEl) rateEl.value = rates[t] !== undefined ? rates[t] : (FEE_RATE_DEFAULTS[t]||10);
+    if(modeEl) modeEl.value = modes[t] || 'percent';
+  });
+}
+
+function getFeeRateForType(txnType){
+  var rates = getConf('fee_rates_by_type', FEE_RATE_DEFAULTS);
+  return rates[txnType] !== undefined ? rates[txnType] : 10;
+}
+
+function getFeeModeForType(txnType){
+  var modes = getConf('fee_modes_by_type', FEE_MODE_DEFAULTS);
+  return modes[txnType] || 'percent';
+}
 
 // ===== P0-1: 정산 스케줄 =====
 function getSettleDays(year, month, cycle){
@@ -1743,10 +1834,7 @@ function updateFlowRates(rules){
   document.getElementById('flow-hq-rate').textContent = '본사 몫';
   document.getElementById('flow-dist-rate').textContent = '총판 몫';
   document.getElementById('flow-agent-rate').textContent = '대리점 몫';
-  var el;
-  el = document.getElementById('txn-hq-rate'); if(el) el.textContent = rules.hq;
-  el = document.getElementById('txn-dist-rate'); if(el) el.textContent = rules.dist;
-  el = document.getElementById('txn-agent-rate'); if(el) el.textContent = rules.agent;
+  // notice에서 고정 비율 제거 완료 - 동적 표시 불필요
 }
 </script>
 </body>

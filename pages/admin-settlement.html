@@ -105,7 +105,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
   <div class="login-box">
     <div class="login-logo">🏢 VALORE 정산 어드민</div>
     <div class="login-sub">역할 기반 · 본사 / 총판 / 대리점 / 가맹점 4단 권한 정산</div>
-    <select class="login-inp" id="role-sel" style="cursor:pointer;font-weight:700">
+    <select class="login-inp" id="role-sel" style="cursor:pointer;font-weight:700" onchange="var ci=document.getElementById('code-inp');ci.style.display=this.value==='hq'?'none':'block';ci.placeholder=this.value==='distributor'?'총판 코드 (예: DIST-001)':this.value==='agent'?'대리점 코드 (예: AGENT-001)':'가맹점 코드 (예: MERCH-001)'">
       <option value="hq">🏢 본사 (전체 관리)</option>
       <option value="distributor">🏪 총판</option>
       <option value="agent">🤝 대리점</option>
@@ -115,15 +115,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
     <input class="login-inp" type="password" id="pw-inp" placeholder="비밀번호"
       onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" onclick="doLogin()">🔐 입장하기</button>
-    <script>
-    document.getElementById('role-sel').addEventListener('change', function(){
-      var ci = document.getElementById('code-inp');
-      ci.style.display = this.value === 'hq' ? 'none' : 'block';
-      ci.placeholder = this.value === 'distributor' ? '총판 코드 (예: DIST-001)' :
-                        this.value === 'agent' ? '대리점 코드 (예: AGENT-001)' :
-                        '가맹점 코드 (예: MERCH-001)';
-    });
-    </script>
+    
     <div class="login-err" id="login-err">❌ 비밀번호가 틀렸어요!</div>
     <div style="font-size:11px;color:var(--text3);margin-top:16px;line-height:1.6">
       💡 초대 URL로 접속 시 역할/코드가 자동 설정됩니다<br>

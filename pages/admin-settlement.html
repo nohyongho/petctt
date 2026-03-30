@@ -144,7 +144,17 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
       <div class="header-title">🏢 발로레 정산 어드민</div>
       <div class="header-sub">원천거래 기반 자동 정산 시스템 · <span id="cur-role-badge" style="font-weight:700"></span> <span id="cur-code-text" style="color:var(--accent3)"></span></div>
     </div>
+    <span id="notif-bell" onclick="toggleNotifs()" style="cursor:pointer;position:relative;margin-right:12px;font-size:18px">🔔<span id="notif-count" style="display:none;position:absolute;top:-6px;right:-8px;background:#ff5252;color:#fff;font-size:9px;font-weight:900;border-radius:50%;width:16px;height:16px;text-align:center;line-height:16px">0</span></span>
     <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+  </div>
+  <div id="notif-panel" style="display:none;position:absolute;right:16px;top:54px;width:320px;max-height:300px;overflow-y:auto;background:var(--bg2);border:1px solid var(--border);border-radius:12px;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.4)">
+    <div style="padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700;display:flex;justify-content:space-between">
+      <span>🔔 알림</span>
+      <span style="color:var(--text3);font-size:11px;cursor:pointer" onclick="clearNotifs()">모두 읽음</span>
+    </div>
+    <div id="notif-list" style="padding:8px">
+      <div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">알림 없음</div>
+    </div>
   </div>
 
   <div class="tab-nav">
@@ -235,6 +245,29 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
           <div class="stat-lbl">등록 가맹점수</div>
         </div>
       </div>
+    </div>
+
+
+    <!-- P1-1: 매출 추이 차트 + P1-2: 전기간 비교 -->
+    <div class="card">
+      <div class="card-title">📊 매출 추이 (최근 7일)</div>
+      <div style="display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+        <div class="stat-box" style="flex:1;min-width:100px">
+          <div style="font-size:10px;color:var(--text2)">오늘 매출</div>
+          <div id="chart-today" style="font-size:16px;font-weight:900;color:var(--accent2)">₩0</div>
+          <div id="chart-today-diff" style="font-size:10px;margin-top:2px">-</div>
+        </div>
+        <div class="stat-box" style="flex:1;min-width:100px">
+          <div style="font-size:10px;color:var(--text2)">이번 주 합계</div>
+          <div id="chart-week" style="font-size:16px;font-weight:900;color:#a5b4fc">₩0</div>
+          <div id="chart-week-diff" style="font-size:10px;margin-top:2px">-</div>
+        </div>
+        <div class="stat-box" style="flex:1;min-width:100px">
+          <div style="font-size:10px;color:var(--text2)">일평균</div>
+          <div id="chart-avg" style="font-size:16px;font-weight:900;color:#67e8f9">₩0</div>
+        </div>
+      </div>
+      <canvas id="sales-chart" width="700" height="200" style="width:100%;height:200px;border-radius:8px;background:var(--bg3)"></canvas>
     </div>
 
     <!-- 정산 흐름 -->
@@ -346,6 +379,13 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
         </select>
       </div>
       <div class="form-row">
+        <select class="sel" id="txn-payment" style="min-width:110px">
+          <option value="card">💳 카드</option>
+          <option value="cash">💵 현금</option>
+          <option value="transfer">🏦 계좌이체</option>
+          <option value="app">📱 앱결제</option>
+          <option value="coupon">🎫 쿠폰</option>
+        </select>
         <input class="inp" type="text" id="txn-memo" placeholder="메모 (선택)" style="flex:2">
         <button class="btn btn-warn" onclick="addTxn()" style="flex:0">💰 거래 등록</button>
       </div>
@@ -508,6 +548,19 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
       </table>
     </div>
 
+
+    <!-- P1-5: 접속/작업 이력 로그 -->
+    <div class="card">
+      <div class="card-title">📝 최근 활동 로그</div>
+      <div style="max-height:200px;overflow-y:auto">
+        <table class="tbl">
+          <thead><tr><th>시간</th><th>역할</th><th>작업</th></tr></thead>
+          <tbody id="activity-log-tbody">
+            <tr><td colspan="3" class="empty">활동 로그 없음</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
     <!-- 본사 기준 원천거래 조회 -->
     <div class="card">
       <div class="card-title">📋 본사 배분 내역 (원천거래 기준)</div>
@@ -745,6 +798,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
 var PW = 'valore2026';
 var STORE_KEY = 'valore_settlement_v2';
 var MERCH_TYPE_MAP = {restaurant:'음식점',cafe:'카페',retail:'소매점',beauty:'뷰티/미용',fitness:'헬스/피트니스',pet:'반려동물',etc:'기타'};
+var PAYMENT_MAP = {card:'카드',cash:'현금',transfer:'계좌이체',app:'앱결제',coupon:'쿠폰'};
 var FEE_TYPE_MAP = {commission:'중개수수료',pg:'PG수수료',ad:'광고비',delivery:'배달비',etc_fee:'기타수수료'};
 var CANCEL_TYPES = {customer:'고객취소',merchant:'가맹점취소',platform:'플랫폼취소'};
 var TYPE_MAP = {subscription:'구독료',coupon_fee:'쿠폰수수료',merchant_fee:'가맹점수수료',ad_fee:'광고비',store_fee:'매장입점 판매수수료',etc:'기타'};
@@ -903,6 +957,241 @@ function initApp(){
 
 
 
+
+
+
+// ===== P1-1: 매출 추이 차트 =====
+function renderSalesChart(){
+  var canvas = document.getElementById('sales-chart');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width = canvas.offsetWidth * 2;
+  var h = canvas.height = 400;
+  ctx.clearRect(0,0,w,h);
+
+  var txns = filterByRole(getData('transactions')).filter(function(t){return t.status!=='cancelled';});
+  var today = new Date();
+  var days = [];
+  var amounts = [];
+  for(var i=6;i>=0;i--){
+    var d = new Date(today);
+    d.setDate(d.getDate()-i);
+    var ds = d.toISOString().split('T')[0];
+    days.push(ds.substring(5)); // MM-DD
+    var dayAmt = txns.filter(function(t){return t.date===ds;}).reduce(function(s,t){return s+t.amount;},0);
+    amounts.push(dayAmt);
+  }
+
+  var maxAmt = Math.max.apply(null, amounts) || 1;
+  var padL = 60, padR = 20, padT = 30, padB = 40;
+  var chartW = w - padL - padR;
+  var chartH = h - padT - padB;
+
+  // 배경 그리드
+  ctx.strokeStyle = 'rgba(255,255,255,.05)';
+  ctx.lineWidth = 1;
+  for(var g=0;g<5;g++){
+    var gy = padT + chartH * g / 4;
+    ctx.beginPath(); ctx.moveTo(padL,gy); ctx.lineTo(w-padR,gy); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.3)';
+    ctx.font = '18px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(fmt(Math.round(maxAmt*(4-g)/4)), padL-8, gy+6);
+  }
+
+  // 바 차트
+  var barW = chartW / days.length * 0.6;
+  var gap = chartW / days.length;
+  for(var b=0;b<days.length;b++){
+    var barH = amounts[b] / maxAmt * chartH;
+    var bx = padL + gap * b + gap*0.2;
+    var by = padT + chartH - barH;
+
+    // 그라데이션
+    var grad = ctx.createLinearGradient(bx,by,bx,padT+chartH);
+    grad.addColorStop(0,'rgba(99,102,241,.8)');
+    grad.addColorStop(1,'rgba(139,92,246,.3)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.roundRect(bx, by, barW, barH, [4,4,0,0]);
+    ctx.fill();
+
+    // 금액 텍스트
+    if(amounts[b]>0){
+      ctx.fillStyle = '#a5b4fc';
+      ctx.font = 'bold 18px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(fmt(amounts[b]), bx+barW/2, by-8);
+    }
+
+    // X축 날짜
+    ctx.fillStyle = 'rgba(255,255,255,.5)';
+    ctx.font = '18px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(days[b], bx+barW/2, padT+chartH+24);
+  }
+
+  // P1-2: 전기간 비교
+  var todayAmt = amounts[6];
+  var yesterdayAmt = amounts[5];
+  document.getElementById('chart-today').textContent = fmt(todayAmt);
+  var diffEl = document.getElementById('chart-today-diff');
+  if(yesterdayAmt > 0){
+    var pct = Math.round((todayAmt - yesterdayAmt) / yesterdayAmt * 100);
+    diffEl.textContent = (pct>=0?'+':'')+pct+'% vs 어제';
+    diffEl.style.color = pct>=0?'var(--accent2)':'#ff5252';
+  } else {
+    diffEl.textContent = '-';
+  }
+
+  var weekTotal = amounts.reduce(function(s,a){return s+a;},0);
+  document.getElementById('chart-week').textContent = fmt(weekTotal);
+  // 전주 비교
+  var prevWeekAmounts = [];
+  for(var pw=13;pw>=7;pw--){
+    var pwd = new Date(today);
+    pwd.setDate(pwd.getDate()-pw);
+    var pds = pwd.toISOString().split('T')[0];
+    prevWeekAmounts.push(txns.filter(function(t){return t.date===pds;}).reduce(function(s,t){return s+t.amount;},0));
+  }
+  var prevWeekTotal = prevWeekAmounts.reduce(function(s,a){return s+a;},0);
+  var weekDiffEl = document.getElementById('chart-week-diff');
+  if(prevWeekTotal > 0){
+    var wpct = Math.round((weekTotal - prevWeekTotal) / prevWeekTotal * 100);
+    weekDiffEl.textContent = (wpct>=0?'+':'')+wpct+'% vs 전주';
+    weekDiffEl.style.color = wpct>=0?'var(--accent2)':'#ff5252';
+  }
+
+  var avg = Math.round(weekTotal / 7);
+  document.getElementById('chart-avg').textContent = fmt(avg);
+}
+
+// ===== P1-4: 정산 보류 =====
+function holdTxn(id){
+  var reason = prompt('보류 사유를 입력하세요:');
+  if(!reason) return;
+  var txns = getData('transactions');
+  txns = txns.map(function(t){
+    if(t.id===id) return Object.assign({},t,{status:'held',holdReason:reason,heldAt:new Date().toISOString()});
+    return t;
+  });
+  setData('transactions', txns);
+  addLog('보류','거래 ID:'+id+' 사유:'+reason);
+  addNotif('⏸ 거래 보류됨: '+reason);
+  renderAll();
+}
+
+// ===== P1-5: 활동 로그 =====
+function addLog(action, detail){
+  var logs = getData('activity_logs');
+  logs.push({
+    time: new Date().toISOString(),
+    role: CUR_ROLE,
+    code: CUR_CODE,
+    name: CUR_NAME,
+    action: action,
+    detail: detail || ''
+  });
+  if(logs.length > 100) logs = logs.slice(-100);
+  setData('activity_logs', logs);
+  renderLogs();
+}
+
+function renderLogs(){
+  var logs = getData('activity_logs');
+  var tbody = document.getElementById('activity-log-tbody');
+  if(!tbody) return;
+  if(logs.length === 0){
+    tbody.innerHTML = '<tr><td colspan="3" class="empty">활동 로그 없음</td></tr>';
+  } else {
+    var ROLE_NAMES = {hq:'본사',distributor:'총판',agent:'대리점',merchant:'가맹점'};
+    tbody.innerHTML = logs.slice().reverse().slice(0,20).map(function(l){
+      var t = l.time.substring(5,16).replace('T',' ');
+      return '<tr><td style="font-size:11px;color:var(--text2)">'+t+'</td>'+
+        '<td><span style="font-size:10px">'+(ROLE_NAMES[l.role]||l.role)+'</span></td>'+
+        '<td style="font-size:11px">'+l.action+(l.detail?' - '+l.detail.substring(0,30):'')+'</td></tr>';
+    }).join('');
+  }
+}
+
+// ===== P1-6: 알림 시스템 =====
+function addNotif(msg){
+  var notifs = getData('notifications');
+  notifs.push({id:Date.now(), msg:msg, time:new Date().toISOString(), read:false});
+  if(notifs.length > 50) notifs = notifs.slice(-50);
+  setData('notifications', notifs);
+  renderNotifs();
+}
+
+function renderNotifs(){
+  var notifs = getData('notifications');
+  var unread = notifs.filter(function(n){return !n.read;}).length;
+  var countEl = document.getElementById('notif-count');
+  if(countEl){
+    countEl.textContent = unread;
+    countEl.style.display = unread > 0 ? 'block' : 'none';
+  }
+  var list = document.getElementById('notif-list');
+  if(!list) return;
+  if(notifs.length === 0){
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">알림 없음</div>';
+  } else {
+    list.innerHTML = notifs.slice().reverse().slice(0,10).map(function(n){
+      var t = n.time.substring(5,16).replace('T',' ');
+      return '<div style="padding:8px 10px;border-bottom:1px solid var(--border2);font-size:12px;'+(n.read?'opacity:.5':'')+'">'+
+        '<div>'+n.msg+'</div><div style="font-size:10px;color:var(--text3);margin-top:2px">'+t+'</div></div>';
+    }).join('');
+  }
+}
+
+function toggleNotifs(){
+  var panel = document.getElementById('notif-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+function clearNotifs(){
+  var notifs = getData('notifications');
+  notifs = notifs.map(function(n){return Object.assign({},n,{read:true});});
+  setData('notifications', notifs);
+  renderNotifs();
+}
+
+// ===== P1-7: 세금계산서 기초 =====
+function generateTaxInvoice(){
+  var mon = document.getElementById('settle-month').value || curMonth();
+  var txns = filterByRole(getData('transactions')).filter(function(t){return t.date.startsWith(mon) && t.status==='approved';});
+  if(txns.length===0){alert('해당 월 승인된 거래 없음!');return;}
+  var totalFee = txns.reduce(function(s,t){return s+(t.fee||0);},0);
+  var totalVat = txns.reduce(function(s,t){return s+(t.vat||0);},0);
+  var totalSupply = txns.reduce(function(s,t){return s+(t.supplyAmount||0);},0);
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>세금계산서 - '+mon+'</title>';
+  html += '<style>body{font-family:"Noto Sans KR",sans-serif;padding:40px;max-width:700px;margin:0 auto}';
+  html += 'h2{text-align:center;color:#1a237e;border:3px double #1a237e;padding:16px;margin-bottom:24px}';
+  html += 'table{width:100%;border-collapse:collapse;margin:16px 0}th,td{border:1px solid #333;padding:10px;font-size:13px}';
+  html += 'th{background:#e8eaf6;text-align:center}.right{text-align:right}';
+  html += '.stamp{text-align:right;margin-top:40px;font-size:14px}@media print{body{padding:20px}}</style></head><body>';
+  html += '<h2>전 자 세 금 계 산 서</h2>';
+  html += '<table><tr><th colspan="2">공급자</th><th colspan="2">공급받는자</th></tr>';
+  html += '<tr><td>사업자번호</td><td>000-00-00000</td><td>사업자번호</td><td>-</td></tr>';
+  html += '<tr><td>상호</td><td>주식회사 발로레</td><td>상호</td><td>(플랫폼 이용 가맹점)</td></tr>';
+  html += '<tr><td>대표자</td><td>-</td><td>대표자</td><td>-</td></tr></table>';
+  html += '<table><tr><th>작성일자</th><th>공급가액</th><th>부가세</th><th>합계</th></tr>';
+  html += '<tr><td style="text-align:center">'+mon+'-01</td>';
+  html += '<td class="right">'+fmt(totalSupply)+'</td>';
+  html += '<td class="right">'+fmt(totalVat)+'</td>';
+  html += '<td class="right" style="font-weight:900">'+fmt(totalFee)+'</td></tr></table>';
+  html += '<table><tr><th>월</th><th>품목</th><th>수량</th><th>공급가액</th><th>부가세</th><th>비고</th></tr>';
+  html += '<tr><td style="text-align:center">'+mon.substring(5)+'</td><td>플랫폼 이용 수수료</td>';
+  html += '<td style="text-align:center">'+txns.length+'건</td>';
+  html += '<td class="right">'+fmt(totalSupply)+'</td><td class="right">'+fmt(totalVat)+'</td><td>-</td></tr></table>';
+  html += '<div class="stamp"><p>위 금액을 청구함.</p><p style="margin-top:16px"><b>주식회사 발로레</b> (인)</p></div>';
+  html += '</body></html>';
+  var w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  w.print();
+}
 
 // ===== 거래유형 변경 시 수수료율 자동 적용 =====
 function applyFeeRateByType(){
@@ -1108,6 +1397,9 @@ function renderAll(){
   renderAgents();
   renderMerchants();
   renderCodes();
+  renderSalesChart();
+  renderLogs();
+  renderNotifs();
 }
 
 function populateSelects(){
@@ -1204,6 +1496,7 @@ function addTxn(){
   var memo = document.getElementById('txn-memo').value.trim();
   var feeRate = parseFloat(document.getElementById('txn-fee-rate').value) || 0;
   var feeType = document.getElementById('txn-fee-type').value;
+  var payment = document.getElementById('txn-payment').value;
 
   if(!date || !bizName || !amount){
     alert('날짜, 업체명, 금액을 입력해요!');
@@ -1224,6 +1517,7 @@ function addTxn(){
     amount: amount,
     feeRate: feeRate,
     feeType: feeType,
+    payment: payment,
     fee: fee,
     vat: vat,
     supplyAmount: supplyAmount,
@@ -1245,13 +1539,18 @@ function addTxn(){
   document.getElementById('txn-memo').value = '';
   document.getElementById('txn-preview').style.display = 'none';
   renderAll();
+  addLog('거래등록', bizName+' '+fmt(amount));
+  addNotif('💰 새 거래: '+bizName+' '+fmt(amount));
   alert('💰 원천거래가 등록되었어요! (미승인 상태)');
 }
 
 function approveTxn(id){
   var txns = getData('transactions');
+  var target = txns.find(function(t){return t.id===id;});
   txns = txns.map(function(t){ return t.id === id ? Object.assign({}, t, {status:'approved'}) : t; });
   setData('transactions', txns);
+  if(target) addLog('승인', target.bizName+' '+fmt(target.amount));
+  if(target) addNotif('✅ 거래 승인: '+target.bizName);
   renderAll();
 }
 

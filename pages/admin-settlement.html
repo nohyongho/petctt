@@ -206,7 +206,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
               <span class="badge-txn">원천</span>
               <span style="font-size:13px;font-weight:700;margin-left:8px">가맹점 매출 발생</span>
             </div>
-            <span style="font-size:13px;font-weight:900;color:#fbbf24">100%</span>
+            <span style="font-size:13px;font-weight:900;color:#fbbf24">매출 발생</span>
           </div>
           <div style="font-size:11px;color:var(--text2);margin-top:4px">가맹점 매출에서 수수료율(%)만큼 플랫폼 수수료 산출</div>
         </div>
@@ -217,7 +217,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
               <span class="badge-hq">본사</span>
               <span style="font-size:13px;font-weight:700;margin-left:8px">주식회사 발로레</span>
             </div>
-            <span style="font-size:13px;font-weight:900;color:#a5b4fc" id="flow-hq-rate">%</span>
+            <span style="font-size:13px;font-weight:900;color:#a5b4fc" id="flow-hq-rate">본사 몫</span>
           </div>
           <div style="font-size:11px;color:var(--text2);margin-top:4px">집계 · 승인 · 지급 처리</div>
         </div>
@@ -228,7 +228,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
               <span class="badge-dist">총판</span>
               <span style="font-size:13px;font-weight:700;margin-left:8px">지역 총판</span>
             </div>
-            <span style="font-size:13px;font-weight:900;color:#67e8f9" id="flow-dist-rate">%</span>
+            <span style="font-size:13px;font-weight:900;color:#67e8f9" id="flow-dist-rate">총판 몫</span>
           </div>
           <div style="font-size:11px;color:var(--text2);margin-top:4px">지역 영업 · 대리점 관리 · 가맹점 모집</div>
         </div>
@@ -239,7 +239,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
               <span class="badge-agent">대리점</span>
               <span style="font-size:13px;font-weight:700;margin-left:8px">개별 대리점</span>
             </div>
-            <span style="font-size:13px;font-weight:900;color:#6ee7b7" id="flow-agent-rate">%</span>
+            <span style="font-size:13px;font-weight:900;color:#6ee7b7" id="flow-agent-rate">대리점 몫</span>
           </div>
           <div style="font-size:11px;color:var(--text2);margin-top:4px">현장 영업 · 가맹점 직접 관리 · 쿠폰 발행 지원</div>
         </div>
@@ -705,7 +705,7 @@ function applyRoleUI(){
   // 탭 표시/숨김
   var tabs = document.querySelectorAll('.tab');
   var TAB_PERMS = {
-    hq:          ['overview','txn','merchant','distributor','agent','settlement','codes'],
+    hq:          ['overview','txn','hq','merchant','distributor','agent','settlement','codes'],
     distributor: ['overview','txn','merchant','agent','codes'],
     agent:       ['overview','txn','merchant','codes'],
     merchant:    ['overview']
@@ -1416,9 +1416,9 @@ function saveRules(){
 }
 
 function updateFlowRates(rules){
-  document.getElementById('flow-hq-rate').textContent = rules.hq + '%';
-  document.getElementById('flow-dist-rate').textContent = rules.dist + '%';
-  document.getElementById('flow-agent-rate').textContent = rules.agent + '%';
+  document.getElementById('flow-hq-rate').textContent = '본사 몫';
+  document.getElementById('flow-dist-rate').textContent = '총판 몫';
+  document.getElementById('flow-agent-rate').textContent = '대리점 몫';
   var el;
   el = document.getElementById('txn-hq-rate'); if(el) el.textContent = rules.hq;
   el = document.getElementById('txn-dist-rate'); if(el) el.textContent = rules.dist;

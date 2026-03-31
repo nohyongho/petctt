@@ -41,20 +41,14 @@
 #ami-particle-canvas{position:fixed;inset:0;pointer-events:none;z-index:99989}
 
 #ami-root{
-  position:fixed!important;
-  z-index:99990!important;
-  bottom:24px!important;
-  left:50%!important;
-  transform:translateX(-50%)!important;
+  position:fixed;
+  z-index:99990;
+  bottom:28px;
+  left:0;
   cursor:pointer;
   user-select:none;
-  display:block!important;
-  visibility:visible!important;
-  opacity:1!important;
-  pointer-events:auto!important;
-  width:88px;height:108px;
-  /* 디버그: 빨간 테두리 - 보이면 위치는 맞는 것 */
-  
+  display:block;
+  pointer-events:auto;
 }
 
 #ami-bubble{
@@ -372,41 +366,6 @@ iframe.goog-te-banner-frame{display:none!important;}
                                     </div>
                         </section>
 
-                        <!-- ━━━ 반려동물 동반 식당 (2026.3.1 시행) ━━━ -->
-                        <section class="section-block">
-                                    <h2 class="section-heading">🍽️ 반려동물 동반 식당</h2>
-                                    <p class="section-desc">2026년 3월부터 시행된 반려동물 동반 출입법! 예방접종 완료된 반려동물과 함께 갈 수 있는 식당·카페를 찾아보세요.</p>
-                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;">
-                                        <div style="background:rgba(255,183,77,.1);border:1px solid rgba(255,183,77,.3);border-radius:16px;padding:16px;text-align:center;">
-                                            <div style="font-size:28px;margin-bottom:8px;">🏪</div>
-                                            <div style="font-size:13px;font-weight:700;color:#ffb74d;">동반 가능 매장</div>
-                                            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">내 주변 식당·카페 검색</div>
-                                        </div>
-                                        <div style="background:rgba(129,199,132,.1);border:1px solid rgba(129,199,132,.3);border-radius:16px;padding:16px;text-align:center;">
-                                            <div style="font-size:28px;margin-bottom:8px;">💉</div>
-                                            <div style="font-size:13px;font-weight:700;color:#81c784;">접종 인증</div>
-                                            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">예방접종 기록 등록</div>
-                                        </div>
-                                        <div style="background:rgba(100,181,246,.1);border:1px solid rgba(100,181,246,.3);border-radius:16px;padding:16px;text-align:center;">
-                                            <div style="font-size:28px;margin-bottom:8px;">🎟️</div>
-                                            <div style="font-size:13px;font-weight:700;color:#64b5f6;">매장 쿠폰</div>
-                                            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">동반 매장 할인 쿠폰</div>
-                                        </div>
-                                        <div style="background:rgba(206,147,216,.1);border:1px solid rgba(206,147,216,.3);border-radius:16px;padding:16px;text-align:center;">
-                                            <div style="font-size:28px;margin-bottom:8px;">⭐</div>
-                                            <div style="font-size:13px;font-weight:700;color:#ce93d8;">리뷰·평점</div>
-                                            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">펫 친화 매장 후기</div>
-                                        </div>
-                                    </div>
-                                    <div style="margin-top:16px;padding:12px 16px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:12px;">
-                                        <div style="font-size:11px;color:#10b981;font-weight:600;">📋 2026.3.1 반려동물 동반 출입법 시행</div>
-                                        <div style="font-size:10px;color:#64748b;margin-top:4px;line-height:1.5;">예방접종 완료 + 목줄/케이지 착용 시 허용 매장 출입 가능. PetCTT로 접종 인증부터 매장 검색까지 한번에!</div>
-                                    </div>
-                                    <div style="text-align:center;margin-top:20px;">
-                                        <a href="pages/pet-restaurant.html" class="btn-primary" style="display:inline-block;">🐾 동반 가능 매장 찾기</a>
-                                    </div>
-                        </section>
-
                         <div style="text-align:center;margin:32px 0 16px;"><button onclick="var el=document.getElementById('extra-features');if(el.style.opacity==='0.6'){el.style.opacity='1';this.textContent='▲ 접기';}else{el.style.opacity='0.6';this.textContent='▼ 더 많은 기능 보기';}" style="padding:10px 24px;background:rgba(255,255,255,0.1);color:#aaa;border:1px solid #333;border-radius:20px;font-size:0.85rem;cursor:pointer;">▼ 더 많은 기능 보기</button></div>
 
                         <!-- ━━━ 스마트 AI 글래스 (숨김처리) ━━━ -->
@@ -574,10 +533,8 @@ iframe.goog-te-banner-frame{display:none!important;}
                                     window.addEventListener('auth:ready', function(e){
                                         renderAuth();
                                     });
-                                    // 페이지 로드 시 renderAuth (다중 fallback)
+                                    // 페이지 로드 시 renderAuth
                                     setTimeout(renderAuth, 300);
-                                    setTimeout(renderAuth, 1000);
-                                    setTimeout(renderAuth, 2500);
 
                         const AUTH_KEY = 'petctt_unified_auth';
 
@@ -632,7 +589,7 @@ iframe.goog-te-banner-frame{display:none!important;}
 
                         function loginWithGoogle() {
                                     if (window.ValoreAuth) {
-                                        try { ValoreAuth.loginWithGoogle(); } catch(e) { console.error('Google login error:', e); alert('Google 로그인 오류. 다시 시도해주세요.'); }
+                                        ValoreAuth.loginWithGoogle();
                                     } else {
                                         window.location.href = 'https://petctt-auth.zeus1404.workers.dev/api/auth/google';
                                     }
@@ -670,7 +627,7 @@ iframe.goog-te-banner-frame{display:none!important;}
                                     if (user) {
                                         slot.innerHTML =
                                             '<div style="display:flex;align-items:center;gap:6px;cursor:pointer" onclick="toggleLoginMenu()">' +
-                                            (user.picture ? '<img src="'+user.picture+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(139,92,246,.5)" onerror="this.style.display=&quot;none&quot;">' : '<span style="font-size:18px">👤</span>') +
+                                            (user.picture ? '<img src="'+user.picture+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(139,92,246,.5)" onerror="this.style.display='none'">' : '<span style="font-size:18px">👤</span>') +
                                             '<span style="font-size:12px;color:#f1f5f9;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+( (user.name||'').split(' ')[0] || user.email.split('@')[0] )+'</span>' +
                                             '<span style="font-size:10px;color:#6366f1">▾</span>' +
                                             '</div>' +
@@ -805,9 +762,9 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
 </script>
 
 <!-- ========== 아미 토끼 완전판 v1 ========== -->
-<canvas id="ami-particle-canvas" class="notranslate"></canvas>
+<canvas id="ami-particle-canvas"></canvas>
 
-<div id="ami-root" class="notranslate" style="position:fixed!important;display:block!important;visibility:visible!important;opacity:1!important;z-index:99990!important;bottom:24px!important;left:50%!important;transform:translateX(-50%)!important;pointer-events:auto!important;width:88px;height:108px;">
+<div id="ami-root">
   <div id="ami-bubble"></div>
   <div id="ami-controls">
     <button class="ami-cb ami-muted" id="ami-sbtn-side" onclick="amiToggleSound()" title="소리 켜기/끄기">🔇</button>
@@ -866,7 +823,7 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
 </div>
 
 <!-- 채팅 패널 -->
-<div id="ami-chat" class="notranslate">
+<div id="ami-chat">
   <div id="ami-handle" onclick="amiToggleChat()"></div>
   <div class="ami-ph">
     <div class="ami-ph-l">
@@ -983,24 +940,15 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
     root.style.setProperty('visibility','visible','important');
     root.style.setProperty('opacity','1','important');
     root.style.setProperty('z-index','99990','important');
-    root.style.setProperty('bottom','80px','important');
+    root.style.setProperty('bottom','28px','important');
     root.style.setProperty('left', ax+'px','important');
     root.style.setProperty('transform','translateX(-50%)','important');
     root.style.setProperty('cursor','pointer','important');
     root.style.setProperty('pointer-events','auto','important');
-    root.style.setProperty('width','88px','important');
-    root.style.setProperty('height','108px','important');
-    
-    console.log('[Ami] init OK! pos:', ax, 'screen:', window.innerWidth+'x'+window.innerHeight);
-    // 디버그: 1초 후 위치 확인
-    setTimeout(function(){
-      var rect = root.getBoundingClientRect();
-      console.log('[Ami] rect:', JSON.stringify({t:rect.top,l:rect.left,w:rect.width,h:rect.height,b:rect.bottom}));
-    }, 1000);
 
     function setPos(){
       root.style.setProperty('left', ax+'px','important');
-      root.style.setProperty('bottom','80px','important');
+      root.style.setProperty('bottom','28px','important');
       root.style.setProperty('transform','translateX(-50%) scaleX('+facing+') translateY('+jOffset+'px)','important');
       root.style.setProperty('display','block','important');
       root.style.setProperty('visibility','visible','important');
@@ -1271,44 +1219,14 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
   // DOM 준비 후 실행 (외부 스크립트는 DOMContentLoaded 놓칠 수 있음)
   // readyState 체크 + 여러 fallback
   function tryInit(){
-    var root = document.getElementById('ami-root');
-    var canvas = document.getElementById('ami-particle-canvas');
-    if(root && canvas){
-      try {
-        init();
-        console.log('[Ami] tryInit → init 성공');
-      } catch(e) {
-        console.error('[Ami] init 에러:', e);
-        // 에러 발생해도 최소한 아미 SVG는 보이게
-        forceShowAmi(root);
-      }
+    if(document.getElementById('ami-root') && document.getElementById('ami-particle-canvas')){
+      init();
     } else {
       // DOM 아직 준비 안됨 → 재시도
       setTimeout(tryInit, 50);
     }
   }
-
-  // 아미 강제 표시 (에러 fallback)
-  function forceShowAmi(root){
-    if(!root) root = document.getElementById('ami-root');
-    if(!root) return;
-    root.style.cssText = 'position:fixed!important;display:block!important;visibility:visible!important;opacity:1!important;z-index:99990!important;bottom:24px!important;left:50%!important;transform:translateX(-50%)!important;pointer-events:auto!important;width:88px;height:108px;';
-    console.log('[Ami] forceShow 실행');
-  }
-
   tryInit();
-
-  // 추가 보험: 3초 후에도 아미가 안 보이면 강제 표시
-  setTimeout(function(){
-    var root = document.getElementById('ami-root');
-    if(root){
-      var rect = root.getBoundingClientRect();
-      if(rect.width === 0 || rect.height === 0 || rect.bottom < 0 || rect.top > window.innerHeight){
-        console.warn('[Ami] 3초 후 비가시 감지 → forceShow');
-        forceShowAmi(root);
-      }
-    }
-  }, 3000);
 
 })();
 

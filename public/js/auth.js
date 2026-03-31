@@ -328,36 +328,20 @@ if (document.readyState === 'loading') {
 
 })();
 
-// ===== 아미 토끼 직접 생성 v4 =====
+// ===== 아미 토끼 v5 (무조건 새로 만듦, bottom:100px) =====
 (function injectAmi(){
   function create(){
-    // 기존 아미가 보이면 건드리지 않음
-    var existing = document.getElementById('ami-root');
-    if(existing){
-      var r = existing.getBoundingClientRect();
-      if(r.width > 10 && r.height > 10 && r.bottom > 0 && r.top < window.innerHeight){
-        console.log('[AmiInject] 기존 아미 정상 보임, skip');
-        return;
-      }
-      // 기존 것이 안 보이면 제거
-      existing.remove();
-      console.log('[AmiInject] 기존 아미 제거 (비가시)');
-    }
-    
-    // 파티클 캔버스도 제거
-    var oldCanvas = document.getElementById('ami-particle-canvas');
-    if(oldCanvas) oldCanvas.remove();
-    
-    // 새 아미 div 생성
+    ['ami-root','ami-particle-canvas','ami-chat','ami-injected'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el){ el.remove(); console.log('[AmiV5] removed #'+id); }
+    });
     var div = document.createElement('div');
     div.id = 'ami-injected';
     div.className = 'notranslate';
     div.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);z-index:99990;display:block;visibility:visible;opacity:1;pointer-events:auto;width:88px;height:108px;cursor:pointer;';
-    
-    div.innerHTML = '<svg width="88" height="108" viewBox="0 0 88 108" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 4px 16px rgba(255,150,210,.55))">' +
+    div.innerHTML = '<svg width="88" height="108" viewBox="0 0 88 108" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(0 4px 16px rgba(255,150,210,.55));display:block">' +
       '<ellipse cx="44" cy="106" rx="24" ry="4.5" fill="rgba(0,0,0,.2)"/>' +
       '<circle cx="73" cy="82" r="8" fill="white" stroke="#f0c0d8" stroke-width="1.2"/>' +
-      '<circle cx="73" cy="82" r="4.5" fill="rgba(255,200,230,.45)"/>' +
       '<g><ellipse cx="25" cy="18" rx="9" ry="20" fill="white" stroke="#f0c0d8" stroke-width="1.2"/><ellipse cx="25" cy="20" rx="5" ry="12.5" fill="#ffb3d9" opacity=".75"/></g>' +
       '<g><ellipse cx="63" cy="18" rx="9" ry="20" fill="white" stroke="#f0c0d8" stroke-width="1.2"/><ellipse cx="63" cy="20" rx="5" ry="12.5" fill="#ffb3d9" opacity=".75"/></g>' +
       '<ellipse cx="44" cy="82" rx="27" ry="23" fill="white" stroke="#f0c0d8" stroke-width="1.3"/>' +
@@ -368,57 +352,24 @@ if (document.readyState === 'loading') {
       '<ellipse cx="33" cy="103" rx="10" ry="6" fill="white" stroke="#f0c0d8" stroke-width="1"/>' +
       '<ellipse cx="55" cy="103" rx="10" ry="6" fill="white" stroke="#f0c0d8" stroke-width="1"/>' +
       '</svg>';
-    
-    // 말풍선
     var bubble = document.createElement('div');
-    bubble.style.cssText = 'position:absolute;bottom:112px;left:50%;transform:translateX(-50%);background:#fff;border:2px solid #ffb3d9;border-radius:16px;padding:8px 12px;font-size:11px;color:#333;text-align:center;white-space:nowrap;font-family:sans-serif;box-shadow:0 4px 12px rgba(255,130,190,.3);';
-    bubble.textContent = '안녕! 나 아미야~ 🐰💜';
+    bubble.style.cssText = 'position:absolute;bottom:112px;left:50%;transform:translateX(-50%);background:#fff;border:2px solid #ffb3d9;border-radius:16px;padding:8px 12px;font-size:11px;color:#333;text-align:center;white-space:nowrap;font-family:sans-serif;box-shadow:0 4px 12px rgba(255,130,190,.3);pointer-events:none;';
+    bubble.textContent = '\uc548\ub155! \ub098 \uc544\ubbf8\uc57c~ \ud83d\udc30\ud83d\udc9c';
     div.appendChild(bubble);
-    
-    // body에 추가
     document.body.appendChild(div);
-    console.log('[AmiInject] 아미 직접 생성 완료!');
-    
-    // 클릭 이벤트
+    var r = div.getBoundingClientRect();
+    console.log('[AmiV5] created! rect:', JSON.stringify({w:Math.round(r.width),h:Math.round(r.height),t:Math.round(r.top),b:Math.round(r.bottom)}));
     div.addEventListener('click', function(){
-      var msgs = ['반가워~! 🐰','멍멍! 야옹~ 💕','쿠폰 찾아볼까? 🎟️','오늘 기분이 좋아! ✨','같이 놀자~ 💜','방귀~ 뿡! 💨'];
+      var msgs = ['\ubc18\uac00\uc6cc~! \ud83d\udc30','\uba4d\uba4d! \uc57c\uc639~ \ud83d\udc95','\ucfe0\ud3f0 \ucc3e\uc544\ubcfc\uae4c? \ud83c\udf9f','\ubc29\uadc0~ \ubd09! \ud83d\udca8'];
       bubble.textContent = msgs[Math.floor(Math.random()*msgs.length)];
       bubble.style.display = 'block';
-      // 점프 애니메이션
       div.style.transition = 'transform 0.15s ease-out';
       div.style.transform = 'translateX(-50%) translateY(-20px)';
       setTimeout(function(){ div.style.transform = 'translateX(-50%) translateY(0)'; }, 150);
       setTimeout(function(){ bubble.style.display = 'none'; }, 3000);
     });
-    
-    // 3초 후 말풍선 숨김
     setTimeout(function(){ bubble.style.display = 'none'; }, 4000);
-    
-    // 간단한 걸어다니기 애니메이션
-    var posX = window.innerWidth / 2;
-    var targetX = posX;
-    var facing = 1;
-    
-    setInterval(function(){
-      // 랜덤 목표
-      if(Math.random() < 0.02){
-        targetX = 44 + Math.random() * (window.innerWidth - 88);
-      }
-      // 이동
-      var dx = targetX - posX;
-      if(Math.abs(dx) > 2){
-        posX += dx * 0.03;
-        facing = dx > 0 ? 1 : -1;
-        div.style.left = posX + 'px';
-        div.style.transform = 'translateX(-50%) scaleX(' + facing + ')';
-      }
-    }, 50);
   }
-  
-  // 페이지 로드 후 실행
-  if(document.readyState === 'complete'){
-    setTimeout(create, 500);
-  } else {
-    window.addEventListener('load', function(){ setTimeout(create, 500); });
-  }
+  window.addEventListener('load', function(){ setTimeout(create, 800); });
+  setTimeout(function(){ if(!document.getElementById('ami-injected')) create(); }, 4000);
 })();

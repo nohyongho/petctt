@@ -803,9 +803,9 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
 </script>
 
 <!-- ========== 아미 토끼 완전판 v1 ========== -->
-<canvas id="ami-particle-canvas"></canvas>
+<canvas id="ami-particle-canvas" class="notranslate"></canvas>
 
-<div id="ami-root">
+<div id="ami-root" class="notranslate" style="position:fixed!important;display:block!important;visibility:visible!important;opacity:1!important;z-index:99990!important;bottom:28px!important;left:50%!important;transform:translateX(-50%)!important;pointer-events:auto!important;width:88px;height:108px;">
   <div id="ami-bubble"></div>
   <div id="ami-controls">
     <button class="ami-cb ami-muted" id="ami-sbtn-side" onclick="amiToggleSound()" title="소리 켜기/끄기">🔇</button>
@@ -864,7 +864,7 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
 </div>
 
 <!-- 채팅 패널 -->
-<div id="ami-chat">
+<div id="ami-chat" class="notranslate">
   <div id="ami-handle" onclick="amiToggleChat()"></div>
   <div class="ami-ph">
     <div class="ami-ph-l">
@@ -1263,14 +1263,44 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
   // DOM 준비 후 실행 (외부 스크립트는 DOMContentLoaded 놓칠 수 있음)
   // readyState 체크 + 여러 fallback
   function tryInit(){
-    if(document.getElementById('ami-root') && document.getElementById('ami-particle-canvas')){
-      init();
+    var root = document.getElementById('ami-root');
+    var canvas = document.getElementById('ami-particle-canvas');
+    if(root && canvas){
+      try {
+        init();
+        console.log('[Ami] tryInit → init 성공');
+      } catch(e) {
+        console.error('[Ami] init 에러:', e);
+        // 에러 발생해도 최소한 아미 SVG는 보이게
+        forceShowAmi(root);
+      }
     } else {
       // DOM 아직 준비 안됨 → 재시도
       setTimeout(tryInit, 50);
     }
   }
+
+  // 아미 강제 표시 (에러 fallback)
+  function forceShowAmi(root){
+    if(!root) root = document.getElementById('ami-root');
+    if(!root) return;
+    root.style.cssText = 'position:fixed!important;display:block!important;visibility:visible!important;opacity:1!important;z-index:99990!important;bottom:28px!important;left:50%!important;transform:translateX(-50%)!important;pointer-events:auto!important;width:88px;height:108px;';
+    console.log('[Ami] forceShow 실행');
+  }
+
   tryInit();
+
+  // 추가 보험: 3초 후에도 아미가 안 보이면 강제 표시
+  setTimeout(function(){
+    var root = document.getElementById('ami-root');
+    if(root){
+      var rect = root.getBoundingClientRect();
+      if(rect.width === 0 || rect.height === 0 || rect.bottom < 0 || rect.top > window.innerHeight){
+        console.warn('[Ami] 3초 후 비가시 감지 → forceShow');
+        forceShowAmi(root);
+      }
+    }
+  }, 3000);
 
 })();
 

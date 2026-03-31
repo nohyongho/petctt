@@ -328,7 +328,7 @@ if (document.readyState === 'loading') {
 
 })();
 
-// ===== 아미 토끼 최강 부활 v2 =====
+// ===== 아미 토끼 최강 부활 v3 =====
 (function fixAmi(){
   function show(){
     var root = document.getElementById('ami-root');
@@ -337,76 +337,29 @@ if (document.readyState === 'loading') {
       return;
     }
     
-    // computed style 확인
-    var cs = window.getComputedStyle(root);
-    var rect = root.getBoundingClientRect();
-    
-    console.log('[AmiFix] 체크:', {
-      display: cs.display,
-      visibility: cs.visibility,
-      opacity: cs.opacity,
-      position: cs.position,
-      zIndex: cs.zIndex,
-      rect: {w:Math.round(rect.width), h:Math.round(rect.height), t:Math.round(rect.top), l:Math.round(rect.left), b:Math.round(rect.bottom)}
-    });
-    
-    // 강제 스타일 적용
     var s = root.style;
-    s.setProperty('position','fixed','important');
-    s.setProperty('display','block','important');
-    s.setProperty('visibility','visible','important');
-    s.setProperty('opacity','1','important');
-    s.setProperty('z-index','99990','important');
-    s.setProperty('bottom','24px','important');
-    s.setProperty('pointer-events','auto','important');
-    s.setProperty('width','88px','important');
-    s.setProperty('height','108px','important');
+    s.cssText = 'position:fixed!important;display:block!important;visibility:visible!important;opacity:1!important;z-index:99990!important;bottom:24px!important;left:50%!important;transform:translateX(-50%)!important;pointer-events:auto!important;width:88px!important;height:108px!important;cursor:pointer!important;';
     
-    // left/transform이 JS에 의해 올바르게 설정됐는지 확인
-    var rect2 = root.getBoundingClientRect();
-    if(rect2.width < 10 || rect2.height < 10){
-      // 여전히 크기 0 → SVG 문제
-      console.warn('[AmiFix] SVG 크기 0 - overflow 확인');
-      s.setProperty('overflow','visible','important');
-      var svg = root.querySelector('svg');
-      if(svg){
-        svg.style.setProperty('display','block','important');
-        svg.style.setProperty('visibility','visible','important');
-        svg.style.setProperty('width','88px','important');
-        svg.style.setProperty('height','108px','important');
-      }
+    // SVG도 강제 표시
+    var svg = document.getElementById('ami-svg');
+    if(svg){
+      svg.style.cssText = 'display:block!important;visibility:visible!important;opacity:1!important;width:88px!important;height:108px!important;overflow:visible!important;';
     }
     
-    if(rect2.left < -50 || rect2.left > window.innerWidth){
-      // 화면 밖 → 중앙으로
-      s.setProperty('left','50%','important');
-      s.setProperty('transform','translateX(-50%)','important');
-      console.log('[AmiFix] 중앙 보정');
-    }
+    // 위치 로그
+    var rect = root.getBoundingClientRect();
+    console.log('[AmiFix v3] 위치:', JSON.stringify({w:Math.round(rect.width),h:Math.round(rect.height),t:Math.round(rect.top),l:Math.round(rect.left),b:Math.round(rect.bottom)}));
+    console.log('[AmiFix v3] SVG:', svg ? 'found' : 'NOT FOUND');
+    console.log('[AmiFix v3] children:', root.children.length);
     
-    // canvas도 확인
-    var canvas = document.getElementById('ami-particle-canvas');
-    if(canvas){
-      canvas.style.setProperty('position','fixed','important');
-      canvas.style.setProperty('display','block','important');
-      canvas.style.setProperty('pointer-events','none','important');
-      canvas.style.setProperty('z-index','99989','important');
-    }
-    
-    // 최종 확인
-    var rect3 = root.getBoundingClientRect();
-    console.log('[AmiFix] 최종 위치:', {w:Math.round(rect3.width), h:Math.round(rect3.height), t:Math.round(rect3.top), b:Math.round(rect3.bottom), l:Math.round(rect3.left)});
+    // bubble, controls 등도 체크
+    var bubble = document.getElementById('ami-bubble');
+    var controls = document.getElementById('ami-controls');
+    console.log('[AmiFix v3] bubble:', !!bubble, 'controls:', !!controls);
   }
   
-  // 여러 타이밍에 시도
-  if(document.readyState === 'complete'){
-    setTimeout(show, 100);
-  } else {
-    window.addEventListener('load', function(){ setTimeout(show, 100); });
-  }
-  setTimeout(show, 500);
-  setTimeout(show, 1500);
-  setTimeout(show, 3000);
-  setTimeout(show, 5000);
-  setTimeout(show, 8000);
+  setTimeout(show, 300);
+  setTimeout(show, 1000);
+  setTimeout(show, 2000);
+  setTimeout(show, 4000);
 })();

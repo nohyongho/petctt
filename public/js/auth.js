@@ -327,3 +327,33 @@ if (document.readyState === 'loading') {
 }
 
 })();
+
+// ===== 아미 토끼 강제 부활 =====
+(function fixAmi(){
+  function show(){
+    var root = document.getElementById('ami-root');
+    if(!root) return;
+    // 강제 표시
+    root.style.setProperty('position','fixed','important');
+    root.style.setProperty('display','block','important');
+    root.style.setProperty('visibility','visible','important');
+    root.style.setProperty('opacity','1','important');
+    root.style.setProperty('z-index','99990','important');
+    root.style.setProperty('bottom','24px','important');
+    root.style.setProperty('pointer-events','auto','important');
+    root.style.setProperty('width','88px','important');
+    root.style.setProperty('height','108px','important');
+    // left가 0이면 중앙으로 보정
+    var rect = root.getBoundingClientRect();
+    if(rect.left <= 0 || rect.right <= 0 || rect.width === 0){
+      root.style.setProperty('left','50%','important');
+      root.style.setProperty('transform','translateX(-50%)','important');
+    }
+    console.log('[AmiFixByAuth] 아미 강제 표시 완료', rect.width+'x'+rect.height);
+  }
+  // 여러 타이밍에 시도
+  setTimeout(show, 500);
+  setTimeout(show, 1500);
+  setTimeout(show, 3000);
+  setTimeout(show, 5000);
+})();

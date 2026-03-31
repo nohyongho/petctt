@@ -43,7 +43,7 @@
 #ami-root{
   position:fixed!important;
   z-index:99990!important;
-  bottom:80px!important;
+  bottom:24px!important;
   left:50%!important;
   transform:translateX(-50%)!important;
   cursor:pointer;
@@ -54,8 +54,7 @@
   pointer-events:auto!important;
   width:88px;height:108px;
   /* 디버그: 빨간 테두리 - 보이면 위치는 맞는 것 */
-  outline:3px solid red!important;
-  background:rgba(255,0,0,0.1)!important;
+  
 }
 
 #ami-bubble{
@@ -671,7 +670,7 @@ iframe.goog-te-banner-frame{display:none!important;}
                                     if (user) {
                                         slot.innerHTML =
                                             '<div style="display:flex;align-items:center;gap:6px;cursor:pointer" onclick="toggleLoginMenu()">' +
-                                            (user.picture ? '<img src="'+user.picture+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(139,92,246,.5)" onerror="this.style.display='none'">' : '<span style="font-size:18px">👤</span>') +
+                                            (user.picture ? '<img src="'+user.picture+'" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid rgba(139,92,246,.5)" onerror="this.style.display=&quot;none&quot;">' : '<span style="font-size:18px">👤</span>') +
                                             '<span style="font-size:12px;color:#f1f5f9;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+( (user.name||'').split(' ')[0] || user.email.split('@')[0] )+'</span>' +
                                             '<span style="font-size:10px;color:#6366f1">▾</span>' +
                                             '</div>' +
@@ -808,7 +807,7 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
 <!-- ========== 아미 토끼 완전판 v1 ========== -->
 <canvas id="ami-particle-canvas" class="notranslate"></canvas>
 
-<div id="ami-root" class="notranslate" style="position:fixed!important;display:block!important;visibility:visible!important;opacity:1!important;z-index:99990!important;bottom:80px!important;left:50%!important;transform:translateX(-50%)!important;pointer-events:auto!important;width:88px;height:108px;outline:3px solid red;background:rgba(255,0,0,0.1);">
+<div id="ami-root" class="notranslate" style="position:fixed!important;display:block!important;visibility:visible!important;opacity:1!important;z-index:99990!important;bottom:24px!important;left:50%!important;transform:translateX(-50%)!important;pointer-events:auto!important;width:88px;height:108px;">
   <div id="ami-bubble"></div>
   <div id="ami-controls">
     <button class="ami-cb ami-muted" id="ami-sbtn-side" onclick="amiToggleSound()" title="소리 켜기/끄기">🔇</button>
@@ -991,8 +990,7 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
     root.style.setProperty('pointer-events','auto','important');
     root.style.setProperty('width','88px','important');
     root.style.setProperty('height','108px','important');
-    root.style.setProperty('outline','3px solid red','important');
-    root.style.setProperty('background','rgba(255,0,0,0.1)','important');
+    
     console.log('[Ami] init OK! pos:', ax, 'screen:', window.innerWidth+'x'+window.innerHeight);
     // 디버그: 1초 후 위치 확인
     setTimeout(function(){
@@ -1294,7 +1292,7 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
   function forceShowAmi(root){
     if(!root) root = document.getElementById('ami-root');
     if(!root) return;
-    root.style.cssText = 'position:fixed!important;display:block!important;visibility:visible!important;opacity:1!important;z-index:99990!important;bottom:80px!important;left:50%!important;transform:translateX(-50%)!important;pointer-events:auto!important;width:88px;height:108px;outline:3px solid red!important;background:rgba(255,0,0,0.1)!important;';
+    root.style.cssText = 'position:fixed!important;display:block!important;visibility:visible!important;opacity:1!important;z-index:99990!important;bottom:24px!important;left:50%!important;transform:translateX(-50%)!important;pointer-events:auto!important;width:88px;height:108px;';
     console.log('[Ami] forceShow 실행');
   }
 

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>반려동물 동반 식당 - PetCTT</title>
+    <meta name="description" content="2026년 반려동물 동반 출입법 시행! 예방접종 인증 후 동반 가능 식당·카페를 찾아보세요.">
+    <meta name="theme-color" content="#000000">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a1a;
+            --card-bg: rgba(255,255,255,.04);
+            --border: rgba(255,255,255,.08);
+            --primary: #10b981;
+            --primary-light: #34d399;
+            --text: #f1f5f9;
+            --text-sub: #94a3b8;
+            --radius: 16px;
+            --orange: #ffb74d;
+            --green: #81c784;
+            --blue: #64b5f6;
+            --purple: #ce93d8;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family:'Noto Sans KR',sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height:100vh;
+        }
+        /* Header */
+        header {
+            position:sticky; top:0; z-index:100;
+            background:rgba(0,0,0,.85); backdrop-filter:blur(12px);
+            border-bottom:1px solid var(--border); padding:12px 0;
+        }
+        .container { max-width:480px; margin:0 auto; padding:0 16px; }
+        .header-content { display:flex; align-items:center; justify-content:space-between; }
+        .logo { display:flex; align-items:center; gap:8px; text-decoration:none; }
+        .logo-icon { font-size:1.6rem; }
+        .logo-text { font-family:'Orbitron',sans-serif; font-weight:900; font-size:1.3rem; color:var(--primary-light); }
+        .back-btn {
+            padding:6px 14px; border-radius:20px;
+            border:1px solid var(--border); background:rgba(255,255,255,.06);
+            color:var(--text-sub); font-size:12px; cursor:pointer;
+            text-decoration:none; font-family:inherit;
+        }
+
+        /* Hero */
+        .page-hero {
+            text-align:center; padding:40px 16px 24px;
+            background: linear-gradient(180deg, rgba(255,183,77,.08) 0%, transparent 100%);
+        }
+        .page-hero h1 { font-size:1.6rem; font-weight:900; margin-bottom:8px; }
+        .page-hero p { font-size:0.85rem; color:var(--text-sub); line-height:1.6; }
+
+        /* 법률 안내 배너 */
+        .law-banner {
+            margin:16px; padding:16px;
+            background:rgba(16,185,129,.08);
+            border:1px solid rgba(16,185,129,.25);
+            border-radius:var(--radius);
+        }
+        .law-banner h3 { font-size:13px; color:var(--primary-light); margin-bottom:8px; }
+        .law-banner ul { list-style:none; padding:0; }
+        .law-banner li {
+            font-size:11px; color:var(--text-sub); line-height:1.8;
+            padding-left:18px; position:relative;
+        }
+        .law-banner li::before {
+            content:'✅'; position:absolute; left:0; top:0;
+        }
+
+        /* 검색 */
+        .search-box {
+            margin:16px; display:flex; gap:8px;
+        }
+        .search-box input {
+            flex:1; padding:12px 16px;
+            background:rgba(255,255,255,.06);
+            border:1px solid var(--border);
+            border-radius:24px; color:var(--text);
+            font-size:14px; outline:none;
+            font-family:inherit;
+        }
+        .search-box input::placeholder { color:rgba(255,255,255,.3); }
+        .search-box input:focus { border-color:var(--primary); }
+        .search-box button {
+            padding:12px 20px; border-radius:24px;
+            background:var(--primary); color:white;
+            border:none; font-weight:700; cursor:pointer;
+            font-family:inherit; font-size:14px;
+        }
+
+        /* 필터 탭 */
+        .filter-tabs {
+            display:flex; gap:8px; padding:0 16px;
+            overflow-x:auto; -webkit-overflow-scrolling:touch;
+        }
+        .filter-tab {
+            padding:8px 16px; border-radius:20px;
+            border:1px solid var(--border);
+            background:transparent; color:var(--text-sub);
+            font-size:12px; white-space:nowrap;
+            cursor:pointer; font-family:inherit;
+            transition:all .2s;
+        }
+        .filter-tab.active {
+            background:rgba(16,185,129,.15);
+            border-color:var(--primary);
+            color:var(--primary-light);
+        }
+
+        /* 매장 카드 */
+        .store-list { padding:16px; display:flex; flex-direction:column; gap:12px; }
+        .store-card {
+            background:var(--card-bg);
+            border:1px solid var(--border);
+            border-radius:var(--radius);
+            padding:16px;
+            transition:all .2s;
+        }
+        .store-card:hover { border-color:rgba(255,183,77,.3); }
+        .store-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+        .store-name { font-size:15px; font-weight:700; }
+        .store-badge {
+            padding:3px 8px; border-radius:10px;
+            font-size:10px; font-weight:600;
+        }
+        .badge-pet { background:rgba(255,183,77,.15); color:var(--orange); }
+        .badge-vax { background:rgba(129,199,132,.15); color:var(--green); }
+        .store-info { font-size:12px; color:var(--text-sub); line-height:1.6; }
+        .store-info span { margin-right:12px; }
+        .store-tags { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+        .store-tag {
+            padding:4px 10px; border-radius:12px;
+            font-size:10px;
+            background:rgba(255,255,255,.04);
+            border:1px solid rgba(255,255,255,.08);
+            color:var(--text-sub);
+        }
+        .store-actions { display:flex; gap:8px; margin-top:12px; }
+        .store-actions button, .store-actions a {
+            flex:1; padding:10px; border-radius:12px;
+            font-size:12px; font-weight:600; cursor:pointer;
+            text-align:center; text-decoration:none;
+            font-family:inherit; border:none;
+        }
+        .btn-coupon { background:rgba(99,102,241,.15); color:#a5b4fc; border:1px solid rgba(99,102,241,.3)!important; }
+        .btn-map { background:rgba(16,185,129,.15); color:var(--primary-light); border:1px solid rgba(16,185,129,.3)!important; }
+
+        /* 접종 인증 섹션 */
+        .vax-section {
+            margin:24px 16px; padding:20px;
+            background: linear-gradient(135deg, rgba(129,199,132,.08), rgba(16,185,129,.08));
+            border:1px solid rgba(129,199,132,.2);
+            border-radius:var(--radius);
+            text-align:center;
+        }
+        .vax-section h3 { font-size:15px; margin-bottom:8px; }
+        .vax-section p { font-size:12px; color:var(--text-sub); margin-bottom:16px; line-height:1.6; }
+        .vax-btn {
+            display:inline-block; padding:12px 28px;
+            background:var(--primary); color:white;
+            border-radius:24px; font-weight:700;
+            font-size:14px; cursor:pointer; border:none;
+            font-family:inherit;
+        }
+
+        /* 하단 통계 */
+        .stats-bar {
+            display:flex; justify-content:space-around;
+            padding:20px 16px; margin:16px;
+            background:var(--card-bg);
+            border:1px solid var(--border);
+            border-radius:var(--radius);
+        }
+        .stat-item { text-align:center; }
+        .stat-num { font-size:20px; font-weight:900; color:var(--primary-light); font-family:'Orbitron',sans-serif; }
+        .stat-label { font-size:10px; color:var(--text-sub); margin-top:4px; }
+
+        /* Footer */
+        footer {
+            text-align:center; padding:24px 16px;
+            font-size:11px; color:#475569;
+            border-top:1px solid var(--border);
+            margin-top:32px;
+        }
+        footer a { color:var(--primary); text-decoration:none; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <span class="logo-icon">🐾</span>
+                    <span class="logo-text">PetCTT</span>
+                </a>
+                <a href="/" class="back-btn">← 홈으로</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-hero">
+        <h1>🍽️ 반려동물 동반 식당</h1>
+        <p>예방접종 인증 후 우리 아이와 함께<br>갈 수 있는 식당·카페를 찾아보세요!</p>
+    </div>
+
+    <!-- 법률 안내 -->
+    <div class="law-banner">
+        <h3>📋 2026.3.1 반려동물 동반 출입법 안내</h3>
+        <ul>
+            <li>예방접종 완료된 강아지·고양이만 출입 가능</li>
+            <li>접종 기록 또는 반려동물 등록정보로 증명</li>
+            <li>목줄·케이지·전용좌석 등 이동 제한 필수</li>
+            <li>매장 입구에 동반 가능 안내 표시 확인</li>
+            <li>식탁 위 접근 금지 — 위생 관리 준수</li>
+        </ul>
+    </div>
+
+    <!-- 검색 -->
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="지역명 또는 매장명 검색..." onfocus="this.parentElement.style.borderColor='var(--primary)'">
+        <button onclick="searchStores()">🔍</button>
+    </div>
+
+    <!-- 필터 -->
+    <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterStores('all', this)">전체</button>
+        <button class="filter-tab" onclick="filterStores('restaurant', this)">🍝 식당</button>
+        <button class="filter-tab" onclick="filterStores('cafe', this)">☕ 카페</button>
+        <button class="filter-tab" onclick="filterStores('pet-cafe', this)">🐶 펫카페</button>
+        <button class="filter-tab" onclick="filterStores('outdoor', this)">🌳 야외</button>
+    </div>
+
+    <!-- 통계 -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="stat-num" id="totalStores">847</div>
+            <div class="stat-label">동반 가능 매장</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num" id="totalReviews">3.2K</div>
+            <div class="stat-label">펫 친화 리뷰</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num" id="totalCoupons">126</div>
+            <div class="stat-label">할인 쿠폰</div>
+        </div>
+    </div>
+
+    <!-- 매장 리스트 -->
+    <div class="store-list" id="storeList">
+        <!-- 샘플 매장 카드 -->
+        <div class="store-card" data-type="cafe">
+            <div class="store-header">
+                <div class="store-name">☕ 멍멍카페 강남점</div>
+                <span class="store-badge badge-pet">🐾 동반OK</span>
+            </div>
+            <div class="store-info">
+                <span>📍 서울 강남구 역삼동</span>
+                <span>⭐ 4.8</span>
+                <span>💬 127</span>
+            </div>
+            <div class="store-tags">
+                <span class="store-tag">소형견 OK</span>
+                <span class="store-tag">중형견 OK</span>
+                <span class="store-tag">전용 좌석</span>
+                <span class="store-tag">물그릇 제공</span>
+            </div>
+            <div class="store-actions">
+                <button class="btn-coupon" onclick="alert('🎟️ 쿠폰 기능 준비 중!')">🎟️ 쿠폰받기</button>
+                <a class="btn-map" href="#" onclick="alert('🗺️ 지도 기능 준비 중!'); return false;">📍 길찾기</a>
+            </div>
+        </div>
+
+        <div class="store-card" data-type="restaurant">
+            <div class="store-header">
+                <div class="store-name">🍝 반려식탁 홍대점</div>
+                <span class="store-badge badge-vax">💉 접종확인</span>
+            </div>
+            <div class="store-info">
+                <span>📍 서울 마포구 서교동</span>
+                <span>⭐ 4.6</span>
+                <span>💬 89</span>
+            </div>
+            <div class="store-tags">
+                <span class="store-tag">이탈리안</span>
+                <span class="store-tag">소형견 전용</span>
+                <span class="store-tag">케이지 제공</span>
+                <span class="store-tag">야외 테라스</span>
+            </div>
+            <div class="store-actions">
+                <button class="btn-coupon" onclick="alert('🎟️ 쿠폰 기능 준비 중!')">🎟️ 쿠폰받기</button>
+                <a class="btn-map" href="#" onclick="alert('🗺️ 지도 기능 준비 중!'); return false;">📍 길찾기</a>
+            </div>
+        </div>
+
+        <div class="store-card" data-type="pet-cafe">
+            <div class="store-header">
+                <div class="store-name">🐶 해피퍼피 라운지</div>
+                <span class="store-badge badge-pet">🐾 동반OK</span>
+            </div>
+            <div class="store-info">
+                <span>📍 서울 성동구 성수동</span>
+                <span>⭐ 4.9</span>
+                <span>💬 203</span>
+            </div>
+            <div class="store-tags">
+                <span class="store-tag">대형견 OK</span>
+                <span class="store-tag">놀이공간</span>
+                <span class="store-tag">간식 판매</span>
+                <span class="store-tag">포토존</span>
+            </div>
+            <div class="store-actions">
+                <button class="btn-coupon" onclick="alert('🎟️ 쿠폰 기능 준비 중!')">🎟️ 쿠폰받기</button>
+                <a class="btn-map" href="#" onclick="alert('🗺️ 지도 기능 준비 중!'); return false;">📍 길찾기</a>
+            </div>
+        </div>
+
+        <div class="store-card" data-type="restaurant">
+            <div class="store-header">
+                <div class="store-name">🥩 펫프렌들리 비스트로</div>
+                <span class="store-badge badge-vax">💉 접종확인</span>
+            </div>
+            <div class="store-info">
+                <span>📍 서울 용산구 이태원</span>
+                <span>⭐ 4.7</span>
+                <span>💬 156</span>
+            </div>
+            <div class="store-tags">
+                <span class="store-tag">브런치</span>
+                <span class="store-tag">소형견 OK</span>
+                <span class="store-tag">야외석</span>
+                <span class="store-tag">반려동물 메뉴</span>
+            </div>
+            <div class="store-actions">
+                <button class="btn-coupon" onclick="alert('🎟️ 쿠폰 기능 준비 중!')">🎟️ 쿠폰받기</button>
+                <a class="btn-map" href="#" onclick="alert('🗺️ 지도 기능 준비 중!'); return false;">📍 길찾기</a>
+            </div>
+        </div>
+
+        <div class="store-card" data-type="outdoor">
+            <div class="store-header">
+                <div class="store-name">🌳 파크사이드 테라스</div>
+                <span class="store-badge badge-pet">🐾 동반OK</span>
+            </div>
+            <div class="store-info">
+                <span>📍 서울 송파구 잠실</span>
+                <span>⭐ 4.5</span>
+                <span>💬 67</span>
+            </div>
+            <div class="store-tags">
+                <span class="store-tag">야외 전용</span>
+                <span class="store-tag">대형견 OK</span>
+                <span class="store-tag">잔디마당</span>
+                <span class="store-tag">주차 가능</span>
+            </div>
+            <div class="store-actions">
+                <button class="btn-coupon" onclick="alert('🎟️ 쿠폰 기능 준비 중!')">🎟️ 쿠폰받기</button>
+                <a class="btn-map" href="#" onclick="alert('🗺️ 지도 기능 준비 중!'); return false;">📍 길찾기</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 접종 인증 CTA -->
+    <div class="vax-section">
+        <h3>💉 반려동물 접종 인증하기</h3>
+        <p>예방접종 기록을 등록하면<br>동반 가능 매장에서 바로 인증할 수 있어요!</p>
+        <button class="vax-btn" onclick="alert('📋 접종 인증 기능 준비 중! 곧 만나요~')">📋 접종 기록 등록하기</button>
+    </div>
+
+    <!-- 매장 입점 안내 -->
+    <div style="margin:16px;padding:16px;background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.2);border-radius:16px;text-align:center;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:6px;">🏪 우리 매장도 등록하고 싶다면?</div>
+        <div style="font-size:11px;color:#94a3b8;margin-bottom:12px;line-height:1.5;">반려동물 동반 가능 매장이라면 PetCTT에 입점하세요!<br>쿠폰 발행 · 리뷰 관리 · 고객 유치까지 한번에</div>
+        <a href="mailto:valore@petctt.com" style="display:inline-block;padding:10px 24px;background:rgba(99,102,241,.15);color:#a5b4fc;border:1px solid rgba(99,102,241,.3);border-radius:20px;font-size:12px;font-weight:600;text-decoration:none;">📧 입점 문의하기</a>
+    </div>
+
+    <footer>
+        <p>© 2026 PetCTT by <a href="https://www.airctt.com">주식회사 발로레</a></p>
+        <p style="margin-top:4px;">반려동물 AI 플랫폼 · 상생 공존 마켓</p>
+    </footer>
+
+    <script>
+    // 검색 기능
+    function searchStores() {
+        var query = document.getElementById('searchInput').value.trim().toLowerCase();
+        var cards = document.querySelectorAll('.store-card');
+        var count = 0;
+        cards.forEach(function(card) {
+            var text = card.textContent.toLowerCase();
+            var show = !query || text.includes(query);
+            card.style.display = show ? 'block' : 'none';
+            if (show) count++;
+        });
+        if (count === 0) {
+            alert('검색 결과가 없어요 🐾\n곧 더 많은 매장이 등록될 예정이에요!');
+        }
+    }
+
+    // 필터 기능
+    function filterStores(type, btn) {
+        document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
+        btn.classList.add('active');
+
+        var cards = document.querySelectorAll('.store-card');
+        cards.forEach(function(card) {
+            if (type === 'all') {
+                card.style.display = 'block';
+            } else {
+                card.style.display = card.dataset.type === type ? 'block' : 'none';
+            }
+        });
+    }
+
+    // Enter 키 검색
+    document.getElementById('searchInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') searchStores();
+    });
+    </script>
+</body>
+</html>

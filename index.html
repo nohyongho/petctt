@@ -41,14 +41,18 @@
 #ami-particle-canvas{position:fixed;inset:0;pointer-events:none;z-index:99989}
 
 #ami-root{
-  position:fixed;
-  z-index:99990;
-  bottom:28px;
-  left:0;
+  position:fixed!important;
+  z-index:99990!important;
+  bottom:28px!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
   cursor:pointer;
   user-select:none;
-  display:block;
-  pointer-events:auto;
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  pointer-events:auto!important;
+  width:88px;height:108px;
 }
 
 #ami-bubble{
@@ -366,6 +370,41 @@ iframe.goog-te-banner-frame{display:none!important;}
                                     </div>
                         </section>
 
+                        <!-- ━━━ 반려동물 동반 식당 (2026.3.1 시행) ━━━ -->
+                        <section class="section-block">
+                                    <h2 class="section-heading">🍽️ 반려동물 동반 식당</h2>
+                                    <p class="section-desc">2026년 3월부터 시행된 반려동물 동반 출입법! 예방접종 완료된 반려동물과 함께 갈 수 있는 식당·카페를 찾아보세요.</p>
+                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;">
+                                        <div style="background:rgba(255,183,77,.1);border:1px solid rgba(255,183,77,.3);border-radius:16px;padding:16px;text-align:center;">
+                                            <div style="font-size:28px;margin-bottom:8px;">🏪</div>
+                                            <div style="font-size:13px;font-weight:700;color:#ffb74d;">동반 가능 매장</div>
+                                            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">내 주변 식당·카페 검색</div>
+                                        </div>
+                                        <div style="background:rgba(129,199,132,.1);border:1px solid rgba(129,199,132,.3);border-radius:16px;padding:16px;text-align:center;">
+                                            <div style="font-size:28px;margin-bottom:8px;">💉</div>
+                                            <div style="font-size:13px;font-weight:700;color:#81c784;">접종 인증</div>
+                                            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">예방접종 기록 등록</div>
+                                        </div>
+                                        <div style="background:rgba(100,181,246,.1);border:1px solid rgba(100,181,246,.3);border-radius:16px;padding:16px;text-align:center;">
+                                            <div style="font-size:28px;margin-bottom:8px;">🎟️</div>
+                                            <div style="font-size:13px;font-weight:700;color:#64b5f6;">매장 쿠폰</div>
+                                            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">동반 매장 할인 쿠폰</div>
+                                        </div>
+                                        <div style="background:rgba(206,147,216,.1);border:1px solid rgba(206,147,216,.3);border-radius:16px;padding:16px;text-align:center;">
+                                            <div style="font-size:28px;margin-bottom:8px;">⭐</div>
+                                            <div style="font-size:13px;font-weight:700;color:#ce93d8;">리뷰·평점</div>
+                                            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">펫 친화 매장 후기</div>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top:16px;padding:12px 16px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:12px;">
+                                        <div style="font-size:11px;color:#10b981;font-weight:600;">📋 2026.3.1 반려동물 동반 출입법 시행</div>
+                                        <div style="font-size:10px;color:#64748b;margin-top:4px;line-height:1.5;">예방접종 완료 + 목줄/케이지 착용 시 허용 매장 출입 가능. PetCTT로 접종 인증부터 매장 검색까지 한번에!</div>
+                                    </div>
+                                    <div style="text-align:center;margin-top:20px;">
+                                        <a href="pages/pet-restaurant.html" class="btn-primary" style="display:inline-block;">🐾 동반 가능 매장 찾기</a>
+                                    </div>
+                        </section>
+
                         <div style="text-align:center;margin:32px 0 16px;"><button onclick="var el=document.getElementById('extra-features');if(el.style.opacity==='0.6'){el.style.opacity='1';this.textContent='▲ 접기';}else{el.style.opacity='0.6';this.textContent='▼ 더 많은 기능 보기';}" style="padding:10px 24px;background:rgba(255,255,255,0.1);color:#aaa;border:1px solid #333;border-radius:20px;font-size:0.85rem;cursor:pointer;">▼ 더 많은 기능 보기</button></div>
 
                         <!-- ━━━ 스마트 AI 글래스 (숨김처리) ━━━ -->
@@ -533,8 +572,10 @@ iframe.goog-te-banner-frame{display:none!important;}
                                     window.addEventListener('auth:ready', function(e){
                                         renderAuth();
                                     });
-                                    // 페이지 로드 시 renderAuth
+                                    // 페이지 로드 시 renderAuth (다중 fallback)
                                     setTimeout(renderAuth, 300);
+                                    setTimeout(renderAuth, 1000);
+                                    setTimeout(renderAuth, 2500);
 
                         const AUTH_KEY = 'petctt_unified_auth';
 
@@ -589,7 +630,7 @@ iframe.goog-te-banner-frame{display:none!important;}
 
                         function loginWithGoogle() {
                                     if (window.ValoreAuth) {
-                                        ValoreAuth.loginWithGoogle();
+                                        try { ValoreAuth.loginWithGoogle(); } catch(e) { console.error('Google login error:', e); alert('Google 로그인 오류. 다시 시도해주세요.'); }
                                     } else {
                                         window.location.href = 'https://petctt-auth.zeus1404.workers.dev/api/auth/google';
                                     }
@@ -945,6 +986,9 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
     root.style.setProperty('transform','translateX(-50%)','important');
     root.style.setProperty('cursor','pointer','important');
     root.style.setProperty('pointer-events','auto','important');
+    root.style.setProperty('width','88px','important');
+    root.style.setProperty('height','108px','important');
+    console.log('[Ami] init OK! pos:', ax, 'screen:', window.innerWidth+'x'+window.innerHeight);
 
     function setPos(){
       root.style.setProperty('left', ax+'px','important');

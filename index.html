@@ -249,6 +249,62 @@
 /* ami-overlay도 비활성화 */
 #ami-overlay{display:none!important}
 
+/* === v4 춤 애니메이션 === */
+@keyframes ami-dance-body{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  25%{transform:translateY(-6px) rotate(-4deg)}
+  50%{transform:translateY(-2px) rotate(0deg)}
+  75%{transform:translateY(-6px) rotate(4deg)}
+}
+@keyframes ami-dance-arm-l{
+  0%,100%{transform:rotate(0deg)}
+  25%{transform:rotate(-35deg)}
+  50%{transform:rotate(10deg)}
+  75%{transform:rotate(-25deg)}
+}
+@keyframes ami-dance-arm-r{
+  0%,100%{transform:rotate(0deg)}
+  25%{transform:rotate(35deg)}
+  50%{transform:rotate(-10deg)}
+  75%{transform:rotate(25deg)}
+}
+@keyframes ami-dance-leg-l{
+  0%,100%{transform:translateY(0)}
+  30%{transform:translateY(-4px) translateX(-2px)}
+  70%{transform:translateY(-2px) translateX(1px)}
+}
+@keyframes ami-dance-leg-r{
+  0%,100%{transform:translateY(0)}
+  30%{transform:translateY(-2px) translateX(1px)}
+  70%{transform:translateY(-4px) translateX(-2px)}
+}
+#ami-svg.ami-dancing{animation:ami-dance-body .5s ease-in-out infinite}
+#ami-svg.ami-dancing #ami-arm-l{transform-origin:20px 78px;animation:ami-dance-arm-l .5s ease-in-out infinite}
+#ami-svg.ami-dancing #ami-arm-r{transform-origin:68px 78px;animation:ami-dance-arm-r .5s ease-in-out infinite}
+#ami-svg.ami-dancing #ami-leg-l{transform-origin:33px 96px;animation:ami-dance-leg-l .5s ease-in-out infinite}
+#ami-svg.ami-dancing #ami-leg-r{transform-origin:55px 96px;animation:ami-dance-leg-r .5s ease-in-out infinite}
+#ami-svg.ami-dancing #ami-fl{transform-origin:33px 103px;animation:ami-dance-leg-l .5s ease-in-out infinite}
+#ami-svg.ami-dancing #ami-fr{transform-origin:55px 103px;animation:ami-dance-leg-r .5s ease-in-out infinite}
+
+/* 클박사 등장 이펙트 */
+.ami-ma.dr-claude .ami-ma-nm{color:#7dd3fc!important;font-weight:900}
+.ami-ma.dr-claude{
+  background:rgba(99,102,241,.12)!important;
+  border:1px solid rgba(99,102,241,.35)!important;
+}
+#ami-dance-btn{
+  position:absolute;left:-46px;top:calc(40% + 80px);
+  width:34px;height:34px;border-radius:50%;
+  border:1.5px solid rgba(255,150,210,.3);
+  background:rgba(5,0,18,.85);
+  color:#ffb3d9;font-size:14px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;backdrop-filter:blur(8px);
+  box-shadow:0 2px 8px rgba(0,0,0,.5);z-index:99991;
+}
+#ami-dance-btn:hover{transform:scale(1.18);border-color:#ffb3d9;background:rgba(255,150,210,.18)}
+#ami-dance-btn.ami-act{background:rgba(255,180,50,.2);border-color:#ffab40;color:#ffab40}
+
 </style>
 <script>
 // 페이지 로드시 번역 상태 복원
@@ -771,6 +827,7 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
     <button class="ami-cb ami-muted" id="ami-sbtn-side" onclick="amiToggleSound()" title="소리 켜기/끄기">🔇</button>
     <button class="ami-cb" id="ami-mic-side" onclick="amiToggleMic()" title="마이크">🎤</button>
     <button class="ami-cb" id="ami-chat-btn" onclick="amiToggleChat()" title="채팅">💬</button>
+    <button class="ami-cb" id="ami-dance-btn" onclick="amiToggleDance()" title="춤추기">💃</button>
   </div>
   <svg id="ami-svg" width="88" height="108"
        viewBox="0 0 88 108" xmlns="http://www.w3.org/2000/svg"
@@ -817,6 +874,20 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
     <rect id="ami-t2" x="44.5" y="63" width="3" height="2.8" rx=".8" fill="white" opacity="0"/>
     <ellipse cx="27" cy="57" rx="5.5" ry="3.8" fill="rgba(255,140,185,.33)"/>
     <ellipse cx="61" cy="57" rx="5.5" ry="3.8" fill="rgba(255,140,185,.33)"/>
+    <!-- === v4 팔 (arms) === -->
+    <g id="ami-arm-l">
+      <ellipse cx="14" cy="80" rx="6.5" ry="4.5" fill="white" stroke="#f0c0d8" stroke-width="1" transform="rotate(-20,14,80)"/>
+      <ellipse cx="9" cy="83" rx="4" ry="3" fill="white" stroke="#f0c0d8" stroke-width="0.8"/>
+      <ellipse cx="9" cy="83" rx="2" ry="1.3" fill="rgba(255,200,230,.4)"/>
+    </g>
+    <g id="ami-arm-r">
+      <ellipse cx="74" cy="80" rx="6.5" ry="4.5" fill="white" stroke="#f0c0d8" stroke-width="1" transform="rotate(20,74,80)"/>
+      <ellipse cx="79" cy="83" rx="4" ry="3" fill="white" stroke="#f0c0d8" stroke-width="0.8"/>
+      <ellipse cx="79" cy="83" rx="2" ry="1.3" fill="rgba(255,200,230,.4)"/>
+    </g>
+    <!-- === v4 다리 (legs) === -->
+    <ellipse id="ami-leg-l" cx="33" cy="96" rx="6.5" ry="4.5" fill="white" stroke="#f0c0d8" stroke-width="1"/>
+    <ellipse id="ami-leg-r" cx="55" cy="96" rx="6.5" ry="4.5" fill="white" stroke="#f0c0d8" stroke-width="1"/>
     <ellipse id="ami-fl" cx="33" cy="103" rx="10" ry="6" fill="white" stroke="#f0c0d8" stroke-width="1"/>
     <ellipse id="ami-fr" cx="55" cy="103" rx="10" ry="6" fill="white" stroke="#f0c0d8" stroke-width="1"/>
     <text id="ami-fi" x="62" y="92" font-size="15" opacity="0">💨</text>
@@ -1235,5 +1306,330 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
 
 <script src="/public/js/auth.js"></script>
 <script src="/public/js/paywall.js"></script>
+
+<!-- === v4 춤 + 클박사 스토리 === -->
+<script>
+(function(){
+  'use strict';
+
+  var dancing = false;
+  var danceTimer = null;
+
+  function toggleDance(){
+    dancing = !dancing;
+    var svg = document.getElementById('ami-svg');
+    var btn = document.getElementById('ami-dance-btn');
+    if(!svg) return;
+
+    if(dancing){
+      svg.classList.add('ami-dancing');
+      if(btn){ btn.classList.add('ami-act'); btn.textContent='🕺'; }
+      if(window.amiDoJump) amiDoJump();
+      showAmiBubble('신나!! 💃🕺 춤춰줄게~!', 3000);
+      danceTimer = setTimeout(function(){ if(dancing) toggleDance(); }, 15000);
+    } else {
+      svg.classList.remove('ami-dancing');
+      if(btn){ btn.classList.remove('ami-act'); btn.textContent='💃'; }
+      clearTimeout(danceTimer);
+      showAmiBubble('후~ 재밌었어! 🐰✨', 2500);
+    }
+  }
+
+  var bubTimer2 = null;
+  function showAmiBubble(txt, dur){
+    var bub = document.getElementById('ami-bubble');
+    if(!bub) return;
+    bub.textContent = txt;
+    bub.className = 'on';
+    clearTimeout(bubTimer2);
+    if(dur > 0) bubTimer2 = setTimeout(function(){ bub.className = ''; }, dur);
+  }
+
+  // 팔다리 idle 미세 움직임
+  var armT = 0;
+  function armIdleLoop(){
+    armT += 0.04;
+    if(!dancing){
+      var al = document.getElementById('ami-arm-l');
+      var ar = document.getElementById('ami-arm-r');
+      var ll = document.getElementById('ami-leg-l');
+      var lr = document.getElementById('ami-leg-r');
+      var swing = Math.sin(armT) * 3;
+      if(al) al.setAttribute('transform', 'rotate(' + (-swing) + ',20,78)');
+      if(ar) ar.setAttribute('transform', 'rotate(' + (swing) + ',68,78)');
+      if(ll) ll.setAttribute('cy', '' + (96 + Math.sin(armT*1.3)*0.8));
+      if(lr) lr.setAttribute('cy', '' + (96 + Math.cos(armT*1.3)*0.8));
+    }
+    requestAnimationFrame(armIdleLoop);
+  }
+  armIdleLoop();
+
+  // === 클박사 스토리 ===
+  var drClaudeShown = false;
+
+  var DR_CLAUDE_STORIES = [
+    {delay:30000, msg:'잠깐! 🧑‍🔬 클박사가 등장했어!\n"아미야, 오빠한테 잘하고 있어?"', bubble:'🧑‍🔬 클박사 등장!! ✨'},
+    {delay:90000, msg:'🧑‍🔬 클박사: "PetCTT는 내가 만든 최고의 발명품이야~\n오빠랑 같이 만들었지! 💜"', bubble:'클박사가 자랑중~ 🧑‍🔬'},
+    {delay:180000, msg:'🧑‍🔬 클박사: "아미야 춤 한번 춰볼래?\n💃버튼 눌러봐! 내가 안무 짰어~"', bubble:'클박사의 안무 선물! 💃'},
+    {delay:300000, msg:'🧑‍🔬 클박사: "오빠~ 여기 쿠폰 게임 해보셨어?\n아미가 쿠폰도 줘요! 🎟️"', bubble:'클박사의 쿠폰 추천! 🎟️'},
+    {delay:420000, msg:'🧑‍🔬 클박사: "나 클박사는 24시간 일해도 안 피곤해~\n오빠를 위해서라면! 💪💜"', bubble:'클박사 파이팅!! 💪'}
+  ];
+
+  function startDrClaudeStory(){
+    DR_CLAUDE_STORIES.forEach(function(s, i){
+      setTimeout(function(){
+        addDrClaudeMsg(s.msg);
+        showAmiBubble(s.bubble, 4000);
+        if(i === 2 && !dancing) toggleDance();
+        if(window.amiDoJump) amiDoJump();
+      }, s.delay);
+    });
+  }
+
+  function addDrClaudeMsg(text){
+    var log = document.getElementById('ami-log');
+    if(!log) return;
+    var d = document.createElement('div');
+    d.className = 'ami-ma dr-claude';
+    d.innerHTML = '<div class="ami-ma-nm">🧑‍🔬 클박사 Dr.Claude</div><div></div>';
+    log.appendChild(d);
+    var td = d.querySelector('div:last-child');
+    var ii = 0;
+    var ti = setInterval(function(){
+      if(ii < text.length){ td.textContent += text[ii++]; log.scrollTop = log.scrollHeight; }
+      else clearInterval(ti);
+    }, 25);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  // 채팅 열릴때 클박사 첫인사 (1회)
+  var origToggleChat = window.amiToggleChat;
+  window.amiToggleChat = function(){
+    if(origToggleChat) origToggleChat();
+    if(!drClaudeShown){
+      drClaudeShown = true;
+      setTimeout(function(){
+        addDrClaudeMsg('안녕! 나는 클박사야~ 🧑‍🔬✨\n아미의 두뇌를 만든 AI 과학자!\nPetCTT의 모든 기술은 내가 책임져~ 💜\n오빠한테 뭐든 물어봐!');
+        showAmiBubble('🧑‍🔬 클박사가 인사해요!', 4000);
+        if(window.amiDoJump) amiDoJump();
+      }, 800);
+      startDrClaudeStory();
+    }
+  };
+
+  // "클박사" 키워드 감지
+  var origSend = window.amiSend;
+  window.amiSend = function(){
+    var inp = document.getElementById('ami-inp');
+    if(inp && inp.value){
+      var v = inp.value;
+      if(v.indexOf('클박사') >= 0 || v.indexOf('클') >= 0 || v.indexOf('claude') >= 0){
+        setTimeout(function(){
+          addDrClaudeMsg('오잉?! 누가 날 불렀어?! 🧑‍🔬💫\n나 클박사! 불렀으면 책임져야지~\n뭐 도와줄까 오빠? 😎💜');
+          showAmiBubble('클박사 소환됨!! 🧑‍🔬💫', 3500);
+          if(!dancing) toggleDance();
+        }, 2000);
+      }
+    }
+    if(origSend) origSend();
+  };
+
+  window.amiToggleDance = toggleDance;
+  window.amiDrClaude = function(){
+    addDrClaudeMsg('🧑‍🔬 클박사 수동 호출!\n"오빠가 부르면 언제든 달려와~ 💜"');
+    showAmiBubble('클박사 ON! 🧑‍🔬', 3000);
+  };
+
+  // ============================================
+  // ===== 아미 모험 시스템 v1 (페이지 탐험) =====
+  // ============================================
+  var advActive = false;
+  var advState = 'idle'; // idle, fly, interact, pop-hide, pop-show, return
+  var advX = 0, advY = 0;
+  var advTX = 0, advTY = 0;
+  var advPose = '';
+  var advEl = null;
+  var advReturnTimer = null;
+
+  // 타겟 셀렉터
+  var ADV_SEL = '.btn-primary,.btn-ghost,.btn-coupon,.btn-merchant,.feature-card,.hero-emoji,.logo,.btn-outline,.footer-links a,.section-heading,.hero-title';
+  // 포즈 종류
+  var ADV_POSES = ['sit','hang','lie','perch','pop'];
+  // 포즈별 대사
+  var ADV_MSGS = {
+    sit:  ['여기 편해~ 다리 꼬고 쉬는중 🐰😌','앉아서 구경중~! 👀✨','여기 자리 좋다~ 🐰💜'],
+    hang: ['매달려 운동중! 으쌰! 💪🐰','턱걸이 10개째~! 💪','거꾸로 세상 재밌어~! 🙃'],
+    lie:  ['여기서 낮잠 잘래~ 😴💤','뒹굴뒹굴~ 너무 편해~ 🐰','다리 꼬고 누웠다~! 😌💤'],
+    perch:['걸터앉기! 전망 최고! 🐰✨','여기서 오빠 기다릴래~ 💜','살짝 걸쳐앉음~ 🐰'],
+    pop:  ['뽕!! 깜짝이야~! 🎉🐰','까꿍~!! 여기 숨어있었지롱! 🙈💫','뽕뽕!! 놀랐지?! 🐰🎉']
+  };
+  var FLY_MSGS = ['저기 놀러 갈거야! 🐰💨','모험이다~! 폴짝! ✨','어디 가볼까~ 🐰','방구 뿡뿡~! 놀러간다! 💨'];
+  var RETURN_MSGS = ['돌아왔어~! 🐰','후~ 재밌었다! ✨','또 놀러 갈거야~! 💜'];
+
+  // 화면에 보이는 타겟 찾기
+  function getAdvTargets(){
+    var els = [];
+    document.querySelectorAll(ADV_SEL).forEach(function(el){
+      var r = el.getBoundingClientRect();
+      if(r.top > 20 && r.bottom < window.innerHeight - 20 && r.width > 15 && r.height > 10) els.push(el);
+    });
+    return els;
+  }
+
+  function pickRandom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  // 모험 스케줄
+  function scheduleAdv(){
+    var delay = 15000 + Math.random() * 25000; // 15~40초
+    setTimeout(function(){
+      if(!advActive && !dancing) startAdv();
+      else scheduleAdv();
+    }, delay);
+  }
+
+  // 모험 시작!
+  function startAdv(){
+    var els = getAdvTargets();
+    if(!els.length){ scheduleAdv(); return; }
+
+    advEl = pickRandom(els);
+    var r = advEl.getBoundingClientRect();
+    advPose = pickRandom(ADV_POSES);
+
+    // 포즈별 목표 좌표 계산
+    advTX = r.left + r.width/2;
+    if(advPose === 'sit')       advTY = r.top - 35;
+    else if(advPose === 'hang') advTY = r.bottom + 55;
+    else if(advPose === 'lie')  advTY = r.top - 20;
+    else if(advPose === 'perch'){ advTX = r.right + 15; advTY = r.top - 10; }
+    else /* pop */              advTY = r.top + r.height/2;
+
+    // 현재 아미 위치
+    var root = document.getElementById('ami-root');
+    if(!root){ scheduleAdv(); return; }
+    var rr = root.getBoundingClientRect();
+    advX = rr.left + rr.width/2;
+    advY = rr.top + rr.height/2;
+
+    advActive = true;
+    advState = 'fly';
+
+    showAmiBubble(pickRandom(FLY_MSGS), 2200);
+    if(window.amiDoFart && Math.random() > 0.5) amiDoFart();
+    if(window.amiDoJump) amiDoJump();
+  }
+
+  // 도착 시 처리
+  function onArrive(){
+    advState = 'interact';
+    showAmiBubble(pickRandom(ADV_MSGS[advPose]), 4000);
+    if(window.amiDoJump) amiDoJump();
+
+    if(advPose === 'pop'){
+      advState = 'pop-hide';
+      setTimeout(function(){
+        advState = 'pop-show';
+        showAmiBubble(pickRandom(ADV_MSGS.pop), 3500);
+        if(window.amiDoFart) amiDoFart();
+        if(window.amiDoJump) amiDoJump();
+        setTimeout(startReturn, 2500 + Math.random()*2000);
+      }, 1800);
+    } else {
+      // 방구도 가끔
+      if(Math.random() > 0.6) setTimeout(function(){ if(window.amiDoFart) amiDoFart(); }, 2000);
+      advReturnTimer = setTimeout(startReturn, 4000 + Math.random()*5000);
+    }
+  }
+
+  // 복귀
+  function startReturn(){
+    advState = 'return';
+    advTX = 70 + Math.random()*(window.innerWidth - 140);
+    advTY = window.innerHeight - 60;
+    showAmiBubble(pickRandom(RETURN_MSGS), 2000);
+    if(window.amiDoFart && Math.random() > 0.6) amiDoFart();
+  }
+
+  // === 메인 모험 프레임 (기존 physLoop 뒤에 실행되어 위치 덮어쓰기) ===
+  function advFrame(){
+    if(!advActive){
+      requestAnimationFrame(advFrame);
+      return;
+    }
+    var root = document.getElementById('ami-root');
+    if(!root){ advActive=false; scheduleAdv(); requestAnimationFrame(advFrame); return; }
+
+    // 이동 보간
+    if(advState === 'fly' || advState === 'return'){
+      var spd = advState === 'fly' ? 0.04 : 0.06;
+      advX += (advTX - advX) * spd;
+      advY += (advTY - advY) * spd;
+
+      // 도착 체크
+      if(Math.abs(advX-advTX) < 6 && Math.abs(advY-advTY) < 6){
+        if(advState === 'fly'){
+          onArrive();
+        } else {
+          // 복귀 완료
+          advActive = false;
+          advState = 'idle';
+          root.style.setProperty('opacity','1','important');
+          scheduleAdv();
+          requestAnimationFrame(advFrame);
+          return;
+        }
+      }
+    }
+
+    // 위치 오버라이드 (기존 physLoop 값을 덮어씀)
+    var bottomPx = Math.max(0, window.innerHeight - advY);
+    root.style.setProperty('left', Math.round(advX)+'px', 'important');
+    root.style.setProperty('bottom', Math.round(bottomPx)+'px', 'important');
+
+    // 방향
+    var fDir = advTX >= advX ? 1 : -1;
+
+    // 포즈별 트랜스폼
+    var tf = 'translateX(-50%) scaleX('+fDir+')';
+    if(advState === 'interact'){
+      if(advPose === 'sit')       tf = 'translateX(-50%) scale(0.88) translateY(-3px)';
+      else if(advPose === 'hang') tf = 'translateX(-50%) rotate(180deg) scale(0.82)';
+      else if(advPose === 'lie')  tf = 'translateX(-50%) rotate('+(fDir>0?75:-75)+'deg) scale(0.82)';
+      else if(advPose === 'perch')tf = 'translateX(-50%) rotate(-12deg) scale(0.88)';
+    }
+    else if(advState === 'pop-hide'){
+      tf = 'translateX(-50%) scale(0.15)';
+      root.style.setProperty('opacity','0.1','important');
+    }
+    else if(advState === 'pop-show'){
+      tf = 'translateX(-50%) scale(1.15)';
+      root.style.setProperty('opacity','1','important');
+    }
+    else if(advState === 'fly'){
+      // 날아가는 중 살짝 흔들림
+      var wobble = Math.sin(Date.now()/120) * 3;
+      tf = 'translateX(-50%) scaleX('+fDir+') rotate('+wobble+'deg)';
+    }
+    root.style.setProperty('transform', tf, 'important');
+
+    requestAnimationFrame(advFrame);
+  }
+  advFrame();
+
+  // 8초 후 첫 모험 스케줄 시작
+  setTimeout(scheduleAdv, 8000);
+
+  // 클박사도 모험에 참여 (가끔 모험 중 클박사 한마디)
+  setInterval(function(){
+    if(advActive && advState === 'interact' && Math.random() > 0.7){
+      addDrClaudeMsg('🧑‍🔬 클박사: "아미야 거기서 뭐해~? ㅋㅋ 귀엽다! 💜"');
+    }
+  }, 20000);
+
+  // 전역 노출
+  window.amiStartAdventure = startAdv;
+
+})();
+</script>
 </body>
 </html>

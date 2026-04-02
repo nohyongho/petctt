@@ -4216,6 +4216,24 @@
             }
         })();
         </script>
-<script>function googleTranslateElementInit(){new google.translate.TranslateElement({pageLanguage:"ko",includedLanguages:"ko,en,ja,zh-CN,zh-TW,es,fr,de,pt,vi,th,id,ar,hi,ru",autoDisplay:false},"google_translate_element");}</script><script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script><style>.goog-te-gadget{font-size:0!important}.goog-te-gadget .goog-te-combo{padding:5px 8px;border-radius:12px;border:1px solid #444;background:rgba(30,30,50,0.8);color:#fff;font-size:0.7rem;font-weight:600;cursor:pointer}.goog-te-banner-frame{display:none!important}body{top:0!important}.skiptranslate{display:none!important}</style></body>
+<script>function googleTranslateElementInit(){new google.translate.TranslateElement({pageLanguage:"ko",includedLanguages:"ko,en,ja,zh-CN,zh-TW,es,fr,de,pt,vi,th,id,ar,hi,ru",autoDisplay:false},"google_translate_element");}</script><script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script><style>.goog-te-gadget{font-size:0!important}.goog-te-gadget .goog-te-combo{padding:5px 8px;border-radius:12px;border:1px solid #444;background:rgba(30,30,50,0.8);color:#fff;font-size:0.7rem;font-weight:600;cursor:pointer}.goog-te-banner-frame{display:none!important}body{top:0!important}.skiptranslate{display:none!important}</style>
+
+<!-- 앱 환영 토스트 v1 -->
+<style>
+#app-welcome-toast{position:fixed;top:-60px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(139,92,246,0.95),rgba(6,182,212,0.95));color:#fff;padding:12px 24px;border-radius:20px;font-size:13px;font-weight:600;z-index:99999;transition:top 0.5s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 8px 32px rgba(139,92,246,0.4);backdrop-filter:blur(12px);white-space:nowrap;}
+#app-welcome-toast.show{top:20px}
+</style>
+<div id="app-welcome-toast"></div>
+<script>
+(function(){
+  var t=document.getElementById('app-welcome-toast');if(!t)return;
+  var v=8+Math.floor(Math.random()*12);
+  var msgs=['🐾 반가워요! 지금 '+v+'명이 반려동물과 대화중!','🎙️ AI 통역 준비 완료! '+v+'명 접속중~','🐶 오늘도 반려동물의 마음을 들어보세요! 🐱','🐰 아미와 클박사가 기다리고 있어요! '+v+'명 접속중'];
+  t.textContent=msgs[Math.floor(Math.random()*msgs.length)];
+  setTimeout(function(){t.classList.add('show');},1000);
+  setTimeout(function(){t.classList.remove('show');},6000);
+})();
+</script>
+</body>
 
 </html>

@@ -758,5 +758,46 @@ function showToast(msg) {
 
 <!-- PetCTT 인증 모듈 -->
 <script src="/public/js/auth-core.js"></script>
+
+<!-- 쿠폰 축하 confetti 이펙트 v1 -->
+<canvas id="confetti-canvas" style="position:fixed;inset:0;pointer-events:none;z-index:99999;"></canvas>
+<script>
+(function(){
+  var canvas=document.getElementById('confetti-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  window.addEventListener('resize',function(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
+  var parts=[],colors=['#ff6b9d','#00e5ff','#ffab40','#00e676','#7c4dff','#ff5252','#ffd700','#ff80bf'];
+  function C(x,y){
+    this.x=x;this.y=y;this.vx=(Math.random()-0.5)*14;this.vy=-(Math.random()*14+5);
+    this.g=0.35;this.life=1;this.decay=0.007+Math.random()*0.008;
+    this.size=Math.random()*8+3;this.color=colors[Math.floor(Math.random()*colors.length)];
+    this.rot=Math.random()*360;this.rs=(Math.random()-0.5)*12;
+    this.shape=Math.random()>0.5?'r':'c';
+  }
+  function anim(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    parts=parts.filter(function(p){return p.life>0;});
+    parts.forEach(function(p){
+      p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;p.life-=p.decay;p.rot+=p.rs;
+      ctx.save();ctx.globalAlpha=p.life;ctx.translate(p.x,p.y);
+      ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;
+      if(p.shape==='r')ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);
+      else{ctx.beginPath();ctx.arc(0,0,p.size/2,0,Math.PI*2);ctx.fill();}
+      ctx.restore();
+    });
+    if(parts.length>0)requestAnimationFrame(anim);
+  }
+  window.fireConfetti=function(){
+    var cx=canvas.width/2,cy=canvas.height*0.4;
+    for(var i=0;i<100;i++)parts.push(new C(cx+(Math.random()-0.5)*200,cy+(Math.random()-0.5)*80));
+    anim();
+  };
+  // 기존 showToast 감시 - 당첨/획득/저장 키워드시 confetti
+  var _ot=window.showToast;
+  if(_ot){window.showToast=function(m){_ot(m);if(m&&(m.indexOf('당첨')>=0||m.indexOf('획득')>=0||m.indexOf('저장')>=0||m.indexOf('🎉')>=0))setTimeout(fireConfetti,300);};}
+})();
+</script>
 </body>
 </html>

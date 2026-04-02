@@ -166,6 +166,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
     <button class="tab" onclick="showTab('agent',this)">🤝 대리점</button>
     <button class="tab" onclick="showTab('settlement',this)">💸 정산 처리</button>
     <button class="tab" onclick="showTab('codes',this)">🔑 코드 관리</button>
+    <button class="tab" onclick="showTab('groupbuy',this)" style="color:#00e5ff;font-weight:700">🛒 공동구매</button>
   </div>
 
   <!-- ① 정산 개요 -->
@@ -791,6 +792,67 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',-apple-sy
       <div id="code-result" style="margin-top:12px;font-size:13px;color:var(--text2)"></div>
     </div>
   </div>
+
+  <!-- ⑦ 공동구매 관리 -->
+  <div id="tab-groupbuy" class="tab-content">
+    <div class="card">
+      <div class="card-title">🛒 공동구매 현황</div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-val" style="color:#00e5ff" id="gb-stat-active">0</div><div class="stat-lbl">진행중</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:#00e676" id="gb-stat-success">0</div><div class="stat-lbl">성공</div></div>
+        <div class="stat-box"><div class="stat-val" style="color:#ffab40" id="gb-stat-revenue">₩0</div><div class="stat-lbl">예상 매출</div></div>
+      </div>
+      <table class="tbl">
+        <thead><tr>
+          <th>상품명</th><th>판매자</th><th>단가</th><th>목표</th><th>참여</th><th>달성률</th><th>마감일</th><th>상태</th><th>관리</th>
+        </tr></thead>
+        <tbody id="gb-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">➕ 공동구매 등록</div>
+      <div class="notice">구름장터에 노출될 공동구매 상품을 등록합니다. 목표 인원 달성 시 자동 확정됩니다.</div>
+      <div class="form-row">
+        <input class="inp" type="text" id="gb-title" placeholder="상품명 (예: 프리미엄 유기농 사료 5kg)">
+        <input class="inp" type="text" id="gb-seller" placeholder="판매자명">
+      </div>
+      <div class="form-row">
+        <input class="inp" type="number" id="gb-price-original" placeholder="정가 (원)">
+        <input class="inp" type="number" id="gb-price-group" placeholder="공구가 (원)">
+        <input class="inp" type="number" id="gb-target" placeholder="목표 인원">
+      </div>
+      <div class="form-row">
+        <select class="sel" id="gb-category">
+          <option value="🍖">🍖 사료/간식</option>
+          <option value="🧸">🧸 장난감</option>
+          <option value="💊">💊 건강/영양</option>
+          <option value="🛁">🛁 위생/미용</option>
+          <option value="👕">👕 의류/패션</option>
+          <option value="🏠">🏠 하우스/케이지</option>
+          <option value="📦">📦 기타</option>
+        </select>
+        <input class="inp" type="date" id="gb-deadline" placeholder="마감일">
+        <button class="btn btn-primary" onclick="addGroupBuy()">등록</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 공동구매 정산 내역</div>
+      <div class="notice" style="margin-bottom:12px">
+        성공한 공동구매의 수수료 정산 내역입니다.<br>
+        <strong>수수료율:</strong> 공동구매 거래금액의 <span style="color:#00e5ff;font-weight:700">5%</span> (본사 60% / 총판 25% / 대리점 15%)
+      </div>
+      <table class="tbl">
+        <thead><tr>
+          <th>상품명</th><th>거래금액</th><th>수수료(5%)</th><th>본사</th><th>총판</th><th>대리점</th><th>확정일</th>
+        </tr></thead>
+        <tbody id="gb-settle-tbody">
+          <tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">정산 내역이 없습니다</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -878,10 +940,10 @@ function applyRoleUI(){
   // 탭 표시/숨김
   var tabs = document.querySelectorAll('.tab');
   var TAB_PERMS = {
-    hq:          ['overview','txn','hq','merchant','distributor','agent','settlement','codes'],
-    distributor: ['overview','txn','merchant','agent','codes'],
-    agent:       ['overview','txn','merchant','codes'],
-    merchant:    ['overview']
+    hq:          ['overview','txn','hq','merchant','distributor','agent','settlement','codes','groupbuy'],
+    distributor: ['overview','txn','merchant','agent','codes','groupbuy'],
+    agent:       ['overview','txn','merchant','codes','groupbuy'],
+    merchant:    ['overview','groupbuy']
   };
   var allowed = TAB_PERMS[CUR_ROLE] || [];
 
@@ -2139,6 +2201,180 @@ function updateFlowRates(rules){
   document.getElementById('flow-agent-rate').textContent = '대리점 몫';
   // notice에서 고정 비율 제거 완료 - 동적 표시 불필요
 }
+
+// ============================================
+// ===== 공동구매 관리 시스템 v1 =====
+// ============================================
+var GB_KEY = STORE_KEY + '_groupbuy';
+
+function getGB(){ return JSON.parse(localStorage.getItem(GB_KEY)||'[]'); }
+function setGB(arr){ localStorage.setItem(GB_KEY, JSON.stringify(arr)); }
+
+function addGroupBuy(){
+  var title = document.getElementById('gb-title').value.trim();
+  var seller = document.getElementById('gb-seller').value.trim();
+  var priceOrig = parseInt(document.getElementById('gb-price-original').value)||0;
+  var priceGroup = parseInt(document.getElementById('gb-price-group').value)||0;
+  var target = parseInt(document.getElementById('gb-target').value)||0;
+  var category = document.getElementById('gb-category').value;
+  var deadline = document.getElementById('gb-deadline').value;
+
+  if(!title||!seller||!priceOrig||!priceGroup||!target||!deadline){
+    alert('모든 항목을 입력해주세요!'); return;
+  }
+  if(priceGroup >= priceOrig){
+    alert('공구가는 정가보다 낮아야 해요!'); return;
+  }
+
+  var discount = Math.round((1 - priceGroup/priceOrig)*100);
+  var gb = getGB();
+  gb.push({
+    id: 'GB-'+Date.now().toString(36).toUpperCase(),
+    emoji: category,
+    title: title,
+    seller: seller,
+    priceOriginal: priceOrig,
+    priceGroup: priceGroup,
+    discount: discount,
+    target: target,
+    current: 0,
+    deadline: deadline,
+    status: 'active', // active, success, failed, cancelled
+    createdAt: new Date().toISOString(),
+    createdBy: CUR_ROLE + '/' + CUR_CODE
+  });
+  setGB(gb);
+
+  // 입력 초기화
+  document.getElementById('gb-title').value='';
+  document.getElementById('gb-seller').value='';
+  document.getElementById('gb-price-original').value='';
+  document.getElementById('gb-price-group').value='';
+  document.getElementById('gb-target').value='';
+  document.getElementById('gb-deadline').value='';
+
+  renderGroupBuy();
+  addLog('공동구매 등록: '+title+' ('+seller+', 목표 '+target+'명)');
+  alert('✅ 공동구매 등록 완료!\n구름장터에 자동 노출됩니다.');
+}
+
+function renderGroupBuy(){
+  var gb = getGB();
+  var tbody = document.getElementById('gb-tbody');
+  if(!tbody) return;
+
+  // 마감일 지난 것 자동 상태 변경
+  var now = new Date();
+  gb.forEach(function(item){
+    if(item.status === 'active'){
+      if(item.current >= item.target) item.status = 'success';
+      else if(new Date(item.deadline) < now) item.status = 'failed';
+    }
+  });
+  setGB(gb);
+
+  // 통계
+  var active = gb.filter(function(g){ return g.status==='active'; }).length;
+  var success = gb.filter(function(g){ return g.status==='success'; }).length;
+  var revenue = gb.filter(function(g){ return g.status==='success'; }).reduce(function(s,g){ return s + g.priceGroup*g.current; },0);
+
+  var el1=document.getElementById('gb-stat-active'); if(el1) el1.textContent=active;
+  var el2=document.getElementById('gb-stat-success'); if(el2) el2.textContent=success;
+  var el3=document.getElementById('gb-stat-revenue'); if(el3) el3.textContent='₩'+revenue.toLocaleString();
+
+  if(gb.length===0){
+    tbody.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:20px">등록된 공동구매가 없습니다</td></tr>';
+    return;
+  }
+
+  var STATUS_MAP = {active:'진행중',success:'✅ 성공',failed:'❌ 마감',cancelled:'취소'};
+  var STATUS_COLOR = {active:'#00e5ff',success:'#00e676',failed:'#ff5252',cancelled:'#64748b'};
+
+  tbody.innerHTML = gb.map(function(item){
+    var pct = item.target>0 ? Math.round(item.current/item.target*100) : 0;
+    var daysLeft = Math.max(0, Math.ceil((new Date(item.deadline)-now)/(1000*60*60*24)));
+    return '<tr>'
+      +'<td>'+item.emoji+' '+item.title+'</td>'
+      +'<td>'+item.seller+'</td>'
+      +'<td>₩'+item.priceGroup.toLocaleString()+'<br><small style="color:var(--text3);text-decoration:line-through">₩'+item.priceOriginal.toLocaleString()+'</small></td>'
+      +'<td>'+item.target+'명</td>'
+      +'<td><strong>'+item.current+'</strong>명</td>'
+      +'<td><div style="background:rgba(255,255,255,0.06);border-radius:4px;height:6px;width:80px;display:inline-block;vertical-align:middle"><div style="height:100%;width:'+Math.min(pct,100)+'%;background:linear-gradient(90deg,#00e5ff,#00e676);border-radius:4px"></div></div> '+pct+'%</td>'
+      +'<td>'+item.deadline+'<br><small style="color:var(--text3)">'+(item.status==='active'?daysLeft+'일 남음':'')+'</small></td>'
+      +'<td><span style="color:'+STATUS_COLOR[item.status]+';font-weight:700;font-size:11px">'+STATUS_MAP[item.status]+'</span></td>'
+      +'<td>'
+      +(item.status==='active'?'<button class="btn btn-sm btn-warn" onclick="gbAddParticipant(\''+item.id+'\')">+1명</button> ':'')
+      +(item.status==='active'?'<button class="btn btn-sm btn-danger" onclick="gbCancel(\''+item.id+'\')">취소</button>':'')
+      +'</td>'
+      +'</tr>';
+  }).join('');
+
+  // 정산 내역
+  renderGBSettlement(gb.filter(function(g){ return g.status==='success'; }));
+}
+
+function gbAddParticipant(id){
+  var gb = getGB();
+  var item = gb.find(function(g){ return g.id===id; });
+  if(!item) return;
+  item.current++;
+  if(item.current >= item.target) item.status = 'success';
+  setGB(gb);
+  renderGroupBuy();
+  if(item.status==='success'){
+    alert('🎉 목표 달성! 공동구매 성공!\n정산 처리 대상에 추가됩니다.');
+    addLog('공동구매 성공: '+item.title+' ('+item.current+'/'+item.target+'명)');
+  }
+}
+
+function gbCancel(id){
+  if(!confirm('정말 이 공동구매를 취소하시겠습니까?')) return;
+  var gb = getGB();
+  var item = gb.find(function(g){ return g.id===id; });
+  if(item){ item.status='cancelled'; addLog('공동구매 취소: '+item.title); }
+  setGB(gb);
+  renderGroupBuy();
+}
+
+function renderGBSettlement(successItems){
+  var tbody = document.getElementById('gb-settle-tbody');
+  if(!tbody) return;
+  if(!successItems.length){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">정산 내역이 없습니다</td></tr>';
+    return;
+  }
+  var rules = getConf('rates') || {hq:60,dist:25,agent:15};
+  tbody.innerHTML = successItems.map(function(item){
+    var total = item.priceGroup * item.current;
+    var fee = Math.round(total * 0.05);
+    var hqAmt = Math.round(fee * rules.hq/100);
+    var distAmt = Math.round(fee * rules.dist/100);
+    var agentAmt = fee - hqAmt - distAmt;
+    return '<tr>'
+      +'<td>'+item.emoji+' '+item.title+'</td>'
+      +'<td style="font-weight:700">₩'+total.toLocaleString()+'</td>'
+      +'<td style="color:#00e5ff;font-weight:700">₩'+fee.toLocaleString()+'</td>'
+      +'<td style="color:var(--hq)">₩'+hqAmt.toLocaleString()+'</td>'
+      +'<td style="color:var(--dist)">₩'+distAmt.toLocaleString()+'</td>'
+      +'<td style="color:var(--agent)">₩'+agentAmt.toLocaleString()+'</td>'
+      +'<td>'+item.deadline+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+// renderAll에 공동구매 추가
+var _origRenderAll = window.renderAll;
+window.renderAll = function(){
+  if(_origRenderAll) _origRenderAll();
+  renderGroupBuy();
+};
+
+// 초기 렌더링 (로그인 후)
+var _origDoLogin = window.doLogin;
+window.doLogin = function(){
+  if(_origDoLogin) _origDoLogin();
+  setTimeout(renderGroupBuy, 300);
+};
 </script>
 <!-- PetCTT 인증 모듈 -->
 <script src="/public/js/auth-core.js"></script>

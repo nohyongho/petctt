@@ -494,6 +494,51 @@ body {
 .cmi-title { font-size: 13px; font-weight: 700; color: #f1f5f9; }
 .cmi-sub { font-size: 11px; color: #64748b; margin-top: 2px; }
 
+/* === 공동구매 v1 === */
+.gb-section{padding:20px 16px}
+.gb-header{margin-bottom:16px}
+.gb-header h2{font-size:18px;font-weight:900;color:#fff;margin-bottom:4px}
+.gb-header p{font-size:12px;color:var(--text-muted)}
+.gb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.gb-card{
+  background:var(--bg-card);border:1px solid rgba(255,255,255,0.06);
+  border-radius:16px;padding:16px;cursor:pointer;transition:all 0.25s;
+  position:relative;overflow:hidden;
+}
+.gb-card:hover{border-color:rgba(0,229,255,0.3);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.3)}
+.gb-card-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.gb-emoji{font-size:36px;width:52px;height:52px;background:rgba(0,229,255,0.08);border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gb-info{flex:1}
+.gb-title{font-size:14px;font-weight:700;color:#f1f5f9;margin-bottom:3px}
+.gb-seller{font-size:11px;color:var(--text-muted)}
+.gb-prices{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+.gb-price-original{font-size:12px;color:#64748b;text-decoration:line-through}
+.gb-price-group{font-size:18px;font-weight:900;color:#00e5ff}
+.gb-discount{font-size:12px;font-weight:700;color:#ff6b9d;background:rgba(255,107,157,0.12);padding:2px 7px;border-radius:8px}
+.gb-progress-wrap{margin-bottom:10px}
+.gb-progress-bar{height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-bottom:4px}
+.gb-progress-fill{height:100%;border-radius:4px;transition:width 0.6s ease}
+.gb-progress-text{display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted)}
+.gb-progress-text strong{color:#00e676}
+.gb-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.gb-deadline{font-size:11px;color:var(--text-muted)}
+.gb-join-btn{
+  padding:7px 16px;border-radius:20px;border:none;
+  background:linear-gradient(135deg,#00e676,#00e5ff);
+  color:#0a0e1a;font-size:12px;font-weight:700;cursor:pointer;
+  transition:transform 0.15s;white-space:nowrap;
+}
+.gb-join-btn:hover{transform:scale(1.05)}
+.gb-join-btn.joined{background:rgba(255,255,255,0.1);color:#8892b0;cursor:default}
+.gb-badge{
+  position:absolute;top:12px;right:12px;
+  padding:3px 9px;border-radius:10px;font-size:10px;font-weight:700;
+}
+.gb-badge-hot{background:rgba(255,107,157,0.2);color:#ff6b9d;border:1px solid rgba(255,107,157,0.3)}
+.gb-badge-new{background:rgba(0,229,255,0.15);color:#00e5ff;border:1px solid rgba(0,229,255,0.3)}
+.gb-badge-almost{background:rgba(0,230,118,0.15);color:#00e676;border:1px solid rgba(0,230,118,0.3)}
+@media(max-width:600px){.gb-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -813,6 +858,17 @@ body {
       <div class="coupon-desc">미니게임을 플레이하고 구름장터에서 사용할 수 있는 할인 쿠폰을 획득하세요!</div>
     </div>
     <span class="coupon-arrow">→</span>
+  </div>
+
+  <!-- ====== 공동구매 섹션 v1 ====== -->
+  <div class="gb-section">
+    <div class="gb-header">
+      <h2>🛒 공동구매</h2>
+      <p>함께 사면 더 싸다! 펫 용품 공동구매로 최대 40% 할인</p>
+    </div>
+    <div class="gb-grid" id="gb-grid">
+      <!-- JS로 렌더링 -->
+    </div>
   </div>
 
   <!-- Partner Stores -->
@@ -1524,5 +1580,151 @@ window.addEventListener('load', () => { initCouponBar(); });
 
 <!-- PetCTT 인증 모듈 -->
 <script src="/public/js/auth-core.js"></script>
+
+<!-- === 공동구매 시스템 v1 === -->
+<script>
+(function(){
+  'use strict';
+
+  // 공동구매 샘플 데이터 (추후 Supabase 연동)
+  var GB_ITEMS = [
+    {
+      id:'gb1', emoji:'🍖', title:'프리미엄 유기농 사료 5kg',
+      seller:'하림 펫푸드', badge:'hot',
+      priceOriginal:45000, priceGroup:28900, discount:36,
+      target:50, current:38, deadline:'2026-04-07',
+      gradient:'linear-gradient(135deg,#ff6b9d,#ff8a65)'
+    },
+    {
+      id:'gb2', emoji:'🧸', title:'강아지 지능개발 장난감 세트',
+      seller:'펫 토이랜드', badge:'new',
+      priceOriginal:32000, priceGroup:19900, discount:38,
+      target:30, current:12, deadline:'2026-04-10',
+      gradient:'linear-gradient(135deg,#00e5ff,#7c4dff)'
+    },
+    {
+      id:'gb3', emoji:'💊', title:'관절 영양제 60정 (대형견)',
+      seller:'펫 닥터', badge:'almost',
+      priceOriginal:38000, priceGroup:24500, discount:36,
+      target:40, current:37, deadline:'2026-04-05',
+      gradient:'linear-gradient(135deg,#00e676,#00e5ff)'
+    },
+    {
+      id:'gb4', emoji:'🛁', title:'저자극 펫 샴푸 500ml + 린스',
+      seller:'클린펫', badge:'new',
+      priceOriginal:25000, priceGroup:15900, discount:36,
+      target:60, current:22, deadline:'2026-04-12',
+      gradient:'linear-gradient(135deg,#ffab40,#ff6b9d)'
+    },
+    {
+      id:'gb5', emoji:'👕', title:'겨울 패딩 조끼 (S~XL)',
+      seller:'멍냥패션', badge:'hot',
+      priceOriginal:35000, priceGroup:21000, discount:40,
+      target:80, current:61, deadline:'2026-04-08',
+      gradient:'linear-gradient(135deg,#7c4dff,#ff6b9d)'
+    },
+    {
+      id:'gb6', emoji:'🏠', title:'원목 반려동물 하우스 (중형)',
+      seller:'펫하우스코리아', badge:'new',
+      priceOriginal:89000, priceGroup:54900, discount:38,
+      target:20, current:8, deadline:'2026-04-15',
+      gradient:'linear-gradient(135deg,#00e5ff,#00e676)'
+    }
+  ];
+
+  // 참여 상태 (localStorage)
+  function getJoined(){ try{ return JSON.parse(localStorage.getItem('petctt_gb_joined')||'[]'); }catch(e){ return []; } }
+  function setJoined(arr){ try{ localStorage.setItem('petctt_gb_joined',JSON.stringify(arr)); }catch(e){} }
+
+  function renderGB(){
+    var grid = document.getElementById('gb-grid');
+    if(!grid) return;
+    var joined = getJoined();
+    var html = '';
+
+    GB_ITEMS.forEach(function(item){
+      var pct = Math.round(item.current/item.target*100);
+      var isJoined = joined.indexOf(item.id) >= 0;
+      var daysLeft = Math.max(0, Math.ceil((new Date(item.deadline)-new Date())/(1000*60*60*24)));
+      var badgeClass = item.badge==='hot'?'gb-badge-hot':item.badge==='almost'?'gb-badge-almost':'gb-badge-new';
+      var badgeText = item.badge==='hot'?'🔥 인기':item.badge==='almost'?'⚡ 마감임박':'✨ 신규';
+
+      html += '<div class="gb-card" data-id="'+item.id+'">'
+        + '<div class="gb-badge '+badgeClass+'">'+badgeText+'</div>'
+        + '<div class="gb-card-top">'
+        +   '<div class="gb-emoji">'+item.emoji+'</div>'
+        +   '<div class="gb-info"><div class="gb-title">'+item.title+'</div>'
+        +   '<div class="gb-seller">🏪 '+item.seller+'</div></div>'
+        + '</div>'
+        + '<div class="gb-prices">'
+        +   '<span class="gb-price-original">₩'+item.priceOriginal.toLocaleString()+'</span>'
+        +   '<span class="gb-price-group">₩'+item.priceGroup.toLocaleString()+'</span>'
+        +   '<span class="gb-discount">-'+item.discount+'%</span>'
+        + '</div>'
+        + '<div class="gb-progress-wrap">'
+        +   '<div class="gb-progress-bar"><div class="gb-progress-fill" style="width:'+pct+'%;background:'+item.gradient+'"></div></div>'
+        +   '<div class="gb-progress-text"><span><strong>'+item.current+'명</strong> / '+item.target+'명 참여</span><span>'+pct+'% 달성</span></div>'
+        + '</div>'
+        + '<div class="gb-bottom">'
+        +   '<span class="gb-deadline">⏰ '+(daysLeft>0?daysLeft+'일 남음':'마감!')+'</span>'
+        +   '<button class="gb-join-btn'+(isJoined?' joined':'')+'" onclick="joinGB(\''+item.id+'\',this,event)">'
+        +     (isJoined?'✓ 참여완료':'🛒 참여하기')
+        +   '</button>'
+        + '</div>'
+        + '</div>';
+    });
+
+    grid.innerHTML = html;
+  }
+
+  window.joinGB = function(id, btn, e){
+    e.stopPropagation();
+    var joined = getJoined();
+    if(joined.indexOf(id) >= 0){
+      showToast('이미 참여한 공동구매예요! 🛒');
+      return;
+    }
+
+    // 로그인 체크
+    var user = null;
+    try{ user = JSON.parse(localStorage.getItem('petctt_user')||localStorage.getItem('airctt_consumer_user')||'null'); }catch(e){}
+    if(!user){
+      showToast('로그인 후 참여할 수 있어요! 🔑');
+      if(typeof PetCTTAuth !== 'undefined') PetCTTAuth.requireLogin();
+      return;
+    }
+
+    // 참여 처리
+    joined.push(id);
+    setJoined(joined);
+
+    // UI 업데이트
+    btn.classList.add('joined');
+    btn.textContent = '✓ 참여완료';
+
+    // 참여자 수 증가 애니메이션
+    var item = GB_ITEMS.find(function(g){ return g.id===id; });
+    if(item){
+      item.current = Math.min(item.current+1, item.target);
+      renderGB(); // 리렌더
+    }
+
+    showToast('🎉 공동구매 참여 완료! 목표 달성되면 알려드릴게요!');
+
+    // 쿠폰 보너스 안내
+    setTimeout(function(){
+      showToast('💡 공동구매 성공 시 추가 5% 쿠폰 지급!');
+    }, 2000);
+  };
+
+  // 페이지 로드 시 렌더링
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', renderGB);
+  } else {
+    renderGB();
+  }
+
+})();
+</script>
 </body>
 </html>

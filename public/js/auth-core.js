@@ -12,8 +12,8 @@ const PetCTTAuth = (function() {
     let _user = null;
     let _cbs = [];
 
-                      function _save(token, user) {
-                            try { localStorage.setItem(TK, token); localStorage.setItem(UK, JSON.stringify(user)); } catch(e) {}
+                      function _save(token, user, refresh) {
+                            try { localStorage.setItem(TK, token); localStorage.setItem(UK, JSON.stringify(user)); if(refresh) localStorage.setItem('petctt_refresh_token', refresh); } catch(e) {}
                       }
     function _clear() {
           try { localStorage.removeItem(TK); localStorage.removeItem(UK); } catch(e) {}
@@ -122,5 +122,53 @@ const PetCTTAuth = (function() {
                       }
     _autoInit();
 
-                      return { init, getUser, getToken, onChange, login, logout, requireLogin, apiFetch, renderHeader };
+    // === 토큰 자동 갱신 v1 ===
+    var _refreshing = false;
+    async function _refreshToken() {
+          if(_refreshing) return false;
+          _refreshing = true;
+          try {
+                var rt = null; try { rt = localStorage.getItem('petctt_refresh_token'); } catch(e){}
+                if(!rt) { _refreshing=false; return false; }
+                var r = await fetch(WORKER+'/api/auth/refresh', {
+                      method:'POST', headers:{'Content-Type':'application/json'},
+                      body: JSON.stringify({refreshToken:rt}), signal:AbortSignal.timeout(8000)
+                });
+                if(!r.ok) { _refreshing=false; _clear(); _fire(null); return false; }
+                var d = await r.json();
+                if(d.accessToken) {
+                      _save(d.accessToken, d.user||_user, d.refreshToken||rt);
+                      if(d.user) { _user=d.user; _fire(_user); }
+                      _refreshing=false; return true;
+                }
+                _refreshing=false; return false;
+          } catch(e) { _refreshing=false; return false; }
+    }
+
+    var _refreshInterval = null;
+    function _startAutoRefresh() {
+          if(_refreshInterval) return;
+          _refreshInterval = setInterval(function(){ if(_token()) _refreshToken(); }, 45*60*1000);
+    }
+
+    // apiFetch 401 자동 갱신 래퍼
+    var _origApiFetch = apiFetch;
+    async function _smartApiFetch(path, opts) {
+          var r = await _origApiFetch(path, opts);
+          if(r.status === 401) {
+                var ok = await _refreshToken();
+                if(ok) return _origApiFetch(path, opts);
+          }
+          return r;
+    }
+
+    // init 후 자동 갱신 시작
+    var _origInit = init;
+    async function _smartInit() {
+          var u = await _origInit();
+          _startAutoRefresh();
+          return u;
+    }
+
+                      return { init:_smartInit, getUser, getToken, onChange, login, logout, requireLogin, apiFetch:_smartApiFetch, renderHeader, refreshToken:_refreshToken };
 })();

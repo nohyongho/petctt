@@ -1186,7 +1186,9 @@ function generateTaxInvoice(){
   html += '<td style="text-align:center">'+txns.length+'건</td>';
   html += '<td class="right">'+fmt(totalSupply)+'</td><td class="right">'+fmt(totalVat)+'</td><td>-</td></tr></table>';
   html += '<div class="stamp"><p>위 금액을 청구함.</p><p style="margin-top:16px"><b>주식회사 발로레</b> (인)</p></div>';
-  html += '</body></html>';
+  html += '<!-- PetCTT 인증 모듈 -->
+<script src="/public/js/auth-core.js"></script>
+</body></html>';
   var w = window.open('','_blank');
   w.document.write(html);
   w.document.close();
@@ -2098,7 +2100,9 @@ function generatePDF(){
   });
   html += '</table>';
   html += '<div class="stamp"><p>위 금액을 정히 정산합니다.</p><p style="margin-top:20px"><b>주식회사 발로레</b> (인)</p></div>';
-  html += '</body></html>';
+  html += '<!-- PetCTT 인증 모듈 -->
+<script src="/public/js/auth-core.js"></script>
+</body></html>';
 
   var w = window.open('', '_blank');
   w.document.write(html);
@@ -2135,6 +2139,42 @@ function updateFlowRates(rules){
   document.getElementById('flow-agent-rate').textContent = '대리점 몫';
   // notice에서 고정 비율 제거 완료 - 동적 표시 불필요
 }
+</script>
+<!-- PetCTT 인증 모듈 -->
+<script src="/public/js/auth-core.js"></script>
+<!-- PetCTT 인증 연동 v1 - 정산 페이지 접근 제어 -->
+<script>
+(function(){
+  var authChecked = false;
+  function checkAuth(){
+    if(authChecked) return;
+    if(typeof PetCTTAuth === 'undefined') return;
+    var user = PetCTTAuth.getUser();
+    if(!user){
+      PetCTTAuth.requireLogin();
+      return;
+    }
+    var role = user.role || 'user';
+    if(role !== 'admin' && role !== 'store_owner'){
+      document.getElementById('login-screen').innerHTML =
+        '<div style="text-align:center;padding:60px 20px;">'+
+        '<div style="font-size:48px;margin-bottom:20px;">🔒</div>'+
+        '<h2 style="color:#ff5252;margin-bottom:12px;">접근 권한 없음</h2>'+
+        '<p style="color:#94a3b8;font-size:14px;">관리자 또는 매장 운영자만 접근할 수 있습니다.</p>'+
+        '<p style="color:#64748b;font-size:12px;margin-top:8px;">현재 역할: '+role+'</p>'+
+        '<button onclick="location.href=\'/\'" style="margin-top:20px;padding:10px 24px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:14px;">홈으로 돌아가기</button>'+
+        '</div>';
+      return;
+    }
+    authChecked = true;
+    var nameEl = document.querySelector('.login-logo');
+    if(nameEl) nameEl.innerHTML = '🔐 발로레 정산 어드민<br><small style="font-size:11px;color:#00e676;">✓ '+(user.name||user.email)+' 인증됨</small>';
+  }
+  if(typeof PetCTTAuth !== 'undefined'){
+    PetCTTAuth.onChange(function(u){ if(u) checkAuth(); });
+    setTimeout(checkAuth, 500);
+  }
+})();
 </script>
 </body>
 </html>

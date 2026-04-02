@@ -2378,7 +2378,7 @@ window.doLogin = function(){
 </script>
 <!-- PetCTT 인증 모듈 -->
 <script src="/public/js/auth-core.js"></script>
-<!-- PetCTT 인증 연동 v1 - 정산 페이지 접근 제어 -->
+<!-- PetCTT 인증 연동 v2 - 보조 인증 (기존 비밀번호 로그인 유지) -->
 <script>
 (function(){
   var authChecked = false;
@@ -2386,23 +2386,9 @@ window.doLogin = function(){
     if(authChecked) return;
     if(typeof PetCTTAuth === 'undefined') return;
     var user = PetCTTAuth.getUser();
-    if(!user){
-      PetCTTAuth.requireLogin();
-      return;
-    }
-    var role = user.role || 'user';
-    if(role !== 'admin' && role !== 'store_owner'){
-      document.getElementById('login-screen').innerHTML =
-        '<div style="text-align:center;padding:60px 20px;">'+
-        '<div style="font-size:48px;margin-bottom:20px;">🔒</div>'+
-        '<h2 style="color:#ff5252;margin-bottom:12px;">접근 권한 없음</h2>'+
-        '<p style="color:#94a3b8;font-size:14px;">관리자 또는 매장 운영자만 접근할 수 있습니다.</p>'+
-        '<p style="color:#64748b;font-size:12px;margin-top:8px;">현재 역할: '+role+'</p>'+
-        '<button onclick="location.href=\'/\'" style="margin-top:20px;padding:10px 24px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:12px;cursor:pointer;font-size:14px;">홈으로 돌아가기</button>'+
-        '</div>';
-      return;
-    }
+    if(!user) return; // 미로그인이어도 기존 비밀번호 로그인 허용
     authChecked = true;
+    // 로그인 되어있으면 이름 표시만 (차단하지 않음)
     var nameEl = document.querySelector('.login-logo');
     if(nameEl) nameEl.innerHTML = '🔐 발로레 정산 어드민<br><small style="font-size:11px;color:#00e676;">✓ '+(user.name||user.email)+' 인증됨</small>';
   }

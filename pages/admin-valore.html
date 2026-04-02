@@ -825,7 +825,7 @@ setInterval(()=>{
 </script>
 <!-- PetCTT 인증 모듈 -->
 <script src="/public/js/auth-core.js"></script>
-<!-- PetCTT 인증 연동 v1 - 관리자 페이지 접근 제어 -->
+<!-- PetCTT 인증 연동 v2 - 보조 인증 (기존 로그인 유지) -->
 <script>
 (function(){
   var authChecked = false;
@@ -833,18 +833,11 @@ setInterval(()=>{
     if(authChecked) return;
     if(typeof PetCTTAuth === 'undefined') return;
     var user = PetCTTAuth.getUser();
-    if(!user){ PetCTTAuth.requireLogin(); return; }
-    var role = user.role || 'user';
-    if(role !== 'admin'){
-      document.body.innerHTML =
-        '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#07001a;color:#fff;text-align:center;padding:20px;">'+
-        '<div><div style="font-size:48px;margin-bottom:20px;">🔒</div>'+
-        '<h2 style="color:#ff5252;margin-bottom:12px;">관리자 전용 페이지</h2>'+
-        '<p style="color:#94a3b8;font-size:14px;">admin 권한이 필요합니다.</p>'+
-        '<button onclick="location.href=\'/\'" style="margin-top:20px;padding:10px 24px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:12px;cursor:pointer;">홈으로</button></div></div>';
-      return;
-    }
+    if(!user) return; // 미로그인이어도 기존 로그인 허용
     authChecked = true;
+    // 로그인 표시만
+    var logo = document.querySelector('.login-logo') || document.querySelector('h1');
+    if(logo) logo.innerHTML = logo.textContent + '<br><small style="font-size:11px;color:#00e676;">✓ '+(user.name||user.email)+' 인증됨</small>';
   }
   if(typeof PetCTTAuth !== 'undefined'){
     PetCTTAuth.onChange(function(u){ if(u) checkAuth(); });

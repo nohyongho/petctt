@@ -1052,7 +1052,7 @@ function renderSalesChart(){
   // 배경 그리드
   ctx.strokeStyle = 'rgba(255,255,255,.05)';
   ctx.lineWidth = 1;
-  for(var g=0;g<5;g++){
+  for(var g=0;5>g;g++){
     var gy = padT + chartH * g / 4;
     ctx.beginPath(); ctx.moveTo(padL,gy); ctx.lineTo(w-padR,gy); ctx.stroke();
     ctx.fillStyle = 'rgba(255,255,255,.3)';
@@ -1064,7 +1064,7 @@ function renderSalesChart(){
   // 바 차트
   var barW = chartW / days.length * 0.6;
   var gap = chartW / days.length;
-  for(var b=0;b<days.length;b++){
+  for(var b=0;days.length>b;b++){
     var barH = amounts[b] / maxAmt * chartH;
     var bx = padL + gap * b + gap*0.2;
     var by = padT + chartH - barH;
@@ -1248,9 +1248,7 @@ function generateTaxInvoice(){
   html += '<td style="text-align:center">'+txns.length+'건</td>';
   html += '<td class="right">'+fmt(totalSupply)+'</td><td class="right">'+fmt(totalVat)+'</td><td>-</td></tr></table>';
   html += '<div class="stamp"><p>위 금액을 청구함.</p><p style="margin-top:16px"><b>주식회사 발로레</b> (인)</p></div>';
-  html += '<!-- PetCTT 인증 모듈 -->
-<script src="/public/js/auth-core.js"></script>
-</body></html>';
+  html += '<\/body><\/html>';
   var w = window.open('','_blank');
   w.document.write(html);
   w.document.close();
@@ -1340,7 +1338,7 @@ function getNextSettleDate(){
   var month = now.getMonth()+1;
   var today = now.getDate();
   var days = getSettleDays(year, month, cycle);
-  for(var i=0;i<days.length;i++){
+  for(var i=0;days.length>i;i++){
     if(days[i] > today) return year+'-'+String(month).padStart(2,'0')+'-'+String(days[i]).padStart(2,'0');
   }
   // 다음달 첫 정산일
@@ -1387,8 +1385,8 @@ function renderSettleSchedule(){
   var html = '';
   var heads = ['일','월','화','수','목','금','토'];
   heads.forEach(function(h){ html += '<div class="settle-cal-head">'+h+'</div>'; });
-  for(var i=0;i<firstDay;i++) html += '<div class="settle-cal-day empty-day">0</div>';
-  for(var d=1;d<=lastDate;d++){
+  for(var i=0;firstDay>i;i++) html += '<div class="settle-cal-day empty-day">0</div>';
+  for(var d=1;lastDate>=d;d++){
     var cls = 'settle-cal-day';
     if(d===today) cls += ' today';
     if(settleDays.indexOf(d)>=0) cls += ' settle-day';
@@ -2162,9 +2160,7 @@ function generatePDF(){
   });
   html += '</table>';
   html += '<div class="stamp"><p>위 금액을 정히 정산합니다.</p><p style="margin-top:20px"><b>주식회사 발로레</b> (인)</p></div>';
-  html += '<!-- PetCTT 인증 모듈 -->
-<script src="/public/js/auth-core.js"></script>
-</body></html>';
+  html += '<\/body><\/html>';
 
   var w = window.open('', '_blank');
   w.document.write(html);

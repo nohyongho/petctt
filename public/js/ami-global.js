@@ -198,6 +198,26 @@
     return false;
   }
 
+  // ===== 아미 표시/숨기기 (!important로 v3 오버라이드) =====
+  function toggleAmiDisplay(show){
+    // CSS 클래스로 강제 숨기기 (v3의 setPos가 inline style로 다시 켜도 이김)
+    var style = document.getElementById('ami-hide-style');
+    if(!style){
+      style = document.createElement('style');
+      style.id = 'ami-hide-style';
+      document.head.appendChild(style);
+    }
+    if(show){
+      style.textContent = '';
+    } else {
+      style.textContent = '#ami-root,#ami-particle-canvas,#ami-chat,#ami-injected,#ami-global-bubble,#ami-chat-global{display:none!important;visibility:hidden!important;opacity:0!important}';
+      // 채팅도 닫기
+      chatOpen = false;
+      var panel = document.getElementById('ami-chat-global');
+      if(panel) panel.style.display = 'none';
+    }
+  }
+
   // ===== X/O 토글 버튼 =====
   function createToggle(){
     var btn = document.createElement('button');
@@ -209,14 +229,8 @@
       isVisible = !isVisible;
       localStorage.setItem(STORAGE_KEY, isVisible);
       updateToggle(btn);
-      var ami = document.getElementById('ami-root');
-      var canvas = document.getElementById('ami-particle-canvas');
-      if(ami) ami.style.display = isVisible ? 'block' : 'none';
-      if(canvas) canvas.style.display = isVisible ? 'block' : 'none';
-      // ami-injected도 처리
-      var inj = document.getElementById('ami-injected');
-      if(inj) inj.style.display = isVisible ? 'block' : 'none';
-      if(isVisible) showBubble('다시 왔어! 뭐 도와줄까?');
+      toggleAmiDisplay(isVisible);
+      if(isVisible) setTimeout(function(){ showBubble('다시 왔어! 뭐 도와줄까?'); }, 500);
     };
     document.body.appendChild(btn);
   }
@@ -413,12 +427,7 @@
 
     // X/O 상태 적용
     if(!isVisible){
-      var ami = document.getElementById('ami-root');
-      var canvas = document.getElementById('ami-particle-canvas');
-      var inj = document.getElementById('ami-injected');
-      if(ami) ami.style.display = 'none';
-      if(canvas) canvas.style.display = 'none';
-      if(inj) inj.style.display = 'none';
+      toggleAmiDisplay(false);
     }
 
     // 클릭 이벤트 연결 (아미가 로드된 후)

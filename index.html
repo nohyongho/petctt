@@ -1045,6 +1045,8 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
     root.style.setProperty('pointer-events','auto','important');
 
     function setPos(){
+      // 글로벌 숨김 상태면 display/visibility 건드리지 않음
+      if(window._amiHidden) return;
       root.style.setProperty('left', ax+'px','important');
       root.style.setProperty('bottom','28px','important');
       root.style.setProperty('transform','translateX(-50%) scaleX('+facing+') translateY('+jOffset+'px)','important');

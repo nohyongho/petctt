@@ -208,9 +208,21 @@
       document.head.appendChild(style);
     }
     if(show){
+      window._amiHidden = false;
       style.textContent = '';
+      // ami-root 다시 보이게
+      var r = document.getElementById('ami-root');
+      if(r){ r.style.setProperty('display','block','important'); r.style.setProperty('visibility','visible','important'); r.style.setProperty('opacity','1','important'); }
+      var c = document.getElementById('ami-particle-canvas');
+      if(c){ c.style.setProperty('display','block','important'); }
     } else {
+      window._amiHidden = true;
       style.textContent = '#ami-root,#ami-particle-canvas,#ami-chat,#ami-injected,#ami-global-bubble,#ami-chat-global{display:none!important;visibility:hidden!important;opacity:0!important}';
+      // inline style도 강제 제거
+      var r2 = document.getElementById('ami-root');
+      if(r2){ r2.style.setProperty('display','none','important'); r2.style.setProperty('visibility','hidden','important'); }
+      var c2 = document.getElementById('ami-particle-canvas');
+      if(c2){ c2.style.setProperty('display','none','important'); }
       // 채팅도 닫기
       chatOpen = false;
       var panel = document.getElementById('ami-chat-global');

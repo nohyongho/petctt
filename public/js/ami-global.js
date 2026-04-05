@@ -203,7 +203,7 @@
     var btn = document.createElement('button');
     btn.id = 'ami-toggle';
     btn.className = 'notranslate';
-    btn.style.cssText = 'position:fixed;bottom:16px;right:16px;z-index:99999;width:40px;height:40px;border-radius:50%;border:2px solid rgba(255,255,255,.2);cursor:pointer;font-size:14px;font-weight:bold;transition:all .3s;display:flex;align-items:center;justify-content:center;';
+    btn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:99999;width:52px;height:52px;border-radius:50%;border:2.5px solid rgba(255,255,255,.3);cursor:pointer;font-size:18px;font-weight:900;transition:all .3s;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);';
     updateToggle(btn);
     btn.onclick = function(){
       isVisible = !isVisible;
@@ -223,15 +223,16 @@
 
   function updateToggle(btn){
     if(isVisible){
-      btn.textContent = 'X';
-      btn.style.background = 'rgba(0,0,0,.5)';
-      btn.style.color = 'rgba(255,255,255,.6)';
+      btn.innerHTML = '&#x2716;';
+      btn.style.background = 'rgba(30,30,50,.7)';
+      btn.style.color = 'rgba(255,255,255,.7)';
+      btn.style.boxShadow = '0 2px 10px rgba(0,0,0,.3)';
       btn.title = '아미 숨기기';
     } else {
-      btn.textContent = 'O';
+      btn.innerHTML = '&#x1F430;';
       btn.style.background = 'linear-gradient(135deg,#fbbf24,#ec4899)';
       btn.style.color = '#fff';
-      btn.style.boxShadow = '0 0 15px rgba(255,180,60,.4)';
+      btn.style.boxShadow = '0 0 20px rgba(255,180,60,.5),0 0 40px rgba(236,72,153,.2)';
       btn.title = '아미 보이기';
     }
   }

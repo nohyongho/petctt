@@ -328,12 +328,20 @@ if (document.readyState === 'loading') {
 
 })();
 
-// ===== 아미 토끼 v5 (무조건 새로 만듦, bottom:100px) =====
+// ===== 아미 토끼 v5 비활성화 — index.html의 아미 v3 사용 =====
+// 기존 코드가 ami-root를 삭제하고 정적 아미로 교체하던 문제 수정
+// 아미 v3 (index.html 내장)가 돌아다니는 완전한 버전이므로 그대로 유지
 (function injectAmi(){
   function create(){
-    ['ami-root','ami-particle-canvas','ami-chat','ami-injected'].forEach(function(id){
+    // ami-root가 이미 있으면 건드리지 않음 (v3 보존)
+    if(document.getElementById('ami-root')) {
+      console.log('[AmiV5] ami-root already exists, skipping injection');
+      return;
+    }
+    // ami-root가 없을 때만 기본 아미 생성
+    ['ami-injected'].forEach(function(id){
       var el = document.getElementById(id);
-      if(el){ el.remove(); console.log('[AmiV5] removed #'+id); }
+      if(el){ el.remove(); }
     });
     var div = document.createElement('div');
     div.id = 'ami-injected';

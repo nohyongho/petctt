@@ -355,6 +355,7 @@
 
     // ===== 방구 💨 =====
     function doFart(){
+      if(window._amiHidden) return;
       var r=root.getBoundingClientRect();
       var cx=r.width>0 ? r.left+r.width/2 : window.innerWidth/2;
       var cy=r.height>0 ? r.top+r.height/2 : window.innerHeight-100;
@@ -388,6 +389,7 @@
     // ===== 말풍선 =====
     var bub=g('ami-bubble'), bubTimer=null;
     function showBubble(txt,dur){
+      if(window._amiHidden) return;
       if(!bub) return;
       bub.textContent=txt; bub.className='on';
       clearTimeout(bubTimer);
@@ -410,7 +412,7 @@
     }
     if(window.speechSynthesis) speechSynthesis.onvoiceschanged=function(){ speechSynthesis.getVoices(); };
     function speak(txt){
-      if(!soundOn||!txt||!window.speechSynthesis) return;
+      if(window._amiHidden||!soundOn||!txt||!window.speechSynthesis) return;
       speechSynthesis.cancel();
       var u=new SpeechSynthesisUtterance(txt.replace(/[\u{1F000}-\u{1FFFF}]/gu,''));
       u.lang='ko-KR'; u.pitch=2.0; u.rate=1.18; u.volume=.95;

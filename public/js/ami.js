@@ -211,9 +211,13 @@
 
     // 아미 위치 초기 설정 (개별 setProperty로 !important 적용)
     root.style.setProperty('position','fixed','important');
-    root.style.setProperty('display','block','important');
-    root.style.setProperty('visibility','visible','important');
-    root.style.setProperty('opacity','1','important');
+    if(!window._amiHidden){
+      if(!window._amiHidden){
+        root.style.setProperty('display','block','important');
+        root.style.setProperty('visibility','visible','important');
+      }
+      root.style.setProperty('opacity','1','important');
+    }
     root.style.setProperty('z-index','99990','important');
     root.style.setProperty('bottom','28px','important');
     root.style.setProperty('left', ax+'px','important');
@@ -225,8 +229,10 @@
       root.style.setProperty('left', ax+'px','important');
       root.style.setProperty('bottom','28px','important');
       root.style.setProperty('transform','translateX(-50%) scaleX('+facing+') translateY('+jOffset+'px)','important');
-      root.style.setProperty('display','block','important');
-      root.style.setProperty('visibility','visible','important');
+      if(!window._amiHidden){
+        root.style.setProperty('display','block','important');
+        root.style.setProperty('visibility','visible','important');
+      }
     }
 
     function g(id){ return document.getElementById(id); }

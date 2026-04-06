@@ -1249,21 +1249,22 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
       if(chatOpen){ if(bub) bub.className=''; setTimeout(function(){ var inp=g('ami-inp'); if(inp) inp.focus(); },400); }
     }
 
-    // ===== Claude API =====
-    var SYS='당신은 아미(Ami)예요! PetCTT의 귀여운 흰토끼 AI 친구. 6~7살 소녀처럼 말함. 짧고 귀엽게, 이모지 많이! 2~3문장 이내. 한국어. PetCTT 쿠폰게임, 구름장터, AI통역, 매장입점 안내.';
+    // ===== 🐰 아미 브레인 v1.0 (오프라인 스마트 엔진) =====
     async function callAmi(msg){
       if(window.PAYWALL&&!PAYWALL.canUse('chat')){ PAYWALL.showPopup('chat'); return '아미가 오늘 너무 많이 대화했어~ Pro로 업그레이드하면 무제한! ⚡'; }
       if(window.PAYWALL) PAYWALL.addCount('chat');
       hist.push({role:'user',content:msg});
-      try{
-        var res=await fetch('https://api.anthropic.com/v1/messages',{
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYS,messages:hist.slice(-10)})
-        });
-        var d=await res.json();
-        var r=(d.content&&d.content[0]&&d.content[0].text)||'앗 잠깐 연결 이상해~ 🙊';
-        hist.push({role:'assistant',content:r}); return r;
-      }catch(e){ return '아이고~ 잠깐 연결 끊겼어! 💜'; }
+      // 🐰 브레인 우선 (ami-brain.js 또는 ami.js 임베드)
+      if(window.__amiBrain && window.__amiBrain.call){
+        try{
+          var r = await window.__amiBrain.call(msg);
+          hist.push({role:'assistant',content:r}); return r;
+        }catch(e){ console.warn('amiBrain err',e); }
+      }
+      // 폴백: 기본 응답
+      var fb = ['안녕! 나 아미야~ 🐰💜 뭐든 물어봐!','아미가 준비 중이야! 잠깐만~ 🐰✨','궁금한 거 있으면 말해줘! 🐾💜'];
+      var r2 = fb[Math.floor(Math.random()*fb.length)];
+      hist.push({role:'assistant',content:r2}); return r2;
     }
 
     var log=g('ami-log');

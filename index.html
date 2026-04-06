@@ -1234,7 +1234,7 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
     }
     if(window.speechSynthesis) speechSynthesis.onvoiceschanged=function(){ speechSynthesis.getVoices(); };
     function speak(txt){
-      if(!soundOn||!txt||!window.speechSynthesis) return;
+      if(window._amiHidden||!soundOn||!txt||!window.speechSynthesis) return;
       speechSynthesis.cancel();
       var u=new SpeechSynthesisUtterance(txt.replace(/[\u{1F000}-\u{1FFFF}]/gu,''));
       u.lang='ko-KR'; u.pitch=2.0; u.rate=1.18; u.volume=.95;

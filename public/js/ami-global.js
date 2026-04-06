@@ -217,6 +217,8 @@
       if(c){ c.style.setProperty('display','block','important'); }
     } else {
       window._amiHidden = true;
+      // 소리 완전 정지
+      if(window.speechSynthesis) speechSynthesis.cancel();
       style.textContent = '#ami-root,#ami-particle-canvas,#ami-chat,#ami-injected,#ami-global-bubble,#ami-chat-global{display:none!important;visibility:hidden!important;opacity:0!important}';
       // inline style도 강제 제거
       var r2 = document.getElementById('ami-root');

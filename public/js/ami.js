@@ -119,20 +119,60 @@
     return fb[Math.floor(Math.random() * fb.length)];
   }
 
-  window.__amiBrain = {
-    call: function(msg) {
-      return new Promise(function(resolve) {
-        var delay = 300 + Math.random() * 500;
-        setTimeout(function() {
-          resolve(amiBrainRespond(msg));
-        }, delay);
+  // ═══════════════════════════════════════════════════
+  // 🐰 아미 브레인 v2.0 — 룰 매칭 + Gemma 4 로컬 하이브리드
+  // ═══════════════════════════════════════════════════
+  var GEMMA_API = 'http://localhost:11434/api/generate';
+  var AMI_SYSTEM_PROMPT = '당신은 아미(Ami)예요! PetCTT의 귀여운 흰토끼 AI 가이드. 6~7살 소녀처럼 말하고, 짧고 귀엽게 이모지 많이 써요! 2~3문장 이내. 한국어로만 대화해요. PetCTT는 반려동물 AI 플랫폼이에요 (AI통역, GPS추적, 건강체크, 주민등록증, 소개팅, 콘테스트, 구름장터, 펫맛집, AI글래스, 스캔). 프리미엄(월4900원)은 개체별분석, 맞춤학습, 기록저장, 행동추적. 발로레(주)가 만들었고 AIRCTT가 자매 서비스. 의료 진단은 하지 마세요.';
+
+  async function callGemma4(msg) {
+    try {
+      var res = await fetch(GEMMA_API, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          model: 'gemma4',
+          prompt: msg,
+          system: AMI_SYSTEM_PROMPT,
+          stream: false,
+          options: { temperature: 0.8, top_p: 0.9, num_predict: 150 }
+        })
       });
+      if (!res.ok) throw new Error('Gemma4 HTTP ' + res.status);
+      var data = await res.json();
+      return data.response || null;
+    } catch(e) {
+      console.warn('Gemma4 연결 실패:', e.message);
+      return null;
+    }
+  }
+
+  window.__amiBrain = {
+    call: async function(msg) {
+      // 1단계: 룰 매칭 시도 (즉시 응답, 서버 불필요)
+      var ruleResult = amiBrainRespond(msg);
+
+      // 폴백 응답인지 체크 (매칭 실패 = 폴백)
+      var isFallback = ruleResult.indexOf('아미가 아직 잘 모르는') >= 0
+                    || ruleResult.indexOf('어려운 질문') >= 0
+                    || ruleResult.indexOf('아미가 열심히 공부') >= 0;
+
+      // 매칭 성공 → 즉시 반환 (빠름!)
+      if (!isFallback) return ruleResult;
+
+      // 2단계: 매칭 실패 → Gemma 4 로컬 호출
+      var gemmaResult = await callGemma4(msg);
+      if (gemmaResult) return gemmaResult;
+
+      // 3단계: Gemma 4도 실패 → 룰 폴백 반환
+      return ruleResult;
     },
-    version: '1.0.0',
-    mode: 'offline-smart'
+    callGemma4: callGemma4,
+    version: '2.0.0',
+    mode: 'hybrid-gemma4'
   };
 
-  console.log('🐰 아미 브레인 v1.0 로드 완료! (인라인 모드)');
+  console.log('🐰 아미 브레인 v2.0 로드 완료! (룰매칭 + Gemma 4 하이브리드)');
 
 
   // DOM 준비 확인

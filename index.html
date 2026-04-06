@@ -1374,6 +1374,7 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
 
   var bubTimer2 = null;
   function showAmiBubble(txt, dur){
+    if(window._amiHidden) return;
     var bub = document.getElementById('ami-bubble');
     if(!bub) return;
     bub.textContent = txt;
@@ -1424,6 +1425,7 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
   }
 
   function addDrClaudeMsg(text){
+    if(window._amiHidden) return;
     var log = document.getElementById('ami-log');
     if(!log) return;
     var d = document.createElement('div');

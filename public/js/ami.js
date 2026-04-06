@@ -1,6 +1,16 @@
-// PetCTT 아미 토끼 v3
+// PetCTT 아미 토끼 v3 + 브레인 v1.0
 (function(){
   'use strict';
+
+  // 🐰 아미 브레인 동적 로드
+  (function loadBrain(){
+    if(document.querySelector('script[src*="ami-brain"]')) return;
+    var s=document.createElement('script');
+    s.src='public/js/ami-brain.js?v='+Date.now();
+    s.async=false;
+    document.head.appendChild(s);
+    console.log('🐰 ami-brain.js 동적 로드');
+  })();
 
   // DOM 준비 확인
   function init(){

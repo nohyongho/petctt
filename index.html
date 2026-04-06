@@ -1179,6 +1179,7 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
 
     // ===== 방구 💨 =====
     function doFart(){
+      if(window._amiHidden) return;
       var r=root.getBoundingClientRect();
       var cx=r.width>0 ? r.left+r.width/2 : window.innerWidth/2;
       var cy=r.height>0 ? r.top+r.height/2 : window.innerHeight-100;
@@ -1212,6 +1213,7 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
     // ===== 말풍선 =====
     var bub=g('ami-bubble'), bubTimer=null;
     function showBubble(txt,dur){
+      if(window._amiHidden) return;
       if(!bub) return;
       bub.textContent=txt; bub.className='on';
       clearTimeout(bubTimer);

@@ -1672,5 +1672,20 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
 </script>
 <script src="/public/js/ami-global.js"></script>
 <script src="/public/js/ami.js?v=brain1"></script>
+
+<!-- 🐰 아미 숨김 감시 — 소리 완전 차단 -->
+<script>
+(function(){
+  // _amiHidden 변경 감지 → 소리 즉시 정지
+  var _lastHidden = !!window._amiHidden;
+  setInterval(function(){
+    if(window._amiHidden && !_lastHidden){
+      // 방금 숨겨짐 → 소리 정지!
+      if(window.speechSynthesis) speechSynthesis.cancel();
+    }
+    _lastHidden = !!window._amiHidden;
+  }, 200);
+})();
+</script>
 </body>
 </html>

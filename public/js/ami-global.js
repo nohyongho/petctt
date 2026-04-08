@@ -357,6 +357,9 @@
   }
 
   // ===== 말풍선 =====
+  // 글로벌 노출 (ami-voice.js에서 사용)
+  window.amiShowBubble = function(t, d) { showBubble(t, d); };
+
   function showBubble(text, duration){
     if(!isVisible) return;
     var root = document.getElementById('ami-root');

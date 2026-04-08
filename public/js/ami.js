@@ -559,4 +559,7 @@
   }
   tryInit();
 
+  // 글로벌 노출 (ami-voice.js에서 사용)
+  window.amiBrainRespond = amiBrainRespond;
+
 })();

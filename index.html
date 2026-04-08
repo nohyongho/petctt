@@ -38,11 +38,11 @@
                         .light-mode .stat-number { color: #059669 !important; }
               
 /* ========== 아미 토끼 완전판 v1 ========== */
-#ami-particle-canvas{position:fixed;inset:0;pointer-events:none;z-index:99989}
+#ami-particle-canvas{position:fixed;inset:0;pointer-events:none;z-index:899}
 
 #ami-root{
   position:fixed;
-  z-index:99990;
+  z-index:900;
   bottom:28px;
   left:0;
   cursor:pointer;
@@ -1042,7 +1042,7 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
       root.style.setProperty('visibility','visible','important');
       root.style.setProperty('opacity','1','important');
     }
-    root.style.setProperty('z-index','99990','important');
+    root.style.setProperty('z-index','900','important'); // A-2: 주요 버튼(z:1000)보다 낮게
     root.style.setProperty('bottom','28px','important');
     root.style.setProperty('left', ax+'px','important');
     root.style.setProperty('transform','translateX(-50%)','important');
@@ -1169,6 +1169,122 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
       requestAnimationFrame(physLoop);
     }
     physLoop();
+
+    // ===== 🐰 A-1: Long Press + Drag 이동 =====
+    (function(){
+      var dragging = false;
+      var pressTimer = null;
+      var dragOffsetX = 0;
+      var dragOffsetY = 0;
+      var savedBottom = 28;
+      var useCustomPos = false;
+
+      // localStorage에서 저장된 위치 복원
+      try {
+        var saved = JSON.parse(localStorage.getItem('ami-position'));
+        if (saved && saved.x != null) {
+          ax = Math.max(60, Math.min(window.innerWidth - 60, saved.x));
+          if (saved.bottom != null) {
+            savedBottom = saved.bottom;
+            useCustomPos = true;
+          }
+          setPos();
+        }
+      } catch(e) {}
+
+      function startDrag(clientX, clientY) {
+        dragging = true;
+        var rect = root.getBoundingClientRect();
+        dragOffsetX = clientX - rect.left - rect.width / 2;
+        dragOffsetY = clientY - rect.top - rect.height / 2;
+        root.style.opacity = '0.75';
+        root.style.transition = 'none';
+        root.style.filter = 'drop-shadow(0 8px 24px rgba(255,180,220,.6))';
+        stt = 'idle'; // 드래그 중 자동이동 멈춤
+      }
+
+      function moveDrag(clientX, clientY) {
+        if (!dragging) return;
+        var newX = clientX - dragOffsetX;
+        var newBottom = window.innerHeight - clientY + dragOffsetY - 50;
+        // 화면 경계 클램프
+        newX = Math.max(40, Math.min(window.innerWidth - 40, newX));
+        newBottom = Math.max(10, Math.min(window.innerHeight - 120, newBottom));
+        ax = newX;
+        tx = newX; // 자동이동 목표도 갱신
+        savedBottom = newBottom;
+        useCustomPos = true;
+        root.style.setProperty('left', ax + 'px', 'important');
+        root.style.setProperty('bottom', savedBottom + 'px', 'important');
+        root.style.setProperty('transform', 'translateX(-50%) scaleX(' + facing + ')', 'important');
+      }
+
+      function endDrag() {
+        if (!dragging) return;
+        dragging = false;
+        root.style.opacity = '1';
+        root.style.transition = '';
+        root.style.filter = '';
+        // 위치 저장
+        localStorage.setItem('ami-position', JSON.stringify({
+          x: ax, bottom: savedBottom
+        }));
+      }
+
+      // 터치 이벤트
+      root.addEventListener('touchstart', function(e) {
+        if (window._amiHidden) return;
+        var touch = e.touches[0];
+        pressTimer = setTimeout(function() {
+          startDrag(touch.clientX, touch.clientY);
+        }, 400);
+      }, { passive: true });
+
+      root.addEventListener('touchmove', function(e) {
+        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+        if (!dragging) return;
+        e.preventDefault();
+        var touch = e.touches[0];
+        moveDrag(touch.clientX, touch.clientY);
+      }, { passive: false });
+
+      root.addEventListener('touchend', function() {
+        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+        endDrag();
+      });
+      root.addEventListener('touchcancel', function() {
+        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+        endDrag();
+      });
+
+      // 마우스 이벤트 (PC용)
+      root.addEventListener('mousedown', function(e) {
+        if (window._amiHidden) return;
+        pressTimer = setTimeout(function() {
+          startDrag(e.clientX, e.clientY);
+        }, 400);
+      });
+      document.addEventListener('mousemove', function(e) {
+        if (!dragging) return;
+        moveDrag(e.clientX, e.clientY);
+      });
+      document.addEventListener('mouseup', function() {
+        if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+        endDrag();
+      });
+
+      // setPos 패치: 드래그로 지정된 bottom 유지
+      var origSetPos = setPos;
+      setPos = function() {
+        if (window._amiHidden) return;
+        if (dragging) return; // 드래그 중엔 setPos 무시
+        root.style.setProperty('left', ax + 'px', 'important');
+        root.style.setProperty('bottom', (useCustomPos ? savedBottom : 28) + 'px', 'important');
+        root.style.setProperty('transform', 'translateX(-50%) scaleX(' + facing + ') translateY(' + jOffset + 'px)', 'important');
+        root.style.setProperty('display', 'block', 'important');
+        root.style.setProperty('visibility', 'visible', 'important');
+      };
+    })();
 
     function doJump(){
       if(jumping) return;

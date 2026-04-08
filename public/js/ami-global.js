@@ -237,7 +237,7 @@
     var btn = document.createElement('button');
     btn.id = 'ami-toggle';
     btn.className = 'notranslate';
-    btn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:99999;width:52px;height:52px;border-radius:50%;border:2.5px solid rgba(255,255,255,.3);cursor:pointer;font-size:18px;font-weight:900;transition:all .3s;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);';
+    btn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:950;width:52px;height:52px;border-radius:50%;border:2.5px solid rgba(255,255,255,.3);cursor:pointer;font-size:18px;font-weight:900;transition:all .3s;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);';
     updateToggle(btn);
     btn.onclick = function(){
       isVisible = !isVisible;
@@ -270,7 +270,7 @@
     var panel = document.createElement('div');
     panel.id = 'ami-chat-global';
     panel.className = 'notranslate';
-    panel.style.cssText = 'display:none;position:fixed;bottom:180px;right:12px;width:280px;max-height:380px;background:#0d0d1a;border:1.5px solid rgba(255,180,220,.3);border-radius:20px;z-index:99995;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5);font-family:"Noto Sans KR",sans-serif;';
+    panel.style.cssText = 'display:none;position:fixed;bottom:180px;right:12px;width:280px;max-height:380px;background:#0d0d1a;border:1.5px solid rgba(255,180,220,.3);border-radius:20px;z-index:940;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5);font-family:"Noto Sans KR",sans-serif;';
     panel.innerHTML =
       '<div style="display:flex;align-items:center;justify-content:between;padding:10px 14px;background:linear-gradient(135deg,rgba(255,180,220,.15),rgba(139,92,246,.15));border-bottom:1px solid rgba(255,255,255,.1)">' +
         '<span style="font-size:16px;margin-right:6px">🐰</span>' +
@@ -370,7 +370,7 @@
     var bub = document.createElement('div');
     bub.id = 'ami-global-bubble';
     bub.className = 'notranslate';
-    bub.style.cssText = 'position:absolute;bottom:115px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(255,248,230,.95));border:2px solid rgba(255,200,80,.5);border-radius:16px;padding:8px 14px;font-size:12px;color:#333;text-align:center;white-space:pre-wrap;font-family:"Noto Sans KR",sans-serif;box-shadow:0 0 20px rgba(255,200,100,.25),0 4px 12px rgba(0,0,0,.1);pointer-events:none;animation:ami-bpop .25s cubic-bezier(.34,1.56,.64,1) both;max-width:200px;line-height:1.5;z-index:99991';
+    bub.style.cssText = 'position:absolute;bottom:115px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(255,248,230,.95));border:2px solid rgba(255,200,80,.5);border-radius:16px;padding:8px 14px;font-size:12px;color:#333;text-align:center;white-space:pre-wrap;font-family:"Noto Sans KR",sans-serif;box-shadow:0 0 20px rgba(255,200,100,.25),0 4px 12px rgba(0,0,0,.1);pointer-events:none;animation:ami-bpop .25s cubic-bezier(.34,1.56,.64,1) both;max-width:200px;line-height:1.5;z-index:910';
     bub.textContent = text;
     target.appendChild(bub);
 

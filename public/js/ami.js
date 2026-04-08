@@ -519,8 +519,71 @@
       if(soundOn) speak(m);
     }
 
+    // ===== A-1: 롱프레스 드래그 이동 =====
+    var dragActive = false, dragReady = false, longPressTimer = null;
+    var dragStartX = 0, dragStartY = 0, dragOffsetX = 0;
+    var LONG_PRESS_MS = 500;
+
+    function onDragStart(e) {
+      if (e.target.closest && e.target.closest('.ami-cb')) return;
+      var touch = e.touches ? e.touches[0] : e;
+      dragStartX = touch.clientX;
+      dragStartY = touch.clientY;
+      dragReady = false;
+      dragActive = false;
+      longPressTimer = setTimeout(function() {
+        dragReady = true;
+        root.style.setProperty('opacity', '0.75', 'important');
+        root.style.setProperty('transform', 'translateX(-50%) scale(1.1)', 'important');
+        showBubble('잡았다! 옮겨줘~ 🐰✨', 1500);
+      }, LONG_PRESS_MS);
+    }
+
+    function onDragMove(e) {
+      if (!dragReady && !dragActive) return;
+      e.preventDefault();
+      var touch = e.touches ? e.touches[0] : e;
+      dragActive = true;
+      var newX = touch.clientX;
+      // 화면 밖으로 안 나가게 (좌우 40px 여유)
+      newX = Math.max(40, Math.min(window.innerWidth - 40, newX));
+      ax = newX;
+      tx = newX;
+      root.style.setProperty('left', ax + 'px', 'important');
+      root.style.setProperty('transform', 'translateX(-50%) scale(1.1)', 'important');
+    }
+
+    function onDragEnd(e) {
+      clearTimeout(longPressTimer);
+      if (dragActive) {
+        // 드래그 완료 → 위치 저장
+        dragActive = false;
+        dragReady = false;
+        root.style.setProperty('opacity', '1', 'important');
+        setPos();
+        try { localStorage.setItem('ami_pos_x', String(ax)); } catch(e) {}
+        showBubble('여기 좋다! 💜', 2000);
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      dragReady = false;
+    }
+
+    // 저장된 위치 복원
+    try {
+      var savedX = localStorage.getItem('ami_pos_x');
+      if (savedX) { ax = parseFloat(savedX); tx = ax; setPos(); }
+    } catch(e) {}
+
+    root.addEventListener('pointerdown', onDragStart, { passive: true });
+    root.addEventListener('pointermove', onDragMove, { passive: false });
+    root.addEventListener('pointerup', onDragEnd);
+    root.addEventListener('pointercancel', onDragEnd);
+
     // ===== 클릭 =====
     root.addEventListener('click', function(e){
+      if (dragActive) return; // 드래그 중 클릭 무시
       if(e.target.closest && e.target.closest('.ami-cb')) return;
       var now=Date.now();
       if(now-lastTap<350){ toggleChat(); lastTap=0; return; }

@@ -52,42 +52,91 @@
 }
 
 #ami-bubble{
-  position:absolute;bottom:108px;left:50%;
+  position:absolute;bottom:118px;left:50%;
   transform:translateX(-50%);
-  background:#fff;
-  border:2.5px solid #ffb3d9;
-  border-radius:18px;
-  padding:9px 14px;
-  min-width:130px;max-width:210px;
-  font-size:12px;line-height:1.6;
-  color:#333;text-align:center;
-  box-shadow:0 6px 20px rgba(255,130,190,.4);
+  background:rgba(15,5,30,0.82);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1.5px solid rgba(180,140,255,0.35);
+  border-radius:20px;
+  padding:12px 16px;
+  min-width:140px;max-width:230px;
+  font-size:12.5px;line-height:1.7;
+  color:#f0e8ff;text-align:center;
+  box-shadow:0 0 24px rgba(160,100,255,0.3),0 0 60px rgba(200,150,255,0.12),inset 0 1px 0 rgba(255,255,255,0.1);
   white-space:pre-wrap;display:none;
   pointer-events:none;
   font-family:'Noto Sans KR',sans-serif;
+  text-shadow:0 0 8px rgba(200,160,255,0.3);
 }
 #ami-bubble.on{
   display:block;
-  animation:ami-bpop .22s cubic-bezier(.34,1.56,.64,1) both;
+  animation:ami-bpop .3s cubic-bezier(.34,1.56,.64,1) both;
+}
+#ami-bubble::before{
+  content:'';position:absolute;inset:-2px;
+  border-radius:22px;
+  background:linear-gradient(135deg,rgba(255,180,230,0.25),rgba(140,100,255,0.15),rgba(100,200,255,0.1));
+  z-index:-1;opacity:0.6;
+  animation:ami-glow 3s ease-in-out infinite;
 }
 #ami-bubble::after{
-  content:'';position:absolute;bottom:-11px;left:50%;
+  content:'';position:absolute;bottom:-10px;left:50%;
   transform:translateX(-50%);
-  border:11px solid transparent;
-  border-top-color:#ffb3d9;border-bottom:none;
+  border:10px solid transparent;
+  border-top-color:rgba(15,5,30,0.82);border-bottom:none;
+  filter:drop-shadow(0 2px 4px rgba(160,100,255,0.2));
 }
 @keyframes ami-bpop{
-  from{transform:translateX(-50%) scale(.2);opacity:0}
-  to{transform:translateX(-50%) scale(1);opacity:1}
+  from{transform:translateX(-50%) scale(.15);opacity:0;filter:blur(4px)}
+  to{transform:translateX(-50%) scale(1);opacity:1;filter:blur(0)}
+}
+@keyframes ami-glow{
+  0%,100%{opacity:0.4;transform:scale(1)}
+  50%{opacity:0.7;transform:scale(1.02)}
+}
+/* 반짝이 별 애니메이션 */
+.ami-sparkle{animation:ami-twinkle 2s ease-in-out infinite}
+.ami-sparkle:nth-child(odd){animation-delay:.7s}
+.ami-sparkle:nth-child(even){animation-delay:1.4s}
+@keyframes ami-twinkle{
+  0%,100%{opacity:0.3;transform:scale(0.8)}
+  50%{opacity:0.9;transform:scale(1.2)}
+}
+#ami-mic-icon{animation:ami-mic-bob 3s ease-in-out infinite}
+@keyframes ami-mic-bob{
+  0%,100%{transform:translateY(0) rotate(-8deg)}
+  50%{transform:translateY(-2px) rotate(-5deg)}
 }
 
 /* 아미 컨트롤 버튼 */
 #ami-controls{
-  position:absolute;right:-46px;top:40%;
+  position:absolute;right:-50px;top:30%;
   transform:translateY(-50%);
-  display:flex;flex-direction:column;gap:6px;
+  display:flex;flex-direction:column;gap:7px;
   z-index:99991;
 }
+/* 아미 액션 버튼 바 */
+#ami-actions{
+  position:absolute;bottom:-38px;left:50%;
+  transform:translateX(-50%);
+  display:flex;gap:5px;
+  z-index:99991;
+  white-space:nowrap;
+}
+.ami-ab{
+  padding:4px 10px;border-radius:14px;
+  border:1px solid rgba(140,100,255,0.3);
+  background:rgba(10,5,25,0.85);
+  backdrop-filter:blur(10px);
+  color:#d4c0ff;font-size:10px;font-weight:600;
+  cursor:pointer;transition:all .2s;
+  box-shadow:0 2px 8px rgba(0,0,0,.4),0 0 12px rgba(140,100,255,0.1);
+  font-family:'Noto Sans KR',sans-serif;
+  letter-spacing:-0.3px;
+}
+.ami-ab:hover{background:rgba(140,100,255,0.2);border-color:rgba(180,140,255,0.5);transform:scale(1.05);color:#fff}
+.ami-ab:active{transform:scale(0.95)}
+.ami-ab .ab-icon{margin-right:3px}
 .ami-cb{
   width:34px;height:34px;border-radius:50%;
   border:1.5px solid rgba(255,150,210,.3);
@@ -854,12 +903,16 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
 <div id="ami-root">
   <div id="ami-bubble"></div>
   <div id="ami-controls">
-    <!-- A-3: 사이드바 정리 — 채팅 열기 1개만 (소리/마이크는 채팅창 안에) -->
     <button class="ami-cb" id="ami-chat-btn" onclick="amiToggleChat()" title="채팅">💬</button>
+  </div>
+  <div id="ami-actions">
+    <button class="ami-ab" onclick="amiToggleMic()" title="마이크 켜기"><span class="ab-icon">🎙️</span>마이크</button>
+    <button class="ami-ab" onclick="amiToggleChat()" title="클 박사에게 묻기"><span class="ab-icon">🐰</span>클박사</button>
+    <button class="ami-ab" onclick="location.href='pages/ai-scan.html'" title="반려동물 AI 식별"><span class="ab-icon">📸</span>AI식별</button>
   </div>
   <svg id="ami-svg" width="88" height="108"
        viewBox="0 0 88 108" xmlns="http://www.w3.org/2000/svg"
-       style="filter:drop-shadow(0 4px 16px rgba(255,150,210,.55))">
+       style="filter:drop-shadow(0 4px 20px rgba(180,120,255,.45)) drop-shadow(0 0 8px rgba(255,180,230,.3))">
     <ellipse cx="44" cy="106" rx="24" ry="4.5" fill="rgba(0,0,0,.2)"/>
     <circle id="ami-tail" cx="73" cy="82" r="8" fill="white" stroke="#f0c0d8" stroke-width="1.2"/>
     <circle cx="73" cy="82" r="4.5" fill="rgba(255,200,230,.45)"/>
@@ -919,6 +972,13 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
     <ellipse id="ami-fl" cx="33" cy="103" rx="10" ry="6" fill="white" stroke="#f0c0d8" stroke-width="1"/>
     <ellipse id="ami-fr" cx="55" cy="103" rx="10" ry="6" fill="white" stroke="#f0c0d8" stroke-width="1"/>
     <text id="ami-fi" x="62" y="92" font-size="15" opacity="0">💨</text>
+    <!-- 골드 마이크 -->
+    <text x="2" y="88" font-size="14" opacity="0.85" id="ami-mic-icon">🎤</text>
+    <!-- 반짝이 별 -->
+    <text class="ami-sparkle" x="10" y="22" font-size="7" opacity="0.7">✨</text>
+    <text class="ami-sparkle" x="72" y="14" font-size="6" opacity="0.5">⭐</text>
+    <text class="ami-sparkle" x="80" y="70" font-size="5" opacity="0.6">✨</text>
+    <text class="ami-sparkle" x="5" y="60" font-size="6" opacity="0.4">💫</text>
   </svg>
 </div>
 

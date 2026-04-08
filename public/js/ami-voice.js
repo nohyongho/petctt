@@ -9,11 +9,12 @@
   window._amiVoiceLoaded = true;
 
   // ===== 설정 =====
-  var STT_LANG = 'ko-KR';
+  var STT_LANG = navigator.language || 'ko-KR'; // 브라우저 언어 자동 감지
   var TTS_RATE = 1.1;
   var TTS_PITCH = 1.3; // 귀여운 높은 톤
   var isListening = false;
   var recognition = null;
+  var detectedLang = 'ko'; // 감지된 언어
 
   // ===== B-5: 감정 상태 6종 =====
   var EMOTIONS = {
@@ -90,10 +91,11 @@
     }
 
     recognition = new SpeechRecognition();
+    // 다국어 자동 감지 — 사용자 브라우저 언어 기반
     recognition.lang = STT_LANG;
     recognition.continuous = false;
     recognition.interimResults = true;
-    recognition.maxAlternatives = 1;
+    recognition.maxAlternatives = 3; // 다국어 후보 3개
 
     recognition.onstart = function() {
       isListening = true;

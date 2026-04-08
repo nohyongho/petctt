@@ -130,6 +130,64 @@
   window.amiBrainRespond = function(msg) {
     var m = msg.toLowerCase().replace(/\s+/g, '');
 
+    // ═══════════════════════════════════════════════════
+    //  🌍 다국어 응답 (영어, 일본어, 중국어, 스페인어, 프랑스어 등)
+    // ═══════════════════════════════════════════════════
+
+    // 영어 감지
+    if (/^(hi|hello|hey|what|how|where|who|when|why|can|do|is|are|tell|show|help|please|thank|thanks|good|nice|great|yes|no|ok|okay)\b/i.test(msg.trim())) {
+      if (/hello|hi|hey|good morning|good evening/i.test(msg)) return "Hi! I'm Ami 🐰✨ PetCTT's AI guide!\nI can help with pet translation, coupons, health check & more!\nHow can I help you? 💜";
+      if (/what is petctt|what.*petctt|about.*petctt/i.test(msg)) return "PetCTT is an AI pet platform! 🐾\n- AI Pet Translation (voice & emotion)\n- AR Coupon Game 🎮\n- Pet Health Check 💚\n- Pet ID Card 🪪\n- Live Matchmaking 💕\n\nVisit petctt.com! ✨";
+      if (/coupon|discount|deal/i.test(msg)) return "Get coupons through AR Game! 🎟️\n1. Tap 'Find Coupons' button\n2. Allow camera\n3. Catch falling coupons!\n4. Use at nearby stores! 🏪";
+      if (/price|cost|subscription|plan|free/i.test(msg)) return "Pricing Plans! 💎\n🆓 Free: Basic translation, Pet ID, Contests\n⭐ Pro: $4.9/mo — Unlimited AI translation\n👑 Premium: $9.9/mo — All features + GPS tracking";
+      if (/dog|puppy|breed/i.test(msg)) return "Popular dog breeds! 🐕\n1. Maltese — Adorable & social\n2. Poodle — Smart & hypoallergenic\n3. Golden Retriever — Family favorite\n4. Shiba Inu — Independent & loyal\n5. Corgi — Short legs, big personality!\n\nAsk about any breed! 🐾";
+      if (/cat|kitten|feline/i.test(msg)) return "Popular cat breeds! 🐱\n1. Russian Blue — Elegant & shy\n2. Ragdoll — Gentle giant\n3. British Shorthair — Round & noble\n4. Bengal — Wild patterns!\n5. Scottish Fold — Folded ears!\n\nAsk about any breed! 🐾";
+      if (/store|shop|merchant|business/i.test(msg)) return "Join as a merchant! 🏪\n1. Visit petctt.com → 'Store Join'\n2. Register your business\n3. Create coupons → Auto AR game exposure!\n\nBenefits: Customer acquisition, data analytics, pet-friendly certification! 💜";
+      if (/thank|thanks/i.test(msg)) return "You're welcome! 💜🐰 Ask me anything anytime! ✨";
+      if (/who.*you|your name|ami/i.test(msg)) return "I'm Ami! 🐰✨ PetCTT's AI AR guide rabbit!\n\nI can:\n• Voice conversation (listen & speak)\n• 6 emotional expressions\n• Navigate the app\n• Guide all PetCTT features\n• Pet breed encyclopedia\n\nAsk me anything! 💜";
+      // 영어 일반 폴백
+      return "I'm Ami! 🐰 I can help you in English!\nPetCTT is an AI pet platform — translation, coupons, health & more!\nWhat would you like to know? 💜✨";
+    }
+
+    // 일본어 감지
+    if (/[\u3040-\u309F\u30A0-\u30FF]/.test(msg)) {
+      if (/こんにち|はじめ|やあ|おはよう|こんばん/.test(msg)) return 'こんにちは！アミです🐰✨\nPetCTTのAIガイドだよ！\nペット翻訳、クーポン、健康チェックなど何でも聞いてね！💜';
+      if (/ペット|犬|猫|動物/.test(msg)) return 'PetCTTはペットAIプラットフォーム！🐾\nAI翻訳、ARクーポンゲーム、健康チェック、マッチングまで！\n\npetctt.comで体験してね！✨';
+      return 'アミだよ！🐰 日本語もOK！\nPetCTTについて何でも聞いてね！💜✨';
+    }
+
+    // 중국어 감지
+    if (/[\u4E00-\u9FFF]/.test(msg) && !/[\uAC00-\uD7AF]/.test(msg)) {
+      if (/你好|您好|嗨|哈喽/.test(msg)) return '你好！我是Ami🐰✨\nPetCTT的AI宠物导游！\n宠物翻译、优惠券、健康检查等都可以问我！💜';
+      if (/宠物|狗|猫|动物/.test(msg)) return 'PetCTT是宠物AI平台！🐾\nAI翻译、AR优惠券游戏、健康检查、配对等！\n\n访问 petctt.com 体验吧！✨';
+      return '我是Ami！🐰 中文也可以哦！\n关于PetCTT随便问吧！💜✨';
+    }
+
+    // 스페인어 감지
+    if (/hola|gracias|por favor|qué|cómo|dónde|bueno/i.test(msg)) {
+      return '¡Hola! Soy Ami 🐰✨\nPetCTT es una plataforma AI para mascotas!\nTraducción, cupones AR, salud y más!\n\nVisita petctt.com 💜';
+    }
+
+    // 프랑스어 감지
+    if (/bonjour|merci|s'il vous|comment|où|oui/i.test(msg)) {
+      return 'Bonjour! Je suis Ami 🐰✨\nPetCTT est une plateforme AI pour animaux!\nTraduction, coupons AR, santé et plus!\n\nVisitez petctt.com 💜';
+    }
+
+    // 베트남어 감지
+    if (/xin chào|cảm ơn|tôi|bạn|chó|mèo/i.test(msg)) {
+      return 'Xin chào! Mình là Ami 🐰✨\nPetCTT là nền tảng AI thú cưng!\nDịch AI, game coupon AR, kiểm tra sức khỏe!\n\nTruy cập petctt.com 💜';
+    }
+
+    // 태국어 감지
+    if (/[\u0E00-\u0E7F]/.test(msg)) {
+      return 'สวัสดี! ฉันชื่อ Ami 🐰✨\nPetCTT แพลตฟอร์ม AI สัตว์เลี้ยง!\nแปลภาษา AI, คูปอง AR, ตรวจสุขภาพ!\n\nเยี่ยมชม petctt.com 💜';
+    }
+
+    // 아랍어 감지
+    if (/[\u0600-\u06FF]/.test(msg)) {
+      return 'مرحبا! أنا Ami 🐰✨\nPetCTT منصة AI للحيوانات الأليفة!\nترجمة AI, كوبونات AR, فحص صحي!\n\nزوروا petctt.com 💜';
+    }
+
     // ===== AIRCTT 관련 =====
     if (/airctt|에어쿠폰|에어씨티|쿠폰톡톡/.test(m)) {
       return 'AIRCTT는 PetCTT의 자매 서비스야! 🎟️✨\nAR 게임으로 쿠폰을 잡고, 매장에서 사용하는 플랫폼이야!\n\nairctt.com에서 확인해봐! 💜';

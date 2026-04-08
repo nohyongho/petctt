@@ -115,28 +115,6 @@
   display:flex;flex-direction:column;gap:7px;
   z-index:99991;
 }
-/* 아미 액션 버튼 바 */
-#ami-actions{
-  position:absolute;bottom:-38px;left:50%;
-  transform:translateX(-50%);
-  display:flex;gap:5px;
-  z-index:99991;
-  white-space:nowrap;
-}
-.ami-ab{
-  padding:4px 10px;border-radius:14px;
-  border:1px solid rgba(140,100,255,0.3);
-  background:rgba(10,5,25,0.85);
-  backdrop-filter:blur(10px);
-  color:#d4c0ff;font-size:10px;font-weight:600;
-  cursor:pointer;transition:all .2s;
-  box-shadow:0 2px 8px rgba(0,0,0,.4),0 0 12px rgba(140,100,255,0.1);
-  font-family:'Noto Sans KR',sans-serif;
-  letter-spacing:-0.3px;
-}
-.ami-ab:hover{background:rgba(140,100,255,0.2);border-color:rgba(180,140,255,0.5);transform:scale(1.05);color:#fff}
-.ami-ab:active{transform:scale(0.95)}
-.ami-ab .ab-icon{margin-right:3px}
 .ami-cb{
   width:34px;height:34px;border-radius:50%;
   border:1.5px solid rgba(255,150,210,.3);
@@ -904,11 +882,6 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
   <div id="ami-bubble"></div>
   <div id="ami-controls">
     <button class="ami-cb" id="ami-chat-btn" onclick="amiToggleChat()" title="채팅">💬</button>
-  </div>
-  <div id="ami-actions">
-    <button class="ami-ab" onclick="amiToggleMic()" title="마이크 켜기"><span class="ab-icon">🎙️</span>마이크</button>
-    <button class="ami-ab" onclick="amiToggleChat()" title="클 박사에게 묻기"><span class="ab-icon">🐰</span>클박사</button>
-    <button class="ami-ab" onclick="location.href='pages/ai-scan.html'" title="반려동물 AI 식별"><span class="ab-icon">📸</span>AI식별</button>
   </div>
   <svg id="ami-svg" width="88" height="108"
        viewBox="0 0 88 108" xmlns="http://www.w3.org/2000/svg"

@@ -232,36 +232,18 @@
     }
   }
 
-  // ===== X/O 토글 버튼 =====
+  // ===== X/O 토글 버튼 (제거됨 — 아미는 항상 표시) =====
   function createToggle(){
-    var btn = document.createElement('button');
-    btn.id = 'ami-toggle';
-    btn.className = 'notranslate';
-    btn.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:950;width:52px;height:52px;border-radius:50%;border:2.5px solid rgba(255,255,255,.3);cursor:pointer;font-size:18px;font-weight:900;transition:all .3s;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);';
-    updateToggle(btn);
-    btn.onclick = function(){
-      isVisible = !isVisible;
-      localStorage.setItem(STORAGE_KEY, isVisible);
-      updateToggle(btn);
-      toggleAmiDisplay(isVisible);
-      if(isVisible) setTimeout(function(){ showBubble('다시 왔어! 뭐 도와줄까?'); }, 500);
-    };
-    document.body.appendChild(btn);
+    // 아미는 항상 보여야 함 → 토글 버튼 생성 안 함
+    // 대신 항상 표시 상태로 강제
+    isVisible = true;
+    localStorage.setItem(STORAGE_KEY, true);
+    toggleAmiDisplay(true);
   }
 
   function updateToggle(btn){
+    // 토글 제거됨 — 하위 호환성 유지용 빈 함수
     if(isVisible){
-      btn.innerHTML = '&#x2716;';
-      btn.style.background = 'rgba(30,30,50,.7)';
-      btn.style.color = 'rgba(255,255,255,.7)';
-      btn.style.boxShadow = '0 2px 10px rgba(0,0,0,.3)';
-      btn.title = '아미 숨기기';
-    } else {
-      btn.innerHTML = '&#x1F430;';
-      btn.style.background = 'linear-gradient(135deg,#fbbf24,#ec4899)';
-      btn.style.color = '#fff';
-      btn.style.boxShadow = '0 0 20px rgba(255,180,60,.5),0 0 40px rgba(236,72,153,.2)';
-      btn.title = '아미 보이기';
     }
   }
 

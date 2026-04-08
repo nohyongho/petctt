@@ -142,6 +142,13 @@
       if (/price|cost|subscription|plan|free/i.test(msg)) return "Pricing Plans! 💎\n🆓 Free: Basic translation, Pet ID, Contests\n⭐ Pro: $4.9/mo — Unlimited AI translation\n👑 Premium: $9.9/mo — All features + GPS tracking";
       if (/dog|puppy|breed/i.test(msg)) return "Popular dog breeds! 🐕\n1. Maltese — Adorable & social\n2. Poodle — Smart & hypoallergenic\n3. Golden Retriever — Family favorite\n4. Shiba Inu — Independent & loyal\n5. Corgi — Short legs, big personality!\n\nAsk about any breed! 🐾";
       if (/cat|kitten|feline/i.test(msg)) return "Popular cat breeds! 🐱\n1. Russian Blue — Elegant & shy\n2. Ragdoll — Gentle giant\n3. British Shorthair — Round & noble\n4. Bengal — Wild patterns!\n5. Scottish Fold — Folded ears!\n\nAsk about any breed! 🐾";
+      if (/cow|moo|calf/i.test(msg)) return "Cow says 'Moo'! 🐄\nCows are emotional animals — they jump when happy!\nTranslation: 'I'm hungry! More grass please! 🌿'\n\nAmi translates 8 animals! 🐾";
+      if (/pig|oink|piglet/i.test(msg)) return "Pig says 'Oink'! 🐷\nPigs are smarter than dogs (higher IQ)!\nTranslation: 'Food! Yummy! I'm so happy! 🍽️'\n\nAmi translates 8 animals! 🐾";
+      if (/duck|quack/i.test(msg)) return "Duck says 'Quack'! 🦆\nDucks have waterproof feathers!\nTranslation: 'Feed me! This is my territory! 🍞'\n\nAmi translates 8 animals! 🐾";
+      if (/chick|peep|chicken/i.test(msg)) return "Chick says 'Peep peep'! 🐥\nChicks bond with mom right after hatching!\nTranslation: 'Mommy! Where are you?! 💛'\n\nAmi translates 8 animals! 🐾";
+      if (/monkey|chimp|ape/i.test(msg)) return "Monkey goes 'Oo oo'! 🐵\nMonkeys use tools and have rich facial expressions!\nTranslation: 'Let's play! I found a snack! 🍌'\n\nAmi translates 8 animals! 🐾";
+      if (/goat|bleat|kid/i.test(msg)) return "Goat says 'Baa'! 🐐\nGoats are mountain adventurers — they climb cliffs easily!\nTranslation: 'Feed me! Anything! Everything! 🌿'\n\nAmi translates 8 animals! 🐾";
+      if (/animal|translate|sound|voice/i.test(msg)) return "Ami translates 8 animals! 🐾✨\n🐶 Dog — Woof! 🐱 Cat — Meow!\n🐄 Cow — Moo! 🐷 Pig — Oink!\n🦆 Duck — Quack! 🐥 Chick — Peep!\n🐵 Monkey — Oo! 🐐 Goat — Baa!\n\nTry any animal sound! 💜";
       if (/store|shop|merchant|business/i.test(msg)) return "Join as a merchant! 🏪\n1. Visit petctt.com → 'Store Join'\n2. Register your business\n3. Create coupons → Auto AR game exposure!\n\nBenefits: Customer acquisition, data analytics, pet-friendly certification! 💜";
       if (/thank|thanks/i.test(msg)) return "You're welcome! 💜🐰 Ask me anything anytime! ✨";
       if (/who.*you|your name|ami/i.test(msg)) return "I'm Ami! 🐰✨ PetCTT's AI AR guide rabbit!\n\nI can:\n• Voice conversation (listen & speak)\n• 6 emotional expressions\n• Navigate the app\n• Guide all PetCTT features\n• Pet breed encyclopedia\n\nAsk me anything! 💜";
@@ -153,6 +160,7 @@
     if (/[\u3040-\u309F\u30A0-\u30FF]/.test(msg)) {
       if (/こんにち|はじめ|やあ|おはよう|こんばん/.test(msg)) return 'こんにちは！アミです🐰✨\nPetCTTのAIガイドだよ！\nペット翻訳、クーポン、健康チェックなど何でも聞いてね！💜';
       if (/ペット|犬|猫|動物/.test(msg)) return 'PetCTTはペットAIプラットフォーム！🐾\nAI翻訳、ARクーポンゲーム、健康チェック、マッチングまで！\n\npetctt.comで体験してね！✨';
+      if (/翻訳|鳴き声|ワン|ニャー|モー/.test(msg)) return 'アミは8種類の動物を翻訳できるよ！🐾\n🐶犬 🐱猫 🐄牛 🐷豚\n🦆アヒル 🐥ヒヨコ 🐵サル 🐐ヤギ\n\n動物の鳴き声を教えてね！✨';
       return 'アミだよ！🐰 日本語もOK！\nPetCTTについて何でも聞いてね！💜✨';
     }
 
@@ -160,6 +168,7 @@
     if (/[\u4E00-\u9FFF]/.test(msg) && !/[\uAC00-\uD7AF]/.test(msg)) {
       if (/你好|您好|嗨|哈喽/.test(msg)) return '你好！我是Ami🐰✨\nPetCTT的AI宠物导游！\n宠物翻译、优惠券、健康检查等都可以问我！💜';
       if (/宠物|狗|猫|动物/.test(msg)) return 'PetCTT是宠物AI平台！🐾\nAI翻译、AR优惠券游戏、健康检查、配对等！\n\n访问 petctt.com 体验吧！✨';
+      if (/翻译|叫声|汪|喵|哞/.test(msg)) return 'Ami能翻译8种动物！🐾\n🐶狗 🐱猫 🐄牛 🐷猪\n🦆鸭 🐥小鸡 🐵猴 🐐山羊\n\n告诉我动物叫声吧！✨';
       return '我是Ami！🐰 中文也可以哦！\n关于PetCTT随便问吧！💜✨';
     }
 

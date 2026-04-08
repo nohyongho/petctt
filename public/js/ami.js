@@ -1,4 +1,4 @@
-// PetCTT 아미 토끼 v3 + 브레인 v1.0
+// PetCTT 아미 토끼 v3 + 브레인 v2.0 (8종 동물 통역)
 (function(){
   'use strict';
 
@@ -25,6 +25,44 @@
       '머리 비비': ['내꺼! 마킹 완료! 😤💜', '사랑해 집사~ 🥰'],
       '꾹꾹이': ['엄마 생각나~ 편안해 🍼', '여기 내 자리! 폭신해~ 💤'],
       '박치기': ['관심 줘! 나한테 집중! 😼', '사랑의 박치기! 💥💕']
+    },
+    cow: {
+      '음메': ['배고파~ 풀 더 줘! 🌿', '친구야 반가워! 🐄', '기분 좋아! ☀️'],
+      '음매': ['엄마 어디야? 🥺', '물 마시고 싶어~ 💧', '여기 내 자리야! 😤'],
+      '되새김질': ['맛있게 먹는 중~ 😋', '편안하고 행복해~ 🏠'],
+      '발 구르기': ['화났어! 😠', '불안해... ⚠️']
+    },
+    pig: {
+      '꿀꿀': ['밥이다! 맛있겠다! 🍽️', '행복해~ 💖', '같이 놀자! 🎾'],
+      '꾸꾸': ['졸려... 낮잠 자자 💤', '편안해~ 🏠'],
+      '끼이': ['무서워! 😱', '아야! 😢', '싫어! 😤'],
+      '코 비비기': ['좋아해! 💕', '간식 줘~ 🍪'],
+      '뒹굴기': ['행복해서 뒹굴! 😆', '시원해~ 💦']
+    },
+    duck: {
+      '꽥꽥': ['밥 줘! 🍞', '친구들! 이리 와! 👋', '내 구역이야! 🦆'],
+      '꽤액': ['무서워! 😱', '아야! 😢'],
+      '뿍뿍': ['기분 좋아~ 💦', '편안해~ 💤'],
+      '날개 퍼덕': ['신나! ✈️', '내가 제일 크다! 💪']
+    },
+    chick: {
+      '삐약삐약': ['엄마! 어디야?! 🐥', '배고파! 🌾'],
+      '삐약': ['여기 있어! 👀', '안녕! 나 귀엽지? ✨'],
+      '삐이': ['무서워! 😱', '추워... 🥶'],
+      '짹짹': ['기분 좋아! ☀️', '친구들아 놀자! 🎉']
+    },
+    monkey: {
+      '끼끼': ['놀자! 🎮', '간식 발견! 🍌'],
+      '우끼끼': ['신나! 대박! 🎉', '친구야 이리 와! 🤝'],
+      '호호': ['뭔가 발견! 👀', '기분 좋아~ 💕'],
+      '그루밍': ['좋아해! 친구야! 💕', '편안해... 🤗'],
+      '이 드러내기': ['웃는 거야! 😁', '경고야! 🦷']
+    },
+    goat: {
+      '매애': ['밥 줘! 🌿', '엄마! 🥺', '반가워! 👋'],
+      '메에': ['심심해~ 🎈', '내 자리야! 🐐', '기분 좋아! ☀️'],
+      '머리 박기': ['놀자! 💪', '내가 더 세! 😤'],
+      '높은 곳 오르기': ['모험이다! 🗻', '왕이 된 기분! 👑']
     }
   };
 
@@ -51,15 +89,28 @@
 
   var amiBrainTurn = 0;
 
+  var PET_EMOJI = {dog:'🐶',cat:'🐱',cow:'🐄',pig:'🐷',duck:'🦆',chick:'🐥',monkey:'🐵',goat:'🐐'};
+  var PET_NAME = {dog:'강아지',cat:'고양이',cow:'소',pig:'돼지',duck:'오리',chick:'병아리',monkey:'원숭이',goat:'염소'};
+  var PET_FUN = {
+    cow:'소는 감정이 풍부해~ 기쁠 때 뛰어다녀! 🐮💚',
+    pig:'돼지는 IQ가 강아지보다 높대! 🐽✨',
+    duck:'오리는 깃털에 기름이 있어서 물에 안 젖어! 🦆💦',
+    chick:'병아리는 태어나자마자 엄마를 찾아~ 🐣💛',
+    monkey:'원숭이는 도구도 쓰고 표정도 풍부해! 🙊✨',
+    goat:'염소는 절벽도 쉽게 올라가는 모험가! 🏔️✨'
+  };
+
   function amiBrainTranslate(msg, pet) {
     var m = msg.toLowerCase();
     var dict = AMI_PET_TRANSLATIONS[pet];
+    if (!dict) return null;
     for (var key in dict) {
       if (m.indexOf(key) !== -1) {
         var arr = dict[key];
         var t = arr[Math.floor(Math.random() * arr.length)];
-        var emoji = pet === 'dog' ? '🐶' : '🐱';
-        return emoji + ' "' + key + '" 통역 결과: ' + t + '\n\n더 정확한 개체별 분석은 프리미엄에서! 💎';
+        var emoji = PET_EMOJI[pet] || '🐾';
+        var suffix = PET_FUN[pet] || '더 정확한 개체별 분석은 프리미엄에서! 💎';
+        return emoji + ' "' + key + '" 통역 결과: ' + t + '\n\n' + suffix;
       }
     }
     return null;
@@ -89,6 +140,66 @@
       }
     }
 
+    // 소 통역
+    var cowKeys = ['음메','음매','소','송아지','젖소','한우','황소'];
+    for (var i = 0; i < cowKeys.length; i++) {
+      if (m.indexOf(cowKeys[i]) !== -1) {
+        var r = amiBrainTranslate(msg, 'cow');
+        if (r) return r;
+        return '소 얘기! 🐄💚 "음메", "음매" 같은 소리 알려줘! 통역해줄게~ 🐮';
+      }
+    }
+
+    // 돼지 통역
+    var pigKeys = ['꿀꿀','돼지','꾸꾸','끼이','미니피그','피그'];
+    for (var i = 0; i < pigKeys.length; i++) {
+      if (m.indexOf(pigKeys[i]) !== -1) {
+        var r = amiBrainTranslate(msg, 'pig');
+        if (r) return r;
+        return '돼지 얘기! 🐷✨ "꿀꿀", "끼이" 소리 알려줘! 통역해줄게~ 🐽';
+      }
+    }
+
+    // 오리 통역
+    var duckKeys = ['꽥꽥','오리','꽤액','뿍뿍','거위'];
+    for (var i = 0; i < duckKeys.length; i++) {
+      if (m.indexOf(duckKeys[i]) !== -1) {
+        var r = amiBrainTranslate(msg, 'duck');
+        if (r) return r;
+        return '오리 얘기! 🦆💦 "꽥꽥" 소리 알려줘! 통역해줄게~ 🐥';
+      }
+    }
+
+    // 병아리 통역
+    var chickKeys = ['삐약','병아리','짹짹','삐이','아기닭','닭'];
+    for (var i = 0; i < chickKeys.length; i++) {
+      if (m.indexOf(chickKeys[i]) !== -1) {
+        var r = amiBrainTranslate(msg, 'chick');
+        if (r) return r;
+        return '병아리 얘기! 🐥💛 "삐약삐약" 소리 알려줘! 통역해줄게~ 🐣';
+      }
+    }
+
+    // 원숭이 통역
+    var monkeyKeys = ['끼끼','원숭이','우끼끼','몽키','침팬지'];
+    for (var i = 0; i < monkeyKeys.length; i++) {
+      if (m.indexOf(monkeyKeys[i]) !== -1) {
+        var r = amiBrainTranslate(msg, 'monkey');
+        if (r) return r;
+        return '원숭이 얘기! 🐵✨ "끼끼", "우끼끼" 소리 알려줘! 통역해줄게~ 🙈';
+      }
+    }
+
+    // 염소 통역
+    var goatKeys = ['매애','염소','메에','산양','고트','양'];
+    for (var i = 0; i < goatKeys.length; i++) {
+      if (m.indexOf(goatKeys[i]) !== -1) {
+        var r = amiBrainTranslate(msg, 'goat');
+        if (r) return r;
+        return '염소 얘기! 🐐✨ "매애", "메에" 소리 알려줘! 통역해줄게~ 🏔️';
+      }
+    }
+
     // 룰 매칭
     var bestRule = null, bestScore = 0;
     for (var ri = 0; ri < AMI_RULES.length; ri++) {
@@ -113,8 +224,8 @@
     // 폴백
     var fb = [
       '음~ 아미가 아직 잘 모르는 거야! 🤔 PetCTT 기능이나 우리 아이 이야기 해줄래? 🐰💜',
-      '어려운 질문이야! 😵‍💫 "멍멍" 통역이나 기능 설명은 잘 해! 🐾✨',
-      '아미가 열심히 공부 중! 📚🐰 반려동물 통역이랑 PetCTT 안내 전문! 뭐 궁금해? 💜'
+      '어려운 질문이야! 😵‍💫 동물 8종 통역 가능! 🐶🐱🐄🐷🦆🐥🐵🐐 소리 알려줘! 🐾✨',
+      '아미가 열심히 공부 중! 📚🐰 동물 8종 통역이랑 PetCTT 안내 전문! 뭐 궁금해? 💜'
     ];
     return fb[Math.floor(Math.random() * fb.length)];
   }

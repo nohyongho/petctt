@@ -828,22 +828,25 @@ async function processDemoPayment() {
         plan_expires_at: planExpires.toISOString()
       })
     });
+    if (!orderRes.ok) console.warn('주문 저장 실패:', orderRes.status);
 
     // 쿠폰 사용 처리
     if (pgCoupon) {
-      await fetch(`${SB_URL_PG}/rest/v1/coupon_issues?id=eq.${pgCoupon.id}`, {
+      const couponRes = await fetch(`${SB_URL_PG}/rest/v1/coupon_issues?id=eq.${pgCoupon.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type':'application/json','apikey':SB_KEY_PG,'Authorization':`Bearer ${SB_KEY_PG}`,'Prefer':'return=minimal' },
         body: JSON.stringify({ is_used: true, status: 'USED', used_at: new Date().toISOString(), used_order_id: pgTid })
       });
+      if (!couponRes.ok) console.warn('쿠폰 사용 처리 실패:', couponRes.status);
     }
 
     // T9: users 테이블 plan_id 업데이트 시도
-    await fetch(`${SB_URL_PG}/rest/v1/users?id=eq.${user.id}`, {
+    const planRes = await fetch(`${SB_URL_PG}/rest/v1/users?id=eq.${user.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type':'application/json','apikey':SB_KEY_PG,'Authorization':`Bearer ${SB_KEY_PG}`,'Prefer':'return=minimal' },
       body: JSON.stringify({ plan_id: currentPlan, plan_expires_at: planExpires.toISOString() })
     });
+    if (!planRes.ok) console.warn('plan_id 업데이트 실패:', planRes.status);
 
     // localStorage에도 반영 (즉시 UI 업데이트)
     try {

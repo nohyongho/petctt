@@ -132,12 +132,9 @@ async function loginWithKakao() {
 
 // ===== 네이버 로그인 =====
 function loginWithNaver() {
-  // 네이버는 redirect 방식 → 결과는 URL 파라미터로 받음
-  var clientId = 'YOUR_NAVER_CLIENT_ID'; // 설정 필요
-  var redirectUri = encodeURIComponent(window.location.origin + '/auth/naver/callback');
-  var state = Math.random().toString(36).substring(2);
-  localStorage.setItem('naver_state', state);
-  window.location.href = 'https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=' + clientId + '&redirect_uri=' + redirectUri + '&state=' + state;
+  // 네이버 OAuth는 아직 Client ID 미설정 → 안내 메시지 표시
+  alert('네이버 로그인은 준비 중이에요! 🐰\n구글 또는 카카오 로그인을 이용해주세요~ 💜');
+  return;
 }
 
 // ===== 구글 로그인 (Supabase OAuth - 직접 redirect) =====
@@ -185,12 +182,17 @@ async function handleOAuthCallback() {
           token: accessToken,
           logged_at: new Date().toISOString()
         };
-        // DB에서 plan_id 가져오기
-        var dbUser = await syncUserFromSupabase(user.id);
-        if (dbUser) {
-          user.plan_id = dbUser.plan_id || 'free';
-        } else {
-          await upsertUser(user);
+        // DB에서 plan_id 가져오기 (실패해도 로그인은 유지)
+        try {
+          var dbUser = await syncUserFromSupabase(user.id);
+          if (dbUser) {
+            user.plan_id = dbUser.plan_id || 'free';
+          } else {
+            await upsertUser(user);
+          }
+        } catch(syncErr) {
+          console.warn('DB 동기화 실패 (로그인은 유지):', syncErr.message);
+          user.plan_id = 'free';
         }
         setUser(user);
         // URL 정리 후 이동
@@ -207,17 +209,22 @@ async function handleOAuthCallback() {
       var user = JSON.parse(decodeURIComponent(userParam));
       if (user && user.id) {
         user.logged_at = new Date().toISOString();
-        var dbUser = await syncUserFromSupabase(user.id);
-        if (dbUser) {
-          user.plan_id = dbUser.plan_id || 'free';
-        } else {
-          await upsertUser(user);
+        try {
+          var dbUser = await syncUserFromSupabase(user.id);
+          if (dbUser) {
+            user.plan_id = dbUser.plan_id || 'free';
+          } else {
+            await upsertUser(user);
+          }
+        } catch(syncErr) {
+          console.warn('DB 동기화 실패 (로그인은 유지):', syncErr.message);
+          user.plan_id = 'free';
         }
         setUser(user);
         window.history.replaceState({}, document.title, window.location.pathname);
         return user;
       }
-    } catch(e) {}
+    } catch(e) { console.error('OAuth 파라미터 파싱 오류:', e); }
   }
 
   return null;

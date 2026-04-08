@@ -160,6 +160,12 @@
     // 채팅 로그에 사용자 메시지 추가
     addChatMessage(text, 'user');
 
+    // C-2: 공간 이동 명령 우선 체크
+    if (typeof window.amiSpatialCommand === 'function' && window.amiSpatialCommand(text)) {
+      addChatMessage('🐾 이동 중...', 'ami');
+      return;
+    }
+
     // 감정 감지 + 표정 적용
     var emotion = detectEmotion(text);
     applyEmotion(emotion);

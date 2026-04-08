@@ -1112,8 +1112,8 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
       if(g('ami-fl')) g('ami-fl').setAttribute('cy',''+(103-fu*.3));
       if(g('ami-fr')) g('ami-fr').setAttribute('cy',''+(103-fu*.3));
 
-      // 자동 방구 💨
-      if(fartT > 280+Math.random()*230){
+      // 자동 방구 💨 (빈도 대폭 줄임 — 약 60초에 1번)
+      if(fartT > 3600+Math.random()*1800){
         fartT=0; doFart();
       }
       requestAnimationFrame(animLoop);
@@ -1149,7 +1149,7 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
         else              { stt='idle'; doJump(); setTimeout(doJump,400); }
 
         if(Math.random()>.75){
-          var mm=['뿡~ 💨','나 여기 있어! 🐰','안녕~! ✨','폴짝!','쿠폰 받을래? 🎟️'];
+          var mm=['나 여기 있어! 🐰','안녕~! ✨','폴짝!','쿠폰 받을래? 🎟️','🎤 말 걸어봐!','뭐 도와줄까? 💬'];
           showBubble(mm[Math.floor(Math.random()*mm.length)], 2200);
         }
       }
@@ -1317,9 +1317,9 @@ body.translated-ltr, body.translated-rtl { top: 0 !important; margin-top: 0 !imp
       clickN++;
       var r=root.getBoundingClientRect();
       for(var i=0;i<8;i++) parts.push(new Pt(r.left+r.width/2+(Math.random()-.5)*20, r.top+r.height/2,'j'));
-      if(clickN%5===0){ doFart(); doJump(); return; }
+      if(clickN%12===0){ doFart(); doJump(); return; } // 12번에 1번만 방구
       doJump(); stt='idle';
-      var msgs=['안녕!! 나 아미야~ 🐰','폴짝폴짝~! ✨','간질간질해!! 🌸','또 눌렀어? 😏','나랑 놀자! 💜','🔊버튼 누르면 목소리!','더블탭 = 채팅! 💬'];
+      var msgs=['안녕! 나 아미야~ 🐰','뭐 궁금한 거 있어? 🎤','🎤 눌러서 말해봐!','나한테 말 걸어봐~ 💬','더블탭 = 채팅! 💬','쿠폰 찾아줄까? 🎟️','오늘 기분 어때? 💜','🎤 마이크로 대화하자!'];
       var msg=msgs[Math.floor(Math.random()*msgs.length)];
       showBubble(msg, 2800);
       if(soundOn) speak(msg);

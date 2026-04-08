@@ -304,14 +304,11 @@
 
   // ===== B-4: 마이크 버튼 삽입 =====
   function injectMicButton() {
-    // 채팅 패널의 입력 영역에 마이크 버튼 추가
-    var interval = setInterval(function() {
+    // 채팅 패널의 입력 영역에 마이크 버튼 추가 (반복 체크)
+    var chatInterval = setInterval(function() {
       var sendBtn = document.getElementById('ami-chat-send');
       if (!sendBtn) return;
-      clearInterval(interval);
-
-      // 이미 있으면 스킵
-      if (document.getElementById('ami-mic-btn')) return;
+      if (document.getElementById('ami-mic-btn')) { clearInterval(chatInterval); return; }
 
       var mic = document.createElement('button');
       mic.id = 'ami-mic-btn';
@@ -322,27 +319,44 @@
         e.preventDefault();
         startListening();
       };
-
-      // 전송 버튼 앞에 삽입
       sendBtn.parentNode.insertBefore(mic, sendBtn);
+      clearInterval(chatInterval);
     }, 500);
 
-    // X/O 토글 옆에 플로팅 마이크도 추가
-    setTimeout(function() {
-      var toggle = document.getElementById('ami-toggle');
-      if (!toggle || document.getElementById('ami-float-mic')) return;
+    // 플로팅 마이크 — body에 직접 삽입 (ami-toggle 의존 제거)
+    function createFloatMic() {
+      if (document.getElementById('ami-float-mic')) return;
 
       var fmic = document.createElement('button');
       fmic.id = 'ami-float-mic';
-      fmic.style.cssText = 'position:fixed;bottom:80px;right:20px;z-index:951;width:44px;height:44px;border-radius:50%;border:2px solid rgba(16,185,129,.4);background:rgba(16,185,129,.15);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;cursor:pointer;font-size:18px;transition:all .3s;display:flex;align-items:center;justify-content:center';
+      fmic.className = 'notranslate';
+      fmic.style.cssText = 'position:fixed;bottom:80px;right:20px;z-index:951;width:48px;height:48px;border-radius:50%;border:2.5px solid rgba(16,185,129,.5);background:linear-gradient(135deg,rgba(16,185,129,.25),rgba(5,150,105,.25));backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;cursor:pointer;font-size:20px;transition:all .3s;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(16,185,129,.3)';
       fmic.innerHTML = '🎤';
       fmic.title = '아미에게 말하기';
       fmic.onclick = function(e) {
         e.preventDefault();
+        e.stopPropagation();
+        startListening();
+      };
+      // 터치도 지원
+      fmic.ontouchend = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
         startListening();
       };
       document.body.appendChild(fmic);
-    }, 1500);
+    }
+
+    // DOM 준비 후 즉시 삽입 (최대 10초 재시도)
+    var retries = 0;
+    var floatInterval = setInterval(function() {
+      retries++;
+      if (document.body && !document.getElementById('ami-float-mic')) {
+        createFloatMic();
+        clearInterval(floatInterval);
+      }
+      if (retries > 20) clearInterval(floatInterval);
+    }, 500);
   }
 
   // ===== 스타일 주입 =====

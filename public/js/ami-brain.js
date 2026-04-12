@@ -553,14 +553,63 @@
   }
 
   // ─────────────────────────────────────
-  // 7. 응답 생성
+  // 7. 응답 생성 + 라이브 대화 이어가기
   // ─────────────────────────────────────
   let lastCategory = '';
   let turnCount = 0;
-  const PREMIUM_NUDGE_INTERVAL = 5; // 5턴마다 프리미엄 자연 유도
+  const PREMIUM_NUDGE_INTERVAL = 5;
+
+  // 라이브 후속 대화 — 카테고리별 자연스러운 이어가기
+  const FOLLOW_UPS = {
+    'dance': [
+      '\n\n어때? 또 춤출까? 아님 이야기 해줄까? 🐰♪',
+      '\n\n호호~ 재밌지? "또 춤춰줘" 하면 다른 춤도 알려줄게! 💃',
+      '\n\n기분 좋아졌지? ㅋㅋ 이야기도 들려줄까? 📖🐰',
+    ],
+    'fairy-tale': [
+      '\n\n어때? 재밌었어? 🐰 "또 해줘" 하면 다른 이야기도 있어! ✨',
+      '\n\n호호~ 이 이야기 좋지? 다른 것도 들려줄까? 📖💜',
+      '\n\n교훈이 있는 이야기야! ㅋㅋ 춤도 춰볼래? 💃🐰',
+    ],
+    'greeting': [
+      '\n\n뭐 해줄까? 춤? 이야기? 아님 통역? 🐰✨',
+    ],
+  };
+
+  // 감사/긍정 반응 — 코믹한 후속 대화
+  const POSITIVE_REACTIONS = [
+    '헤헤~^^ 아미가 도움이 됐구나! 🐰💕\n기분 좋아~! 또 뭐 해줄까?\n춤? 이야기? 통역? 뭐든 해줄게! ✨',
+    '우와~ 칭찬이다! 🐰💜 아미 기분 최고!\n보답으로 춤 한 번 더? 💃 아님 이야기? 📖',
+    '고마워!! 🐰✨ 아미 눈물 찔끔..ㅠㅠ\n감동이야! 또 재밌는 거 해줄까? 뭐든 말해! 💕',
+    '엉엉! 그런 말 하면 아미 신나서\n또 춤추고 싶어지잖아~! 💃🐰♪\n뭐 더 해줄까? ✨',
+  ];
+
+  // 한 번 더/또 요청 패턴
+  const AGAIN_KEYWORDS = ['또', '다시', '한 번 더', '한번 더', '더', '또 해', '또해', '또 춰', '또춰'];
 
   function generateResponse(msg) {
     turnCount++;
+    var m = msg.toLowerCase().replace(/\s+/g, '');
+
+    // 감사/긍정 반응 (코믹하게!)
+    var positiveKws = ['고마워', '고맙', '감사', '좋아', '최고', '사랑', '잘했', '대박', '우와', '멋져', '귀여'];
+    if (positiveKws.some(function(kw) { return m.includes(kw); })) {
+      triggerAmiDance();
+      return POSITIVE_REACTIONS[Math.floor(Math.random() * POSITIVE_REACTIONS.length)];
+    }
+
+    // "또 해줘" → 이전 카테고리 반복
+    if (AGAIN_KEYWORDS.some(function(kw) { return m.includes(kw.replace(/\s+/g, '')); })) {
+      if (lastCategory === 'dance' || lastCategory === 'fairy-tale') {
+        var againRule = RESPONSE_RULES.find(function(r) { return r.category === lastCategory; });
+        if (againRule) {
+          triggerAmiDance();
+          var againResp = againRule.responses[Math.floor(Math.random() * againRule.responses.length)];
+          return againResp + '\n\n호호~ 아미 레퍼토리 무한이야! 🐰♪';
+        }
+      }
+    }
+
     const rule = findBestMatch(msg);
 
     if (rule) {
@@ -579,6 +628,12 @@
         triggerAmiDance();
       }
 
+      // 라이브 후속 대화 추가 (춤/이야기 카테고리)
+      var followUp = FOLLOW_UPS[rule.category];
+      if (followUp) {
+        return resp + followUp[Math.floor(Math.random() * followUp.length)];
+      }
+
       // 프리미엄 자연 유도 (N턴마다)
       if (turnCount % PREMIUM_NUDGE_INTERVAL === 0 && rule.category !== 'premium') {
         return resp + '\n\n💡 참! 프리미엄이면 우리 아이 전용 분석도 돼~ 궁금하면 "프리미엄" 이라고 해봐! 💎';
@@ -587,12 +642,12 @@
       return resp;
     }
 
-    // 매칭 실패 — 폴백 응답
+    // 매칭 실패 — 코믹 폴백 응답
     const fallbacks = [
-      '음~ 아미가 아직 잘 모르는 거야! 🤔 PetCTT 기능이나 우리 아이 이야기 해줄래? 🐰💜',
-      '어려운 질문이야! 😵‍💫 아미는 반려동물 전문이야~ 동물 8종 통역 가능! 소리나 기능 물어봐! 🐾✨',
-      '그건 아미한테 좀 어려워~ 🙈 대신 이건 어때?\n🐶멍멍 🐱야옹 🐄음메 🐷꿀꿀\n🦆꽥꽥 🐥삐약 🐵끼끼 🐐매애\n❓ "PetCTT" — 서비스 소개! 💜',
-      '아미가 열심히 공부 중이야! 📚🐰 동물 8종 통역이랑 PetCTT 안내 전문! 뭐 궁금해? 💜'
+      '음~ 아미가 아직 잘 모르는 거야! 🤔\nPetCTT 기능이나 우리 아이 이야기 해줄래?\n아님 "춤춰줘" 하면 춤도 춰! 🐰💃',
+      '어려운 질문이야! 😵 아미는 반려동물 전문이야~\n동물 8종 통역 가능! 소리나 기능 물어봐!\n아님 "이야기해줘" 하면 동화도 들려줄게! 🐾📖',
+      '그건 아미한테 좀 어려워~ 🙈 대신 이건 어때?\n🐶멍멍 🐱야옹 🐄음메 🐷꿀꿀\n🦆꽥꽥 🐥삐약 🐵끼끼 🐐매애\n💃 "춤춰줘" 📖 "이야기해줘" 도 돼! 💜',
+      '아미가 열심히 공부 중이야! 📚🐰\n동물 8종 통역이랑 PetCTT 안내 전문!\n심심하면 "춤춰줘" 해봐! 💃✨'
     ];
 
     return fallbacks[Math.floor(Math.random() * fallbacks.length)];

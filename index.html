@@ -332,6 +332,48 @@
 #ami-dance-btn:hover{transform:scale(1.18);border-color:#ffb3d9;background:rgba(255,150,210,.18)}
 #ami-dance-btn.ami-act{background:rgba(255,180,50,.2);border-color:#ffab40;color:#ffab40}
 
+/* 2026-04-29: AIRCTT 펫라이프 진입 CTA — 검증된 강점 전면 배치 (PetCTT 메인 → AIRCTT 펫라이프 브랜드 허브 ↔ 실사용 엔진 연결) */
+.hero-petlife-cta{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;margin:0 auto 20px;max-width:480px;
+  background:linear-gradient(135deg,rgba(110,231,183,0.88),rgba(52,211,153,0.96));
+  backdrop-filter:blur(10px) saturate(180%);
+  -webkit-backdrop-filter:blur(10px) saturate(180%);
+  border:1px solid rgba(255,255,255,0.45);
+  border-radius:16px;
+  box-shadow:0 4px 16px rgba(16,185,129,0.28),inset 0 1px 0 rgba(255,255,255,0.55);
+  text-decoration:none;color:#fff;
+  transition:transform .15s,box-shadow .15s;
+}
+.hero-petlife-cta:hover,.hero-petlife-cta:focus{
+  transform:translateY(-1px);
+  box-shadow:0 6px 20px rgba(16,185,129,0.38),inset 0 1px 0 rgba(255,255,255,0.6);
+}
+.hero-petlife-cta:active{transform:translateY(0)}
+.hero-petlife-cta .led-dot{
+  width:9px;height:9px;border-radius:50%;
+  background:#ef4444;flex-shrink:0;
+  box-shadow:0 0 0 2px rgba(239,68,68,0.3),0 0 8px rgba(239,68,68,0.7);
+  animation:hpc-led-blink 1.6s ease-in-out infinite;
+}
+@keyframes hpc-led-blink{
+  0%,60%,100%{opacity:1;box-shadow:0 0 0 2px rgba(239,68,68,0.3),0 0 10px rgba(239,68,68,0.8)}
+  30%{opacity:0.35;box-shadow:0 0 0 0 rgba(239,68,68,0)}
+}
+.hero-petlife-cta .cta-content{display:flex;flex-direction:column;flex:1;gap:2px;min-width:0;text-align:left}
+.hero-petlife-cta .cta-main{font-size:0.95rem;font-weight:700;line-height:1.3;letter-spacing:-0.01em}
+.hero-petlife-cta .cta-sub{font-size:0.74rem;opacity:0.92;line-height:1.3;font-weight:500}
+.hero-petlife-cta .cta-arrow{font-size:1.25rem;font-weight:700;opacity:0.9;flex-shrink:0;line-height:1}
+@media (max-width:480px){
+  .hero-petlife-cta{padding:10px 14px;gap:10px;margin-bottom:18px}
+  .hero-petlife-cta .cta-main{font-size:0.88rem}
+  .hero-petlife-cta .cta-sub{font-size:0.7rem}
+}
+@media (prefers-reduced-motion:reduce){
+  .hero-petlife-cta .led-dot{animation:none}
+  .hero-petlife-cta{transition:none}
+}
+
 </style>
 <script>
 // 페이지 로드시 번역 상태 복원
@@ -416,6 +458,19 @@ iframe.goog-te-banner-frame{display:none!important;}
 
                         <!-- ━━━ HERO ━━━ -->
                         <section class="hero-section">
+                                    <!-- 2026-04-29: AIRCTT 펫라이프 진입 CTA — 검증된 강점(펫동반 맛집 지도) 전면 배치 -->
+                                    <a href="https://www.aircto.com/consumer/pet-life?category=restaurant"
+                                       target="_blank"
+                                       rel="noopener"
+                                       class="hero-petlife-cta"
+                                       aria-label="내 주변 펫동반 맛집 지도 새 탭으로 열기">
+                                                  <span class="led-dot" aria-hidden="true"></span>
+                                                  <span class="cta-content">
+                                                              <span class="cta-main">🍽️ 내 주변 펫동반 맛집 지도</span>
+                                                              <span class="cta-sub">AIRCTT 검증 매장 · 바로 길찾기</span>
+                                                  </span>
+                                                  <span class="cta-arrow" aria-hidden="true">→</span>
+                                    </a>
                                     <div class="hero-emoji">🐾</div>
                                     <h1 class="hero-title" data-i18n="hero.title">반려동물과 대화하세요</h1>
                                     <p class="hero-subtitle" data-i18n="hero.subtitle">AI가 반려동물의 마음을 통역합니다</p>

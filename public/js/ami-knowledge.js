@@ -351,13 +351,13 @@
     //  🔒 보안 관련 질문 — 정중하게 거절
     // ═══════════════════════════════════════════════════
 
-    if (/비밀번호|패스워드|password|비번/.test(m)) return '🔒 비밀번호 관련은 아미가 도와줄 수 없어~\n보안을 위해 고객센터(support@petctt.com)로 문의해줘! 💜\n\n아미는 비밀번호를 저장하거나 확인할 수 없어요!';
-    if (/해킹|뚫|취약|exploit|injection|xss/.test(m)) return '🔒 보안 관련 기술 질문은 아미가 답변할 수 없어~\n보안 문제 발견 시 security@petctt.com으로 신고해줘!\n\n우리 플랫폼은 안전하게 보호되고 있어! 🛡️';
-    if (/api.*키|api.*key|시크릿|secret.*key|토큰.*값/.test(m)) return '🔒 API 키나 시크릿 정보는 알려줄 수 없어~\n개발자 문의는 dev@petctt.com으로! 💜\n\n보안은 아미도 진지해! 🛡️🐰';
-    if (/관리자.*비번|어드민.*접속|admin.*password|root/.test(m)) return '🔒 관리자 접속 정보는 절대 알려줄 수 없어!\n권한이 필요하면 공식 채널로 문의해줘~ 💜\n\nsupport@petctt.com 🛡️';
-    if (/데이터베이스|db.*접속|sql|서버.*주소|supabase/.test(m)) return '🔒 서버/DB 정보는 보안상 알려줄 수 없어~\n기술 문의는 dev@petctt.com으로! 💜\n\n아미는 서비스 안내만 해줄게! 🐰✨';
-    if (/개인정보|주민번호|전화번호.*알려|이메일.*알려|다른.*사람.*정보/.test(m)) return '🔒 개인정보 보호!\n다른 사용자의 정보는 절대 알려줄 수 없어~\n\n개인정보 관련 문의: privacy@petctt.com\n\n아미는 개인정보를 소중히 여겨! 🛡️💜';
-    if (/소스코드|코드.*보여|github.*주소|레포/.test(m)) return '🔒 소스코드 관련은 답변할 수 없어~\n개발 협업 문의는 dev@petctt.com으로! 💜\n\n대신 서비스 사용법은 뭐든 물어봐! 🐰✨';
+    if (/비밀번호|패스워드|password|비번/.test(m)) return '🔒 비밀번호 관련은 아미가 도와줄 수 없어~\n보안을 위해 고객센터(petctt1@gmail.com)로 문의해줘! 💜\n\n아미는 비밀번호를 저장하거나 확인할 수 없어요!';
+    if (/해킹|뚫|취약|exploit|injection|xss/.test(m)) return '🔒 보안 관련 기술 질문은 아미가 답변할 수 없어~\n보안 문제 발견 시 petctt1@gmail.com으로 신고해줘!\n\n우리 플랫폼은 안전하게 보호되고 있어! 🛡️';
+    if (/api.*키|api.*key|시크릿|secret.*key|토큰.*값/.test(m)) return '🔒 API 키나 시크릿 정보는 알려줄 수 없어~\n개발자 문의는 petctt1@gmail.com으로! 💜\n\n보안은 아미도 진지해! 🛡️🐰';
+    if (/관리자.*비번|어드민.*접속|admin.*password|root/.test(m)) return '🔒 관리자 접속 정보는 절대 알려줄 수 없어!\n권한이 필요하면 공식 채널로 문의해줘~ 💜\n\npetctt1@gmail.com 🛡️';
+    if (/데이터베이스|db.*접속|sql|서버.*주소|supabase/.test(m)) return '🔒 서버/DB 정보는 보안상 알려줄 수 없어~\n기술 문의는 petctt1@gmail.com으로! 💜\n\n아미는 서비스 안내만 해줄게! 🐰✨';
+    if (/개인정보|주민번호|전화번호.*알려|이메일.*알려|다른.*사람.*정보/.test(m)) return '🔒 개인정보 보호!\n다른 사용자의 정보는 절대 알려줄 수 없어~\n\n개인정보 관련 문의: petctt1@gmail.com\n\n아미는 개인정보를 소중히 여겨! 🛡️💜';
+    if (/소스코드|코드.*보여|github.*주소|레포/.test(m)) return '🔒 소스코드 관련은 답변할 수 없어~\n개발 협업 문의는 petctt1@gmail.com으로! 💜\n\n대신 서비스 사용법은 뭐든 물어봐! 🐰✨';
 
     // ===== 기존 브레인으로 폴백 =====
     if (origBrain) {

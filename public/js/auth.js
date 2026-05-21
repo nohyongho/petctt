@@ -104,7 +104,7 @@ async function loginWithKakao() {
                 id: 'kakao_' + res.id,
                 email: kakaoAccount.email || '',
                 name: profile.nickname || '카카오 사용자',
-                picture: profile.profile_image_url || '',
+                picture: (profile.profile_image_url || '').replace(/^http:\/\//i, 'https://'),
                 provider: 'kakao',
                 plan_id: 'free',
                 token: authObj.access_token,

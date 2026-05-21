@@ -2960,6 +2960,33 @@
                             console.warn('[STT] ⚠ 일치하는 음성 패턴 없음');
                         };
 
+                        // === 진단 dump: recognition 객체 상태 ===
+                        console.log('[STT] 🔬 recognition 객체:', recognition);
+                        console.log('[STT] 🔬 설정: lang=', recognition.lang,
+                            ', continuous=', recognition.continuous,
+                            ', interimResults=', recognition.interimResults,
+                            ', maxAlternatives=', recognition.maxAlternatives);
+                        console.log('[STT] 🔬 위치: protocol=', location.protocol,
+                            ', host=', location.host);
+
+                        // === getUserMedia 단독 사전 테스트 (마이크 접근 가능한지 확인) ===
+                        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                            navigator.mediaDevices.getUserMedia({ audio: true })
+                                .then(function (stream) {
+                                    console.log('[STT] 🎤 getUserMedia 성공 — 마이크 접근 OK');
+                                    console.log('[STT] 🎤 트랙:', stream.getAudioTracks().map(function(t){
+                                        return { label: t.label, enabled: t.enabled, muted: t.muted, state: t.readyState };
+                                    }));
+                                    // 테스트용으로만 열었으니 즉시 종료
+                                    stream.getTracks().forEach(function(t){ t.stop(); });
+                                })
+                                .catch(function (err) {
+                                    console.error('[STT] 🎤 getUserMedia 실패:', err.name, err.message);
+                                });
+                        } else {
+                            console.warn('[STT] 🎤 navigator.mediaDevices.getUserMedia 미지원');
+                        }
+
                         // 핸들러 등록 후 start
                         try {
                             recognition.start();
@@ -4243,7 +4270,9 @@
                 success: function(authObj) {
                     Kakao.API.request({ url:'/v2/user/me',
                         success: function(res) {
-                            setUnifiedAuth({ id:String(res.id), email:res.kakao_account?.email||'user@kakao.com', name:res.properties?.nickname||'카카오사용자', avatar:res.properties?.profile_image||'', provider:'kakao', token:authObj.access_token });
+                            var rawAvatar = res.properties?.profile_image || '';
+                            var avatar = rawAvatar.replace(/^http:\/\//i, 'https://');
+                            setUnifiedAuth({ id:String(res.id), email:res.kakao_account?.email||'user@kakao.com', name:res.properties?.nickname||'카카오사용자', avatar:avatar, provider:'kakao', token:authObj.access_token });
                         },
                         fail: function() { setUnifiedAuth({ id:'kakao', email:'user@kakao.com', name:'카카오사용자', avatar:'', provider:'kakao', token:authObj.access_token }); }
                     });

@@ -4272,7 +4272,53 @@
                         success: function(res) {
                             var rawAvatar = res.properties?.profile_image || '';
                             var avatar = rawAvatar.replace(/^http:\/\//i, 'https://');
-                            setUnifiedAuth({ id:String(res.id), email:res.kakao_account?.email||'user@kakao.com', name:res.properties?.nickname||'카카오사용자', avatar:avatar, provider:'kakao', token:authObj.access_token });
+                            var nickname = res.properties?.nickname || '카카오사용자';
+                            var email = res.kakao_account?.email || 'user@kakao.com';
+                            var kakaoId = String(res.id);
+
+                            // PetCTT 로컬 세션 박제
+                            setUnifiedAuth({ id:kakaoId, email:email, name:nickname, avatar:avatar, provider:'kakao', token:authObj.access_token });
+
+                            // 🌟 AIRCTT Identity Federation 동기화 박제 (2026-05-23 박제)
+                            // 백엔드 /api/auth/sync-kakao → AIRCTT users 테이블 자동 박제
+                            // 이로써 petctt.com 사용자가 airctt.com에서 같은 user.id 인식 = SSO 박제
+                            try {
+                                fetch('https://www.airctt.com/api/auth/sync-kakao', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        kakao_id: kakaoId,
+                                        email: email,
+                                        nickname: nickname,
+                                        profile_image_url: avatar
+                                    })
+                                }).then(function(r) {
+                                    return r.ok ? r.json() : null;
+                                }).then(function(syncRes) {
+                                    if (syncRes && syncRes.user_id) {
+                                        // AIRCTT user_id를 로컬에도 박제 (다음 SSO에 활용)
+                                        try {
+                                            localStorage.setItem('airctt_user_id', syncRes.user_id);
+                                            localStorage.setItem('airctt_sync_action', syncRes.sync_action);
+                                            localStorage.setItem('airctt_synced_at', new Date().toISOString());
+                                        } catch(_) {}
+
+                                        // 아미 초지능 NPC 환영 메시지 (가족 헌장 5번 감동 박제)
+                                        if (typeof showToast === 'function') {
+                                            var msg = syncRes.sync_action === 'created'
+                                                ? '🐰 우주대스타즈 가족 환영! 아미가 인사하러 갈게~^^ 💜'
+                                                : '🐰 다시 만나서 반가워! 아미가 보고 싶었어~^^ 💜';
+                                            showToast(msg, 'success');
+                                        }
+                                        console.log('[AIRCTT Federation] 동기화 박제 완료:', syncRes);
+                                    }
+                                }).catch(function(err) {
+                                    // sync 실패해도 로그인 자체는 성공 — best effort
+                                    console.warn('[AIRCTT Federation] sync 실패 (로그인 정상):', err);
+                                });
+                            } catch(syncErr) {
+                                console.warn('[AIRCTT Federation] 동기화 시도 실패:', syncErr);
+                            }
                         },
                         fail: function() { setUnifiedAuth({ id:'kakao', email:'user@kakao.com', name:'카카오사용자', avatar:'', provider:'kakao', token:authObj.access_token }); }
                     });

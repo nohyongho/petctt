@@ -63,7 +63,6 @@
             /* Allow canvas container to show */
             color: var(--text);
             min-height: 100vh;
-            min-height: 100dvh; /* 모바일 주소창 높이 변화로 인한 점프(떨림) 완화 */
             line-height: 1.6;
             overflow-x: hidden;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
@@ -140,6 +139,7 @@
 
         .logo-icon {
             font-size: 2rem;
+            animation: bounce 2s ease-in-out infinite;
         }
 
         @keyframes bounce {
@@ -1452,20 +1452,14 @@
     <header>
         <div class="container">
             <div class="header-content">
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <button onclick="goBack()" aria-label="뒤로가기" title="뒤로가기" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#fff; width:36px; height:36px; border-radius:10px; font-size:18px; cursor:pointer; line-height:1; flex:0 0 auto;">←</button>
-                    <a href="../index.html" class="logo" style="text-decoration:none; color:inherit; cursor:pointer;" aria-label="홈으로 이동" title="홈으로">
-                        <span class="logo-icon">🐾</span>
-                        <span class="logo-text">PetCTT</span>
-                    </a>
+                <div class="logo">
+                    <span class="logo-icon">🐾</span>
+                    <span class="logo-text">PetCTT</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
                                         <div id="auth-slot" style="position:relative;"></div>
                                         <div data-sub-dropdown style="display:inline-block"></div>
-                                        <div style="display:inline-flex; align-items:center; gap:4px;" title="페이지 언어 번역 (Language)">
-                                            <span aria-hidden="true" style="font-size:15px; line-height:1;">🌐</span>
-                                            <div id="google_translate_element" style="display:inline-block; min-width:88px;"></div>
-                                        </div>
+                                        <div id="google_translate_element" style="display:inline-block"></div>
                     <div class="status-badge ready" id="statusBadge">
                         <span class="status-dot"></span>
                         <span id="statusText" data-i18n="app.liveReady">LIVE 준비</span>
@@ -1475,11 +1469,6 @@
             </div>
         </div>
     </header>
-
-    <script>
-        // 뒤로가기: 직전 화면이 있으면 이전으로, 직접 진입(referrer 없음)이면 홈으로
-        function goBack(){ if (document.referrer && window.history.length > 1) { window.history.back(); } else { window.location.href = '../index.html'; } }
-    </script>
 
     <!-- 메인 -->
     <main class="container">
@@ -1502,7 +1491,7 @@
                 <div class="section-title" data-i18n="app.selectAnimal">🐾 통역할 동물을 선택하세요</div>
                 <div class="animal-selector" style="flex-direction: column; align-items: center; gap: 16px;">
                     <!-- 선택된 동물 큰 얼굴 -->
-                    <div id="selectedAnimalFace" style="font-size: 5rem;">🐶</div>
+                    <div id="selectedAnimalFace" style="font-size: 5rem; animation: bounce 2s ease-in-out infinite;">🐶</div>
                     <div id="selectedAnimalName" style="font-size: 1.2rem; font-weight: 700; color: var(--primary-light);">강아지</div>
                     
                     <!-- 버튼들 -->
@@ -3788,7 +3777,6 @@
             camera.position.z = 5;
 
             renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); // 레티나 별 입자 반짝임(떨림) 방지
             renderer.setSize(window.innerWidth, window.innerHeight);
             container.appendChild(renderer.domElement);
 
@@ -3845,6 +3833,9 @@
             if (particles) {
                 particles.rotation.x += 0.0002;
                 particles.rotation.y += 0.0004;
+
+                particles.rotation.x += mouseY * 0.00002;
+                particles.rotation.y += mouseX * 0.00004;
             }
 
             if (renderer && scene && camera) {
@@ -3852,12 +3843,12 @@
             }
         }
 
-        // 마우스 반응형 회전 제거: 매 프레임 누적되어 배경이 한쪽으로 쏠리며 떨리던 원인
-        let _lastVW = window.innerWidth;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX - window.innerWidth / 2;
+            mouseY = e.clientY - window.innerHeight / 2;
+        });
+
         window.addEventListener('resize', () => {
-            // 모바일 주소창 show/hide 로 '높이'만 바뀔 때는 무시 → 스크롤 중 배경 출렁임(떨림) 방지
-            if (window.innerWidth === _lastVW) return;
-            _lastVW = window.innerWidth;
             if (camera && renderer) {
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
